@@ -13646,22 +13646,102 @@ var casino_slots_display_lbl: Label = null
 var casino_slots_result_lbl: Label = null
 var casino_dice_display_lbl: Label = null
 var casino_dice_result_lbl: Label = null
-var current_dice_bet_amount: int = 100
+var current_dice_bet_amount: int = 25
+var casino_subtitle_lbl: Label = null
+var casino_scratch_btn: Button = null
+var casino_slots_btn: Button = null
+var casino_dice_bet_btns: Array[Button] = []
+var casino_dice_roll_btns: Array[Button] = []
+
+
+func _sync_casino_ui() -> void:
+	if is_instance_valid(casino_subtitle_lbl):
+		casino_subtitle_lbl.text = "Cash: $%s  •  Dice, Slots & Scratchcards" % _format_number(PlayerData.money)
+
+	var funds: int = PlayerData.get_available_funds()
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	# 1. Scratchcard button ($25)
+	if is_instance_valid(casino_scratch_btn):
+		if funds >= 25:
+			casino_scratch_btn.disabled = false
+			casino_scratch_btn.modulate = Color.WHITE
+			casino_scratch_btn.text = "🎟️ Scratch Ticket ($25)"
+			casino_scratch_btn.tooltip_text = "Scratch a card for $25 to win up to $500!"
+		else:
+			casino_scratch_btn.disabled = true
+			casino_scratch_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			casino_scratch_btn.text = "🎟️ Scratch Ticket ($25) - Insufficient Funds"
+			casino_scratch_btn.tooltip_text = "Requires $25 cash (You have $%s)." % _format_number(funds)
+
+	# 2. Slots button ($50)
+	if is_instance_valid(casino_slots_btn):
+		if funds >= 50:
+			casino_slots_btn.disabled = false
+			casino_slots_btn.modulate = Color.WHITE
+			casino_slots_btn.text = "🎰 Spin Reels ($50)"
+			casino_slots_btn.tooltip_text = "Spin 3 reels for $50 to win up to $5,000 jackpot!"
+		else:
+			casino_slots_btn.disabled = true
+			casino_slots_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			casino_slots_btn.text = "🎰 Spin Reels ($50) - Insufficient Funds"
+			casino_slots_btn.tooltip_text = "Requires $50 cash (You have $%s)." % _format_number(funds)
+
+	# 3. Dice Bet Buttons
+	for b in casino_dice_bet_btns:
+		if is_instance_valid(b):
+			var b_amt: int = int(b.get_meta("bet_amount", 25))
+			var is_active: bool = (b_amt == current_dice_bet_amount)
+			var b_style := StyleBoxFlat.new()
+			b_style.set_corner_radius_all(8)
+			b_style.set_border_width_all(2)
+			if is_active:
+				b_style.bg_color = Color("#b45309") if is_light else Color("#d97706")
+				b_style.border_color = Color("#fde047")
+				b.add_theme_color_override("font_color", Color("#ffffff"))
+			else:
+				b_style.bg_color = Color("#e2e8f0") if is_light else Color("#1e293b")
+				b_style.border_color = Color("#64748b") if is_light else Color("#475569")
+				b.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#cbd5e1"))
+			b.add_theme_stylebox_override("normal", b_style)
+			b.add_theme_stylebox_override("hover", b_style)
+			b.add_theme_stylebox_override("pressed", b_style)
+
+	# 4. Dice Roll Buttons
+	for btn_opt in casino_dice_roll_btns:
+		if is_instance_valid(btn_opt):
+			var opt_label: String = btn_opt.get_meta("opt_label", "")
+			if funds >= current_dice_bet_amount:
+				btn_opt.disabled = false
+				btn_opt.modulate = Color.WHITE
+				btn_opt.text = opt_label
+				btn_opt.tooltip_text = "Wager $%d on this outcome." % current_dice_bet_amount
+			else:
+				btn_opt.disabled = true
+				btn_opt.modulate = Color(0.6, 0.6, 0.6, 0.65)
+				btn_opt.text = "%s (Need $%d)" % [opt_label, current_dice_bet_amount]
+				btn_opt.tooltip_text = "Requires $%d cash (You have $%s)." % [current_dice_bet_amount, _format_number(funds)]
+
 
 func _show_casino_modal() -> void:
 	if casino_modal_overlay != null and is_instance_valid(casino_modal_overlay):
 		casino_modal_overlay.queue_free()
 
-	if PlayerData.last_casino_age != PlayerData.age:
-		PlayerData.last_casino_age = PlayerData.age
-		PlayerData.casino_plays_this_year = 0
+	casino_dice_bet_btns.clear()
+	casino_dice_roll_btns.clear()
 
-	var max_plays := 1
-	var plays_left := maxi(0, max_plays - PlayerData.casino_plays_this_year)
-	var casino_locked: bool = plays_left <= 0
+	var funds: int = PlayerData.get_available_funds()
+	if funds < current_dice_bet_amount:
+		if funds >= 25:
+			current_dice_bet_amount = 25
+		elif funds >= 10:
+			current_dice_bet_amount = 10
+		else:
+			current_dice_bet_amount = 10
 
-	var modal := _create_cyber_modal("🎰 THE NEON PALACE CASINO", "Cash: $%s  •  Dice, Slots & Scratchcards (Plays left: %d/%d)" % [_format_number(PlayerData.money), plays_left, max_plays], Color("#f59e0b"))
+	var modal := _create_cyber_modal("🎰 THE NEON PALACE CASINO", "Cash: $%s  •  Dice, Slots & Scratchcards" % _format_number(PlayerData.money), Color("#f59e0b"))
 	casino_modal_overlay = modal.overlay
+	casino_subtitle_lbl = modal.subtitle
 	var list: VBoxContainer = modal.list
 
 	# GAME 1: Cyber Scratchcard ($25)
@@ -13690,46 +13770,46 @@ func _show_casino_modal() -> void:
 	casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_scratch.add_child(casino_scratch_result_lbl)
 
-	var scratch_btn_text := "Scratch Ticket ($25) (Limit Reached)" if casino_locked else "Scratch Ticket ($25)"
-	var btn_scratch := _create_cyber_button(scratch_btn_text, Color("#f59e0b"), func():
-		if PlayerData.casino_plays_this_year >= 1:
-			return
-		if PlayerData.get_available_funds() >= 25:
-			PlayerData.debit_funds(25)
-			PlayerData.casino_plays_this_year += 1
-			# 18% winning chance; expected gross return $23.76 on a $25 ticket.
-			if randf() < 0.18:
-				var roll := randf()
-				var win := 50
-				var sym := "💎"
-				if roll < 0.12:
-					win = 500
-					sym = "7️⃣"
-				elif roll < 0.40:
-					win = 150
-					sym = "🔔"
-
-				PlayerData.money += win
-				casino_scratch_result_lbl.text = "[ %s | %s | %s ] -> WINNER! You won $%d!" % [sym, sym, sym, win]
-				casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#22c55e"))
-				add_life_event("You scratched a winning lottery ticket and cashed out $%d!" % win, "finance")
-			else:
-				var symbols := ["🍒", "🔔", "💀", "⭐", "🍋"]
-				symbols.shuffle()
-				casino_scratch_result_lbl.text = "[ %s | %s | %s ] -> No match. Better luck next time!" % [symbols[0], symbols[1], symbols[2]]
-				casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#f87171"))
-			update_ui()
-			SaveManager.save_game()
-			_show_casino_modal()
-		else:
-			casino_scratch_result_lbl.text = "Insufficient funds for $25 scratchcard."
+	casino_scratch_btn = _create_cyber_button("🎟️ Scratch Ticket ($25)", Color("#f59e0b"), func():
+		_trigger_haptic(30)
+		if PlayerData.get_available_funds() < 25:
+			casino_scratch_result_lbl.text = "Insufficient funds for $25 scratchcard! (Cash: $%s)" % _format_number(PlayerData.get_available_funds())
 			casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#ef4444"))
+			_sync_casino_ui()
+			return
+
+		PlayerData.debit_funds(25)
+		PlayerData.casino_plays_this_year += 1
+
+		# 22% winning chance
+		if randf() < 0.22:
+			var roll := randf()
+			var win := 50
+			var sym := "💎"
+			if roll < 0.10:
+				win = 500
+				sym = "7️⃣"
+			elif roll < 0.35:
+				win = 150
+				sym = "🔔"
+
+			PlayerData.money += win
+			casino_scratch_result_lbl.text = "[ %s | %s | %s ] ➜ WINNER! You won $%d!" % [sym, sym, sym, win]
+			casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#22c55e"))
+			add_life_event("You scratched a winning lottery ticket and cashed out $%d!" % win, "finance")
+		else:
+			var symbols := ["🍒", "🔔", "💀", "⭐", "🍋", "7️⃣"]
+			symbols.shuffle()
+			if symbols[0] == symbols[1] and symbols[1] == symbols[2]:
+				symbols[2] = "💀"
+			casino_scratch_result_lbl.text = "[ %s | %s | %s ] ➜ No match. Better luck next time!" % [symbols[0], symbols[1], symbols[2]]
+			casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#f87171"))
+
+		update_ui()
+		SaveManager.save_game()
+		_sync_casino_ui()
 	)
-	if casino_locked:
-		btn_scratch.disabled = true
-		btn_scratch.modulate = Color(0.6, 0.6, 0.6, 0.65)
-		btn_scratch.tooltip_text = "Annual gaming limit reached (1 play per year). Come back next year!"
-	v_scratch.add_child(btn_scratch)
+	v_scratch.add_child(casino_scratch_btn)
 	list.add_child(card_scratch)
 
 	# GAME 2: Neon 3-Reel Slots ($50)
@@ -13765,68 +13845,64 @@ func _show_casino_modal() -> void:
 	casino_slots_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_slots.add_child(casino_slots_result_lbl)
 
-	var spin_btn_text := "Spin Reels ($50) (Limit Reached)" if casino_locked else "Spin Reels ($50)"
-	var btn_spin := _create_cyber_button(spin_btn_text, Color("#f59e0b"), func():
-		if PlayerData.casino_plays_this_year >= 1:
-			return
-		if PlayerData.get_available_funds() >= 50:
-			PlayerData.debit_funds(50)
-			PlayerData.casino_plays_this_year += 1
-			var syms := ["🍒", "🔔", "💎", "7️⃣", "💀"]
-			# 4% chance of 3-match; expected gross return $46 on a $50 spin.
-			if randf() < 0.04:
-				var r := randf()
-				var win_sym := "🍒"
-				var payout := 180
-				if r < 0.08:
-					win_sym = "7️⃣"
-					payout = 5000
-				elif r < 0.28:
-					win_sym = "💎"
-					payout = 1200
-				elif r < 0.60:
-					win_sym = "🔔"
-					payout = 450
-				elif r < 0.70:
-					win_sym = "💀"
-					payout = 0
-
-				PlayerData.money += payout
-				casino_slots_display_lbl.text = "[ %s | %s | %s ]" % [win_sym, win_sym, win_sym]
-				if payout > 0:
-					casino_slots_result_lbl.text = "JACKPOT! Three matching %s pays $%d!" % [win_sym, payout]
-					casino_slots_result_lbl.add_theme_color_override("font_color", Color("#22c55e"))
-					add_life_event("You hit 3 %s on the slot machine and won $%d!" % [win_sym, payout], "finance")
-				else:
-					casino_slots_result_lbl.text = "Cursed Skull Spin! No payout."
-					casino_slots_result_lbl.add_theme_color_override("font_color", Color("#f87171"))
-			else:
-				var s1: String = str(syms.pick_random())
-				var s2: String = str(syms.pick_random())
-				var s3: String = str(syms.pick_random())
-				if s1 == s2 and s2 == s3:
-					s3 = "🍒" if s1 != "🍒" else "🔔"
-				casino_slots_display_lbl.text = "[ %s | %s | %s ]" % [s1, s2, s3]
-				if s1 == s2 or s2 == s3 or s1 == s3:
-					PlayerData.money += 25
-					casino_slots_result_lbl.text = "Pair match! Consolation prize: $25."
-					casino_slots_result_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
-				else:
-					casino_slots_result_lbl.text = "No match. Spin again!"
-					casino_slots_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
-
-			update_ui()
-			SaveManager.save_game()
-			_show_casino_modal()
-		else:
-			casino_slots_result_lbl.text = "Insufficient funds for $50 spin."
+	casino_slots_btn = _create_cyber_button("🎰 Spin Reels ($50)", Color("#f59e0b"), func():
+		_trigger_haptic(35)
+		if PlayerData.get_available_funds() < 50:
+			casino_slots_result_lbl.text = "Insufficient funds for $50 spin! (Cash: $%s)" % _format_number(PlayerData.get_available_funds())
 			casino_slots_result_lbl.add_theme_color_override("font_color", Color("#ef4444"))
+			_sync_casino_ui()
+			return
+
+		PlayerData.debit_funds(50)
+		PlayerData.casino_plays_this_year += 1
+
+		var syms := ["🍒", "🔔", "💎", "7️⃣", "💀"]
+		if randf() < 0.08:
+			var r := randf()
+			var win_sym := "🍒"
+			var payout := 180
+			if r < 0.10:
+				win_sym = "7️⃣"
+				payout = 5000
+			elif r < 0.35:
+				win_sym = "💎"
+				payout = 1200
+			elif r < 0.70:
+				win_sym = "🔔"
+				payout = 450
+			else:
+				win_sym = "💀"
+				payout = 0
+
+			PlayerData.money += payout
+			casino_slots_display_lbl.text = "[ %s | %s | %s ]" % [win_sym, win_sym, win_sym]
+			if payout > 0:
+				casino_slots_result_lbl.text = "🎉 JACKPOT! Three matching %s pays $%d!" % [win_sym, payout]
+				casino_slots_result_lbl.add_theme_color_override("font_color", Color("#22c55e"))
+				add_life_event("You hit 3 %s on the slot machine and won $%d!" % [win_sym, payout], "finance")
+			else:
+				casino_slots_result_lbl.text = "💀 Cursed Skull Spin! No payout."
+				casino_slots_result_lbl.add_theme_color_override("font_color", Color("#f87171"))
+		else:
+			var s1: String = str(syms.pick_random())
+			var s2: String = str(syms.pick_random())
+			var s3: String = str(syms.pick_random())
+			if s1 == s2 and s2 == s3:
+				s3 = "🍒" if s1 != "🍒" else "🔔"
+			casino_slots_display_lbl.text = "[ %s | %s | %s ]" % [s1, s2, s3]
+			if s1 == s2 or s2 == s3 or s1 == s3:
+				PlayerData.money += 25
+				casino_slots_result_lbl.text = "✨ Pair match! Consolation prize: $25."
+				casino_slots_result_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
+			else:
+				casino_slots_result_lbl.text = "No match. Spin again!"
+				casino_slots_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+
+		update_ui()
+		SaveManager.save_game()
+		_sync_casino_ui()
 	)
-	if casino_locked:
-		btn_spin.disabled = true
-		btn_spin.modulate = Color(0.6, 0.6, 0.6, 0.65)
-		btn_spin.tooltip_text = "Annual gaming limit reached (1 play per year). Come back next year!"
-	v_slots.add_child(btn_spin)
+	v_slots.add_child(casino_slots_btn)
 	list.add_child(card_slots)
 
 	# GAME 3: High-Stakes Craps (Dice Roll)
@@ -13867,28 +13943,25 @@ func _show_casino_modal() -> void:
 	bet_row.add_theme_constant_override("separation", 10)
 	v_dice.add_child(bet_row)
 
-	var bet_amounts := [100, 500, 2000]
+	var bet_amounts := [10, 25, 50, 100, 500, 2000]
 	for amt in bet_amounts:
 		var btn_b := Button.new()
-		btn_b.text = "Wager $%d" % amt
+		btn_b.text = "$%d" % amt if amt < 1000 else "$%dK" % (amt / 1000)
 		btn_b.set_meta("reference_part", true)
 		btn_b.set_meta("market_button", true)
-		btn_b.custom_minimum_size.y = 52
+		btn_b.set_meta("bet_amount", amt)
+		btn_b.custom_minimum_size.y = 48
 		btn_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_b.add_theme_font_size_override("font_size", 20)
-		var b_style := StyleBoxFlat.new()
-		b_style.bg_color = Color("#1e293b")
-		b_style.border_color = Color("#f59e0b")
-		b_style.set_border_width_all(2)
-		b_style.set_corner_radius_all(6)
-		btn_b.add_theme_stylebox_override("normal", b_style)
-		btn_b.add_theme_color_override("font_color", Color("#f8fafc"))
 		btn_b.pressed.connect(func():
+			_trigger_haptic(20)
 			current_dice_bet_amount = amt
+			_sync_casino_ui()
 			casino_dice_result_lbl.text = "Active Wager Set: $%d. Pick your prediction below!" % amt
 			casino_dice_result_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 		)
 		bet_row.add_child(btn_b)
+		casino_dice_bet_btns.append(btn_b)
 
 	# Prediction Roll Buttons
 	var roll_options := [
@@ -13899,27 +13972,27 @@ func _show_casino_modal() -> void:
 	]
 
 	for opt in roll_options:
-		var opt_text: String = opt[0] if not casino_locked else opt[0] + " (Limit Reached)"
+		var opt_label: String = opt[0]
 		var opt_key: String = opt[1]
-		var btn_opt := _create_cyber_button(opt_text, Color("#f59e0b"), func():
-			_play_dice_roll(opt_key, modal)
+		var btn_opt := _create_cyber_button(opt_label, Color("#f59e0b"), func():
+			_play_dice_roll(opt_key)
 		)
-		if casino_locked:
-			btn_opt.disabled = true
-			btn_opt.modulate = Color(0.6, 0.6, 0.6, 0.65)
-			btn_opt.tooltip_text = "Annual gaming limit reached (1 play per year). Come back next year!"
+		btn_opt.set_meta("opt_label", opt_label)
 		v_dice.add_child(btn_opt)
+		casino_dice_roll_btns.append(btn_opt)
 
 	list.add_child(card_dice)
+	_sync_casino_ui()
 	casino_modal_overlay.visible = true
 
 
 func _play_dice_roll(prediction: String, _modal: Dictionary = {}) -> void:
-	if PlayerData.casino_plays_this_year >= 1:
-		return
+	_trigger_haptic(35)
 	if PlayerData.get_available_funds() < current_dice_bet_amount:
-		casino_dice_result_lbl.text = "Insufficient funds for $%d wager!" % current_dice_bet_amount
-		casino_dice_result_lbl.add_theme_color_override("font_color", Color("#ef4444"))
+		if casino_dice_result_lbl != null and is_instance_valid(casino_dice_result_lbl):
+			casino_dice_result_lbl.text = "Insufficient funds for $%d wager! (Cash: $%s)" % [current_dice_bet_amount, _format_number(PlayerData.get_available_funds())]
+			casino_dice_result_lbl.add_theme_color_override("font_color", Color("#ef4444"))
+		_sync_casino_ui()
 		return
 
 	PlayerData.debit_funds(current_dice_bet_amount)
@@ -13927,7 +14000,8 @@ func _play_dice_roll(prediction: String, _modal: Dictionary = {}) -> void:
 	var d1: int = randi_range(1, 6)
 	var d2: int = randi_range(1, 6)
 	var sum: int = d1 + d2
-	casino_dice_display_lbl.text = "🎲 [ %d ] + 🎲 [ %d ] = %d" % [d1, d2, sum]
+	if casino_dice_display_lbl != null and is_instance_valid(casino_dice_display_lbl):
+		casino_dice_display_lbl.text = "🎲 [ %d ] + 🎲 [ %d ] = %d" % [d1, d2, sum]
 
 	var won: bool = false
 	var multiplier: int = 0
@@ -13953,16 +14027,18 @@ func _play_dice_roll(prediction: String, _modal: Dictionary = {}) -> void:
 	if won:
 		var win_amount: int = current_dice_bet_amount * multiplier
 		PlayerData.money += win_amount
-		casino_dice_result_lbl.text = "WINNER! The dice landed on %d! You won $%s!" % [sum, _format_number(win_amount)]
-		casino_dice_result_lbl.add_theme_color_override("font_color", Color("#22c55e"))
+		if casino_dice_result_lbl != null and is_instance_valid(casino_dice_result_lbl):
+			casino_dice_result_lbl.text = "🎉 WINNER! The dice landed on %d! You won $%s!" % [sum, _format_number(win_amount)]
+			casino_dice_result_lbl.add_theme_color_override("font_color", Color("#22c55e"))
 		add_life_event("You rolled a %d in craps and won $%s!" % [sum, _format_number(win_amount)], "finance")
 	else:
-		casino_dice_result_lbl.text = "LOST: The dice landed on %d. Lost $%d wager." % [sum, current_dice_bet_amount]
-		casino_dice_result_lbl.add_theme_color_override("font_color", Color("#f87171"))
+		if casino_dice_result_lbl != null and is_instance_valid(casino_dice_result_lbl):
+			casino_dice_result_lbl.text = "LOST: The dice landed on %d. Lost $%d wager." % [sum, current_dice_bet_amount]
+			casino_dice_result_lbl.add_theme_color_override("font_color", Color("#f87171"))
 
 	update_ui()
 	SaveManager.save_game()
-	_show_casino_modal()
+	_sync_casino_ui()
 
 
 # --- 4. DEATH SCREEN SYSTEM ---
