@@ -90,7 +90,7 @@ func _build_ui() -> void:
 	for side in ["left", "right"]:
 		add_theme_constant_override("margin_" + side, 20)
 	for side in ["top", "bottom"]:
-		add_theme_constant_override("margin_" + side, 10)
+		add_theme_constant_override("margin_" + side, 12)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	add_child(row)
@@ -100,23 +100,27 @@ func _build_ui() -> void:
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	row.add_child(art)
-	symbol = _label(36)
-	symbol.custom_minimum_size.x = 46
+	symbol = _label(34)
+	symbol.custom_minimum_size = Vector2(46, 46)
 	symbol.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	symbol.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(symbol)
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	words.add_theme_constant_override("separation", 4)
+	words.add_theme_constant_override("separation", 0)
 	row.add_child(words)
 	heading = _label(26, true)
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.add_child(heading)
 	description = _label(20)
+	description.visible = false
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.add_child(description)
 	arrow = _label(26)
-	arrow.custom_minimum_size.x = 22
+	arrow.custom_minimum_size = Vector2(24, 24)
+	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	row.add_child(arrow)
 	_ignore_mouse(self)
 
@@ -159,7 +163,7 @@ func _is_colored_target() -> bool:
 		return false
 	if target.name.begins_with("EventChoice") or (target.get_parent() != null and target.get_parent().name == "EventChoices") or target.has_meta("event_choice"):
 		return true
-	if target.has_meta("market_button") or target.has_meta("colored_button"):
+	if target.has_meta("market_button") or target.has_meta("colored_button") or target.has_meta("bank_standout"):
 		return true
 	var sb = target.get_theme_stylebox("normal")
 	if sb is StyleBoxFlat:
@@ -220,12 +224,11 @@ func _sync() -> void:
 	for title_text in DETAILS:
 		if source.ends_with(title_text):
 			glyph = DETAILS[title_text][0]
-			if lines.size() < 2:
-				lines.append(GameLocale.display(DETAILS[title_text][1]))
 	glyph = str(target.get_meta("action_emoji", glyph))
 	heading.text = first
-	description.text = "\n".join(lines.slice(1))
-	description.visible = not description.text.is_empty()
+	if description != null:
+		description.text = ""
+		description.visible = false
 	symbol.text = glyph
 	art.texture = target.icon
 	art.visible = target.icon != null
@@ -233,25 +236,36 @@ func _sync() -> void:
 	arrow.text = "✓" if target.toggle_mode and target.button_pressed else "›"
 	var ink: Color
 	var secondary: Color
-	if is_colored:
+	var accent_ink: Color
+	if target.has_meta("bank_standout"):
+		ink = Color("#065f46") if light else Color("#ecfdf5")
+		accent_ink = Color("#059669") if light else Color("#34d399")
+		secondary = accent_ink
+		if target.disabled:
+			ink = Color(0.2, 0.4, 0.3, 0.6)
+			accent_ink = ink
+			secondary = ink
+	elif is_colored:
 		ink = Color.WHITE
+		accent_ink = Color.WHITE
 		secondary = Color("#f1f5f9")
 		if target.disabled:
 			ink = Color(1, 1, 1, 0.5)
+			accent_ink = ink
 			secondary = ink
 	else:
 		ink = Color("#0f172a") if light else Color("#a9dcff")
+		accent_ink = ink
 		secondary = Color("#334155") if light else Color("#c1cddd")
 		if target.disabled:
 			ink = Color("#64748b") if light else Color("#9da8b8")
+			accent_ink = ink
 			secondary = ink
 	heading.add_theme_color_override("font_color", ink)
-	description.add_theme_color_override("font_color", secondary)
-	arrow.add_theme_color_override("font_color", ink)
-	symbol.add_theme_color_override("font_color", ink)
-	var min_h := 74.0 if is_colored else 84.0
-	if cur_w < 150.0:
-		target.custom_minimum_size.y = min_h
-	else:
-		target.custom_minimum_size.y = clampf(get_combined_minimum_size().y, min_h, 136.0)
+	if description != null:
+		description.add_theme_color_override("font_color", secondary)
+	arrow.add_theme_color_override("font_color", accent_ink)
+	symbol.add_theme_color_override("font_color", accent_ink)
+	var min_h := 74.0
+	target.custom_minimum_size.y = min_h
 

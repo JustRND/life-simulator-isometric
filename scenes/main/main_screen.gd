@@ -29,6 +29,7 @@ var annual_event_popup_chance: float = 0.45
 @onready var avatar_button: Button = $ProfileStrip/ProfileMargin/ProfileRow/AvatarButton
 @onready var nationality_flag: TextureRect = $ProfileStrip/ProfileMargin/ProfileRow/NationalityFlag
 @onready var name_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/NameLabel
+@onready var age_label: Label = get_node_or_null("ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/AgeLabel") as Label
 @onready var phase_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/PhaseLabel
 @onready var balance_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/BalanceLabel
 
@@ -38,6 +39,7 @@ var annual_event_popup_chance: float = 0.45
 	if has_node("SafeArea/MainColumn/TimelinePanel/TimelineContent/MarginContainer/LifeFeed")
 	else get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/MarginContainer/LifeFeed") as RichTextLabel
 )
+@onready var life_feed_panel: PanelContainer = get_node_or_null("SafeArea/MainColumn/LifeFeedPanel") as PanelContainer
 @onready var timeline_drawer: PanelContainer = get_node_or_null("SafeArea/MainColumn/TimelinePanel") as PanelContainer
 @onready var timeline_pull_up_btn: Button = get_node_or_null("SafeArea/MainColumn/TimelinePullUpButton") as Button
 @onready var close_timeline_btn: Button = get_node_or_null("SafeArea/MainColumn/TimelinePanel/TimelineContent/TimelineHeaderRow/CloseTimelineButton") as Button
@@ -377,8 +379,10 @@ func _configure_ui() -> void:
 	life_feed.scroll_following = true
 	if not life_feed.get_v_scroll_bar().changed.is_connected(_scroll_after_layout):
 		life_feed.get_v_scroll_bar().changed.connect(_scroll_after_layout)
-	name_label.add_theme_font_size_override("font_size", 40)
-	phase_label.add_theme_font_size_override("font_size", 26)
+	name_label.add_theme_font_size_override("font_size", 36)
+	if age_label != null:
+		age_label.add_theme_font_size_override("font_size", 24)
+	phase_label.add_theme_font_size_override("font_size", 24)
 	life_feed.add_theme_font_size_override("normal_font_size", 28)
 	life_feed.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -551,6 +555,15 @@ func _configure_action_bar() -> void:
 	# Configure Bank icon on BankButton in AssetsPanel
 	if bank_button != null:
 		bank_button.icon = null
+		if has_node("ThemeController"):
+			var tc = get_node("ThemeController")
+			if tc != null and tc.reference_theme != null:
+				var is_lt: bool = LifeLibrary.data.get("theme", "dark") == "light"
+				tc.reference_theme.apply(bank_button, is_lt)
+		elif bank_button.has_node("ReferenceRow"):
+			var r = bank_button.get_node("ReferenceRow")
+			if r.has_method("_sync"):
+				r._sync()
 
 	if bank_header_icon != null:
 		var bank_svg := """<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
@@ -1308,6 +1321,8 @@ func update_ui() -> void:
 		if isometric_room.has_method("update_character"):
 			isometric_room.update_character()
 	name_label.text = PlayerData.first_name
+	if age_label != null:
+		age_label.text = "Age: %d" % PlayerData.age
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
 	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"
 	balance_label.text = "💵 $%s CASH\n🏦 $%s %s" % [
@@ -1410,7 +1425,10 @@ func _adjust_safe_area() -> void:
 
 	if is_instance_valid(profile_strip):
 		profile_strip.offset_top = 112.0 + top_m
-		profile_strip.offset_bottom = 260.0 + top_m
+		var strip_h: float = maxf(148.0, profile_strip.get_combined_minimum_size().y)
+		profile_strip.offset_bottom = profile_strip.offset_top + strip_h
+		if is_instance_valid(life_feed_panel):
+			life_feed_panel.offset_top = profile_strip.offset_bottom + 4.0
 
 
 func trigger_event() -> void:

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b7v8law1y3u5"]
+
+[ext_resource type="Script" path="res://tests/test_uniform_ui_and_age_counter.gd" id="1_test"]
+
+[node name="TestUniformUiAndAgeCounter" type="Node"]
+script = ExtResource("1_test")

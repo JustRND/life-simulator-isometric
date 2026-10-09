@@ -174,8 +174,12 @@ func apply(node: Control, light: bool) -> void:
 		node.add_theme_color_override("font_selected_color", Color.WHITE)
 	elif node is Button:
 		node.focus_mode = Control.FOCUS_NONE
-		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus", "read_only"]:
-			node.add_theme_stylebox_override(state, button_surface(light, state))
+		var is_bank_standout: bool = (node.name == "BankButton" and node.get_parent() != null and node.get_parent().name == "AssetsContent")
+		if is_bank_standout:
+			_style_banking_standout_button(node, light)
+		else:
+			for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus", "read_only"]:
+				node.add_theme_stylebox_override(state, button_surface(light, state))
 		if node.text in ["✕", "×", "X", "✖"]:
 			_style_header(node)
 		elif (node.get_parent() != null and (node.get_parent().name in ["ActList", "AssetsContent", "SettingsList", "SettingsContent"] or node.has_meta("use_reference_row") or node.name == "BankButton")) and not node is OptionButton and not node is CheckButton and not node is CheckBox and node.text.length() > 2:
@@ -298,3 +302,57 @@ func _style_header(close: Button) -> void:
 	var balance := Control.new()
 	balance.custom_minimum_size.x = 56
 	header.add_child(balance)
+
+
+func _style_banking_standout_button(btn: Button, light: bool) -> void:
+	btn.set_meta("bank_standout", true)
+	btn.set_meta("colored_button", true)
+	btn.custom_minimum_size.y = 74.0
+
+	var n_sb := StyleBoxFlat.new()
+	n_sb.set_corner_radius_all(14)
+	n_sb.set_border_width_all(2)
+	n_sb.content_margin_left = 20
+	n_sb.content_margin_right = 20
+	n_sb.content_margin_top = 10
+	n_sb.content_margin_bottom = 10
+
+	if light:
+		n_sb.bg_color = Color("#ecfdf5") # Crisp vibrant emerald-mint surface
+		n_sb.border_color = Color("#059669") # Rich emerald border
+		n_sb.shadow_color = Color(0.02, 0.4, 0.25, 0.2)
+		n_sb.shadow_size = 4
+		n_sb.shadow_offset = Vector2(0, 2)
+	else:
+		n_sb.bg_color = Color("#0c3430") # Deep rich emerald-teal card
+		n_sb.border_color = Color("#10b981") # Glowing vibrant emerald border
+		n_sb.shadow_color = Color(0.06, 0.72, 0.5, 0.35) # Emerald luminous glow
+		n_sb.shadow_size = 8
+		n_sb.shadow_offset = Vector2(0, 3)
+
+	var h_sb := n_sb.duplicate() as StyleBoxFlat
+	if light:
+		h_sb.bg_color = Color("#d1fae5")
+		h_sb.border_color = Color("#047857")
+		h_sb.shadow_size = 6
+	else:
+		h_sb.bg_color = Color("#134540")
+		h_sb.border_color = Color("#34d399")
+		h_sb.shadow_size = 10
+
+	var p_sb := n_sb.duplicate() as StyleBoxFlat
+	if light:
+		p_sb.bg_color = Color("#a7f3d0")
+		p_sb.border_color = Color("#065f46")
+		p_sb.shadow_size = 1
+	else:
+		p_sb.bg_color = Color("#072320")
+		p_sb.border_color = Color("#059669")
+		p_sb.shadow_size = 2
+
+	for state in ["normal", "focus"]:
+		btn.add_theme_stylebox_override(state, n_sb)
+	btn.add_theme_stylebox_override("hover", h_sb)
+	btn.add_theme_stylebox_override("pressed", p_sb)
+	btn.add_theme_stylebox_override("disabled", n_sb)
+

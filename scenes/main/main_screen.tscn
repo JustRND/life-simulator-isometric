@@ -470,18 +470,24 @@ stretch_mode = 5
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-theme_override_constants/separation = 4
+theme_override_constants/separation = 2
 
 [node name="NameLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020282]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 36
 text = "Alex Morgan"
+
+[node name="AgeLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020283]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.98, 0.84, 0.35, 1)
+theme_override_font_sizes/font_size = 24
+text = "Age: 0"
 
 [node name="PhaseLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=526626842]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 24
 text = "🍼 Infant"
 
 [node name="BalanceLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=1720170167]
@@ -1254,7 +1260,7 @@ theme_override_font_sizes/font_size = 32
 text = "Net Worth: $0"
 
 [node name="BankButton" type="Button" parent="AssetsPanel/AssetsMargin/AssetsContent" unique_id=356993415]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 74)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
@@ -1264,8 +1270,7 @@ theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
-text = "BANKING
-First National Pixel Bank"
+text = "BANKING"
 
 [node name="AssetsScroll" type="ScrollContainer" parent="AssetsPanel/AssetsMargin/AssetsContent" unique_id=1706536333]
 layout_mode = 2

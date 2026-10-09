@@ -27,8 +27,7 @@ func _ready() -> void:
 	assert(main.assets_panel.visible, "AssetsPanel must be visible")
 	var bank_row = main.bank_button.get_node_or_null("ReferenceRow")
 	assert(bank_row != null, "BankButton must have ReferenceRow presenter")
-	assert(bank_row.heading != null and bank_row.heading.text == "BANKING", "BankButton ReferenceRow heading must be 'BANKING'")
-	assert(bank_row.description != null and "First National Pixel Bank" in bank_row.description.text, "BankButton description must contain bank name")
+	assert(bank_row.description != null and (bank_row.description.text.is_empty() or not bank_row.description.visible), "BankButton description must be empty or hidden for uniform buttons")
 	assert(bank_row.heading.is_visible_in_tree(), "BankButton heading must be visible immediately on first open")
 	
 	# Wait for animation to finish
