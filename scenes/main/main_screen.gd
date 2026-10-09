@@ -142,12 +142,14 @@ var spa_modal_overlay: Control = null
 @onready var mother_icon: TextureRect = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherIcon
 @onready var mother_name_label: Label = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox/MotherNameLabel
 @onready var mother_job_label: Label = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox/MotherJobLabel
+@onready var mother_edu_label: Label = get_node_or_null("RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox/MotherEduLabel") as Label
 @onready var mother_status_label: Label = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox/MotherStatusLabel
 
 @onready var father_card: PanelContainer = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard
 @onready var father_icon: TextureRect = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherIcon
 @onready var father_name_label: Label = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox/FatherNameLabel
 @onready var father_job_label: Label = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox/FatherJobLabel
+@onready var father_edu_label: Label = get_node_or_null("RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox/FatherEduLabel") as Label
 @onready var father_status_label: Label = $RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox/FatherStatusLabel
 
 # Activities Panel
@@ -4543,6 +4545,21 @@ func update_relationships_panel() -> void:
 	mother_name_label.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color(0.396, 0.902, 1, 1))
 	mother_job_label.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color(0.9, 0.94, 0.98, 1))
 
+	if mother_edu_label == null and mom_vbox != null:
+		mother_edu_label = mom_vbox.get_node_or_null("MotherEduLabel") as Label
+		if mother_edu_label == null:
+			mother_edu_label = Label.new()
+			mother_edu_label.name = "MotherEduLabel"
+			mother_edu_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			mother_edu_label.add_theme_font_size_override("font_size", 22)
+			mom_vbox.add_child(mother_edu_label)
+			mom_vbox.move_child(mother_edu_label, mother_job_label.get_index() + 1)
+
+	var mom_edu_text: String = PlayerData.mother_education if PlayerData.mother_education != "" else "High School"
+	if mother_edu_label != null:
+		mother_edu_label.text = "Education: %s" % mom_edu_text
+		mother_edu_label.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+
 	if PlayerData.mother_alive:
 		if PlayerData.mother_name != "":
 			mother_name_label.text = "Mother: %s (Age %d)" % [PlayerData.mother_name, mom_age]
@@ -4579,6 +4596,9 @@ func update_relationships_panel() -> void:
 	else:
 		mother_name_label.text = "Mother: %s (Deceased)" % PlayerData.mother_name
 		mother_job_label.text = "Occupation: In Memoriam"
+		if mother_edu_label != null:
+			mother_edu_label.text = "Education: %s" % mom_edu_text
+			mother_edu_label.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		mother_status_label.text = "Status: Passed Away • Rest in Peace"
 		mother_status_label.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		if mom_vbox != null:
@@ -4603,6 +4623,21 @@ func update_relationships_panel() -> void:
 		var dad_vbox := father_name_label.get_parent() as VBoxContainer
 		father_name_label.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color(0.396, 0.902, 1, 1))
 		father_job_label.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color(0.9, 0.94, 0.98, 1))
+
+		if father_edu_label == null and dad_vbox != null:
+			father_edu_label = dad_vbox.get_node_or_null("FatherEduLabel") as Label
+			if father_edu_label == null:
+				father_edu_label = Label.new()
+				father_edu_label.name = "FatherEduLabel"
+				father_edu_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				father_edu_label.add_theme_font_size_override("font_size", 22)
+				dad_vbox.add_child(father_edu_label)
+				dad_vbox.move_child(father_edu_label, father_job_label.get_index() + 1)
+
+		var dad_edu_text: String = PlayerData.father_education if PlayerData.father_education != "" else "High School"
+		if father_edu_label != null:
+			father_edu_label.text = "Education: %s" % dad_edu_text
+			father_edu_label.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 
 		if PlayerData.father_alive:
 			father_name_label.text = "Father: %s (Age %d)" % [PlayerData.father_name, dad_age]
@@ -4636,6 +4671,9 @@ func update_relationships_panel() -> void:
 		else:
 			father_name_label.text = "Father: %s (Deceased)" % PlayerData.father_name
 			father_job_label.text = "Occupation: In Memoriam"
+			if father_edu_label != null:
+				father_edu_label.text = "Education: %s" % dad_edu_text
+				father_edu_label.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 			father_status_label.text = "Status: Passed Away • Rest in Peace"
 			father_status_label.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 			if dad_vbox != null:
@@ -5173,6 +5211,18 @@ func _setup_children_cards_ui() -> void:
 			btn_gift.tooltip_text = "Already gave a gift to %s this year. Available again next year." % c_name
 		act_row.add_child(btn_gift)
 
+		var btn_details := _create_cyber_button("📜 Details", Color("#8b5cf6"), func():
+			var idx = i
+			_show_child_progression_modal(idx)
+		)
+		btn_details.custom_minimum_size = Vector2(100, 52)
+		btn_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_details.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		btn_details.add_theme_font_size_override("font_size", 20)
+		btn_details.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		act_row.add_child(btn_details)
+
 		cv.add_child(act_row)
 		rel_list.add_child(card)
 
@@ -5419,6 +5469,144 @@ func _show_child_gift_modal(child_index: int) -> void:
 			btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			btn.tooltip_text = "Insufficient funds (Total available: $%s)." % _format_number(PlayerData.money + PlayerData.bank_savings)
 		list.add_child(btn)
+
+
+func _show_child_progression_modal(child_index: int) -> void:
+	if child_index < 0 or child_index >= PlayerData.children.size():
+		return
+	var c: Dictionary = PlayerData.children[child_index]
+	NpcLifeProgress.ensure(c)
+	var c_name: String = str(c.get("name", "Child"))
+	var c_age: int = int(c.get("age", 0))
+	var c_gender: String = str(c.get("gender", "MALE"))
+	var life: Dictionary = c.get("life_progress", {})
+
+	var modal := _create_cyber_modal("👶 %s'S PROGRESSION & JOURNEY" % c_name.to_upper(), "Complete life journey, education history, career milestones, and background progression for %s (%s, Age %d)." % [c_name, "Daughter" if c_gender == "FEMALE" else "Son", c_age], Color("#8b5cf6"))
+	romance_action_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	# 1. Summary Card
+	var summ_card := PanelContainer.new()
+	summ_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 24)
+	sm.add_theme_constant_override("margin_right", 24)
+	sm.add_theme_constant_override("margin_top", 16)
+	sm.add_theme_constant_override("margin_bottom", 16)
+	summ_card.add_child(sm)
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 8)
+	sm.add_child(sv)
+
+	var s_title := Label.new()
+	s_title.text = "📊 Current Life Status"
+	s_title.add_theme_font_size_override("font_size", 22)
+	s_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+	sv.add_child(s_title)
+
+	var occ_lbl := Label.new()
+	occ_lbl.text = NpcLifeProgress.get_occupation_display(c)
+	occ_lbl.add_theme_font_size_override("font_size", 20)
+	occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sv.add_child(occ_lbl)
+
+	var edu_lbl := Label.new()
+	edu_lbl.text = NpcLifeProgress.get_education_display(c)
+	edu_lbl.add_theme_font_size_override("font_size", 20)
+	edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sv.add_child(edu_lbl)
+
+	var biz_str := NpcLifeProgress.get_business_display(c)
+	if not biz_str.is_empty():
+		var biz_lbl := Label.new()
+		biz_lbl.text = biz_str
+		biz_lbl.add_theme_font_size_override("font_size", 20)
+		biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+		biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(biz_lbl)
+
+	if c_age >= 18:
+		var wealth_lbl := Label.new()
+		wealth_lbl.text = NpcLifeProgress.get_finances_display(c)
+		wealth_lbl.add_theme_font_size_override("font_size", 20)
+		wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(wealth_lbl)
+
+	list.add_child(summ_card)
+
+	# 2. Degrees & Academic Credentials
+	var degrees: Array = life.get("degrees", [])
+	if not degrees.is_empty():
+		var deg_header := Label.new()
+		deg_header.text = "🎓 Earned Degrees & Credentials"
+		deg_header.add_theme_font_size_override("font_size", 22)
+		deg_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+		list.add_child(deg_header)
+
+		for d in degrees:
+			if d is Dictionary:
+				var d_card := PanelContainer.new()
+				d_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#3b82f6")))
+				var dm := MarginContainer.new()
+				dm.add_theme_constant_override("margin_left", 20)
+				dm.add_theme_constant_override("margin_right", 20)
+				dm.add_theme_constant_override("margin_top", 12)
+				dm.add_theme_constant_override("margin_bottom", 12)
+				d_card.add_child(dm)
+				var d_lbl := Label.new()
+				var honors_str := (" • " + str(d.honors)) if not str(d.get("honors", "")).is_empty() else ""
+				d_lbl.text = "🏛 %s\n%s (GPA %.2f)%s" % [
+					str(d.get("university", "State University")),
+					str(d.get("degree", "Bachelor's Degree")),
+					float(d.get("gpa", 3.0)),
+					honors_str
+				]
+				d_lbl.add_theme_font_size_override("font_size", 19)
+				d_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
+				d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				dm.add_child(d_lbl)
+				list.add_child(d_card)
+
+	# 3. Milestones & Life History
+	var history: Array = life.get("history", [])
+	var hist_header := Label.new()
+	hist_header.text = "📜 Milestones & Background Progression (%d Events)" % history.size()
+	hist_header.add_theme_font_size_override("font_size", 22)
+	hist_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+	list.add_child(hist_header)
+
+	if history.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "No recorded background milestones yet. Milestones are added as %s grows up and ages!" % c_name
+		empty_lbl.add_theme_font_size_override("font_size", 18)
+		empty_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		list.add_child(empty_lbl)
+	else:
+		for k in range(history.size() - 1, -1, -1):
+			var entry = history[k]
+			if entry is Dictionary:
+				var h_age: int = int(entry.get("age", 0))
+				var h_text: String = str(entry.get("text", ""))
+				var item_card := PanelContainer.new()
+				item_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#6366f1")))
+				var im := MarginContainer.new()
+				im.add_theme_constant_override("margin_left", 20)
+				im.add_theme_constant_override("margin_right", 20)
+				im.add_theme_constant_override("margin_top", 10)
+				im.add_theme_constant_override("margin_bottom", 10)
+				item_card.add_child(im)
+				var il := Label.new()
+				il.text = "Age %d: %s" % [h_age, h_text]
+				il.add_theme_font_size_override("font_size", 18)
+				il.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+				il.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				im.add_child(il)
+				list.add_child(item_card)
 
 
 func _show_wedding_modal() -> void:

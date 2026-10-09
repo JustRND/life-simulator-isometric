@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btest_edu_children_prog_001"]
+
+[ext_resource type="Script" path="res://tests/test_education_and_children_progression.gd" id="1_test"]
+
+[node name="TestEducationAndChildrenProgression" type="Node"]
+script = ExtResource("1_test")

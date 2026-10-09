@@ -54,9 +54,11 @@ static func ensure(person: Dictionary) -> void:
 		life["last_age"] = year
 
 	# Synchronize summary fields on the person dictionary
-	person["education"] = _format_education_display(life).replace("🎓 ", "")
+	person["education"] = _format_education_display(life).replace("🎓 ", "").replace("Education: ", "")
 	if not life.get("job_title", "").is_empty():
 		person["occupation"] = str(life["job_title"])
+	elif target_age < 5:
+		person["occupation"] = "Infant / Toddler"
 	elif target_age < 18:
 		person["occupation"] = "Student"
 	elif target_age < 22 and str(life.get("education_level", "")) == "University Student":
@@ -360,13 +362,16 @@ static func _format_education_display(life: Dictionary) -> String:
 		if deg_title.is_empty() and not life.get("degrees", []).is_empty():
 			deg_title = str(life["degrees"][0].get("degree", ""))
 		var gpa: float = float(life.get("grades", 75)) / 25.0
-		return "🎓 %s (GPA %.2f)" % [deg_title if not deg_title.is_empty() else "University Graduate", gpa]
+		return "🎓 Education: %s (GPA %.2f)" % [deg_title if not deg_title.is_empty() else "University Graduate", gpa]
 	elif edu_level == "University Student":
 		var yrs: int = int(life.get("university_years", 1))
-		return "🎓 University Student (Year %d • %s)" % [yrs, life.get("university_major_title", "General Studies")]
-	elif edu_level in ["High School Graduate", "High School", "Middle School", "Primary School", "Kindergarten"]:
-		return "🎓 %s" % edu_level
-	return "🎓 None"
+		return "🎓 Education: University Student (Year %d • %s)" % [yrs, life.get("university_major_title", "General Studies")]
+	elif edu_level == "High School Graduate":
+		return "🎓 Education: High School Graduate"
+	elif edu_level in ["High School", "Middle School", "Primary School", "Kindergarten"]:
+		var grades: int = int(life.get("grades", 75))
+		return "🎓 Education: %s (Grades: %d%%)" % [edu_level, grades]
+	return "🎓 Education: None (Too young for school)"
 
 
 static func get_occupation_display(person: Dictionary) -> String:
@@ -376,16 +381,21 @@ static func get_occupation_display(person: Dictionary) -> String:
 	var comp: String = str(life.get("job_company", ""))
 	var sal: int = int(life.get("job_salary", 0))
 	var target_age: int = int(person.get("age", 0))
+	var biz_list: Array = life.get("owned_businesses", [])
 
 	if not title.is_empty():
 		if sal > 0:
-			return "💼 %s at %s ($%s/yr)" % [title, comp, _format_number(sal)]
-		return "💼 %s at %s" % [title, comp]
+			return "💼 Occupation: %s at %s ($%s/yr)" % [title, comp, _format_number(sal)]
+		return "💼 Occupation: %s at %s" % [title, comp]
+	elif not biz_list.is_empty():
+		return "💼 Occupation: Founder & Owner at %s" % str(biz_list[0].get("name", "Enterprise"))
+	elif target_age < 5:
+		return "💼 Occupation: Infant / Toddler"
 	elif target_age < 18:
-		return "💼 Student"
+		return "💼 Occupation: Student"
 	elif target_age < 22 and str(life.get("education_level", "")) == "University Student":
-		return "💼 College Student"
-	return "💼 Seeking Work"
+		return "💼 Occupation: College Student"
+	return "💼 Occupation: Seeking Work"
 
 
 static func get_business_display(person: Dictionary) -> String:
@@ -395,7 +405,7 @@ static func get_business_display(person: Dictionary) -> String:
 	if biz_list.is_empty():
 		return ""
 	var biz: Dictionary = biz_list[0]
-	return "%s %s ($%s Valuation)" % [
+	return "%s Business: %s ($%s Valuation)" % [
 		str(biz.get("icon", "🏢")),
 		str(biz.get("name", "Enterprise")),
 		_format_number(int(biz.get("valuation", 0)))

@@ -1423,6 +1423,13 @@ theme_override_font_sizes/font_size = 24
 text = "Occupation: Grocer"
 autowrap_mode = 3
 
+[node name="MotherEduLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox" unique_id=1418820301]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.84, 0.9, 1)
+theme_override_font_sizes/font_size = 22
+text = "Education: High School"
+autowrap_mode = 3
+
 [node name="MotherStatusLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox" unique_id=691528122]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
@@ -1470,6 +1477,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_font_sizes/font_size = 24
 text = "Occupation: Carpenter"
+autowrap_mode = 3
+
+[node name="FatherEduLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox" unique_id=1468820302]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.84, 0.9, 1)
+theme_override_font_sizes/font_size = 22
+text = "Education: High School"
 autowrap_mode = 3
 
 [node name="FatherStatusLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox" unique_id=1608615251]

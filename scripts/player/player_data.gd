@@ -1299,6 +1299,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	var inherited_market := finance_market.duplicate(true)
 	var prev_parent_name: String = first_name
 	var prev_gender: String = gender
+	var prev_parent_edu: String = education_level
 	var assets_copy: Array = inherited_assets.duplicate(true)
 	var preserved_children: Array = children.duplicate(true) if relation_type == "partner" else []
 
@@ -1350,10 +1351,12 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	else:
 		if prev_gender == "FEMALE":
 			mother_name = prev_parent_name
+			mother_education = prev_parent_edu if prev_parent_edu != "" else "High School"
 			mother_alive = false
 			mother_health = 0
 		else:
 			father_name = prev_parent_name
+			father_education = prev_parent_edu if prev_parent_edu != "" else "High School"
 			father_alive = false
 			father_health = 0
 
