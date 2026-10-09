@@ -2077,7 +2077,11 @@ func show_tab(tab_name: String) -> void:
 	if touch_controller != null and touch_controller.has_method("reset_state"):
 		touch_controller.reset_state()
 
-	panel_pull_up.cancel()
+	var opening_panels := {"infant": infant_panel, "assets": assets_panel, "relationships": relationships_panel, "activities": activities_panel, "character": character_panel, "bank": bank_panel, "settings": settings_overlay}
+	var target: Control = opening_panels.get(tab_name)
+	var already_open: bool = is_instance_valid(target) and target.is_visible_in_tree()
+	if not already_open:
+		panel_pull_up.cancel()
 	# Keep the main screen underneath the entering panel to avoid an empty flash.
 	var animated_tabs := ["infant", "assets", "relationships", "activities", "settings", "character", "bank"]
 	timeline_panel.visible = tab_name == "timeline" or tab_name in animated_tabs
@@ -2102,7 +2106,8 @@ func show_tab(tab_name: String) -> void:
 	if tab_name == "settings":
 		if settings_overlay != null:
 			settings_overlay.visible = true
-			panel_pull_up.play(settings_overlay.get_node("SettingsCard"))
+			if not already_open:
+				panel_pull_up.play(settings_overlay.get_node("SettingsCard"))
 			if has_node("ThemeController"):
 				get_node("ThemeController").apply_subtree(settings_overlay)
 		return
@@ -2123,8 +2128,7 @@ func show_tab(tab_name: String) -> void:
 		_configure_button_contrasts()
 
 	_apply_translucent_scrollbars_recursive(self)
-	var opening_panels := {"infant": infant_panel, "assets": assets_panel, "relationships": relationships_panel, "activities": activities_panel, "character": character_panel, "bank": bank_panel}
-	if opening_panels.has(tab_name):
+	if opening_panels.has(tab_name) and not already_open:
 		var target_panel: Control = opening_panels[tab_name]
 		target_panel.offset_top = 0.0
 		target_panel.offset_bottom = 0.0
@@ -6203,10 +6207,8 @@ func _generate_dating_candidate() -> Dictionary:
 
 
 func _show_dating_app_modal() -> void:
-	if dating_app_modal_overlay != null and is_instance_valid(dating_app_modal_overlay):
-		dating_app_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("💘 NEON DATE • SMART MATCHMAKING", "Browse verified singles in your metropolis • Swipe, match and connect", Color("#f43f5e"))
+	var modal := _refresh_cyber_modal(dating_app_modal_overlay, "💘 NEON DATE • SMART MATCHMAKING", "Browse verified singles in your metropolis • Swipe, match and connect", Color("#f43f5e"))
 	dating_app_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -6745,10 +6747,8 @@ func _show_career_ladder() -> void:
 
 
 func _show_jobs_modal() -> void:
-	if jobs_modal_overlay != null and is_instance_valid(jobs_modal_overlay):
-		jobs_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("💼 CAREERS & OCCUPATION", "Browse Opportunities, Apply for Roles & Manage Employment", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(jobs_modal_overlay, "💼 CAREERS & OCCUPATION", "Browse Opportunities, Apply for Roles & Manage Employment", Color("#38bdf8"))
 	jobs_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -6967,8 +6967,6 @@ func _show_jobs_modal() -> void:
 
 
 func _show_job_category_modal(category_id: String) -> void:
-	if job_category_modal_overlay != null and is_instance_valid(job_category_modal_overlay):
-		job_category_modal_overlay.queue_free()
 
 	if jobs_modal_overlay != null and is_instance_valid(jobs_modal_overlay):
 		jobs_modal_overlay.queue_free()
@@ -6979,7 +6977,7 @@ func _show_job_category_modal(category_id: String) -> void:
 	var cat_desc_text: String = str(cat.get("description", "Open employment opportunities."))
 	var cat_color: Color = Color(cat.get("color", "#38bdf8"))
 
-	var modal := _create_cyber_modal("%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
+	var modal := _refresh_cyber_modal(job_category_modal_overlay, "%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
 	job_category_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -7333,12 +7331,10 @@ const ROAD_SIGN_QUIZ: Array[Dictionary] = [
 
 
 func _show_licensing_modal() -> void:
-	if licensing_modal_overlay != null and is_instance_valid(licensing_modal_overlay):
-		licensing_modal_overlay.queue_free()
 	if license_category_modal_overlay != null and is_instance_valid(license_category_modal_overlay):
 		license_category_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("📜 LICENSING & STATE CERTIFICATIONS", "State Boards, Trade Qualifications & Professional Permits", Color("#06b6d4"))
+	var modal := _refresh_cyber_modal(licensing_modal_overlay, "📜 LICENSING & STATE CERTIFICATIONS", "State Boards, Trade Qualifications & Professional Permits", Color("#06b6d4"))
 	licensing_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -7397,8 +7393,6 @@ func _show_licensing_modal() -> void:
 
 
 func _show_license_category_modal(category_id: String) -> void:
-	if license_category_modal_overlay != null and is_instance_valid(license_category_modal_overlay):
-		license_category_modal_overlay.queue_free()
 	if licensing_modal_overlay != null and is_instance_valid(licensing_modal_overlay):
 		licensing_modal_overlay.queue_free()
 
@@ -7408,7 +7402,7 @@ func _show_license_category_modal(category_id: String) -> void:
 	var cat_desc_text: String = str(cat.get("description", "Certified qualifications and state licenses."))
 	var cat_color: Color = Color(cat.get("color", "#06b6d4"))
 
-	var modal := _create_cyber_modal("%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
+	var modal := _refresh_cyber_modal(license_category_modal_overlay, "%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
 	license_category_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -7562,8 +7556,6 @@ func _start_driving_exam_minigame(license_id: String, category_id: String = "veh
 
 
 func _render_driving_exam_step(exam_state: Dictionary) -> void:
-	if driving_exam_modal_overlay != null and is_instance_valid(driving_exam_modal_overlay):
-		driving_exam_modal_overlay.queue_free()
 
 	var q_idx: int = int(exam_state.get("q_index", 0))
 	var questions: Array = exam_state.get("questions", [])
@@ -7575,7 +7567,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 	var lic_def := LicenseManager.get_license_by_id(str(exam_state.get("license_id", "")))
 	var lic_name: String = str(lic_def.get("name", "Driver's License"))
 
-	var modal := _create_cyber_modal(
+	var modal := _refresh_cyber_modal(driving_exam_modal_overlay,
 		"🚦 ROAD SIGN EXAM — QUESTION %d OF %d" % [q_idx + 1, questions.size()],
 		"Demonstrate official road sign identification to qualify for your %s." % lic_name,
 		Color("#38bdf8")
@@ -7808,8 +7800,6 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 
 
 func _render_driving_exam_results(exam_state: Dictionary) -> void:
-	if driving_exam_modal_overlay != null and is_instance_valid(driving_exam_modal_overlay):
-		driving_exam_modal_overlay.queue_free()
 
 	var score: int = int(exam_state.get("score", 0))
 	var total: int = int(exam_state.get("questions", []).size())
@@ -7824,7 +7814,7 @@ func _render_driving_exam_results(exam_state: Dictionary) -> void:
 	var title_text := "🎉 DRIVING EXAM PASSED!" if passed else "❌ DRIVING EXAM FAILED"
 	var subtitle_text := "Official State Department of Motor Vehicles Examination Scorecard"
 
-	var modal := _create_cyber_modal(title_text, subtitle_text, theme_color)
+	var modal := _refresh_cyber_modal(driving_exam_modal_overlay, title_text, subtitle_text, theme_color)
 	driving_exam_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -7917,10 +7907,8 @@ func _render_driving_exam_results(exam_state: Dictionary) -> void:
 # FREELANCE MARKETPLACE SYSTEM
 # -----------------------------------------------------------------------------
 func _show_freelance_modal() -> void:
-	if freelance_modal_overlay != null and is_instance_valid(freelance_modal_overlay):
-		freelance_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("💻 FREELANCE MARKETPLACE", "12 Certified Freelance Occupations • Dynamic Project Income • Client Contracts", Color("#a855f7"))
+	var modal := _refresh_cyber_modal(freelance_modal_overlay, "💻 FREELANCE MARKETPLACE", "12 Certified Freelance Occupations • Dynamic Project Income • Client Contracts", Color("#a855f7"))
 	freelance_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -8367,8 +8355,6 @@ func _render_business_tab_incorporate(list: VBoxContainer) -> void:
 
 
 func _show_business_category_modal(category_id: String) -> void:
-	if business_category_modal_overlay != null and is_instance_valid(business_category_modal_overlay):
-		business_category_modal_overlay.queue_free()
 	if business_modal_overlay != null and is_instance_valid(business_modal_overlay):
 		business_modal_overlay.queue_free()
 
@@ -8378,7 +8364,7 @@ func _show_business_category_modal(category_id: String) -> void:
 	var cat_desc_text: String = str(cat.get("description", "Enterprise incorporation and commercial ventures."))
 	var cat_color: Color = Color(cat.get("color", "#f59e0b"))
 
-	var modal := _create_cyber_modal("%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
+	var modal := _refresh_cyber_modal(business_category_modal_overlay, "%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
 	business_category_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -9645,10 +9631,8 @@ func _process_yearly_business_operations() -> void:
 
 
 func _show_education_modal() -> void:
-	if education_modal_overlay != null and is_instance_valid(education_modal_overlay):
-		education_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🎓 ACADEMY & EDUCATION", "Academic Records, Grades, Study Habits & Scholarships", Color("#818cf8"))
+	var modal := _refresh_cyber_modal(education_modal_overlay, "🎓 ACADEMY & EDUCATION", "Academic Records, Grades, Study Habits & Scholarships", Color("#818cf8"))
 	education_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -10358,12 +10342,10 @@ func _show_education_modal() -> void:
 
 
 func _show_university_modal(initial_tab: String = "enrollment") -> void:
-	if university_modal_overlay != null and is_instance_valid(university_modal_overlay):
-		university_modal_overlay.queue_free()
 
 	var tab: String = initial_tab if initial_tab in ["enrollment", "study_paths"] else "enrollment"
 
-	var modal := _create_cyber_modal("🏛️ UNIVERSITY & STUDY PATHS", "Accredited Institutions, Degree Tracks & Career Trajectories", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(university_modal_overlay, "🏛️ UNIVERSITY & STUDY PATHS", "Accredited Institutions, Degree Tracks & Career Trajectories", Color("#38bdf8"))
 	university_modal_overlay = modal.overlay
 	university_modal_overlay.z_index = 85
 	var list: VBoxContainer = modal.list
@@ -11119,8 +11101,6 @@ func _start_refresher_course(cost: int) -> void:
 
 
 func _start_education_minigame(game_type: String, is_course: bool = false) -> void:
-	if education_minigame_overlay != null and is_instance_valid(education_minigame_overlay):
-		education_minigame_overlay.queue_free()
 
 	if education_modal_overlay != null and is_instance_valid(education_modal_overlay):
 		education_modal_overlay.queue_free()
@@ -11132,7 +11112,7 @@ func _start_education_minigame(game_type: String, is_course: bool = false) -> vo
 	if is_course:
 		border_col = Color("#10b981")
 
-	var modal := _create_cyber_modal(title_str, subtitle_str, border_col)
+	var modal := _refresh_cyber_modal(education_minigame_overlay, title_str, subtitle_str, border_col)
 	education_minigame_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -11488,6 +11468,17 @@ func _refresh_cyber_modal(existing: Variant, title_text: String, subtitle_text: 
 				child.queue_free()
 		view.title.text = title_text
 		view.subtitle.text = subtitle_text
+		# Reused headers need the new source text registered for later language changes.
+		for label in [view.title, view.subtitle]:
+			label.set_meta("locale_source", label.text)
+			label.text = GameLocale.display(label.text)
+			label.set_meta("locale_output", label.text)
+		var is_light: bool = LifeLibrary.data.theme == "light"
+		var accent := border_color.darkened(0.35) if is_light and border_color.get_luminance() > 0.45 else border_color
+		var card_style := view.card.get_theme_stylebox("panel").duplicate() as StyleBoxFlat
+		if card_style != null:
+			card_style.border_color = accent
+			view.card.add_theme_stylebox_override("panel", card_style)
 		return view
 	return _create_cyber_modal(title_text, subtitle_text, border_color)
 
@@ -11906,10 +11897,8 @@ func _execute_meditation(p: Dictionary) -> bool:
 
 
 func _show_gym_modal() -> void:
-	if gym_modal_overlay != null and is_instance_valid(gym_modal_overlay):
-		gym_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🏋️ TITAN CYBER GYM & FITNESS", "Strength Training, Athletics, Aquatics & Annual Memberships", Color("#10b981"))
+	var modal := _refresh_cyber_modal(gym_modal_overlay, "🏋️ TITAN CYBER GYM & FITNESS", "Strength Training, Athletics, Aquatics & Annual Memberships", Color("#10b981"))
 	gym_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12109,10 +12098,8 @@ To avoid muscle strain and allow adequate recovery, training options are locked 
 
 
 func _show_meditation_modal() -> void:
-	if meditation_modal_overlay != null and is_instance_valid(meditation_modal_overlay):
-		meditation_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🧘 NIRVANA MINDFULNESS & MEDITATION", "Breathwork, Yoga, Acoustic Sound Baths & Spiritual Healing", Color("#a855f7"))
+	var modal := _refresh_cyber_modal(meditation_modal_overlay, "🧘 NIRVANA MINDFULNESS & MEDITATION", "Breathwork, Yoga, Acoustic Sound Baths & Spiritual Healing", Color("#a855f7"))
 	meditation_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12263,10 +12250,8 @@ func _show_meditation_modal() -> void:
 
 
 func _show_mind_and_body_modal() -> void:
-	if mind_body_modal_overlay != null and is_instance_valid(mind_body_modal_overlay):
-		mind_body_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🧘 MIND & BODY WELLNESS", "Fitness, Grooming, Spa Rejuvenation & Mental Serenity", Color("#10b981"))
+	var modal := _refresh_cyber_modal(mind_body_modal_overlay, "🧘 MIND & BODY WELLNESS", "Fitness, Grooming, Spa Rejuvenation & Mental Serenity", Color("#10b981"))
 	mind_body_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12339,10 +12324,8 @@ func _show_mind_and_body_modal() -> void:
 
 
 func _show_salon_modal() -> void:
-	if salon_modal_overlay != null and is_instance_valid(salon_modal_overlay):
-		salon_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("💇 LUXE HAIR & BEAUTY SALON", "Professional Stylists, Precision Trims & Aesthetic Makeovers", Color("#ec4899"))
+	var modal := _refresh_cyber_modal(salon_modal_overlay, "💇 LUXE HAIR & BEAUTY SALON", "Professional Stylists, Precision Trims & Aesthetic Makeovers", Color("#ec4899"))
 	salon_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12430,10 +12413,8 @@ func _show_salon_modal() -> void:
 
 
 func _show_spa_modal() -> void:
-	if spa_modal_overlay != null and is_instance_valid(spa_modal_overlay):
-		spa_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🧖 OASIS LUXURY DAY SPA", "Hydrotherapy, Swedish Massages & Deep Thermal Rejuvenation", Color("#06b6d4"))
+	var modal := _refresh_cyber_modal(spa_modal_overlay, "🧖 OASIS LUXURY DAY SPA", "Hydrotherapy, Swedish Massages & Deep Thermal Rejuvenation", Color("#06b6d4"))
 	spa_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12523,10 +12504,8 @@ func _show_spa_modal() -> void:
 
 
 func _show_mental_institution_hub_modal() -> void:
-	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
-		mental_institution_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🏥 MENTAL INSTITUTION & PSYCHIATRIC CARE", "Psychological Consultations, Clinical Psychiatry & Inpatient Commitment", Color("#8b5cf6"))
+	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "🏥 MENTAL INSTITUTION & PSYCHIATRIC CARE", "Psychological Consultations, Clinical Psychiatry & Inpatient Commitment", Color("#8b5cf6"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12622,10 +12601,8 @@ func _show_mental_institution_hub_modal() -> void:
 
 
 func _show_psychologist_modal() -> void:
-	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
-		mental_institution_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🧠 CLINICAL PSYCHOLOGIST", "Therapeutic Consultations & Evidence-Based Cognitive Restructuring", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "🧠 CLINICAL PSYCHOLOGIST", "Therapeutic Consultations & Evidence-Based Cognitive Restructuring", Color("#38bdf8"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12699,7 +12676,6 @@ func _show_psychologist_modal() -> void:
 			], "health")
 			update_ui()
 			SaveManager.save_game()
-			mental_institution_modal_overlay.queue_free()
 			_show_psychologist_modal()
 		)
 		btn.custom_minimum_size.y = 80
@@ -12710,10 +12686,8 @@ func _show_psychologist_modal() -> void:
 
 
 func _show_psychiatrist_modal() -> void:
-	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
-		mental_institution_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("💊 CLINICAL PSYCHIATRIST", "Neurochemical Evaluations & Clinical Psychiatric Regimens", Color("#ec4899"))
+	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "💊 CLINICAL PSYCHIATRIST", "Neurochemical Evaluations & Clinical Psychiatric Regimens", Color("#ec4899"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12786,7 +12760,6 @@ func _show_psychiatrist_modal() -> void:
 			], "health")
 			update_ui()
 			SaveManager.save_game()
-			mental_institution_modal_overlay.queue_free()
 			_show_psychiatrist_modal()
 		)
 		btn.custom_minimum_size.y = 80
@@ -12797,10 +12770,8 @@ func _show_psychiatrist_modal() -> void:
 
 
 func _show_asylum_commitment_modal() -> void:
-	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
-		mental_institution_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🏥 ASYLUM VOLUNTARY COMMITMENT", "St. Jude Psychiatric Institution - Inpatient Program", Color("#e11d48"))
+	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "🏥 ASYLUM VOLUNTARY COMMITMENT", "St. Jude Psychiatric Institution - Inpatient Program", Color("#e11d48"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12878,10 +12849,8 @@ func _show_asylum_commitment_modal() -> void:
 
 
 func _show_shopping_modal() -> void:
-	if shopping_modal_overlay != null and is_instance_valid(shopping_modal_overlay):
-		shopping_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🛍️ COMMERCIAL SHOPPING & DEALERSHIPS", "Vehicles, Properties, Aircraft, Yachts & Luxury Valuables", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(shopping_modal_overlay, "🛍️ COMMERCIAL SHOPPING & DEALERSHIPS", "Vehicles, Properties, Aircraft, Yachts & Luxury Valuables", Color("#38bdf8"))
 	shopping_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12983,10 +12952,8 @@ func _show_shopping_modal() -> void:
 
 
 func _show_social_media_modal() -> void:
-	if social_media_modal_overlay != null and is_instance_valid(social_media_modal_overlay):
-		social_media_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("📱 SOCIAL MEDIA & CONTENT CREATION", "Manage Online Presence, Go Viral, Build Fanbases & Monetize", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(social_media_modal_overlay, "📱 SOCIAL MEDIA & CONTENT CREATION", "Manage Online Presence, Go Viral, Build Fanbases & Monetize", Color("#38bdf8"))
 	social_media_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13200,10 +13167,8 @@ func _show_social_media_modal() -> void:
 
 
 func _show_pet_adoption_modal() -> void:
-	if pet_adoption_modal_overlay != null and is_instance_valid(pet_adoption_modal_overlay):
-		pet_adoption_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🐾 COMPANION PET ADOPTION & RANCH", "Rescue Shelters, Certified Breeders, Pet Stores & Equestrian Ranches", Color("#10b981"))
+	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, "🐾 COMPANION PET ADOPTION & RANCH", "Rescue Shelters, Certified Breeders, Pet Stores & Equestrian Ranches", Color("#10b981"))
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13321,15 +13286,13 @@ func _show_pet_adoption_modal() -> void:
 
 
 func _show_pet_shelter_modal(shelter_type: String) -> void:
-	if pet_adoption_modal_overlay != null and is_instance_valid(pet_adoption_modal_overlay):
-		pet_adoption_modal_overlay.queue_free()
 
 	var is_dog: bool = (shelter_type == PetManager.SOURCE_DOG_SHELTER)
 	var title: String = "🐕 CANINE RESCUE SHELTER" if is_dog else "🐈 FELINE HAVEN RESCUE SHELTER"
 	var subtitle: String = "Free Adoptions • Give Rescued Animals a Loving Forever Home"
 	var border_color: Color = Color("#10b981") if is_dog else Color("#06b6d4")
 
-	var modal := _create_cyber_modal(title, subtitle, border_color)
+	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, title, subtitle, border_color)
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13391,15 +13354,13 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 
 
 func _show_pet_breeder_modal(breeder_type: String) -> void:
-	if pet_adoption_modal_overlay != null and is_instance_valid(pet_adoption_modal_overlay):
-		pet_adoption_modal_overlay.queue_free()
 
 	var is_dog: bool = (breeder_type == PetManager.SOURCE_DOG_BREEDER)
 	var title: String = "🐶 CERTIFIED CANINE BREEDER" if is_dog else "🐱 CERTIFIED FELINE BREEDER"
 	var subtitle: String = "Registered Purebred Puppies & Kittens (Kitten/Puppy -> 1 y.o. Max)"
 	var border_color: Color = Color("#f59e0b") if is_dog else Color("#ec4899")
 
-	var modal := _create_cyber_modal(title, subtitle, border_color)
+	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, title, subtitle, border_color)
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13468,10 +13429,8 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 
 
 func _show_pet_store_modal() -> void:
-	if pet_adoption_modal_overlay != null and is_instance_valid(pet_adoption_modal_overlay):
-		pet_adoption_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🐢 CRITTER CORNER EXOTIC PET STORE", "Turtles, Rats, Snakes, Rabbits, Birds & Ornamental Fish", Color("#8b5cf6"))
+	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, "🐢 CRITTER CORNER EXOTIC PET STORE", "Turtles, Rats, Snakes, Rabbits, Birds & Ornamental Fish", Color("#8b5cf6"))
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13540,10 +13499,8 @@ func _show_pet_store_modal() -> void:
 
 
 func _show_pet_ranch_modal() -> void:
-	if pet_adoption_modal_overlay != null and is_instance_valid(pet_adoption_modal_overlay):
-		pet_adoption_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🐎 HERITAGE EQUESTRIAN RANCH & STABLES", "Equestrian Purchases: Purebred Horses, Desert Arabians & Thoroughbreds", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, "🐎 HERITAGE EQUESTRIAN RANCH & STABLES", "Equestrian Purchases: Purebred Horses, Desert Arabians & Thoroughbreds", Color("#38bdf8"))
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13612,10 +13569,8 @@ func _show_pet_ranch_modal() -> void:
 
 
 func _show_will_modal() -> void:
-	if will_modal_overlay != null and is_instance_valid(will_modal_overlay):
-		will_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("⚖️ LAST WILL & TESTAMENT", "Estate Planning, Asset Distribution & Inheritance Beneficiaries", Color("#f59e0b"))
+	var modal := _refresh_cyber_modal(will_modal_overlay, "⚖️ LAST WILL & TESTAMENT", "Estate Planning, Asset Distribution & Inheritance Beneficiaries", Color("#f59e0b"))
 	will_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13716,10 +13671,8 @@ func _show_will_modal() -> void:
 
 
 func _show_charity_modal() -> void:
-	if charity_modal_overlay != null and is_instance_valid(charity_modal_overlay):
-		charity_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Boost Karma & Happiness (Once Per Year)", Color("#10b981"))
+	var modal := _refresh_cyber_modal(charity_modal_overlay, "🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Boost Karma & Happiness (Once Per Year)", Color("#10b981"))
 	charity_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -13887,10 +13840,8 @@ func _execute_charity_donation(charity_id: String) -> void:
 
 # --- 1. DOCTOR MODAL ---
 func _show_doctor_modal() -> void:
-	if doctor_modal_overlay != null and is_instance_valid(doctor_modal_overlay):
-		doctor_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🩺 ST. JUDE MEDICAL CLINIC", "Advanced Diagnostics, Surgeries, Oncology & Insurance", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(doctor_modal_overlay, "🩺 ST. JUDE MEDICAL CLINIC", "Advanced Diagnostics, Surgeries, Oncology & Insurance", Color("#38bdf8"))
 	doctor_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -14252,11 +14203,9 @@ func _show_doctor_modal() -> void:
 
 # --- 2. CRIME & PRISON MODAL ---
 func _show_crime_modal() -> void:
-	if crime_modal_overlay != null and is_instance_valid(crime_modal_overlay):
-		crime_modal_overlay.queue_free()
 
 	if PlayerData.is_in_prison:
-		var prison_modal := _create_cyber_modal("🔒 STATE PENITENTIARY", "Inmate Profile • Sentence Remaining: %d years" % PlayerData.prison_sentence_years, Color("#ef4444"))
+		var prison_modal := _refresh_cyber_modal(crime_modal_overlay, "🔒 STATE PENITENTIARY", "Inmate Profile • Sentence Remaining: %d years" % PlayerData.prison_sentence_years, Color("#ef4444"))
 		crime_modal_overlay = prison_modal.overlay
 		var p_list: VBoxContainer = prison_modal.list
 
@@ -14328,7 +14277,7 @@ func _show_crime_modal() -> void:
 
 	# Fictional activity outcomes use shared progression rules; prison UI stays above.
 	UndergroundProgression.normalize(PlayerData)
-	var modal := _create_cyber_modal("UNDERGROUND SYNDICATE", "Cash: $%s • High-risk activities" % [_format_number(PlayerData.money)], Color("#a855f7"))
+	var modal := _refresh_cyber_modal(crime_modal_overlay, "UNDERGROUND SYNDICATE", "Cash: $%s • High-risk activities" % [_format_number(PlayerData.money)], Color("#a855f7"))
 	crime_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 	var status := Label.new()
@@ -14458,8 +14407,6 @@ func _sync_casino_ui() -> void:
 
 
 func _show_casino_modal() -> void:
-	if casino_modal_overlay != null and is_instance_valid(casino_modal_overlay):
-		casino_modal_overlay.queue_free()
 
 	casino_dice_bet_btns.clear()
 	casino_dice_roll_btns.clear()
@@ -14473,7 +14420,7 @@ func _show_casino_modal() -> void:
 		else:
 			current_dice_bet_amount = 10
 
-	var modal := _create_cyber_modal("🎰 THE NEON PALACE CASINO", "Cash: $%s  •  Dice, Slots & Scratchcards" % _format_number(PlayerData.money), Color("#f59e0b"))
+	var modal := _refresh_cyber_modal(casino_modal_overlay, "🎰 THE NEON PALACE CASINO", "Cash: $%s  •  Dice, Slots & Scratchcards" % _format_number(PlayerData.money), Color("#f59e0b"))
 	casino_modal_overlay = modal.overlay
 	casino_subtitle_lbl = modal.subtitle
 	var list: VBoxContainer = modal.list

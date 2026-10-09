@@ -181,8 +181,14 @@ func field(parent: Node, placeholder: String) -> LineEdit:
 	return edit
 
 
+var cities_overlay: Control
+var people_overlay: Control
+var themes_overlay: Control
+
+
 func _cities() -> void:
-	var view := modal("CUSTOM CITIES", "Cities are stored on this device and used in new birth stories for their matching country.")
+	var view: Dictionary = main._refresh_cyber_modal(cities_overlay, "CUSTOM CITIES", "Cities are stored on this device and used in new birth stories for their matching country.", Color("#64e6ff"))
+	cities_overlay = view.overlay
 	var city := field(view.list, "City name")
 	city.set_meta("mobile_kb_prompt_title", "Enter city name:")
 	MobileKeyboardManager.attach_to_input(city, "Enter city name:")
@@ -194,7 +200,6 @@ func _cities() -> void:
 	button(view.list, "Add City", func():
 		var error := LifeLibrary.add_city(city.text, country.get_item_text(country.selected))
 		if error.is_empty():
-			view.overlay.queue_free()
 			_cities()
 		else:
 			status.text = error
@@ -204,8 +209,10 @@ func _cities() -> void:
 		section(view.list, "%s, %s" % [entry.name, entry.country])
 
 
+
 func _people() -> void:
-	var view := modal("CUSTOM PEOPLE", "Create adult NPCs using the game's portraits. They can appear in dating encounters; all custom people may also appear in annual social encounters.")
+	var view: Dictionary = main._refresh_cyber_modal(people_overlay, "CUSTOM PEOPLE", "Create adult NPCs using the game's portraits. They can appear in dating encounters; all custom people may also appear in annual social encounters.", Color("#64e6ff"))
+	people_overlay = view.overlay
 	var name_field := field(view.list, "Full name")
 	name_field.max_length = 40
 	name_field.set_meta("is_name_input", true)
@@ -250,7 +257,6 @@ func _people() -> void:
 	button(view.list, "Add Person", func():
 		var error := LifeLibrary.add_person({"name": name_field.text, "country": country.get_item_text(country.selected), "gender": gender.get_item_text(gender.selected), "ethnicity": selected.ethnicity, "portrait_track": selected.track})
 		if error.is_empty():
-			view.overlay.queue_free()
 			_people()
 		else:
 			status.text = error
@@ -261,6 +267,7 @@ func _people() -> void:
 		row.icon = Portraits.get_portrait(25, person.gender, person.portrait_track, person.ethnicity)
 		row.expand_icon = true
 		row.add_theme_constant_override("icon_max_width", 68)
+
 
 
 func _settings() -> void:
@@ -304,7 +311,8 @@ func _settings() -> void:
 
 
 func _themes() -> void:
-	var view := modal("THEMES", "Choose a look for the whole game. Your selection is saved locally.")
+	var view: Dictionary = main._refresh_cyber_modal(themes_overlay, "THEMES", "Choose a look for the whole game. Your selection is saved locally.", Color("#64e6ff"))
+	themes_overlay = view.overlay
 	for mode in ["dark", "light"]:
 		button(view.list, mode.capitalize() + (" • Selected" if LifeLibrary.data.theme == mode else ""), func():
 			LifeLibrary.data.theme = mode
@@ -316,9 +324,9 @@ func _themes() -> void:
 					main.get_node("ThemeController").apply_theme()
 				main.rebuild_life_feed()
 				main.update_ui()
-			view.overlay.queue_free()
 			_themes()
 		)
+
 
 
 func _queue_notice(title: String, description: String) -> void:
