@@ -2134,6 +2134,7 @@ theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 4"
 
 [node name="LoadingScreen" type="Control" parent="." unique_id=534348454]
+visible = false
 z_index = 100
 layout_mode = 1
 anchors_preset = 15

@@ -51,12 +51,9 @@ var _is_timeline_open: bool = false
 var _timeline_drawer_tween: Tween = null
 
 
-# Loading Screen
+# Startup disclaimer
 @onready var loading_screen: Control = get_node_or_null("LoadingScreen") as Control
 @onready var disclaimer_screen: Control = get_node_or_null("DisclaimerScreen") as Control
-@onready var loading_progress_label: Label = get_node_or_null("LoadingScreen/CenterContainer/LoadingVBox/LoadingProgressLabel") as Label
-@onready var loading_progress_bar: ProgressBar = get_node_or_null("LoadingScreen/CenterContainer/LoadingVBox/LoadingProgressBar") as ProgressBar
-@onready var loading_details_label: Label = get_node_or_null("LoadingScreen/CenterContainer/LoadingVBox/LoadingDetailsLabel") as Label
 @onready var age_button: Button = $SafeArea/MainColumn/AgeButton
 @onready var safe_area: Control = $SafeArea
 @onready var top_bar: PanelContainer = $TopBar
@@ -262,16 +259,14 @@ func _ready() -> void:
 	else:
 		show_new_game_screen()
 
-	if disclaimer_screen != null and loading_screen != null:
-		disclaimer_screen.visible = true
+	# The engine/browser splash handles loading before this scene is ready.
+	# Keep the legacy overlay hidden so dismissing the disclaimer reveals the game.
+	if loading_screen != null:
+		loading_screen.hide()
+	if disclaimer_screen != null:
+		disclaimer_screen.show()
 		disclaimer_screen.modulate.a = 1.0
-		loading_screen.visible = true
-		loading_screen.modulate.a = 1.0
 		_start_game_initialization_sequence()
-	elif loading_screen != null:
-		loading_screen.visible = true
-		loading_screen.modulate.a = 1.0
-		_start_loading_animation()
 
 
 func on_theme_changed() -> void:
@@ -340,26 +335,9 @@ func _configure_ui() -> void:
 	var bg_node := get_node_or_null("Background") as ColorRect
 	if bg_node != null:
 		bg_node.color = bg_color
-	var load_bg := get_node_or_null("LoadingScreen/LoadingBackground") as ColorRect
-	if load_bg != null:
-		load_bg.color = bg_color
 	var disc_bg := get_node_or_null("DisclaimerScreen/DisclaimerBackground") as ColorRect
 	if disc_bg != null:
 		disc_bg.color = bg_color
-
-	if loading_progress_bar != null:
-		var bar_bg := StyleBoxFlat.new()
-		bar_bg.bg_color = Color(0.02, 0.04, 0.09, 0.95)
-		bar_bg.border_color = Color("#0284c7")
-		bar_bg.set_border_width_all(2)
-		bar_bg.set_corner_radius_all(8)
-		loading_progress_bar.add_theme_stylebox_override("background", bar_bg)
-		var bar_fill := StyleBoxFlat.new()
-		bar_fill.bg_color = Color("#00f0ff")
-		bar_fill.set_corner_radius_all(6)
-		bar_fill.shadow_color = Color(0, 0.94, 1.0, 0.45)
-		bar_fill.shadow_size = 6
-		loading_progress_bar.add_theme_stylebox_override("fill", bar_fill)
 
 	if balance_label != null:
 		var bal_sb := StyleBoxFlat.new()
@@ -15081,50 +15059,11 @@ var is_disclaimer_fading: bool = false
 
 
 func _start_game_initialization_sequence() -> void:
-	if loading_screen == null or loading_progress_label == null:
-		return
-
 	is_disclaimer_fading = false
 	if disclaimer_screen != null:
-		# Decorative children must not intercept taps intended for the splash.
+		# Decorative children must not intercept taps intended for the disclaimer.
 		for child in disclaimer_screen.find_children("*", "Control", true, false):
 			child.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	loading_progress_label.text = "0 %"
-	if loading_progress_bar != null:
-		loading_progress_bar.value = 0
-	if loading_details_label != null:
-		loading_details_label.text = "Initializing virtual world..."
-
-	# BACKGROUND LOADING STARTS CONCURRENTLY AT T = 0 WHILE DISCLAIMER IS SHOWN
-	var loading_tween := create_tween()
-	loading_tween.tween_method(func(val: float) -> void:
-		var pct: int = int(val)
-		if loading_progress_label != null:
-			loading_progress_label.text = "%d %%" % pct
-		if loading_progress_bar != null:
-			loading_progress_bar.value = pct
-		if loading_details_label != null:
-			if pct < 25:
-				loading_details_label.text = "Initializing engine & modules..."
-			elif pct < 50:
-				loading_details_label.text = "Loading game assets & textures..."
-			elif pct < 75:
-				loading_details_label.text = "Configuring isometric room..."
-			elif pct < 95:
-				loading_details_label.text = "Preparing character lives & systems..."
-			else:
-				loading_details_label.text = "Ready!"
-	, 0.0, 100.0, 1.8).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	loading_tween.tween_interval(0.2)
-	# Silky-smooth cinematic dissolve/fade out transition from loading screen into main game
-	loading_tween.set_parallel(true)
-	loading_tween.tween_property(loading_screen, "modulate:a", 0.0, 0.65).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	loading_tween.tween_property(loading_screen, "scale", Vector2(1.03, 1.03), 0.65).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	loading_tween.chain().tween_callback(func() -> void:
-		if loading_screen != null:
-			loading_screen.visible = false
-			loading_screen.scale = Vector2(1.0, 1.0)
-	)
 
 	# Auto-dismiss after two real seconds; a tap can start the fade immediately.
 	if disclaimer_screen != null:
@@ -15153,45 +15092,6 @@ func _on_disclaimer_screen_gui_input(event: InputEvent) -> void:
 		_fade_out_disclaimer()
 	elif event is InputEventScreenTouch and event.pressed:
 		_fade_out_disclaimer()
-
-
-func _start_loading_animation() -> void:
-	if loading_screen == null or loading_progress_label == null:
-		return
-	loading_progress_label.text = "0 %"
-	if loading_progress_bar != null:
-		loading_progress_bar.value = 0
-	if loading_details_label != null:
-		loading_details_label.text = "Initializing virtual world..."
-	var tween := create_tween()
-	tween.tween_method(func(val: float) -> void:
-		var pct: int = int(val)
-		if loading_progress_label != null:
-			loading_progress_label.text = "%d %%" % pct
-		if loading_progress_bar != null:
-			loading_progress_bar.value = pct
-		if loading_details_label != null:
-			if pct < 25:
-				loading_details_label.text = "Initializing engine & modules..."
-			elif pct < 50:
-				loading_details_label.text = "Loading game assets & textures..."
-			elif pct < 75:
-				loading_details_label.text = "Configuring isometric room..."
-			elif pct < 95:
-				loading_details_label.text = "Preparing character lives & systems..."
-			else:
-				loading_details_label.text = "Ready!"
-	, 0.0, 100.0, 1.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_interval(0.2)
-	# Silky-smooth cinematic dissolve/fade out transition into main game screen
-	tween.set_parallel(true)
-	tween.tween_property(loading_screen, "modulate:a", 0.0, 0.65).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(loading_screen, "scale", Vector2(1.03, 1.03), 0.65).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	tween.chain().tween_callback(func() -> void:
-		if loading_screen != null:
-			loading_screen.visible = false
-			loading_screen.scale = Vector2(1.0, 1.0)
-	)
 
 
 # ==========================================
