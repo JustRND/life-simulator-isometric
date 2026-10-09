@@ -46,6 +46,7 @@ var annual_event_popup_chance: float = 0.45
 @onready var happiness_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HappinessBar
 @onready var smarts_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/SmartsBar
 @onready var looks_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/LooksBar
+@onready var mental_bar: ProgressBar = get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/MentalStateBar") as ProgressBar
 
 var _is_timeline_open: bool = false
 var _timeline_drawer_tween: Tween = null
@@ -682,6 +683,37 @@ func age_up() -> void:
 			add_life_event("🔒 You served another year behind bars (%d years remaining)." % PlayerData.prison_sentence_years, "crime")
 			PlayerData.happiness = maxi(5, PlayerData.happiness - 6)
 
+	# 1b. Mental Institution Inpatient Stay (2-Year Commitment)
+	if PlayerData.is_in_mental_institution:
+		PlayerData.mental_institution_years_left -= 1
+		var fee: int = PlayerData.mental_institution_annual_cost
+		if PlayerData.get_available_funds() >= fee:
+			PlayerData.debit_funds(fee)
+			add_life_event("🏥 MENTAL INSTITUTION: You spent another quiet, heavily structured year in psychiatric care. Routine walks and calm isolation slowly heal your mind. Paid $%s annual fee (%d year remaining)." % [
+				_format_number(fee),
+				PlayerData.mental_institution_years_left
+			], "health")
+		else:
+			var paid: int = PlayerData.get_available_funds()
+			var unpaid: int = fee - paid
+			PlayerData.debit_funds(paid)
+			PlayerData.debt += unpaid
+			add_life_event("🏥 MENTAL INSTITUTION: Unable to pay full inpatient fee ($%s)! Unpaid $%s added to debt (Total Debt: $%s, %d year remaining)." % [
+				_format_number(fee),
+				_format_number(unpaid),
+				_format_number(PlayerData.get_total_debt()),
+				PlayerData.mental_institution_years_left
+			], "health")
+
+		# Intensive inpatient psychiatric healing: +25% Mental State per year
+		PlayerData.mental_state = mini(100, PlayerData.mental_state + 25)
+
+		if PlayerData.mental_institution_years_left <= 0:
+			PlayerData.is_in_mental_institution = false
+			PlayerData.mental_institution_years_left = 0
+			add_life_event("🎉 ASYLUM DISCHARGE: You completed your 2-year inpatient treatment at the Mental Institution! Your mind has stabilized and you are officially discharged back into society.", "milestone")
+			PlayerData.add_milestone("Discharged from Mental Institution after 2-year inpatient stay.", PlayerData.age, "🏥")
+
 	# 2. Annual Salary Payout (if employed and not in prison)
 	if not PlayerData.is_in_prison and PlayerData.job_title != "" and PlayerData.job_salary > 0:
 		PlayerData.receive_salary(PlayerData.job_salary)
@@ -694,7 +726,9 @@ func age_up() -> void:
 	if PlayerData.age >= 18:
 		# Young adults under 22 living with parents pay $0 if unemployed
 		var base_living: int = 0
-		if PlayerData.age < 22 and PlayerData.job_title == "":
+		if PlayerData.is_in_mental_institution or PlayerData.is_in_prison:
+			base_living = 0
+		elif PlayerData.age < 22 and PlayerData.job_title == "":
 			base_living = 0
 		elif PlayerData.job_salary > 0:
 			base_living = 3200 + int(PlayerData.job_salary * 0.16)
@@ -1159,6 +1193,13 @@ func randomize_stats() -> void:
 
 	PlayerData.apply_effects(random_effects)
 
+	# Mental state annual passive drift (if not in asylum where dedicated healing occurs)
+	if not PlayerData.is_in_mental_institution:
+		var mental_drift: int = PlayerData.calculate_mental_state_drift() + randi_range(-1, 1)
+		PlayerData.mental_state = clampi(PlayerData.mental_state + mental_drift, 0, 100)
+		if PlayerData.mental_state <= 15:
+			add_life_event("⚠️ MENTAL CRISIS: Your mental state is severely depressed (%d%%). Chronic distress is overwhelming your psyche. Consider psychiatric care or therapy." % PlayerData.mental_state, "health")
+
 
 func _process_parents_aging() -> void:
 	# Mother
@@ -1286,11 +1327,15 @@ func update_ui() -> void:
 	happiness_bar.value = PlayerData.happiness
 	smarts_bar.value = PlayerData.smarts
 	looks_bar.value = PlayerData.looks
+	if mental_bar != null:
+		mental_bar.value = PlayerData.mental_state
 
 	_update_stat_bar_color(health_bar, PlayerData.health, Color("#10b981"), Color("#047857"))
 	_update_stat_bar_color(happiness_bar, PlayerData.happiness, Color("#f59e0b"), Color("#b45309"))
 	_update_stat_bar_color(smarts_bar, PlayerData.smarts, Color("#0284c7"), Color("#1e3a8a"))
 	_update_stat_bar_color(looks_bar, PlayerData.looks, Color("#db2777"), Color("#7e22ce"))
+	if mental_bar != null:
+		_update_stat_bar_color(mental_bar, PlayerData.mental_state, Color("#8b5cf6"), Color("#6d28d9"))
 
 	# Update InfantButton icon with age progression (Strictly stage name, never occupation)
 	if infant_button != null:
@@ -1373,6 +1418,13 @@ func trigger_event() -> void:
 		return
 	if current_event != null:
 		return
+	if PlayerData.is_in_mental_institution:
+		# The mental institution is boring and uneventful: NO EVENTS SHOULD EVER POP UP.
+		current_event = null
+		current_event_choices.clear()
+		age_button.disabled = false
+		return
+
 	if PlayerData.age >= 18 and not PlayerData.is_in_prison and not LifeLibrary.data.people.is_empty() and randf() < 0.25:
 		var person: Dictionary = LifeLibrary.data.people.pick_random()
 		add_life_event("You met %s from %s and enjoyed a friendly conversation." % [person.name, person.country], "event")
@@ -1406,7 +1458,7 @@ func trigger_event() -> void:
 
 	# High-stakes violent confrontation events specifically for players who own firearms
 	if not PlayerData.is_dead and not PlayerData.is_in_prison and PlayerData.has_firearm() and randf() < 0.25:
-		var firearm_ev = EventManager.get_firearm_defense_event(PlayerData.age, PlayerData.event_history, PlayerData.get_stats())
+		var firearm_ev = EventManager.get_firearm_defense_event(PlayerData.age, PlayerData.event_history, PlayerData.get_stats(), PlayerData.event_history_log)
 		if firearm_ev != null:
 			current_event = firearm_ev
 			current_event_choices = generate_event_choices(current_event)
@@ -1416,7 +1468,8 @@ func trigger_event() -> void:
 	current_event = EventManager.get_random_event(
 		PlayerData.age,
 		PlayerData.event_history,
-		PlayerData.get_stats()
+		PlayerData.get_stats(),
+		PlayerData.event_history_log
 	)
 
 	if current_event == null:
@@ -2044,6 +2097,9 @@ func _on_infant_button_pressed() -> void:
 
 
 func _on_assets_button_pressed() -> void:
+	if PlayerData.is_in_mental_institution:
+		add_life_event("🔒 RESTRICTED: Inpatient psychiatric ward rules forbid managing personal assets or property (%d year remaining)." % PlayerData.mental_institution_years_left, "health")
+		return
 	if PlayerData.age < 5:
 		if PlayerData.age == 0:
 			add_life_event("🍼 Restricted: You are an infant! Infants do not possess financial assets or bank accounts yet. Advance age (+1 Year) to grow up.", "finance")
@@ -2054,16 +2110,24 @@ func _on_assets_button_pressed() -> void:
 
 
 func _on_relationships_button_pressed() -> void:
+	if PlayerData.is_in_mental_institution:
+		add_life_event("🔒 RESTRICTED: Psychiatric quarantine protocols restrict outside social visitation (%d year remaining)." % PlayerData.mental_institution_years_left, "health")
+		return
 	show_tab("relationships")
 
 
 func _on_activities_button_pressed() -> void:
+	if PlayerData.is_in_mental_institution:
+		add_life_event("🔒 RESTRICTED: You are currently an inpatient at the Mental Institution (%d year remaining). Outside activities are strictly prohibited." % PlayerData.mental_institution_years_left, "health")
+		return
 	show_tab("activities")
 
 
 # Panel Close & Back handlers
 func _on_close_panel_button_pressed() -> void:
 	panel_pull_up.cancel()
+	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
+		mental_institution_modal_overlay.queue_free()
 	for panel in [character_panel, infant_panel, assets_panel, bank_panel, relationships_panel, activities_panel]:
 		if panel.visible:
 			preload("res://scripts/ui/panel_close.gd").dismiss(panel, false, func(): show_tab("timeline"))
@@ -6254,6 +6318,18 @@ func _on_mind_body_item_pressed() -> void:
 		show_tab("timeline")
 		return
 	_show_mind_and_body_modal()
+
+
+func _on_mental_institution_item_pressed() -> void:
+	if PlayerData.age < 12:
+		add_life_event("🔒 Restricted: Psychiatric and mental institution services unlock at age 12 (Adolescence). Current age: %d." % PlayerData.age, "health")
+		show_tab("timeline")
+		return
+	if PlayerData.is_in_mental_institution:
+		add_life_event("🔒 RESTRICTED: You are currently an inpatient at the Mental Institution (%d year remaining)." % PlayerData.mental_institution_years_left, "health")
+		show_tab("timeline")
+		return
+	_show_mental_institution_hub_modal()
 
 
 func _on_shopping_item_pressed() -> void:
@@ -10925,6 +11001,7 @@ var meditation_modal_overlay: ColorRect = null
 var dating_app_modal_overlay: ColorRect = null
 var charity_modal_overlay: ColorRect = null
 var romance_action_modal_overlay: ColorRect = null
+var mental_institution_modal_overlay: ColorRect = null
 var current_dating_candidate: Dictionary = {}
 
 
@@ -12086,6 +12163,361 @@ func _show_spa_modal() -> void:
 			list.add_child(btn)
 
 	spa_modal_overlay.visible = true
+
+
+
+func _show_mental_institution_hub_modal() -> void:
+	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
+		mental_institution_modal_overlay.queue_free()
+
+	var modal := _create_cyber_modal("🏥 MENTAL INSTITUTION & PSYCHIATRIC CARE", "Psychological Consultations, Clinical Psychiatry & Inpatient Commitment", Color("#8b5cf6"))
+	mental_institution_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+
+	var summary_card := PanelContainer.new()
+	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 22)
+	sm.add_theme_constant_override("margin_right", 22)
+	sm.add_theme_constant_override("margin_top", 16)
+	sm.add_theme_constant_override("margin_bottom", 16)
+	summary_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 10)
+	sm.add_child(sv)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "🧘 PSYCHOLOGICAL & NEURAL PROFILE"
+	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.add_theme_color_override("font_color", Color("#c4b5fd"))
+	sv.add_child(title_lbl)
+
+	var eval_text := ""
+	var eval_color := Color("#c4b5fd")
+	if PlayerData.mental_state >= 80:
+		eval_text = "🌟 Flourishing & Resilient: Your psyche is grounded, calm, and clear."
+		eval_color = Color("#34d399")
+	elif PlayerData.mental_state >= 60:
+		eval_text = "⚖️ Stable Equilibrium: Coping adequately with minor emotional stresses."
+		eval_color = Color("#38bdf8")
+	elif PlayerData.mental_state >= 40:
+		eval_text = "⚠️ Vulnerable & Fatigued: Internal stress is accumulating. Therapy or consultation recommended."
+		eval_color = Color("#fbbf24")
+	elif PlayerData.mental_state >= 20:
+		eval_text = "🚨 Severely Depressed & Distressed: High acute strain. Clinical psychiatry or therapy advised."
+		eval_color = Color("#f87171")
+	else:
+		eval_text = "⚡ Acute Psychological Crisis: Critical breakdown. Voluntary inpatient admission strongly urged."
+		eval_color = Color("#ef4444")
+
+	var status_lbl := Label.new()
+	status_lbl.text = "Mental State: %d%%  —  %s" % [PlayerData.mental_state, eval_text]
+	status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_lbl.add_theme_font_size_override("font_size", 22)
+	status_lbl.add_theme_color_override("font_color", eval_color)
+	sv.add_child(status_lbl)
+
+	var vitals_lbl := Label.new()
+	vitals_lbl.text = "Health: %d%%  •  Looks: %d%%  •  Happiness: %d%%  •  Smarts: %d%%" % [
+		PlayerData.health,
+		PlayerData.looks,
+		PlayerData.happiness,
+		PlayerData.smarts
+	]
+	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	vitals_lbl.add_theme_font_size_override("font_size", 20)
+	vitals_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+	sv.add_child(vitals_lbl)
+
+	var funds_lbl := Label.new()
+	funds_lbl.text = "💳 Available Capital: $%s" % _format_number(PlayerData.get_available_funds())
+	funds_lbl.add_theme_font_size_override("font_size", 20)
+	funds_lbl.add_theme_color_override("font_color", Color("#f0fdf4"))
+	sv.add_child(funds_lbl)
+
+	list.add_child(summary_card)
+
+	var psych_btn := _create_cyber_button("🧠 Psychologist (Therapy & Consultation)\nTalk therapy, Cognitive Behavioral Therapy (CBT), and psychoanalysis to relieve anxiety and internal despair.", Color("#38bdf8"), func():
+		mental_institution_modal_overlay.queue_free()
+		_show_psychologist_modal()
+	)
+	psych_btn.custom_minimum_size.y = 80
+	psych_btn.add_theme_font_size_override("font_size", 23)
+	list.add_child(psych_btn)
+
+	var psych_med_btn := _create_cyber_button("💊 Psychiatrist (Clinical Prescriptions)\nBoard-certified neurochemical evaluations, SSRIs, mood stabilizers, and prescription mental medication.", Color("#ec4899"), func():
+		mental_institution_modal_overlay.queue_free()
+		_show_psychiatrist_modal()
+	)
+	psych_med_btn.custom_minimum_size.y = 80
+	psych_med_btn.add_theme_font_size_override("font_size", 23)
+	list.add_child(psych_med_btn)
+
+	var asylum_btn := _create_cyber_button("🏥 Submit Self to Asylum (Voluntary Inpatient)\nVoluntary 2-year inpatient admission ($15,000/yr). Strict isolation from outside activities & assets with full mental recovery.", Color("#e11d48"), func():
+		mental_institution_modal_overlay.queue_free()
+		_show_asylum_commitment_modal()
+	)
+	asylum_btn.custom_minimum_size.y = 80
+	asylum_btn.add_theme_font_size_override("font_size", 23)
+	list.add_child(asylum_btn)
+
+	mental_institution_modal_overlay.visible = true
+
+
+func _show_psychologist_modal() -> void:
+	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
+		mental_institution_modal_overlay.queue_free()
+
+	var modal := _create_cyber_modal("🧠 CLINICAL PSYCHOLOGIST", "Therapeutic Consultations & Evidence-Based Cognitive Restructuring", Color("#38bdf8"))
+	mental_institution_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+
+	var return_btn := _create_cyber_button("↩ Return to Mental Health Hub", Color("#64748b"), func():
+		mental_institution_modal_overlay.queue_free()
+		_show_mental_institution_hub_modal()
+	)
+	return_btn.custom_minimum_size.y = 54
+	return_btn.add_theme_font_size_override("font_size", 21)
+	list.add_child(return_btn)
+
+	var info_lbl := Label.new()
+	info_lbl.text = "Current Mental State: %d%%   •   Happiness: %d%%   •   Available Funds: $%s" % [
+		PlayerData.mental_state,
+		PlayerData.happiness,
+		_format_number(PlayerData.get_available_funds())
+	]
+	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_lbl.add_theme_font_size_override("font_size", 21)
+	info_lbl.add_theme_color_override("font_color", Color("#bae6fd"))
+	list.add_child(info_lbl)
+
+	var treatments := [
+		{
+			"title": "Supportive Counseling Session",
+			"cost": 450,
+			"mental": 10,
+			"happy": 6,
+			"desc": "50-minute cognitive decompression session with a licensed counselor. Talk through daily stressors and emotional fatigue."
+		},
+		{
+			"title": "Cognitive Behavioral Therapy (CBT)",
+			"cost": 1200,
+			"mental": 18,
+			"happy": 10,
+			"desc": "Structured behavioral restructuring targeting persistent negative thought loops and irrational emotional self-blame."
+		},
+		{
+			"title": "Deep Psychoanalytic Psychotherapy",
+			"cost": 2800,
+			"mental": 28,
+			"happy": 15,
+			"desc": "Intensive psychoanalysis exploring early childhood wounds, subconscious defense barriers, and existential anxieties."
+		},
+		{
+			"title": "Executive Mindfulness Retreat & Masterclass",
+			"cost": 6500,
+			"mental": 40,
+			"happy": 24,
+			"desc": "Private multi-day immersive therapeutic coaching focused on radical self-acceptance, somatic calm, and enduring inner peace."
+		}
+	]
+
+	for t in treatments:
+		var cost: int = int(t["cost"])
+		var btn_text := "🛋️ %s ($%s)\n%s" % [t["title"], _format_number(cost), t["desc"]]
+		var btn := _create_cyber_button(btn_text, Color("#38bdf8"), func():
+			if PlayerData.get_available_funds() < cost:
+				add_life_event("💸 INSUFFICIENT FUNDS: The %s costs $%s, but you lack sufficient capital." % [t["title"], _format_number(cost)], "finance")
+				show_tab("timeline")
+				mental_institution_modal_overlay.queue_free()
+				return
+			PlayerData.debit_funds(cost)
+			PlayerData.mental_state = mini(100, PlayerData.mental_state + int(t["mental"]))
+			PlayerData.happiness = mini(100, PlayerData.happiness + int(t["happy"]))
+			add_life_event("🧠 PSYCHOTHERAPY: You attended a %s with a clinical psychologist ($%s). Your mental state improved (+%d%%) and happiness rose (+%d%%)." % [
+				t["title"],
+				_format_number(cost),
+				int(t["mental"]),
+				int(t["happy"])
+			], "health")
+			update_ui()
+			SaveManager.save_game()
+			mental_institution_modal_overlay.queue_free()
+			_show_psychologist_modal()
+		)
+		btn.custom_minimum_size.y = 80
+		btn.add_theme_font_size_override("font_size", 22)
+		list.add_child(btn)
+
+	mental_institution_modal_overlay.visible = true
+
+
+func _show_psychiatrist_modal() -> void:
+	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
+		mental_institution_modal_overlay.queue_free()
+
+	var modal := _create_cyber_modal("💊 CLINICAL PSYCHIATRIST", "Neurochemical Evaluations & Clinical Psychiatric Regimens", Color("#ec4899"))
+	mental_institution_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+
+	var return_btn := _create_cyber_button("↩ Return to Mental Health Hub", Color("#64748b"), func():
+		mental_institution_modal_overlay.queue_free()
+		_show_mental_institution_hub_modal()
+	)
+	return_btn.custom_minimum_size.y = 54
+	return_btn.add_theme_font_size_override("font_size", 21)
+	list.add_child(return_btn)
+
+	var info_lbl := Label.new()
+	info_lbl.text = "Current Mental State: %d%%   •   Happiness: %d%%   •   Available Funds: $%s" % [
+		PlayerData.mental_state,
+		PlayerData.happiness,
+		_format_number(PlayerData.get_available_funds())
+	]
+	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info_lbl.add_theme_font_size_override("font_size", 21)
+	info_lbl.add_theme_color_override("font_color", Color("#fbcfe8"))
+	list.add_child(info_lbl)
+
+	var meds := [
+		{
+			"title": "Mild Anxiolytic Prescription",
+			"cost": 850,
+			"mental": 14,
+			"happy": 4,
+			"desc": "Targeted clinical anxiolytics designed to alleviate acute panic attacks, nervous tremors, and somatic tension."
+		},
+		{
+			"title": "Standard SSRI / Mood Stabilizer Regimen",
+			"cost": 2200,
+			"mental": 24,
+			"happy": 8,
+			"desc": "Prescription course of selective serotonin reuptake inhibitors to chemically stabilize depressive neurotransmitter imbalances."
+		},
+		{
+			"title": "Advanced Neuro-Regulator & Dopaminergic Therapy",
+			"cost": 4800,
+			"mental": 34,
+			"happy": 12,
+			"desc": "High-potency clinical compounds targeting treatment-resistant depressive apathy and chronic emotional blunting."
+		},
+		{
+			"title": "Experimental Ketamine / Neuro-Infusion Therapy",
+			"cost": 9500,
+			"mental": 48,
+			"happy": 20,
+			"desc": "Cutting-edge clinical neuroplasticity infusion resetting chronic trauma loops and rapidly rebooting neurological equilibrium."
+		}
+	]
+
+	for m in meds:
+		var cost: int = int(m["cost"])
+		var btn_text := "💊 %s ($%s)\n%s" % [m["title"], _format_number(cost), m["desc"]]
+		var btn := _create_cyber_button(btn_text, Color("#ec4899"), func():
+			if PlayerData.get_available_funds() < cost:
+				add_life_event("💸 INSUFFICIENT FUNDS: The %s prescription costs $%s, but you lack sufficient capital." % [m["title"], _format_number(cost)], "finance")
+				show_tab("timeline")
+				mental_institution_modal_overlay.queue_free()
+				return
+			PlayerData.debit_funds(cost)
+			PlayerData.mental_state = mini(100, PlayerData.mental_state + int(m["mental"]))
+			PlayerData.happiness = mini(100, PlayerData.happiness + int(m["happy"]))
+			add_life_event("💊 PSYCHIATRIC MEDICATION: Prescribed %s by clinical psychiatrist ($%s). Your mental state surged (+%d%%)." % [
+				m["title"],
+				_format_number(cost),
+				int(m["mental"])
+			], "health")
+			update_ui()
+			SaveManager.save_game()
+			mental_institution_modal_overlay.queue_free()
+			_show_psychiatrist_modal()
+		)
+		btn.custom_minimum_size.y = 80
+		btn.add_theme_font_size_override("font_size", 22)
+		list.add_child(btn)
+
+	mental_institution_modal_overlay.visible = true
+
+
+func _show_asylum_commitment_modal() -> void:
+	if mental_institution_modal_overlay != null and is_instance_valid(mental_institution_modal_overlay):
+		mental_institution_modal_overlay.queue_free()
+
+	var modal := _create_cyber_modal("🏥 ASYLUM VOLUNTARY COMMITMENT", "St. Jude Psychiatric Institution - Inpatient Program", Color("#e11d48"))
+	mental_institution_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+
+	var notice_card := PanelContainer.new()
+	notice_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#e11d48")))
+	var nm := MarginContainer.new()
+	nm.add_theme_constant_override("margin_left", 22)
+	nm.add_theme_constant_override("margin_right", 22)
+	nm.add_theme_constant_override("margin_top", 18)
+	nm.add_theme_constant_override("margin_bottom", 18)
+	notice_card.add_child(nm)
+
+	var nv := VBoxContainer.new()
+	nv.add_theme_constant_override("separation", 14)
+	nm.add_child(nv)
+
+	var warn_title := Label.new()
+	warn_title.text = "⚠️ ADMISSION DISCLAIMER & INPATIENT SPECIFICATIONS ⚠️"
+	warn_title.add_theme_font_size_override("font_size", 24)
+	warn_title.add_theme_color_override("font_color", Color("#fda4af"))
+	nv.add_child(warn_title)
+
+	var disc_text := Label.new()
+	disc_text.text = "• COMMITMENT DURATION: EXACTLY 2 YEARS\n" + \
+		"  You will reside inside the inpatient psychiatric facility for two full calendar years. Early checkout is strictly prohibited.\n\n" + \
+		"• ANNUAL INPATIENT FEE: $15,000 / YEAR ($30,000 TOTAL)\n" + \
+		"  Automatically billed every year. If you have insufficient liquid cash, unpaid fees are added to medical debt.\n\n" + \
+		"• TOTAL ISOLATION & LOCKOUT:\n" + \
+		"  Under strict psychiatric quarantine rules, you CANNOT interact with Activities, Assets, or Jobs during these 2 years.\n\n" + \
+		"• UNEVENTFUL ENVIRONMENT:\n" + \
+		"  The psychiatric asylum is heavily regulated, calm, and boring. NO RANDOM EVENTS WILL OCCUR.\n\n" + \
+		"• CLINICAL REHABILITATION:\n" + \
+		"  Intensive medical therapy, psychiatric stability, and calm routine restore +25% Mental State per year."
+	disc_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	disc_text.add_theme_font_size_override("font_size", 21)
+	disc_text.add_theme_color_override("font_color", Color("#f8fafc"))
+	nv.add_child(disc_text)
+
+	var current_status := Label.new()
+	current_status.text = "Current Status: Mental State %d%%  •  Available Capital: $%s" % [
+		PlayerData.mental_state,
+		_format_number(PlayerData.get_available_funds())
+	]
+	current_status.add_theme_font_size_override("font_size", 20)
+	current_status.add_theme_color_override("font_color", Color("#fbbf24"))
+	nv.add_child(current_status)
+
+	list.add_child(notice_card)
+
+	var confirm_btn := _create_cyber_button("🏥 CONFIRM VOLUNTARY ADMISSION (2 YEARS INPATIENT)\nSign inpatient paperwork, surrender personal assets, and enter psychiatric care.", Color("#e11d48"), func():
+		PlayerData.is_in_mental_institution = true
+		PlayerData.mental_institution_years_left = 2
+		PlayerData.mental_institution_annual_cost = 15000
+		add_life_event("🏥 VOLUNTARY COMMITMENT: You signed admission papers and entered St. Jude Psychiatric Institution for a 2-year inpatient program ($15,000/yr). Outside activities and assets are now restricted.", "health")
+		PlayerData.add_milestone("Voluntarily admitted to Mental Institution for 2-year inpatient stay.", PlayerData.age, "🏥")
+		mental_institution_modal_overlay.queue_free()
+		show_tab("timeline")
+		update_ui()
+		SaveManager.save_game()
+	)
+	confirm_btn.custom_minimum_size.y = 80
+	confirm_btn.add_theme_font_size_override("font_size", 23)
+	list.add_child(confirm_btn)
+
+	var cancel_btn := _create_cyber_button("↩ CANCEL & RETURN TO HUB\nDecide against admission and return to the main mental health menu.", Color("#64748b"), func():
+		mental_institution_modal_overlay.queue_free()
+		_show_mental_institution_hub_modal()
+	)
+	cancel_btn.custom_minimum_size.y = 60
+	cancel_btn.add_theme_font_size_override("font_size", 21)
+	list.add_child(cancel_btn)
+
+	mental_institution_modal_overlay.visible = true
 
 
 
@@ -15202,7 +15634,8 @@ func _configure_stat_bars() -> void:
 		{"node": health_bar, "label": "Health", "c1": Color("#10b981"), "c2": Color("#047857"), "label_color": Color("#34d399")},
 		{"node": happiness_bar, "label": "Happiness", "c1": Color("#f59e0b"), "c2": Color("#b45309"), "label_color": Color("#fbbf24")},
 		{"node": smarts_bar, "label": "Smarts", "c1": Color("#0284c7"), "c2": Color("#1e3a8a"), "label_color": Color("#38bdf8")},
-		{"node": looks_bar, "label": "Looks", "c1": Color("#db2777"), "c2": Color("#7e22ce"), "label_color": Color("#f472b6")}
+		{"node": looks_bar, "label": "Looks", "c1": Color("#db2777"), "c2": Color("#7e22ce"), "label_color": Color("#f472b6")},
+		{"node": mental_bar, "label": "MentalState", "c1": Color("#8b5cf6"), "c2": Color("#6d28d9"), "label_color": Color("#c4b5fd")}
 	]
 
 	# Track Style: Deep cyber inset casing with clean pixel bevel

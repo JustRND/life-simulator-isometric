@@ -47,6 +47,7 @@ func capture_data() -> Dictionary:
 		"happiness": PlayerData.happiness,
 		"smarts": PlayerData.smarts,
 		"looks": PlayerData.looks,
+		"mental_state": PlayerData.mental_state,
 		"money": PlayerData.money,
 		"bank_savings": PlayerData.bank_savings,
 		"debt": PlayerData.debt,
@@ -100,7 +101,11 @@ func capture_data() -> Dictionary:
 		"cause_of_death": PlayerData.cause_of_death,
 		"is_in_prison": PlayerData.is_in_prison,
 		"prison_sentence_years": PlayerData.prison_sentence_years,
+		"is_in_mental_institution": PlayerData.is_in_mental_institution,
+		"mental_institution_years_left": PlayerData.mental_institution_years_left,
+		"mental_institution_annual_cost": PlayerData.mental_institution_annual_cost,
 		"event_history": PlayerData.event_history,
+		"event_history_log": PlayerData.event_history_log,
 		"life_log": PlayerData.life_log,
 		"karma": PlayerData.karma,
 		"children": PlayerData.children,
@@ -289,6 +294,7 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.happiness = int(data.get("happiness", 75))
 	PlayerData.smarts = int(data.get("smarts", 60))
 	PlayerData.looks = int(data.get("looks", 65))
+	PlayerData.mental_state = int(data.get("mental_state", 80))
 	PlayerData.money = int(data.get("money", 0))
 	PlayerData.bank_savings = int(data.get("bank_savings", 0))
 	PlayerData.debt = int(data.get("debt", 0))
@@ -409,7 +415,12 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.is_in_prison = bool(data.get("is_in_prison", false))
 	PlayerData.prison_sentence_years = int(data.get("prison_sentence_years", 0))
 
+	PlayerData.is_in_mental_institution = bool(data.get("is_in_mental_institution", false))
+	PlayerData.mental_institution_years_left = int(data.get("mental_institution_years_left", 0))
+	PlayerData.mental_institution_annual_cost = int(data.get("mental_institution_annual_cost", 15000))
+
 	PlayerData.event_history = data.get("event_history", [])
+	PlayerData.event_history_log = Dictionary(data.get("event_history_log", {}))
 	PlayerData.life_log = data.get("life_log", [])
 	PlayerData.social_media = Dictionary(data.get("social_media", {}))
 	PlayerData.pets = Array(data.get("pets", []))

@@ -37,7 +37,8 @@ func load_events() -> void:
 func get_valid_events(
 	age: int,
 	event_history: Array,
-	player_stats: Dictionary
+	player_stats: Dictionary,
+	event_history_log: Dictionary = {}
 ) -> Array:
 	var valid_events: Array = []
 
@@ -48,7 +49,7 @@ func get_valid_events(
 		if not _passes_age_check(event, age):
 			continue
 
-		if not _passes_repeat_check(event, event_history):
+		if not _passes_repeat_check(event, event_history, age, event_history_log):
 			continue
 
 		if not _passes_conditions(event, player_stats, event_history):
@@ -65,17 +66,29 @@ func _passes_age_check(event: Dictionary, age: int) -> bool:
 	return age >= min_age and age <= max_age
 
 
-func _passes_repeat_check(event: Dictionary, event_history: Array) -> bool:
-	var repeatable := bool(event.get("repeatable", true))
-
-	if repeatable:
-		return true
-
+func _passes_repeat_check(
+	event: Dictionary,
+	event_history: Array,
+	age: int = -1,
+	event_history_log: Dictionary = {}
+) -> bool:
 	var event_id := str(event.get("id", ""))
 	if event_id == "":
 		return true
 
-	return not event_history.has(event_id)
+	var repeatable := bool(event.get("repeatable", true))
+	if not repeatable:
+		return not event_history.has(event_id)
+
+	# For repeatable events, enforce minimum cooldown period to prevent annoying repeats
+	if age >= 0 and not event_history_log.is_empty():
+		if event_history_log.has(event_id):
+			var last_age: int = int(event_history_log.get(event_id, -999))
+			var cooldown: int = int(event.get("cooldown_years", 10))
+			if (age - last_age) < cooldown:
+				return false
+
+	return true
 
 
 func _passes_conditions(
@@ -130,7 +143,8 @@ func _passes_conditions(
 func get_firearm_defense_event(
 	age: int,
 	event_history: Array,
-	player_stats: Dictionary
+	player_stats: Dictionary,
+	event_history_log: Dictionary = {}
 ):
 	if not bool(player_stats.get("has_firearm", false)):
 		return null
@@ -142,7 +156,7 @@ func get_firearm_defense_event(
 			continue
 		if age < int(event.get("min_age", 0)) or age > int(event.get("max_age", 120)):
 			continue
-		if not bool(event.get("repeatable", true)) and event_history.has(str(event.get("id", ""))):
+		if not _passes_repeat_check(event, event_history, age, event_history_log):
 			continue
 		if _passes_conditions(event, player_stats, event_history):
 			valid_firearm_events.append(event)
@@ -155,9 +169,10 @@ func get_firearm_defense_event(
 func get_random_event(
 	age: int,
 	event_history: Array,
-	player_stats: Dictionary
+	player_stats: Dictionary,
+	event_history_log: Dictionary = {}
 ):
-	var valid_events := get_valid_events(age, event_history, player_stats)
+	var valid_events := get_valid_events(age, event_history, player_stats, event_history_log)
 
 	if valid_events.is_empty():
 		return null

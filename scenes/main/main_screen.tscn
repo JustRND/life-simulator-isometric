@@ -419,7 +419,7 @@ theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 0.8)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 22
-text = "ALPHA v0.1.0"
+text = "ALPHA v0.1.1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -640,69 +640,111 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 16
 
-[node name="StatsContainer" type="VBoxContainer" parent="SafeArea/MainColumn/StatsPanel/StatsMargin" unique_id=1323886595]
+[node name="StatsContainer" type="GridContainer" parent="SafeArea/MainColumn/StatsPanel/StatsMargin" unique_id=1323886595]
 layout_mode = 2
-theme_override_constants/separation = 3
+columns = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 8
 
 [node name="HealthLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1148875418]
+custom_minimum_size = Vector2(195, 28)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "HEALTH"
 
 [node name="HealthBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=159880371]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(80, 26)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 18
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 80.0
 
 [node name="HappinessLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=517101803]
+custom_minimum_size = Vector2(195, 28)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "HAPPINESS"
 
 [node name="HappinessBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=681471829]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(80, 26)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 18
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 75.0
 
 [node name="SmartsLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1861500308]
+custom_minimum_size = Vector2(195, 28)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "SMARTS"
 
 [node name="SmartsBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2141533477]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(80, 26)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 18
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("red")
 value = 60.0
 
 [node name="LooksLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1120094663]
+custom_minimum_size = Vector2(195, 28)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 20
 text = "LOOKS"
 
 [node name="LooksBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2119674293]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(80, 26)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 18
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 65.0
+
+[node name="MentalStateLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1120094664]
+custom_minimum_size = Vector2(195, 28)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "MENTAL STATE"
+
+[node name="MentalStateBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2119674294]
+custom_minimum_size = Vector2(80, 26)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/background = SubResource("track")
+theme_override_styles/fill = SubResource("green")
+value = 80.0
 
 [node name="TimelinePullUpButton" type="Button" parent="SafeArea/MainColumn" unique_id=2081928379]
 z_index = 8
@@ -1696,6 +1738,20 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "🧘  Mind & Body (Fitness, Salon, Spa, Meditation)"
 alignment = 0
 
+[node name="MentalInstitutionItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=969269765]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
+theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("card_button_normal")
+theme_override_styles/pressed = SubResource("card_button_pressed")
+theme_override_styles/hover = SubResource("card_button_hover")
+text = "🏥  Mental Institution"
+alignment = 0
+
 [node name="ShoppingActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=1870605856]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
@@ -2385,6 +2441,7 @@ horizontal_alignment = 1
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/BusinessActItem" to="." method="_on_business_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/DoctorItem" to="." method="_on_doctor_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/MindBodyItem" to="." method="_on_mind_body_item_pressed"]
+[connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/MentalInstitutionItem" to="." method="_on_mental_institution_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/ShoppingActItem" to="." method="_on_shopping_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/SocialMediaActItem" to="." method="_on_social_media_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/PetAdoptionActItem" to="." method="_on_pet_adoption_item_pressed"]

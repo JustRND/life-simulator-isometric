@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://mental_state_update_test_001"]
+
+[ext_resource type="Script" path="res://tests/test_mental_state_update.gd" id="1_test"]
+
+[node name="TestMentalStateUpdate" type="Node"]
+script = ExtResource("1_test")

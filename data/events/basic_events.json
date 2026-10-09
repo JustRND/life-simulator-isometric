@@ -162,7 +162,8 @@
         },
         "result": "You shrugged it off, hopped onto the swings, and soared through the breezy air."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "school_bully",
@@ -227,7 +228,8 @@
         },
         "result": "You delivered a devastating comeback that had the entire corridor roaring with laughter at the bully."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "antique_watch_park",
@@ -432,7 +434,8 @@
         },
         "result": "Three days later, the founders vanished with the liquidity pool. You congratulated yourself on your wisdom."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "sudden_appendicitis",
@@ -537,7 +540,8 @@
         },
         "result": "With incredible reflexes you clipped past the wreckage by inches, suffering only minor neck stiffness!"
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "office_whistleblower",
@@ -594,7 +598,7 @@
     "id": "lottery_scratch_miracle",
     "min_age": 21,
     "max_age": 80,
-    "repeatable": true,
+    "repeatable": false,
     "weight": 65,
     "conditions": {},
     "title": "GAS STATION SCRATCH TICKET",
@@ -738,7 +742,8 @@
         },
         "result": "You pretended to be a confused billionaire and wasted two hours of the scammer's day until they swore and hung up."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "heart_attack_warning",
@@ -789,7 +794,8 @@
         },
         "result": "Your family rushed you to emergency care. Doctors stabilized you just in time with a coronary stent."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "dangerous_street_dare",
@@ -841,7 +847,8 @@
         },
         "result": "You passed the dare along and watched the ensuing chaos safely from the riverbank."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "teen_party",
@@ -906,7 +913,8 @@
         },
         "result": "You swiped three expensive bottles of Scotch and slipped into the shadows."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "corporate_downsizing",
@@ -957,7 +965,8 @@
         },
         "result": "You kicked over water coolers and trashed the office breakroom. Security escorted you off premises."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "slip_and_fall",
@@ -1009,13 +1018,14 @@
         },
         "result": "You moved into a comfortable single-story suite with assisted nursing and social activities."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "elementary_spelling_bee",
     "min_age": 6,
     "max_age": 10,
-    "repeatable": true,
+    "repeatable": false,
     "weight": 80,
     "conditions": {},
     "title": "SCHOOL SPELLING BEE",
@@ -1066,7 +1076,7 @@
     "id": "science_fair_competition",
     "min_age": 11,
     "max_age": 14,
-    "repeatable": true,
+    "repeatable": false,
     "weight": 80,
     "conditions": {},
     "title": "ANNUAL SCIENCE FAIR",
@@ -1119,7 +1129,7 @@
     "id": "highschool_math_olympiad",
     "min_age": 14,
     "max_age": 18,
-    "repeatable": true,
+    "repeatable": false,
     "weight": 80,
     "conditions": {},
     "title": "HIGH SCHOOL MATH OLYMPIAD",
@@ -1170,8 +1180,8 @@
   {
     "id": "college_pop_quiz",
     "min_age": 18,
-    "max_age": 28,
-    "repeatable": true,
+    "max_age": 24,
+    "repeatable": false,
     "weight": 80,
     "conditions": {},
     "title": "SURPRISE POP QUIZ",
@@ -1221,7 +1231,7 @@
     "id": "professional_accreditation_exam",
     "min_age": 22,
     "max_age": 70,
-    "repeatable": true,
+    "repeatable": false,
     "weight": 70,
     "conditions": {},
     "title": "ACADEMIC & PROFESSIONAL RE-CERTIFICATION",
@@ -1321,7 +1331,8 @@
         },
         "result": "You grab for the gun barrel! The firearm discharges in a blinding flash right next to your ear! You fight tooth-and-nail, taking savage blows and a painful bullet graze before bystanders shout and scare the assailants away. You end up in emergency triage with permanent tinnitus and deep trauma."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "event_home_invasion_armed",
@@ -1376,7 +1387,8 @@
         },
         "result": "The intruders immediately overpower you, bludgeoning you repeatedly with a heavy prybar before tearing through your belongings. You regain consciousness hours later on a hospital stretcher with fractured ribs, concussions, and severe emotional scars."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "event_intersection_carjacking",
@@ -1431,7 +1443,8 @@
         },
         "result": "You floor the throttle! Metal crushes into metal as your engine roars, knocking their truck aside. Airbags explode against your chest, leaving you bruised and gasping as you limp away on squealing rims, heart violently racing."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "event_stalker_blade_ambush",
@@ -1484,7 +1497,8 @@
         },
         "result": "You raise your heavy bag as a shield. The knife shreds through fabric, slicing deeply into your forearms as you wrestle furiously until nearby security officers tackle the assailant to the floor. The violence leaves your hands trembling for days."
       }
-    ]
+    ],
+    "cooldown_years": 12
   },
   {
     "id": "event_active_shooter_defense",
@@ -1537,6 +1551,1700 @@
         },
         "result": "Curled into a ball under steel shelving with dust and debris raining onto your head, you lie paralyzed in tears as bullets tear through items overhead until tactical units finally take down the perpetrator. The crippling helplessness shatters your sense of peace."
       }
+    ],
+    "cooldown_years": 12
+  },
+  {
+    "id": "midlife_career_crossroads",
+    "min_age": 28,
+    "max_age": 58,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "CAREER CROSSROADS",
+    "text_variants": [
+      "A prominent corporate headhunter reaches out with an aggressive executive offer at a major competitor, boasting a 35% salary increase but longer commutes.",
+      "An industry rival attempts to poach you with a substantial financial package and equity shares, demanding immediate commitment."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Accept the lucrative competitor offer",
+        "icon": "💼",
+        "description": "+$8,500 Signing Bonus, +15 Happiness, -4 Health",
+        "type": "ambitious",
+        "effects": {
+          "money": 8500,
+          "happiness": 15,
+          "health": -4
+        },
+        "result": "You transitioned into the new corporate role with a generous signing bonus. The pace is frantic, but your career trajectory accelerates."
+      },
+      {
+        "text": "Negotiate a counter-raise with current leadership",
+        "icon": "🤝",
+        "description": "+$4,000 Money, +5 Smarts, +8 Happiness",
+        "type": "diplomatic",
+        "effects": {
+          "money": 4000,
+          "smarts": 5,
+          "happiness": 8
+        },
+        "result": "Your manager was anxious to retain you and promptly matched the compensation adjustment without requiring a disruptive move."
+      },
+      {
+        "text": "Politely decline and stay loyal to your team",
+        "icon": "🛡️",
+        "description": "+6 Happiness, +4 Karma",
+        "type": "loyal",
+        "effects": {
+          "happiness": 6,
+          "karma": 4
+        },
+        "result": "You valued peace of mind and workplace camaraderie over corporate upheaval. Your colleagues deeply appreciate your loyalty."
+      },
+      {
+        "text": "Keep the recruiter in your professional network",
+        "icon": "📱",
+        "description": "+2 Smarts",
+        "type": "practical",
+        "effects": {
+          "smarts": 2
+        },
+        "result": "You kept communication lines open for the distant future while remaining focused on your current objectives."
+      }
+    ]
+  },
+  {
+    "id": "neighborhood_association_feud",
+    "min_age": 24,
+    "max_age": 78,
+    "repeatable": true,
+    "cooldown_years": 12,
+    "weight": 100,
+    "conditions": {},
+    "title": "NEIGHBORHOOD BORDER DISPUTE",
+    "text_variants": [
+      "An eccentric neighbor erects an unauthorized 12-foot corrugated metal barrier and posts aggressive signs about boundary lines.",
+      "A contentious neighbor begins disputing property boundaries along the sidewalk and files petty noise complaints against the block."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "File a formal municipal code complaint",
+        "icon": "🏛️",
+        "description": "+4 Smarts, +2 Karma",
+        "type": "legal",
+        "effects": {
+          "smarts": 4,
+          "karma": 2
+        },
+        "result": "Municipal code inspectors promptly cited the violation and ordered the structure modified to code guidelines."
+      },
+      {
+        "text": "Bake warm treats and discuss boundaries calmly",
+        "icon": "🍪",
+        "description": "+6 Happiness, +5 Karma",
+        "type": "friendly",
+        "effects": {
+          "happiness": 6,
+          "karma": 5
+        },
+        "result": "Your neighbor was disarmed by your friendliness, sheepishly admitted to feeling stressed, and amicably adjusted the barrier."
+      },
+      {
+        "text": "Plant lush evergreen privacy hedges",
+        "icon": "🌲",
+        "description": "-$450 Money, +8 Happiness",
+        "type": "practical",
+        "effects": {
+          "money": -450,
+          "happiness": 8
+        },
+        "result": "You planted thick arborvitae trees that completely blocked the view, giving your home quiet serenity."
+      },
+      {
+        "text": "Ignore the feud completely",
+        "icon": "🧘",
+        "description": "+2 Smarts",
+        "type": "passive",
+        "effects": {
+          "smarts": 2
+        },
+        "result": "You refused to engage in petty suburban politics and continued enjoying your own routine in peace."
+      }
+    ]
+  },
+  {
+    "id": "lost_wallet_subway",
+    "min_age": 16,
+    "max_age": 80,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "LOST WALLET ON BENCH",
+    "text_variants": [
+      "While waiting for a morning commuter train, you notice a thick black leather wallet sitting abandoned on an empty bench.",
+      "You spot an expensive lost wallet containing $750 in crisp cash bills, identity cards, and family keepsake photos."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Turn it into the transit police lost & found",
+        "icon": "👮",
+        "description": "+10 Karma, +4 Happiness",
+        "type": "honest",
+        "effects": {
+          "karma": 10,
+          "happiness": 4
+        },
+        "result": "The officer logged the item into secure custody. You walked away with a pristine conscience."
+      },
+      {
+        "text": "Track down the owner and return it in person",
+        "icon": "🤝",
+        "description": "+$50 Reward, +15 Karma, +8 Happiness",
+        "type": "generous",
+        "effects": {
+          "money": 50,
+          "karma": 15,
+          "happiness": 8
+        },
+        "result": "The owner, a working single parent, burst into tears of relief and insisted on giving you a $50 thank-you reward."
+      },
+      {
+        "text": "Pocket the $750 cash and discard the rest",
+        "icon": "💸",
+        "description": "+$750 Money, -18 Karma, -5 Happiness",
+        "type": "selfish",
+        "effects": {
+          "money": 750,
+          "karma": -18,
+          "happiness": -5
+        },
+        "result": "You pocketed the stack of cash and tossed the wallet into a trash can. A lingering pang of guilt accompanied your newfound wealth."
+      },
+      {
+        "text": "Leave it untouched where it lies",
+        "icon": "🚶",
+        "description": "No effect",
+        "type": "neutral",
+        "effects": {},
+        "result": "You decided not to get involved and boarded your train."
+      }
+    ]
+  },
+  {
+    "id": "angel_investor_opportunity",
+    "min_age": 26,
+    "max_age": 62,
+    "repeatable": true,
+    "cooldown_years": 14,
+    "weight": 100,
+    "conditions": {},
+    "title": "STARTUP SEED PITCH",
+    "text_variants": [
+      "An enterprising acquaintance invites you for coffee to present an early-stage angel investment pitch for a sustainable energy app.",
+      "You receive an invitation to join an early seed round for a promising local eco-logistics venture."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Invest $4,000 for equity shares",
+        "icon": "📈",
+        "description": "-$4,000 Money, +10 Smarts, +6 Happiness",
+        "type": "investor",
+        "effects": {
+          "money": -4000,
+          "smarts": 10,
+          "happiness": 6
+        },
+        "result": "You wired your seed capital and secured equity. Early quarterly updates suggest steady customer acquisition."
+      },
+      {
+        "text": "Decline the investment politely",
+        "icon": "🛡️",
+        "description": "+2 Smarts",
+        "type": "cautious",
+        "effects": {
+          "smarts": 2
+        },
+        "result": "You chose to preserve your liquid capital. Startups fail often, and you sleep easily knowing your savings are secure."
+      },
+      {
+        "text": "Critique their financial model and provide feedback",
+        "icon": "📊",
+        "description": "+8 Smarts, +4 Karma",
+        "type": "advisory",
+        "effects": {
+          "smarts": 8,
+          "karma": 4
+        },
+        "result": "Your sharp fiscal breakdown uncovered key blind spots in their margins. The founders expressed immense gratitude for your time."
+      },
+      {
+        "text": "Introduce them to an angel networking group",
+        "icon": "🤝",
+        "description": "+4 Smarts, +4 Karma",
+        "type": "connector",
+        "effects": {
+          "smarts": 4,
+          "karma": 4
+        },
+        "result": "You connected them with well-capitalized syndicates, expanding your reputation as a savvy community connector."
+      }
+    ]
+  },
+  {
+    "id": "highschool_milestone_reunion",
+    "min_age": 28,
+    "max_age": 65,
+    "repeatable": true,
+    "cooldown_years": 10,
+    "weight": 100,
+    "conditions": {},
+    "title": "CLASS REUNION GALA",
+    "text_variants": [
+      "A gold-embossed envelope arrives in your mailbox: your milestone high school class reunion is being hosted downtown this weekend.",
+      "Your high school alumni committee is hosting a gala banquet celebrating past graduation classes."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Dress in your finest attire and celebrate all evening",
+        "icon": "✨",
+        "description": "+12 Happiness, +4 Looks",
+        "type": "social",
+        "effects": {
+          "happiness": 12,
+          "looks": 4
+        },
+        "result": "You looked fabulous, caught up with old peers, danced to nostalgic throwback hits, and made lasting impressions."
+      },
+      {
+        "text": "Catch up quietly with a few close childhood friends",
+        "icon": "☕",
+        "description": "+8 Happiness, +2 Karma",
+        "type": "heartfelt",
+        "effects": {
+          "happiness": 8,
+          "karma": 2
+        },
+        "result": "You avoided the noisy spectacle and shared meaningful hours with a handful of people who truly knew you back then."
+      },
+      {
+        "text": "Skip the event and savor a quiet evening at home",
+        "icon": "🛋️",
+        "description": "+4 Happiness",
+        "type": "relaxed",
+        "effects": {
+          "happiness": 4
+        },
+        "result": "You made homemade hot cocoa, watched a documentary, and enjoyed undisturbed tranquility."
+      },
+      {
+        "text": "Organize an informal after-party at a neighborhood diner",
+        "icon": "🍔",
+        "description": "+6 Happiness, +3 Karma",
+        "type": "casual",
+        "effects": {
+          "happiness": 6,
+          "karma": 3
+        },
+        "result": "Late-night milkshakes and laughing over old yearbook photos proved vastly superior to formal banquets."
+      }
+    ]
+  },
+  {
+    "id": "marathon_charity_run",
+    "min_age": 20,
+    "max_age": 55,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "CITY CHARITY MARATHON",
+    "text_variants": [
+      "Colleagues and fitness clubs throughout the city are registering for the annual 26.2-mile marathon benefiting pediatric healthcare.",
+      "The city closes downtown thoroughfares for the legendary spring charity marathon, calling all runners to participate."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Train rigorously and run the full 26.2 miles",
+        "icon": "🏃",
+        "description": "+12 Health, +15 Happiness, +6 Karma",
+        "type": "athletic",
+        "effects": {
+          "health": 12,
+          "happiness": 15,
+          "karma": 6
+        },
+        "result": "Crossing the finish line amidst roaring crowds was unforgettable. Your legs were sore, but your cardiovascular vitality soared."
+      },
+      {
+        "text": "Run the 10K division at a steady pace",
+        "icon": "👟",
+        "description": "+8 Health, +8 Happiness, +4 Karma",
+        "type": "moderate",
+        "effects": {
+          "health": 8,
+          "happiness": 8,
+          "karma": 4
+        },
+        "result": "You enjoyed the festive atmosphere, paced yourself comfortably, and earned a celebratory commemorative medal."
+      },
+      {
+        "text": "Donate $150 to sponsor runners and cheer from sidelines",
+        "icon": "📣",
+        "description": "-$150 Money, +8 Karma, +6 Happiness",
+        "type": "supportive",
+        "effects": {
+          "money": -150,
+          "karma": 8,
+          "happiness": 6
+        },
+        "result": "You handed out water cups and orange slices to exhausted runners, spreading genuine warmth throughout the community."
+      },
+      {
+        "text": "Decline and relax on Sunday morning",
+        "icon": "☕",
+        "description": "+2 Happiness",
+        "type": "restful",
+        "effects": {
+          "happiness": 2
+        },
+        "result": "You slept in and savored a peaceful morning cup of coffee away from the chaotic street closures."
+      }
+    ]
+  },
+  {
+    "id": "unexpected_tax_audit_notice",
+    "min_age": 25,
+    "max_age": 70,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "TAX AUTHORITY AUDIT NOTICE",
+    "text_variants": [
+      "A certified letter from the national revenue bureau arrives: your tax filing from two years ago has been flagged for routine verification.",
+      "The revenue service requests an in-depth audit of your deductions and expense filings."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Retain an experienced CPA to represent you",
+        "icon": "💼",
+        "description": "-$650 Money, +6 Smarts, +2 Happiness",
+        "type": "professional",
+        "effects": {
+          "money": -650,
+          "smarts": 6,
+          "happiness": 2
+        },
+        "result": "Your accountant organized every ledger meticulously. The auditor cleared your file with zero penalties."
+      },
+      {
+        "text": "Review records and submit receipts yourself",
+        "icon": "📑",
+        "description": "+8 Smarts, -4 Happiness",
+        "type": "diligent",
+        "effects": {
+          "smarts": 8,
+          "happiness": -4
+        },
+        "result": "You spent late nights sifting through binders and digital invoices. Your documentation was so pristine the agent closed the inquiry immediately."
+      },
+      {
+        "text": "Request an official 60-day administrative extension",
+        "icon": "⏳",
+        "description": "+2 Smarts",
+        "type": "strategic",
+        "effects": {
+          "smarts": 2
+        },
+        "result": "The agency granted the extension, granting you adequate breathing room to compile your paperwork."
+      },
+      {
+        "text": "Submit a hasty response without checking details",
+        "icon": "⚠️",
+        "description": "-$350 Money, -3 Smarts",
+        "type": "sloppy",
+        "effects": {
+          "money": -350,
+          "smarts": -3
+        },
+        "result": "Minor clerical mismatches incurred an administrative fine. You learned to keep tighter financial records."
+      }
+    ]
+  },
+  {
+    "id": "classic_barn_find_car",
+    "min_age": 22,
+    "max_age": 68,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "CLASSIC BARN FIND",
+    "text_variants": [
+      "While taking a scenic country detour, you glimpse a classic 1969 muscle car resting under a canvas sheet behind an old farmhouse barn.",
+      "A rural estate sale features an untouched vintage sports coupe that has been parked inside a dry barn for over twenty years."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Buy the car for $2,500 and restore it yourself",
+        "icon": "🔧",
+        "description": "-$2,500 Money, +8 Smarts, +14 Happiness",
+        "type": "mechanical",
+        "effects": {
+          "money": -2500,
+          "smarts": 8,
+          "happiness": 14
+        },
+        "result": "You negotiated a fair deal, transported the car to your garage, and spent weekends getting the rumbling V8 engine roaring back to life."
+      },
+      {
+        "text": "Pay an automotive mechanic to inspect the chassis first",
+        "icon": "🔍",
+        "description": "-$200 Money, +6 Smarts",
+        "type": "prudent",
+        "effects": {
+          "money": -200,
+          "smarts": 6
+        },
+        "result": "The inspector uncovered structural rust deep inside the subframe, preventing you from sinking savings into a money pit."
+      },
+      {
+        "text": "Pass—vintage restoration takes too much time and cash",
+        "icon": "🚶",
+        "description": "+2 Smarts",
+        "type": "practical",
+        "effects": {
+          "smarts": 2
+        },
+        "result": "You admired the styling from afar, tipped your hat to the owner, and continued on your scenic drive."
+      },
+      {
+        "text": "Post high-res photos on a vintage automotive forum",
+        "icon": "📸",
+        "description": "+4 Karma, +4 Smarts",
+        "type": "helpful",
+        "effects": {
+          "karma": 4,
+          "smarts": 4
+        },
+        "result": "A passionate collector discovered your forum post and bought the car, sending you a warm thank-you message."
+      }
+    ]
+  },
+  {
+    "id": "dinner_party_salt_disaster",
+    "min_age": 21,
+    "max_age": 75,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "CULINARY DINNER ACCIDENT",
+    "text_variants": [
+      "You spend hours braising an artisanal dish for an evening dinner party, but the cap slips off the spice shaker, dumping a mountain of salt inside!",
+      "An elaborate multi-course meal for your closest friends suffers a catastrophe when the main reduction is horribly oversalted."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Laugh it off and order gourmet emergency pizzas",
+        "icon": "🍕",
+        "description": "-$120 Money, +10 Happiness, +4 Karma",
+        "type": "good_humor",
+        "effects": {
+          "money": -120,
+          "happiness": 10,
+          "karma": 4
+        },
+        "result": "Everyone laughed at the mishap, toasted cold drinks, and devoured hot gourmet slices. It turned into your most fun dinner party yet!"
+      },
+      {
+        "text": "Attempt an emergency potato-sponge starch trick",
+        "icon": "🥔",
+        "description": "+6 Smarts, +4 Happiness",
+        "type": "resourceful",
+        "effects": {
+          "smarts": 6,
+          "happiness": 4
+        },
+        "result": "Simmering sliced raw potatoes absorbed enough excess sodium to save the sauce. Your guests applauded your quick culinary thinking."
+      },
+      {
+        "text": "Apologize sincerely and skip straight to cheese & dessert",
+        "icon": "🍰",
+        "description": "+6 Happiness",
+        "type": "honest",
+        "effects": {
+          "happiness": 6
+        },
+        "result": "Nobody minded skipping the entree. The artisanal cheeses, fresh sourdough, and berry tart filled everyone with contentment."
+      },
+      {
+        "text": "Pretend the saltiness is an authentic maritime flavor",
+        "icon": "🧂",
+        "description": "-3 Smarts, -2 Happiness",
+        "type": "stubborn",
+        "effects": {
+          "smarts": -3,
+          "happiness": -2
+        },
+        "result": "Your guests choked down glasses of water trying to be polite while you stubbornly insisted it was European haute cuisine."
+      }
+    ]
+  },
+  {
+    "id": "antique_attic_painting",
+    "min_age": 30,
+    "max_age": 85,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "FORGOTTEN ATTIC MASTERPIECE",
+    "text_variants": [
+      "While cleaning dusty heirloom trunks in the attic, you discover an unframed 19th-century oil landscape wrapped in old burlap.",
+      "Tucked behind an old walnut armoire, you find an unsigned original canvas depicting an evocative maritime sunrise."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Take it to a certified fine art appraiser",
+        "icon": "🎨",
+        "description": "+$2,800 Appraisal Sale, +8 Smarts, +10 Happiness",
+        "type": "cultured",
+        "effects": {
+          "money": 2800,
+          "smarts": 8,
+          "happiness": 10
+        },
+        "result": "The appraiser identified it as an authentic work by a noted regional impressionist. A gallery bought it for $2,800 on the spot!"
+      },
+      {
+        "text": "Frame it and display it in your living room",
+        "icon": "🖼️",
+        "description": "+8 Happiness, +3 Looks",
+        "type": "aesthetic",
+        "effects": {
+          "happiness": 8,
+          "looks": 3
+        },
+        "result": "The canvas added timeless character and elegance to your home, drawing admiration from every guest who visits."
+      },
+      {
+        "text": "Donate it to the municipal historical museum",
+        "icon": "🏛️",
+        "description": "+12 Karma, +6 Happiness",
+        "type": "philanthropic",
+        "effects": {
+          "karma": 12,
+          "happiness": 6
+        },
+        "result": "The museum welcomed the regional artifact into its permanent archive and engraved your name onto the donor plaque."
+      },
+      {
+        "text": "Sell it at a weekend yard sale for $25",
+        "icon": "🏷️",
+        "description": "+$25 Money, -2 Smarts",
+        "type": "hasty",
+        "effects": {
+          "money": 25,
+          "smarts": -2
+        },
+        "result": "You made twenty-five quick dollars, unaware you just parted with a piece of cultural history for pocket change."
+      }
+    ]
+  },
+  {
+    "id": "stray_kitten_in_storm",
+    "min_age": 16,
+    "max_age": 85,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "STRAY KITTEN IN THE RAIN",
+    "text_variants": [
+      "During a cold autumn gale, you hear frantic meowing near your doorstep and find a tiny, drenched kitten huddled against the wall.",
+      "A shivering stray kitten with wide green eyes seeks shelter beneath your patio umbrella during a heavy rainstorm."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Bring it inside, feed it, and adopt it",
+        "icon": "🐱",
+        "description": "-$120 Vet Care, +14 Happiness, +10 Karma",
+        "type": "compassionate",
+        "effects": {
+          "money": -120,
+          "happiness": 14,
+          "karma": 10
+        },
+        "result": "You dried the purring kitten with a fluffy towel, bought food and bowls, and gained a devoted, affectionate lifelong companion."
+      },
+      {
+        "text": "Safely transport it to a certified no-kill shelter",
+        "icon": "🏥",
+        "description": "+8 Karma, +6 Happiness",
+        "type": "responsible",
+        "effects": {
+          "karma": 8,
+          "happiness": 6
+        },
+        "result": "The animal welfare staff welcomed the kitten warmly, checked its health, and promised to find it a loving permanent family."
+      },
+      {
+        "text": "Post flyers and online alerts to locate its owners",
+        "icon": "📋",
+        "description": "+6 Karma, +3 Smarts",
+        "type": "helpful",
+        "effects": {
+          "karma": 6,
+          "smarts": 3
+        },
+        "result": "Your diligent search confirmed it was a stray, and a kind neighborhood family stepped forward to adopt the little survivor."
+      },
+      {
+        "text": "Set out a warm insulated box with food on the porch",
+        "icon": "📦",
+        "description": "+4 Karma",
+        "type": "kind",
+        "effects": {
+          "karma": 4
+        },
+        "result": "The kitten ate hungrily, slept safely through the storm, and was sheltered from the freezing rain."
+      }
+    ]
+  },
+  {
+    "id": "whistleblower_safety_dilemma",
+    "min_age": 25,
+    "max_age": 60,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "CORPORATE SAFETY CORNER-CUTTING",
+    "text_variants": [
+      "You uncover internal audit memos showing management knowingly approved compromised safety equipment to hit financial targets.",
+      "Confidential reports cross your desk revealing dangerous corner-cutting on public-facing infrastructure projects."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Submit anonymous documentation to federal regulators",
+        "icon": "⚖️",
+        "description": "+16 Karma, +8 Smarts",
+        "type": "righteous",
+        "effects": {
+          "karma": 16,
+          "smarts": 8
+        },
+        "result": "Regulators launched an unannounced safety inspection, ordering complete remediation before any workers or civilians were harmed."
+      },
+      {
+        "text": "Demand an emergency meeting with internal compliance",
+        "icon": "📁",
+        "description": "+6 Smarts, +4 Karma",
+        "type": "diplomatic",
+        "effects": {
+          "smarts": 6,
+          "karma": 4
+        },
+        "result": "Faced with documented evidence, compliance officers intervened and forced management to replace the faulty components."
+      },
+      {
+        "text": "Keep quiet to protect your career standing",
+        "icon": "🤐",
+        "description": "-12 Karma, -6 Happiness",
+        "type": "cowardly",
+        "effects": {
+          "karma": -12,
+          "happiness": -6
+        },
+        "result": "You preserved your bonus, but the burden of complicity weighed heavily on your moral conscience."
+      },
+      {
+        "text": "Resign cleanly and seek employment with an ethical firm",
+        "icon": "🚶",
+        "description": "+8 Karma, -2 Happiness",
+        "type": "principled",
+        "effects": {
+          "karma": 8,
+          "happiness": -2
+        },
+        "result": "You refused to participate in negligence, turned in your badge with your integrity intact, and found an honorable workplace."
+      }
+    ]
+  },
+  {
+    "id": "perseid_meteor_night",
+    "min_age": 16,
+    "max_age": 90,
+    "repeatable": true,
+    "cooldown_years": 12,
+    "weight": 100,
+    "conditions": {},
+    "title": "PEAK METEOR SHOWER",
+    "text_variants": [
+      "Astronomers forecast that tonight's annual Perseid meteor shower will blaze across the dark night sky with zero moonlight interference.",
+      "Clear, crisp midnight skies create optimal viewing conditions for dozens of streaking shooting stars per hour."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Drive to a scenic mountain overlook with warm cider",
+        "icon": "🌌",
+        "description": "+12 Happiness, +4 Health",
+        "type": "adventurous",
+        "effects": {
+          "happiness": 12,
+          "health": 4
+        },
+        "result": "Surrounded by pine-scented mountain air, you watched brilliant emerald fireballs streak across the cosmos for hours."
+      },
+      {
+        "text": "Watch from a comfortable recliner in your backyard",
+        "icon": "✨",
+        "description": "+8 Happiness",
+        "type": "peaceful",
+        "effects": {
+          "happiness": 8
+        },
+        "result": "Bundled in a wool blanket, you spotted fifteen dazzling shooting stars before heading inside for restful sleep."
+      },
+      {
+        "text": "Host an impromptu rooftop stargazing night with neighbors",
+        "icon": "🔭",
+        "description": "+10 Happiness, +4 Karma",
+        "type": "social",
+        "effects": {
+          "happiness": 10,
+          "karma": 4
+        },
+        "result": "You shared binoculars, telescope views, and warm cider with enthusiastic neighbors in an unforgettable evening."
+      },
+      {
+        "text": "Head to bed early to ensure a full eight hours of sleep",
+        "icon": "🛏️",
+        "description": "+2 Health",
+        "type": "practical",
+        "effects": {
+          "health": 2
+        },
+        "result": "You woke up feeling completely refreshed and rested for the week ahead."
+      }
+    ]
+  },
+  {
+    "id": "overseas_solo_journey",
+    "min_age": 21,
+    "max_age": 55,
+    "repeatable": true,
+    "cooldown_years": 10,
+    "weight": 100,
+    "conditions": {},
+    "title": "SOLO OVERSEAS RETREAT",
+    "text_variants": [
+      "With accrued vacation time and an aching urge for personal discovery, you contemplate booking an international solo voyage.",
+      "You feel the strong call of wanderlust: a chance to step outside your comfort zone and explore historic lands across the ocean."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Trek through ancient alpine mountain sanctuaries",
+        "icon": "🏔️",
+        "description": "-$2,400 Money, +20 Happiness, +8 Smarts",
+        "type": "adventurous",
+        "effects": {
+          "money": -2400,
+          "happiness": 20,
+          "smarts": 8
+        },
+        "result": "Traversing misty mountain passes and historic monasteries gave you immense mental clarity and unforgettable memories."
+      },
+      {
+        "text": "Book an all-inclusive coastal wellness resort",
+        "icon": "🏖️",
+        "description": "-$3,800 Money, +16 Happiness, +10 Health",
+        "type": "luxurious",
+        "effects": {
+          "money": -3800,
+          "happiness": 16,
+          "health": 10
+        },
+        "result": "Daily seaside massages, fresh organic cuisine, and turquoise waters left your body revitalized and glowing."
+      },
+      {
+        "text": "Enroll in an intensive regional culinary immersion",
+        "icon": "🍳",
+        "description": "-$1,800 Money, +14 Happiness, +12 Smarts",
+        "type": "educational",
+        "effects": {
+          "money": -1800,
+          "happiness": 14,
+          "smarts": 12
+        },
+        "result": "Master chefs taught you century-old cooking techniques and palate secrets that elevated your cooking forever."
+      },
+      {
+        "text": "Postpone the journey and deposit the funds into savings",
+        "icon": "🏦",
+        "description": "+$500 Bank Savings, +2 Smarts",
+        "type": "frugal",
+        "effects": {
+          "bank_savings": 500,
+          "smarts": 2
+        },
+        "result": "You disciplined your impulses and watched your interest-bearing bank balance grow."
+      }
+    ]
+  },
+  {
+    "id": "cryptic_dna_ancestry",
+    "min_age": 22,
+    "max_age": 80,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "GENEALOGICAL DNA DISCOVERY",
+    "text_variants": [
+      "Your mail-in genealogical DNA results reveal a surprise: strong genetic ties to an ancient historical family line in Eastern Europe.",
+      "A genomic ancestry database flags a high match with distant cousins living across two separate continents."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Message discovered distant cousins via the portal",
+        "icon": "✉️",
+        "description": "+8 Happiness, +4 Smarts",
+        "type": "curious",
+        "effects": {
+          "happiness": 8,
+          "smarts": 4
+        },
+        "result": "You exchanged old family letters and sepia photographs, bridging generations of family lore."
+      },
+      {
+        "text": "Spend days researching immigration records at the archive",
+        "icon": "📚",
+        "description": "+10 Smarts, +4 Happiness",
+        "type": "scholarly",
+        "effects": {
+          "smarts": 10,
+          "happiness": 4
+        },
+        "result": "Uncovering ship manifests and historical citizenship papers provided a profound sense of rootedness and identity."
+      },
+      {
+        "text": "Order an advanced medical genomic analysis",
+        "icon": "🧬",
+        "description": "-$300 Money, +6 Smarts, +2 Health",
+        "type": "medical",
+        "effects": {
+          "money": -300,
+          "smarts": 6,
+          "health": 2
+        },
+        "result": "The medical panel confirmed strong cardiovascular genetics, helping you tailor your nutritional lifestyle."
+      },
+      {
+        "text": "Treat the results as fun novelty trivia",
+        "icon": "🤷",
+        "description": "+2 Happiness",
+        "type": "casual",
+        "effects": {
+          "happiness": 2
+        },
+        "result": "You shared the trivia over family dinner and continued living in the present."
+      }
+    ]
+  },
+  {
+    "id": "backyard_grandchild_campout",
+    "min_age": 48,
+    "max_age": 92,
+    "repeatable": true,
+    "cooldown_years": 8,
+    "weight": 100,
+    "conditions": {},
+    "title": "BACKYARD FAMILY CAMPOUT",
+    "text_variants": [
+      "Younger family relatives plead with wide smiles for an outdoor campout in your backyard with lanterns, sleeping bags, and treats.",
+      "The grandkids arrive for the weekend, demanding an official wilderness expedition right on the back lawn."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Pitch the tent, roast marshmallows, and tell folktales",
+        "icon": "⛺",
+        "description": "+16 Happiness, +6 Karma",
+        "type": "nurturing",
+        "effects": {
+          "happiness": 16,
+          "karma": 6
+        },
+        "result": "The sound of eager laughter, campfire crackles, and wide-eyed amazement gave everyone memories that will last a lifetime."
+      },
+      {
+        "text": "Build a gigantic indoor living room pillow fortress",
+        "icon": "🏰",
+        "description": "+12 Happiness, +4 Karma",
+        "type": "creative",
+        "effects": {
+          "happiness": 12,
+          "karma": 4
+        },
+        "result": "Using couch cushions, clothespins, and soft blankets, you constructed an impenetrable fortress of fun and joy."
+      },
+      {
+        "text": "Take everyone to an outdoor retro drive-in movie",
+        "icon": "🎬",
+        "description": "-$60 Money, +10 Happiness",
+        "type": "entertaining",
+        "effects": {
+          "money": -60,
+          "happiness": 10
+        },
+        "result": "Hot buttered popcorn and animated classics under the stars made the weekend an absolute success."
+      },
+      {
+        "text": "Set up yard games and let them play independently",
+        "icon": "🏸",
+        "description": "+6 Happiness",
+        "type": "easygoing",
+        "effects": {
+          "happiness": 6
+        },
+        "result": "You relaxed with an iced tea on the patio while watching them gleefully play tag across the yard."
+      }
+    ]
+  },
+  {
+    "id": "heirloom_gardening_contest",
+    "min_age": 45,
+    "max_age": 95,
+    "repeatable": true,
+    "cooldown_years": 8,
+    "weight": 100,
+    "conditions": {},
+    "title": "COUNTY HARVEST FAIR",
+    "text_variants": [
+      "The regional botanical society announces their annual harvest contest featuring gigantic heirloom vegetables and rare cultivars.",
+      "County fair organizers invite green-thumb gardeners to submit their finest home-grown produce for judging ribbons."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Enter your prize giant heirloom beefsteak tomatoes",
+        "icon": "🍅",
+        "description": "+$250 First Prize, +14 Happiness, +4 Smarts",
+        "type": "horticultural",
+        "effects": {
+          "money": 250,
+          "happiness": 14,
+          "smarts": 4
+        },
+        "result": "Judges awarded your tomatoes the prestigious Blue Ribbon for flavor, density, and organic presentation!"
+      },
+      {
+        "text": "Exhibit a vibrant arrangement of floral dahlias",
+        "icon": "🌸",
+        "description": "+12 Happiness, +3 Looks",
+        "type": "aesthetic",
+        "effects": {
+          "happiness": 12,
+          "looks": 3
+        },
+        "result": "Your dazzling multi-colored blooms drew a steady crowd of admirers who took dozens of photos."
+      },
+      {
+        "text": "Volunteer as an impartial judge for jams and preserves",
+        "icon": "🍯",
+        "description": "+6 Karma, +6 Happiness",
+        "type": "community",
+        "effects": {
+          "karma": 6,
+          "happiness": 6
+        },
+        "result": "You sampled wonderful berry jams, supported passionate local growers, and made lifelong friends."
+      },
+      {
+        "text": "Stroll the fairgrounds enjoying fresh apple fritters",
+        "icon": "🍎",
+        "description": "+6 Happiness",
+        "type": "indulgent",
+        "effects": {
+          "happiness": 6
+        },
+        "result": "A crisp autumn afternoon tasting spiced cider and fried treats was pure bliss."
+      }
+    ]
+  },
+  {
+    "id": "mediterranean_cruise_talent",
+    "min_age": 55,
+    "max_age": 95,
+    "repeatable": true,
+    "cooldown_years": 10,
+    "weight": 100,
+    "conditions": {},
+    "title": "CRUISE BALLROOM SPOTLIGHT",
+    "text_variants": [
+      "While sailing aboard a sun-drenched coastal cruise ship, the gala bandleader spots you and gestures you onto the dance floor.",
+      "During the ship captain's formal dinner, the jazz orchestra strikes up a vibrant tango and the room looks your way."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Take the floor and dance with joyful flair",
+        "icon": "💃",
+        "description": "+18 Happiness, +4 Health, +4 Looks",
+        "type": "charismatic",
+        "effects": {
+          "happiness": 18,
+          "health": 4,
+          "looks": 4
+        },
+        "result": "You glided effortlessly across the floor. The dining hall erupted in spontaneous applause as you took a graceful bow."
+      },
+      {
+        "text": "Politely toast the musicians from your comfortable table",
+        "icon": "🥂",
+        "description": "+6 Happiness",
+        "type": "modest",
+        "effects": {
+          "happiness": 6
+        },
+        "result": "You raised your glass with a smile, appreciating the music while savoring your vintage wine."
+      },
+      {
+        "text": "Enter the ship's evening trivia championship instead",
+        "icon": "🏆",
+        "description": "+8 Smarts, +6 Happiness",
+        "type": "intellectual",
+        "effects": {
+          "smarts": 8,
+          "happiness": 6
+        },
+        "result": "Your razor-sharp memory on world geography dominated the leaderboard, securing you a commemorative ship trophy."
+      },
+      {
+        "text": "Retreat to the quiet deck to watch luminous waves",
+        "icon": "🌊",
+        "description": "+10 Happiness",
+        "type": "serene",
+        "effects": {
+          "happiness": 10
+        },
+        "result": "The cool sea breeze and glittering ocean moonlight brought unmatched tranquility to your soul."
+      }
+    ]
+  },
+  {
+    "id": "midlife_motorcycle_temptation",
+    "min_age": 38,
+    "max_age": 62,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "THE MIDLIFE CRUISER",
+    "text_variants": [
+      "While strolling past a premier motorcycle boutique, a midnight-blue American cruiser parked on display turns your head.",
+      "You find yourself staring longingly at a roaring touring motorcycle in a downtown showroom window."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Sign the papers and buy the gleaming cruiser",
+        "icon": "🏍️",
+        "description": "-$7,800 Money, +18 Happiness, +6 Looks",
+        "type": "thrilling",
+        "effects": {
+          "money": -7800,
+          "happiness": 18,
+          "looks": 6
+        },
+        "result": "Wind in your face, the throaty rumble beneath you, and scenic highway curves reminded you of youthful vitality."
+      },
+      {
+        "text": "Rent one for a single weekend coastal trip",
+        "icon": "🛣️",
+        "description": "-$350 Money, +10 Happiness",
+        "type": "moderate",
+        "effects": {
+          "money": -350,
+          "happiness": 10
+        },
+        "result": "You scratched the adventure itch, took stunning photos along coastal cliffs, and returned it without long-term upkeep."
+      },
+      {
+        "text": "Invest in a high-end touring road bicycle instead",
+        "icon": "🚴",
+        "description": "-$1,200 Money, +12 Health, +8 Happiness",
+        "type": "healthy",
+        "effects": {
+          "money": -1200,
+          "health": 12,
+          "happiness": 8
+        },
+        "result": "You pedaled scenic trails, burnt thousands of calories, and gained extraordinary cardio fitness."
+      },
+      {
+        "text": "Remind yourself of safety risks and walk away",
+        "icon": "🛡️",
+        "description": "+4 Smarts",
+        "type": "cautious",
+        "effects": {
+          "smarts": 4
+        },
+        "result": "You smiled at the romantic fantasy and wisely chose to keep both wheels of your standard vehicle safely on the asphalt."
+      }
+    ]
+  },
+  {
+    "id": "reminiscing_lost_friend",
+    "min_age": 45,
+    "max_age": 95,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "SNAPSHOT OF A CHILDHOOD FRIEND",
+    "text_variants": [
+      "While flipping through a cloth-bound photograph album, you stop at a sun-faded photo of your dearest childhood friend from decades ago.",
+      "A sudden wave of warmth washes over you as an old keepsake reminds you of a companion you haven't seen in over thirty years."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Search records and write them a heartfelt letter",
+        "icon": "✉️",
+        "description": "+16 Happiness, +6 Karma",
+        "type": "heartwarming",
+        "effects": {
+          "happiness": 16,
+          "karma": 6
+        },
+        "result": "They wrote back within two weeks! Decades dissolved as you rekindled a precious, irreplaceable friendship."
+      },
+      {
+        "text": "Send them a friendly message on social media",
+        "icon": "📱",
+        "description": "+10 Happiness",
+        "type": "friendly",
+        "effects": {
+          "happiness": 10
+        },
+        "result": "You exchanged warm updates on careers, families, and shared fond memories of the neighborhood you grew up in."
+      },
+      {
+        "text": "Frame the photo and display it on your desk",
+        "icon": "🖼️",
+        "description": "+8 Happiness",
+        "type": "nostalgic",
+        "effects": {
+          "happiness": 8
+        },
+        "result": "The framed picture brought a steady comforting reminder of life's sweetness and innocent beginnings."
+      },
+      {
+        "text": "Silently cherish the memory and carry on",
+        "icon": "🧘",
+        "description": "+4 Happiness",
+        "type": "peaceful",
+        "effects": {
+          "happiness": 4
+        },
+        "result": "You closed the album with a grateful smile for having known such good company in your formative years."
+      }
+    ]
+  },
+  {
+    "id": "book_club_philosophical_clash",
+    "min_age": 22,
+    "max_age": 88,
+    "repeatable": true,
+    "cooldown_years": 8,
+    "weight": 100,
+    "conditions": {},
+    "title": "BOOK CLUB MORAL DEBATE",
+    "text_variants": [
+      "At your monthly neighborhood literature salon, a passionate philosophical debate erupts over the protagonist's final fateful choice.",
+      "Voices rise with spirited excitement at book club as members clash over the themes of justice and personal compromise."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Offer a nuanced synthesis that bridges both perspectives",
+        "icon": "📖",
+        "description": "+10 Smarts, +6 Karma, +6 Happiness",
+        "type": "intellectual",
+        "effects": {
+          "smarts": 10,
+          "karma": 6,
+          "happiness": 6
+        },
+        "result": "Your thoughtful analysis brought silence, followed by nodding heads. The entire group praised your intellectual depth."
+      },
+      {
+        "text": "Passionately defend the tragic antihero's motives",
+        "icon": "🔥",
+        "description": "+6 Smarts, +4 Happiness",
+        "type": "bold",
+        "effects": {
+          "smarts": 6,
+          "happiness": 4
+        },
+        "result": "Your fiery rhetoric enlivened the meeting and prompted spirited applause from fellow members."
+      },
+      {
+        "text": "Sip Cabernet and enjoy the intellectual fireworks",
+        "icon": "🍷",
+        "description": "+8 Happiness",
+        "type": "spectator",
+        "effects": {
+          "happiness": 8
+        },
+        "result": "You ate artisan crackers, drank fine wine, and found supreme entertainment in the spirited battle of wits."
+      },
+      {
+        "text": "Suggest a heartwarming humorous novel for next month",
+        "icon": "📚",
+        "description": "+4 Happiness, +2 Karma",
+        "type": "peaceful",
+        "effects": {
+          "happiness": 4,
+          "karma": 2
+        },
+        "result": "The room laughed with relief and universally approved your delightful comedic selection."
+      }
+    ]
+  },
+  {
+    "id": "winter_lake_cold_plunge",
+    "min_age": 18,
+    "max_age": 62,
+    "repeatable": true,
+    "cooldown_years": 8,
+    "weight": 100,
+    "conditions": {},
+    "title": "WINTER GLACIAL PLUNGE",
+    "text_variants": [
+      "Athletic friends invite you to join their traditional midwinter frozen lake dip, sworn to stimulate immune function and mental grit.",
+      "A crisp morning at a mountain lake beckons: a community polar plunge followed by a crackling cedar sauna."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Leap into the icy water with an exhilarating shout",
+        "icon": "❄️",
+        "description": "+14 Health, +12 Happiness",
+        "type": "fearless",
+        "effects": {
+          "health": 14,
+          "happiness": 12
+        },
+        "result": "The shock was electric! As you surged out into the hot cedar sauna, your bloodstream surged with pure primal adrenaline."
+      },
+      {
+        "text": "Wade in up to your knees, shriek, and dash back out",
+        "icon": "🥶",
+        "description": "+6 Health, +6 Happiness",
+        "type": "humorous",
+        "effects": {
+          "health": 6,
+          "happiness": 6
+        },
+        "result": "Your toes went numb in seconds, sending you scrambling for towels amidst friendly laughter."
+      },
+      {
+        "text": "Stay comfortably inside the barrel sauna drinking tea",
+        "icon": "🧖",
+        "description": "+8 Happiness, +4 Health",
+        "type": "cozy",
+        "effects": {
+          "happiness": 8,
+          "health": 4
+        },
+        "result": "Steam, cedar wood aromas, and herbal tea gave you complete warmth without suffering freezing lake water."
+      },
+      {
+        "text": "Capture photos and cheer on your daring companions",
+        "icon": "📸",
+        "description": "+6 Happiness, +2 Karma",
+        "type": "supportive",
+        "effects": {
+          "happiness": 6,
+          "karma": 2
+        },
+        "result": "You snapped unforgettable candid shots of your shivering friends, which became the talk of the group chat."
+      }
+    ]
+  },
+  {
+    "id": "memoir_publishing_offer",
+    "min_age": 55,
+    "max_age": 99,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "MEMOIR PUBLISHING DEAL",
+    "text_variants": [
+      "A literary editor happens upon your published community journals and reaches out with an official book advance to publish your life memoirs.",
+      "An established publishing press offers you a contract to compile your life stories and historical perspective into a published book."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Accept the contract and complete the manuscript",
+        "icon": "📖",
+        "description": "+$6,500 Advance, +16 Happiness, +12 Smarts",
+        "type": "author",
+        "effects": {
+          "money": 6500,
+          "happiness": 16,
+          "smarts": 12
+        },
+        "result": "Your book was published to warm acclaim. Holding your hardbound life reflections was an immense accomplishment."
+      },
+      {
+        "text": "Self-publish a private heirloom edition strictly for family",
+        "icon": "📚",
+        "description": "-$800 Printing, +18 Happiness",
+        "type": "family",
+        "effects": {
+          "money": -800,
+          "happiness": 18
+        },
+        "result": "Each of your children and relatives received a gold-stamped hardcover copy, cherishing your wisdom for generations."
+      },
+      {
+        "text": "Politely decline—some memories belong solely to you",
+        "icon": "🔒",
+        "description": "+8 Happiness",
+        "type": "private",
+        "effects": {
+          "happiness": 8
+        },
+        "result": "You protected the intimacy of your memories, content in knowing the richness of your personal journey."
+      },
+      {
+        "text": "Donate the entire royalty advance to youth literacy",
+        "icon": "🎁",
+        "description": "+$2,500 Money, +16 Karma, +12 Happiness",
+        "type": "philanthropic",
+        "effects": {
+          "money": 2500,
+          "karma": 16,
+          "happiness": 12
+        },
+        "result": "Your generosity funded school libraries and writing workshops, inspiring hundreds of aspiring young authors."
+      }
+    ]
+  },
+  {
+    "id": "grandfather_clock_secret",
+    "min_age": 30,
+    "max_age": 88,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "THE CLOCKMAKER'S HIDDEN COMPARTMENT",
+    "text_variants": [
+      "While polishing the carved walnut casing of a family heirloom grandfather clock, your knuckle catches a recessed spring catch.",
+      "A secret wooden drawer pops open behind the pendulum of an antique tallcase clock."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Inspect the secret drawer and inventory its contents",
+        "icon": "🗝️",
+        "description": "+$1,800 Old Currency & Coins, +12 Smarts, +10 Happiness",
+        "type": "curious",
+        "effects": {
+          "money": 1800,
+          "smarts": 12,
+          "happiness": 10
+        },
+        "result": "Inside was a bundle of collector gold certificates and historic silver coins worth $1,800 today!"
+      },
+      {
+        "text": "Carefully oil and restore the escapement mechanism",
+        "icon": "⚙️",
+        "description": "+8 Smarts, +6 Happiness",
+        "type": "craftsman",
+        "effects": {
+          "smarts": 8,
+          "happiness": 6
+        },
+        "result": "The clock's chimes rang out in resonant, majestic tones that echoed harmoniously throughout your household."
+      },
+      {
+        "text": "Consult a master horologist to preserve its value",
+        "icon": "🔍",
+        "description": "+6 Smarts",
+        "type": "preservation",
+        "effects": {
+          "smarts": 6
+        },
+        "result": "The horologist verified its historical provenance, certifying it as an exceptional museum-grade timepiece."
+      },
+      {
+        "text": "Leave the drawer closed to preserve the mystery",
+        "icon": "🕰️",
+        "description": "+4 Happiness",
+        "type": "romantic",
+        "effects": {
+          "happiness": 4
+        },
+        "result": "You closed the secret panel, smiling at the charming enigma woven into your home's decor."
+      }
+    ]
+  },
+  {
+    "id": "community_garden_revival",
+    "min_age": 18,
+    "max_age": 85,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "COMMUNITY LOT REVITALIZATION",
+    "text_variants": [
+      "An overgrown vacant parcel down the street is scheduled to be asphalted over unless neighborhood volunteers turn it into a green park.",
+      "Neighborhood organizers gather signatures and volunteers to transform a derelict urban lot into a flourishing community garden."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Lead the weekend working bee, building cedar garden beds",
+        "icon": "🌱",
+        "description": "+12 Health, +16 Karma, +12 Happiness",
+        "type": "leader",
+        "effects": {
+          "health": 12,
+          "karma": 16,
+          "happiness": 12
+        },
+        "result": "Dozens of residents showed up with shovels and saplings. The blighted lot became a thriving urban sanctuary filled with butterflies."
+      },
+      {
+        "text": "Donate $300 for organic soil, tools, and seeds",
+        "icon": "🌻",
+        "description": "-$300 Money, +12 Karma, +8 Happiness",
+        "type": "donor",
+        "effects": {
+          "money": -300,
+          "karma": 12,
+          "happiness": 8
+        },
+        "result": "Your funding purchased wheelbarrows, compost, and fruit trees, accelerating the revitalization tenfold."
+      },
+      {
+        "text": "Organize a municipal petition to protect park zoning",
+        "icon": "📜",
+        "description": "+8 Smarts, +8 Karma",
+        "type": "advocate",
+        "effects": {
+          "smarts": 8,
+          "karma": 8
+        },
+        "result": "City hall officially designated the parcel as permanent protected public recreational greenspace."
+      },
+      {
+        "text": "Walk past and let the municipal bulldozers proceed",
+        "icon": "🚶",
+        "description": "-4 Karma",
+        "type": "passive",
+        "effects": {
+          "karma": -4
+        },
+        "result": "Within weeks, gray concrete and chain-link fences replaced the open soil."
+      }
+    ]
+  },
+  {
+    "id": "burnout_mindfulness_revelation",
+    "min_age": 26,
+    "max_age": 65,
+    "repeatable": true,
+    "cooldown_years": 10,
+    "weight": 100,
+    "conditions": {},
+    "title": "EXHAUSTION & RECOVERY",
+    "text_variants": [
+      "After months of intense 60-hour work weeks and relentless digital notifications, you hit a wall of profound physical and mental exhaustion.",
+      "Chronic career fatigue catches up with you, demanding immediate attention to avoid severe mental and physical burnout."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Shut off all devices and take solitary woodland walks",
+        "icon": "🌲",
+        "description": "+12 Health, +14 Happiness",
+        "type": "peaceful",
+        "effects": {
+          "health": 12,
+          "happiness": 14
+        },
+        "result": "Birds chirping and the quiet rustle of wind through pines restored your depleted nervous system and grounded your thoughts."
+      },
+      {
+        "text": "Schedule a therapeutic massage and hot thermal baths",
+        "icon": "🧖",
+        "description": "-$180 Money, +10 Health, +10 Happiness",
+        "type": "wellness",
+        "effects": {
+          "money": -180,
+          "health": 10,
+          "happiness": 10
+        },
+        "result": "The deep tension locked in your shoulders and spine melted away completely under warm towels and botanical oils."
+      },
+      {
+        "text": "Delegate non-essential responsibilities and set firm boundaries",
+        "icon": "🛡️",
+        "description": "+8 Smarts, +6 Happiness",
+        "type": "healthy_limits",
+        "effects": {
+          "smarts": 8,
+          "happiness": 6
+        },
+        "result": "Asserting reasonable boundaries restored balance without jeopardizing your professional accomplishments."
+      },
+      {
+        "text": "Power through with triple-shot espressos",
+        "icon": "☕",
+        "description": "-8 Health, -4 Happiness",
+        "type": "stubborn",
+        "effects": {
+          "health": -8,
+          "happiness": -4
+        },
+        "result": "Caffeine pushed you through another week, but heart palpitations and persistent insomnia soon followed."
+      }
+    ]
+  },
+  {
+    "id": "vintage_flea_market_treasure",
+    "min_age": 20,
+    "max_age": 75,
+    "repeatable": true,
+    "cooldown_years": 8,
+    "weight": 100,
+    "conditions": {},
+    "title": "FLEA MARKET SILVER TREASURE",
+    "text_variants": [
+      "At an open-air Sunday market, you spot a heavily tarnished teapot buried in a box of old kitchenwares marked '$15 as-is'.",
+      "While rummaging through flea market stalls, your eye catches distinct hallmarks beneath the patina of an antique silver vessel."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Buy it for $15, polish it, and sell to a silversmith",
+        "icon": "🪙",
+        "description": "+$620 Profit, +12 Happiness, +6 Smarts",
+        "type": "entrepreneurial",
+        "effects": {
+          "money": 605,
+          "happiness": 12,
+          "smarts": 6
+        },
+        "result": "Polishing revealed genuine 1880s sterling silver hallmarks! A jeweler bought it for $620 cash on the spot."
+      },
+      {
+        "text": "Inform the elderly seller of its authentic sterling value",
+        "icon": "🤝",
+        "description": "+15 Karma, +8 Happiness",
+        "type": "honorable",
+        "effects": {
+          "karma": 15,
+          "happiness": 8
+        },
+        "result": "The seller was deeply touched by your honesty, thanked you warmly, and gave you a lovely hand-carved wooden bowl as a gift."
+      },
+      {
+        "text": "Buy it to use as a rustic flower vase on your patio",
+        "icon": "💐",
+        "description": "-$15 Money, +6 Happiness",
+        "type": "charming",
+        "effects": {
+          "money": -15,
+          "happiness": 6
+        },
+        "result": "Filled with fresh garden lavender, it looked wonderfully quaint on your garden dining table."
+      },
+      {
+        "text": "Pass and browse antique novels instead",
+        "icon": "📖",
+        "description": "-$5 Money, +4 Smarts",
+        "type": "literary",
+        "effects": {
+          "money": -5,
+          "smarts": 4
+        },
+        "result": "You picked up a classic illustrated mystery novel and spent a delightful afternoon reading."
+      }
+    ]
+  },
+  {
+    "id": "amateur_astronomy_discovery",
+    "min_age": 20,
+    "max_age": 80,
+    "repeatable": false,
+    "weight": 100,
+    "conditions": {},
+    "title": "TELESCOPE ASTEROID CAPTURE",
+    "text_variants": [
+      "While long-exposure astrophotographing through your backyard telescope, you notice a moving pinpoint of light crossing stellar coordinates.",
+      "Your telescope camera captures an uncataloged celestial object drifting steadily near Mars' orbital plane."
+    ],
+    "choice_count": 4,
+    "choices": [
+      {
+        "text": "Submit telemetry data to the Minor Planet Center",
+        "icon": "🔭",
+        "description": "+16 Smarts, +14 Happiness",
+        "type": "scientific",
+        "effects": {
+          "smarts": 16,
+          "happiness": 14
+        },
+        "result": "Professional astronomers verified the telemetry and officially credited you with discovering a near-earth asteroid!"
+      },
+      {
+        "text": "Share the composite images on astrophotography forums",
+        "icon": "🌌",
+        "description": "+10 Happiness, +6 Smarts",
+        "type": "popular",
+        "effects": {
+          "happiness": 10,
+          "smarts": 6
+        },
+        "result": "Your breathtaking composite image reached the front page of science forums, earning thousands of enthusiastic comments."
+      },
+      {
+        "text": "Record the coordinates in your private stargazing log",
+        "icon": "📓",
+        "description": "+8 Happiness, +6 Smarts",
+        "type": "scholarly",
+        "effects": {
+          "happiness": 8,
+          "smarts": 6
+        },
+        "result": "You tracked its trajectory night after night, experiencing the quiet thrill of personal scientific exploration."
+      },
+      {
+        "text": "Invite local children over to view it through the lens",
+        "icon": "🪐",
+        "description": "+12 Karma, +10 Happiness",
+        "type": "inspiring",
+        "effects": {
+          "karma": 12,
+          "happiness": 10
+        },
+        "result": "Seeing the kids gasp in awe at the wonders of the night sky made you feel deeply fulfilled."
+      }
     ]
   }
-]
+]

@@ -36,6 +36,7 @@ var health: int = 80
 var happiness: int = 75
 var smarts: int = 60
 var looks: int = 65
+var mental_state: int = 80
 
 var first_name: String = ""
 var birthplace: String = ""
@@ -177,7 +178,12 @@ var cause_of_death: String = ""
 var is_in_prison: bool = false
 var prison_sentence_years: int = 0
 
+var is_in_mental_institution: bool = false
+var mental_institution_years_left: int = 0
+var mental_institution_annual_cost: int = 15000
+
 var event_history: Array = []
+var event_history_log: Dictionary = {}
 var life_log: Array = []
 
 var social_media: Dictionary = {}
@@ -274,6 +280,7 @@ func reset_player() -> void:
 	happiness = 75
 	smarts = 60
 	looks = 65
+	mental_state = 80
 
 	karma = 0
 	money = 0
@@ -328,7 +335,12 @@ func reset_player() -> void:
 	is_in_prison = false
 	prison_sentence_years = 0
 
+	is_in_mental_institution = false
+	mental_institution_years_left = 0
+	mental_institution_annual_cost = 15000
+
 	event_history.clear()
+	event_history_log.clear()
 	life_log.clear()
 	degrees.clear()
 	licenses.clear()
@@ -1027,6 +1039,7 @@ func get_stats() -> Dictionary:
 		"happiness": happiness,
 		"smarts": smarts,
 		"looks": looks,
+		"mental_state": mental_state,
 		"karma": karma,
 		"underground_completed": int(underground_progress.get("completed", 0)),
 		"has_firearm": has_firearm()
@@ -1038,6 +1051,8 @@ func apply_effects(effects: Dictionary) -> void:
 	happiness += int(effects.get("happiness", 0))
 	smarts += int(effects.get("smarts", 0))
 	looks += int(effects.get("looks", 0))
+	if effects.has("mental_state"):
+		mental_state += int(effects.get("mental_state", 0))
 	karma += int(effects.get("karma", 0))
 
 	if effects.has("grades"):
@@ -1067,6 +1082,7 @@ func apply_effects(effects: Dictionary) -> void:
 	happiness = clamp(happiness, 0, 100)
 	smarts = clamp(smarts, 0, 100)
 	looks = clamp(looks, 0, 100)
+	mental_state = clamp(mental_state, 0, 100)
 	karma = clamp(karma, -100, 100)
 	grades = clamp(grades, 0, 100)
 
@@ -1124,12 +1140,48 @@ func has_seen_event(event_id: String) -> bool:
 	return event_history.has(event_id)
 
 
-func record_event(event_id: String) -> void:
+func record_event(event_id: String, event_age: int = -1) -> void:
 	if event_id == "":
 		return
 
 	if not event_history.has(event_id):
 		event_history.append(event_id)
+	var rec_age: int = event_age if event_age >= 0 else age
+	event_history_log[event_id] = rec_age
+
+
+func calculate_mental_state_drift() -> int:
+	# 1. Base equilibrium: Average of the 4 core attributes
+	var avg_stats: float = (float(health) + float(happiness) + float(smarts) + float(looks)) / 4.0
+
+	# 2. Deficit drag penalties: severe deficiencies cause chronic psychological distress
+	# Example: High smarts & happiness, but severely low looks (< 40) causes persistent insecurity and mental deterioration
+	var drag: float = 0.0
+	if health < 50:
+		drag += (50.0 - float(health)) * 0.35
+	if looks < 50:
+		drag += (50.0 - float(looks)) * 0.40 # appearance distress / insecurity
+	if smarts < 40:
+		drag += (40.0 - float(smarts)) * 0.30
+	if happiness < 45:
+		drag += (45.0 - float(happiness)) * 0.45
+
+	# Real-world chronic external stressors
+	if get_total_debt() > 20000:
+		drag += minf(15.0, float(get_total_debt() - 20000) / 6000.0)
+	if is_in_prison:
+		drag += 12.0
+	if not illnesses.is_empty():
+		drag += minf(16.0, float(illnesses.size()) * 5.0)
+
+	var target_equilibrium: float = clampf(avg_stats - drag, 5.0, 100.0)
+
+	# 3. Drift smoothly towards target equilibrium (approx 28% of gap per year)
+	var diff: float = target_equilibrium - float(mental_state)
+	var shift: int = int(round(diff * 0.28))
+	if shift == 0 and abs(diff) > 2.5:
+		shift = 1 if diff > 0 else -1
+	return shift
 
 
 func has_partner() -> bool:

@@ -15,7 +15,7 @@ const ACHIEVEMENTS = [
 	["asset", "Proud Owner", "Own your first asset."],
 	["graduate", "Cap and Gown", "Earn a degree."]
 ]
-const GAME_VERSION: String = "0.1.0"
+const GAME_VERSION: String = "0.1.1"
 var profile_path := "user://life_library.json"
 var slots_path := "user://lives"
 var resume_path := SaveManager.SAVE_PATH

@@ -6,7 +6,8 @@ const STATS = {
 	"health": '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><path d="M32 54 C30 52 10 36 10 22 C10 14 16 8 24 8 C28.5 8 31 10.5 32 12 C33 10.5 35.5 8 40 8 C48 8 54 14 54 22 C54 36 34 52 32 54 Z" fill="#10b981"/></svg>',
 	"happiness": '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#f59e0b"/><path d="M20 36 Q32 52 44 36" fill="none" stroke="#1c1917" stroke-width="5" stroke-linecap="round"/><circle cx="23" cy="24" r="3.5" fill="#1c1917"/><circle cx="41" cy="24" r="3.5" fill="#1c1917"/></svg>',
 	"smarts": '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><path d="M32 6 A18 18 0 0 0 17 27 C17 33 21 37 23 41 L41 41 C43 37 47 33 47 27 A18 18 0 0 0 32 6 Z" fill="#0284c7"/><path d="M24 47 H40 M26 53 H38" fill="none" stroke="#0284c7" stroke-width="4.5" stroke-linecap="round"/><path d="M32 18 V28 M27 23 H37" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/></svg>',
-	"looks": '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><path d="M32 4 Q32 32 60 32 Q32 32 32 60 Q32 32 4 32 Q32 32 32 4 Z" fill="#db2777"/><circle cx="50" cy="14" r="4.5" fill="#db2777"/><circle cx="14" cy="50" r="3.5" fill="#db2777"/></svg>'
+	"looks": '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><path d="M32 4 Q32 32 60 32 Q32 32 32 60 Q32 32 4 32 Q32 32 32 4 Z" fill="#db2777"/><circle cx="50" cy="14" r="4.5" fill="#db2777"/><circle cx="14" cy="50" r="3.5" fill="#db2777"/></svg>',
+	"mentalstate": '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 64 64"><circle cx="32" cy="18" r="8" fill="#8b5cf6"/><path d="M16 46 C16 34 24 30 32 30 C40 30 48 34 48 46 Z" fill="#8b5cf6"/><circle cx="14" cy="44" r="5" fill="#a78bfa"/><circle cx="50" cy="44" r="5" fill="#a78bfa"/><path d="M22 28 C26 22 38 22 42 28" fill="none" stroke="#c4b5fd" stroke-width="3" stroke-linecap="round"/></svg>'
 }
 
 const PATHS = {
@@ -14,6 +15,7 @@ const PATHS = {
 	"happiness": '<circle cx="32" cy="32" r="24"/><path d="M20 38q12 16 24 0"/><circle cx="23" cy="25" r="1.5"/><circle cx="41" cy="25" r="1.5"/>',
 	"smarts": '<path d="M22 42c-18-13-9-34 10-34s28 21 10 34l-2 7H24Zm3 15h14M24 49h16M32 20v12m-7-5h14"/>',
 	"looks": '<path d="M8 24h19v14H12Zm29 0h19l-4 14H37ZM27 28h10M20 47q12 9 24 0"/>',
+	"mentalstate": '<circle cx="32" cy="18" r="8"/><path d="M16 46 C16 34 24 30 32 30 C40 30 48 34 48 46 Z"/><path d="M22 28 C26 22 38 22 42 28"/>',
 	"life": '<circle cx="32" cy="22" r="9"/><path d="M14 53v-5c0-10 8-16 18-16s18 6 18 16v5"/>',
 	"assets": '<rect x="9" y="16" width="46" height="36" rx="8"/><path d="M13 16V12h35v4M55 29H39v12h16"/><circle cx="44" cy="35" r="1"/>',
 	"relationships": '<path d="M32 53 12 33C-1 19 17 3 32 19 47 3 65 19 52 33Z"/>',

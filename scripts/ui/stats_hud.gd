@@ -31,38 +31,45 @@ func apply(node: Control, light: bool) -> void:
 		_layout.call_deferred(node)
 	elif node is MarginContainer:
 		for side in ["left", "right"]:
-			node.add_theme_constant_override("margin_" + side, 22)
+			node.add_theme_constant_override("margin_" + side, 20)
 		for side in ["top", "bottom"]:
-			node.add_theme_constant_override("margin_" + side, 16)
+			node.add_theme_constant_override("margin_" + side, 14)
+	elif node is GridContainer:
+		node.columns = 2
+		node.add_theme_constant_override("h_separation", 14)
+		node.add_theme_constant_override("v_separation", 8)
 	elif node is VBoxContainer:
 		node.add_theme_constant_override("separation", 4)
 	elif node is Label:
 		node.remove_meta("reference_section")
 		var stat_name := str(node.name).trim_suffix("Label")
-		if stat_name in ["Health", "Happiness", "Smarts", "Looks"]:
-			node.text = stat_name.to_upper()
+		if stat_name in ["Health", "Happiness", "Smarts", "Looks", "MentalState"]:
+			node.text = "MENTAL STATE" if stat_name == "MentalState" else stat_name.to_upper()
 			var icon_node := node.get_node_or_null(stat_name + "Icon") as TextureRect
 			if icon_node == null:
 				icon_node = TextureRect.new()
 				icon_node.name = stat_name + "Icon"
 				node.add_child(icon_node)
-			icon_node.texture = preload("res://scripts/ui/modern_navigation.gd").icon(stat_name.to_lower())
+			var icon_key: String = "mentalstate" if stat_name == "MentalState" else stat_name.to_lower()
+			icon_node.texture = preload("res://scripts/ui/modern_navigation.gd").icon(icon_key)
 			icon_node.material = null
 			icon_node.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 			icon_node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icon_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			icon_node.size = Vector2(34, 34)
-			icon_node.custom_minimum_size = Vector2(34, 34)
-			icon_node.position = Vector2(4, 0)
+			icon_node.size = Vector2(26, 26)
+			icon_node.custom_minimum_size = Vector2(26, 26)
+			icon_node.position = Vector2(2, 1)
 			icon_node.modulate = Color.WHITE
-		node.custom_minimum_size.y = 34
+		node.custom_minimum_size = Vector2(195, 28)
+		node.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		node.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		node.add_theme_font_override("font", font)
-		node.add_theme_font_size_override("font_size", 26)
+		node.add_theme_font_size_override("font_size", 20)
 		node.add_theme_color_override("font_color", Color("#075b91") if light else Color("#a9dcff"))
 		var spacing := StyleBoxEmpty.new()
-		spacing.content_margin_left = 48
+		spacing.content_margin_left = 36
 		node.add_theme_stylebox_override("normal", spacing)
 	elif node is TextureRect:
 		var stat_kind := str(node.name).trim_suffix("Icon").to_lower()
@@ -71,14 +78,16 @@ func apply(node: Control, light: bool) -> void:
 		node.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 		node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		node.position = Vector2(4, 0)
-		node.size = Vector2(34, 34)
-		node.custom_minimum_size = Vector2(34, 34)
+		node.position = Vector2(2, 1)
+		node.size = Vector2(26, 26)
+		node.custom_minimum_size = Vector2(26, 26)
 		node.modulate = Color.WHITE
 	elif node is ProgressBar:
-		node.custom_minimum_size.y = 30
+		node.custom_minimum_size = Vector2(80, 26)
+		node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		node.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		node.add_theme_font_override("font", font)
-		node.add_theme_font_size_override("font_size", 20)
+		node.add_theme_font_size_override("font_size", 18)
 		node.add_theme_color_override("font_color", Color.WHITE)
 		node.add_theme_color_override("font_outline_color", Color("#111827"))
 		node.add_theme_constant_override("outline_size", 4)
@@ -94,7 +103,8 @@ func apply(node: Control, light: bool) -> void:
 			"Health": [Color("#10b981"), Color("#047857")],
 			"Happiness": [Color("#f59e0b"), Color("#b45309")],
 			"Smarts": [Color("#0284c7"), Color("#1e3a8a")],
-			"Looks": [Color("#db2777"), Color("#7e22ce")]
+			"Looks": [Color("#db2777"), Color("#7e22ce")],
+			"MentalState": [Color("#8b5cf6"), Color("#6d28d9")]
 		}
 		if fill_colors.has(stat_name):
 			var fill := StyleBoxFlat.new()
