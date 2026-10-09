@@ -40,6 +40,7 @@ func _ready() -> void:
 	_update_camera_zoom()
 	_ensure_character()
 	_ensure_parents()
+	_ensure_children()
 
 func _on_viewport_size_changed() -> void:
 	_update_camera_zoom()
@@ -98,12 +99,22 @@ func _ensure_character() -> void:
 		if _character_instance.has_method("update_appearance"):
 			_character_instance.call("update_appearance")
 
+func _is_valid_living_parent(p_name: String, p_alive: bool) -> bool:
+	if not p_alive:
+		return false
+	var n := p_name.strip_edges().to_lower()
+	if n == "" or n == "unknown" or n == "deceased" or n == "n/a" or n == "none":
+		return false
+	return true
+
 func _ensure_parents() -> void:
 	if not characters:
 		return
 		
 	var mother_alive: bool = true
 	var father_alive: bool = true
+	var m_name: String = ""
+	var f_name: String = ""
 	var age: int = 0
 	var eth: String = "white"
 	var track: int = 0
@@ -113,6 +124,8 @@ func _ensure_parents() -> void:
 	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
 		mother_alive = PlayerData.mother_alive if "mother_alive" in PlayerData else true
 		father_alive = PlayerData.father_alive if "father_alive" in PlayerData else true
+		m_name = PlayerData.mother_name if "mother_name" in PlayerData else ""
+		f_name = PlayerData.father_name if "father_name" in PlayerData else ""
 		age = PlayerData.age if "age" in PlayerData else 0
 		eth = PlayerData.ethnicity if "ethnicity" in PlayerData else "white"
 		track = PlayerData.portrait_track if "portrait_track" in PlayerData else 0
@@ -123,10 +136,17 @@ func _ensure_parents() -> void:
 	if not char_scene:
 		return
 		
+	var is_mother_valid := _is_valid_living_parent(m_name, mother_alive)
+	var is_father_valid := _is_valid_living_parent(f_name, father_alive)
+
+	# Parents are ALWAYS adults or elders (minimum age 25). They NEVER use baby or child portraits.
+	var mom_age: int = max(m_base_age + age, 25)
+	var dad_age: int = max(f_base_age + age, 25)
+		
 	# Mother bobbly head
 	var mother_node = characters.get_node_or_null("MotherCharacter")
-	if mother_alive:
-		var m_tex: Texture2D = PortraitCatalog.get_portrait(m_base_age + age, "FEMALE", (track + 1) % 4, eth)
+	if is_mother_valid:
+		var m_tex: Texture2D = PortraitCatalog.get_portrait(mom_age, "FEMALE", (track + 1) % 4, eth)
 		if mother_node == null:
 			mother_node = char_scene.instantiate()
 			mother_node.name = "MotherCharacter"
@@ -141,8 +161,8 @@ func _ensure_parents() -> void:
 		
 	# Father bobbly head
 	var father_node = characters.get_node_or_null("FatherCharacter")
-	if father_alive:
-		var f_tex: Texture2D = PortraitCatalog.get_portrait(f_base_age + age, "MALE", (track + 2) % 4, eth)
+	if is_father_valid:
+		var f_tex: Texture2D = PortraitCatalog.get_portrait(dad_age, "MALE", (track + 2) % 4, eth)
 		if father_node == null:
 			father_node = char_scene.instantiate()
 			father_node.name = "FatherCharacter"
@@ -155,10 +175,62 @@ func _ensure_parents() -> void:
 	elif father_node != null:
 		father_node.queue_free()
 
+func _ensure_children() -> void:
+	if not characters:
+		return
+		
+	var living_kids: Array = []
+	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
+		if PlayerData.has_method("get_living_children"):
+			living_kids = PlayerData.get_living_children()
+		elif "children" in PlayerData and PlayerData.children is Array:
+			for c in PlayerData.children:
+				if c is Dictionary and bool(c.get("is_alive", true)):
+					living_kids.append(c)
+					
+	var char_scene := load("res://scenes/isometric/isometric_character.tscn") as PackedScene
+	if not char_scene:
+		return
+		
+	var active_kid_names: Array[String] = []
+	var player_eth: String = PlayerData.ethnicity if "ethnicity" in PlayerData else "white"
+	
+	for i in range(living_kids.size()):
+		var kid_data: Dictionary = living_kids[i]
+		var kid_name: String = str(kid_data.get("name", "Child %d" % (i + 1)))
+		var node_name := "ChildCharacter_%d" % i
+		active_kid_names.append(node_name)
+		
+		var kid_age: int = int(kid_data.get("age", 0))
+		var kid_gender: String = str(kid_data.get("gender", "MALE"))
+		var kid_track: int = int(kid_data.get("portrait_track", i))
+		var kid_eth: String = str(kid_data.get("ethnicity", player_eth))
+		
+		var kid_tex: Texture2D = PortraitCatalog.get_portrait(kid_age, kid_gender, kid_track, kid_eth)
+		
+		var kid_node = characters.get_node_or_null(node_name)
+		if kid_node == null:
+			kid_node = char_scene.instantiate()
+			kid_node.name = node_name
+			characters.add_child(kid_node)
+			kid_node.call("set_room", self)
+			kid_node.position = get_random_walkable_point()
+			kid_node.idle_timer = randf_range(0.8, 2.5)
+			
+		if kid_node.has_method("setup_npc"):
+			kid_node.call("setup_npc", kid_tex, "Child: " + kid_name)
+			
+	# Remove any child nodes whose children no longer exist/are not alive
+	for child in characters.get_children():
+		if child.name.begins_with("ChildCharacter_"):
+			if not active_kid_names.has(child.name):
+				child.queue_free()
+
 func update_character() -> void:
 	if _character_instance and _character_instance.has_method("update_appearance"):
 		_character_instance.call("update_appearance")
 	_ensure_parents()
+	_ensure_children()
 
 func is_point_walkable(pt: Vector2) -> bool:
 	if not walkable_area or walkable_area.polygon.size() < 3:
