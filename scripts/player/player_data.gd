@@ -135,6 +135,10 @@ var credit_card_apr: float = 0.18
 var credit_card_paid_this_year: int = 0
 var owned_assets: Array[Dictionary] = []
 var health_insurance: String = "none"
+var asset_insurance: Dictionary = {
+	"vehicle": false,
+	"property": false
+}
 
 var education_level: String = "None"
 var grades: int = 75
@@ -298,6 +302,7 @@ func reset_player() -> void:
 	credit_card_paid_this_year = 0
 	owned_assets.clear()
 	health_insurance = "none"
+	asset_insurance = { "vehicle": false, "property": false }
 
 	education_level = "None"
 	grades = 75
@@ -720,6 +725,14 @@ func has_firearm() -> bool:
 
 func get_owned_firearms() -> Array[Dictionary]:
 	return get_owned_assets_by_category("firearms")
+
+
+func has_asset_insurance(category: String) -> bool:
+	return bool(asset_insurance.get(category, false))
+
+
+func set_asset_insurance(category: String, active: bool) -> void:
+	asset_insurance[category] = active
 
 
 func has_illness(illness_id: String) -> bool:
@@ -1436,6 +1449,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	credit_card_apr = 0.18
 	credit_card_paid_this_year = 0
 	karma = 0
+	asset_insurance = { "vehicle": false, "property": false }
 
 	owned_assets.clear()
 	for a in assets_copy:

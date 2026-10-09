@@ -886,8 +886,16 @@ func age_up() -> void:
 	for log_msg in asset_logs:
 		add_life_event(log_msg, "finance")
 
-	# 7c. Asset Disaster Events (Earthquakes, Wildfires, Lawsuits, Syndicate Thefts)
+	# 7c. Asset Insurance Annual Premium Auto-Debit & Policy Lapses
+	var ins_logs := AssetInsuranceManager.process_yearly_insurance(PlayerData)
+	for ins_msg in ins_logs:
+		add_life_event(ins_msg, "finance")
+
+	# 7d. Asset Disaster Events (Earthquakes, Wildfires, Lawsuits, Syndicate Thefts)
 	_check_asset_disaster_event()
+
+	# 7e. Random Asset Incident Checks (Total Loss / Insurance Claims)
+	_check_asset_incidents()
 
 	# 7d. Freelance Annual Project Gigs
 	_process_yearly_freelance_projects()
@@ -1701,6 +1709,35 @@ func choose_event_option(choice_index: int) -> void:
 		result_text = RelationshipExtras.begin_unplanned_pregnancy(PlayerData)
 	if current_event.has("candidate"):
 		result_text = RomanceRules.date_result(PlayerData, current_event.candidate, bool(choice.get("accept_date", false)), randf())
+
+	# Asset insurance claim / loss checks for relevant events
+	if event_id == "event_intersection_carjacking" and choice_index == 1:
+		var cars := PlayerData.get_owned_assets_by_category("cars")
+		if not cars.is_empty():
+			var car: Dictionary = cars[0]
+			var car_name: String = str(car.get("name", "vehicle"))
+			var car_val: int = int(car.get("current_value", car.get("purchase_price", 0)))
+			if AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE):
+				result_text += "\n\n🛡️ INSURANCE CLAIM APPROVED: First National Pixel Bank Vehicle Insurance reimbursed $%s in full replacement coverage for your carjacked %s!" % [
+					_format_number(car_val), car_name
+				]
+			else:
+				for i in range(PlayerData.owned_assets.size() - 1, -1, -1):
+					if PlayerData.owned_assets[i].get("instance_id", "") == car.get("instance_id", ""):
+						PlayerData.owned_assets.remove_at(i)
+						break
+				result_text += "\n\n🚨 UNINSURED TOTAL LOSS: Because you lacked Vehicle Insurance, your %s was stolen by the carjackers and permanently lost ($%s loss)!" % [
+					car_name, _format_number(car_val)
+				]
+	elif event_id == "freak_car_crash" and choice_index == 1:
+		if AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE):
+			PlayerData.money += 500 # Reimburses deductible
+			result_text += "\n\n🛡️ INSURANCE CLAIM: First National Pixel Bank auto insurance fully reimbursed your $500 collision deductible!"
+	elif event_id == "event_home_invasion_armed" and choice_index == 1:
+		if AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY):
+			PlayerData.money += 3200 # Reimburses stolen property
+			result_text += "\n\n🛡️ INSURANCE CLAIM: First National Pixel Bank Property Insurance reimbursed the $3,200 in stolen household possessions!"
+
 	if result_text != "":
 		add_life_event(result_text, "family" if current_event.has("unplanned_pregnancy") else ("relationship" if current_event.has("candidate") else "event"))
 
@@ -3342,6 +3379,21 @@ func update_bank_panel() -> void:
 	if bank_status_lbl != null:
 		bank_status_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color(0.68, 0.78, 0.9, 1))
 
+	var bank_card_vbox := get_node_or_null("BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox") as VBoxContainer
+	if bank_card_vbox != null:
+		var old_ins_btn := bank_card_vbox.get_node_or_null("BankInsuranceButton")
+		if old_ins_btn != null:
+			bank_card_vbox.remove_child(old_ins_btn)
+			old_ins_btn.queue_free()
+
+		var has_veh: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+		var has_prop: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+		var ins_btn_text := "🛡️ Asset Insurance: Protected (Vehicle & Property Active)" if (has_veh and has_prop) else ("🛡️ Asset Insurance: Partially Covered (Tap to Manage)" if (has_veh or has_prop) else "🛡️ Asset & Property Insurance (Underwriting)")
+		var ins_btn_col := Color("#10b981") if (has_veh or has_prop) else Color("#059669")
+		var ins_quick_btn := _create_cyber_button(ins_btn_text, ins_btn_col, _show_insurance_modal, true)
+		ins_quick_btn.name = "BankInsuranceButton"
+		bank_card_vbox.add_child(ins_quick_btn)
+
 	if bank_list == null:
 		return
 
@@ -3447,6 +3499,131 @@ func update_bank_panel() -> void:
 	sv.add_child(withdraw_custom)
 
 	bank_list.add_child(savings_card)
+
+	# 1b. Asset & Property Insurance Category Card
+	var ins_card := PanelContainer.new()
+	ins_card.name = "AssetInsuranceCard"
+	var ins_theme_col: Color = Color("#059669") if is_light else Color("#10b981")
+	ins_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(ins_theme_col))
+	var im := MarginContainer.new()
+	im.add_theme_constant_override("margin_left", 28)
+	im.add_theme_constant_override("margin_right", 28)
+	im.add_theme_constant_override("margin_top", 24)
+	im.add_theme_constant_override("margin_bottom", 24)
+	ins_card.add_child(im)
+
+	var iv := VBoxContainer.new()
+	iv.add_theme_constant_override("separation", 14)
+	im.add_child(iv)
+
+	var ins_title := Label.new()
+	ins_title.text = "🛡️ ASSET & PROPERTY INSURANCE (UNDERWRITING)"
+	ins_title.add_theme_font_size_override("font_size", 28)
+	ins_title.add_theme_color_override("font_color", ins_theme_col)
+	iv.add_child(ins_title)
+
+	var ins_desc := Label.new()
+	ins_desc.text = "• First National Pixel Bank Underwriting Division provides full replacement guarantees against catastrophic earthquakes, wildfires, collisions, and total-loss events.\n• Policies carry expensive annual premiums billed annually upon aging."
+	ins_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ins_desc.add_theme_font_size_override("font_size", 20)
+	ins_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+	iv.add_child(ins_desc)
+
+	# --- Category 1: Vehicle Insurance ---
+	var veh_box := VBoxContainer.new()
+	veh_box.add_theme_constant_override("separation", 6)
+	iv.add_child(veh_box)
+
+	var veh_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+	var veh_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE).size()
+	var veh_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+	var veh_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+
+	var veh_hdr := Label.new()
+	veh_hdr.text = "🚗 VEHICLE INSURANCE (Cars, Bikes, Motorcycles, Aircraft & Yachts)"
+	veh_hdr.add_theme_font_size_override("font_size", 24)
+	veh_hdr.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	veh_box.add_child(veh_hdr)
+
+	var veh_info := Label.new()
+	var veh_status_text := "✅ ACTIVE POLICY (100% Protected against collisions, carjackings & disasters)" if veh_has_ins else "⚠️ UNINSURED (Vehicles will be permanently destroyed during accidents/disasters!)"
+	veh_info.text = "• Status: %s\n• Registered Fleet: %d vehicles (Combined Value: $%s)\n• Annual Premium: $%s / year ($2,500 base + 4.5%% portfolio value)" % [
+		veh_status_text,
+		veh_count,
+		_format_number(veh_val),
+		_format_number(veh_premium)
+	]
+	veh_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	veh_info.add_theme_font_size_override("font_size", 22)
+	veh_info.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	veh_box.add_child(veh_info)
+
+	var veh_btn_row := HBoxContainer.new()
+	veh_btn_row.add_theme_constant_override("separation", 10)
+	veh_box.add_child(veh_btn_row)
+
+	if veh_has_ins:
+		var btn_cancel_veh := _create_cyber_button("Cancel Vehicle Insurance", Color("#ef4444"), func(): _cancel_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE), true)
+		btn_cancel_veh.name = "CancelVehicleInsuranceButton"
+		btn_cancel_veh.tooltip_text = "Cancel vehicle insurance policy. Your vehicles will no longer be protected."
+		veh_btn_row.add_child(btn_cancel_veh)
+	else:
+		var btn_buy_veh := _create_cyber_button("Buy Vehicle Insurance ($%s/yr)" % _format_number(veh_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE), true)
+		btn_buy_veh.name = "BuyVehicleInsuranceButton"
+		btn_buy_veh.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+		btn_buy_veh.tooltip_text = "Insufficient funds to purchase vehicle insurance." if btn_buy_veh.disabled else "Activate vehicle insurance protection."
+		veh_btn_row.add_child(btn_buy_veh)
+
+	# Divider line
+	var sep := HSeparator.new()
+	iv.add_child(sep)
+
+	# --- Category 2: Property Insurance ---
+	var prop_box := VBoxContainer.new()
+	prop_box.add_theme_constant_override("separation", 6)
+	iv.add_child(prop_box)
+
+	var prop_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+	var prop_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY).size()
+	var prop_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+	var prop_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+
+	var prop_hdr := Label.new()
+	prop_hdr.text = "🏠 PROPERTY INSURANCE (Real Estate, Homes, Apartments & Mansions)"
+	prop_hdr.add_theme_font_size_override("font_size", 24)
+	prop_hdr.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+	prop_box.add_child(prop_hdr)
+
+	var prop_info := Label.new()
+	var prop_status_text := "✅ ACTIVE POLICY (100% Protected against earthquakes, wildfires & disasters)" if prop_has_ins else "⚠️ UNINSURED (Real estate will be permanently destroyed during disasters!)"
+	prop_info.text = "• Status: %s\n• Deeded Holdings: %d properties (Combined Value: $%s)\n• Annual Premium: $%s / year ($6,000 base + 3.0%% portfolio value)" % [
+		prop_status_text,
+		prop_count,
+		_format_number(prop_val),
+		_format_number(prop_premium)
+	]
+	prop_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	prop_info.add_theme_font_size_override("font_size", 22)
+	prop_info.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	prop_box.add_child(prop_info)
+
+	var prop_btn_row := HBoxContainer.new()
+	prop_btn_row.add_theme_constant_override("separation", 10)
+	prop_box.add_child(prop_btn_row)
+
+	if prop_has_ins:
+		var btn_cancel_prop := _create_cyber_button("Cancel Property Insurance", Color("#ef4444"), func(): _cancel_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY), true)
+		btn_cancel_prop.name = "CancelPropertyInsuranceButton"
+		btn_cancel_prop.tooltip_text = "Cancel property insurance policy. Your real estate will no longer be protected."
+		prop_btn_row.add_child(btn_cancel_prop)
+	else:
+		var btn_buy_prop := _create_cyber_button("Buy Property Insurance ($%s/yr)" % _format_number(prop_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY), true)
+		btn_buy_prop.name = "BuyPropertyInsuranceButton"
+		btn_buy_prop.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+		btn_buy_prop.tooltip_text = "Insufficient funds to purchase property insurance." if btn_buy_prop.disabled else "Activate property insurance protection."
+		prop_btn_row.add_child(btn_buy_prop)
+
+	bank_list.add_child(ins_card)
 
 	# 2. Debt & Loan Summary Card
 	var summary_card := PanelContainer.new()
@@ -3731,6 +3908,116 @@ func update_bank_panel() -> void:
 
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(bank_list)
+
+
+func _show_insurance_modal() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var modal := _create_cyber_modal("🛡️ ASSET INSURANCE UNDERWRITING", "First National Pixel Bank • Comprehensive Asset Protection", Color("#059669"))
+
+	var intro := Label.new()
+	intro.text = "Protect your titled vehicles and deeded real estate against catastrophic earthquakes, wildfires, vehicle collisions, and disasters. Insurance guarantees full claim restoration. Premiums are expensive and charged annually upon aging."
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro.add_theme_font_size_override("font_size", 22)
+	intro.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#e2e8f0"))
+	modal.list.add_child(intro)
+
+	# Vehicle Insurance Section
+	var veh_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+	var veh_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE).size()
+	var veh_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+	var veh_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+
+	var veh_title := Label.new()
+	veh_title.text = "\n🚗 VEHICLE INSURANCE"
+	veh_title.add_theme_font_size_override("font_size", 26)
+	veh_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	modal.list.add_child(veh_title)
+
+	var veh_lbl := Label.new()
+	var veh_stat := "✅ ACTIVE POLICY (Protected)" if veh_has_ins else "⚠️ UNINSURED (High Risk!)"
+	veh_lbl.text = "• Status: %s\n• Registered Fleet: %d vehicles ($%s value)\n• Premium: $%s / year ($2,500 base + 4.5%% valuation)" % [
+		veh_stat, veh_count, _format_number(veh_val), _format_number(veh_premium)
+	]
+	veh_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	veh_lbl.add_theme_font_size_override("font_size", 22)
+	veh_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	modal.list.add_child(veh_lbl)
+
+	if veh_has_ins:
+		var btn_c_veh := _create_cyber_button("Cancel Vehicle Insurance", Color("#ef4444"), func():
+			modal.overlay.queue_free()
+			_cancel_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE)
+		, true)
+		btn_c_veh.name = "ModalCancelVehicleInsuranceButton"
+		modal.list.add_child(btn_c_veh)
+	else:
+		var btn_b_veh := _create_cyber_button("Buy Vehicle Insurance ($%s/yr)" % _format_number(veh_premium), Color("#10b981"), func():
+			modal.overlay.queue_free()
+			_buy_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE)
+		, true)
+		btn_b_veh.name = "ModalBuyVehicleInsuranceButton"
+		btn_b_veh.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+		modal.list.add_child(btn_b_veh)
+
+	# Property Insurance Section
+	var prop_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+	var prop_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY).size()
+	var prop_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+	var prop_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+
+	var prop_title := Label.new()
+	prop_title.text = "\n🏠 PROPERTY INSURANCE"
+	prop_title.add_theme_font_size_override("font_size", 26)
+	prop_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+	modal.list.add_child(prop_title)
+
+	var prop_lbl := Label.new()
+	var prop_stat := "✅ ACTIVE POLICY (Protected)" if prop_has_ins else "⚠️ UNINSURED (High Risk!)"
+	prop_lbl.text = "• Status: %s\n• Deeded Holdings: %d properties ($%s value)\n• Premium: $%s / year ($6,000 base + 3.0%% valuation)" % [
+		prop_stat, prop_count, _format_number(prop_val), _format_number(prop_premium)
+	]
+	prop_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	prop_lbl.add_theme_font_size_override("font_size", 22)
+	prop_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	modal.list.add_child(prop_lbl)
+
+	if prop_has_ins:
+		var btn_c_prop := _create_cyber_button("Cancel Property Insurance", Color("#ef4444"), func():
+			modal.overlay.queue_free()
+			_cancel_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY)
+		, true)
+		btn_c_prop.name = "ModalCancelPropertyInsuranceButton"
+		modal.list.add_child(btn_c_prop)
+	else:
+		var btn_b_prop := _create_cyber_button("Buy Property Insurance ($%s/yr)" % _format_number(prop_premium), Color("#10b981"), func():
+			modal.overlay.queue_free()
+			_buy_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY)
+		, true)
+		btn_b_prop.name = "ModalBuyPropertyInsuranceButton"
+		btn_b_prop.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+		modal.list.add_child(btn_b_prop)
+
+
+func _buy_asset_insurance(category: String) -> void:
+	var res := AssetInsuranceManager.buy_insurance(PlayerData, category)
+	if res.get("success", false):
+		add_life_event("🛡️ FIRST NATIONAL PIXEL BANK: %s" % res.get("message", ""), "finance")
+		_show_simple_popup("🛡️ INSURANCE ACTIVATED", str(res.get("message", "")), Color("#10b981"))
+		update_ui()
+		update_bank_panel()
+		SaveManager.save_game()
+	else:
+		_show_simple_popup("⚠️ PURCHASE FAILED", str(res.get("message", "Could not complete transaction.")), Color("#ef4444"))
+
+
+func _cancel_asset_insurance(category: String) -> void:
+	var res := AssetInsuranceManager.cancel_insurance(PlayerData, category)
+	if res.get("success", false):
+		add_life_event("⚠️ FIRST NATIONAL PIXEL BANK: %s" % res.get("message", ""), "finance")
+		_show_simple_popup("⚠️ POLICY CANCELLED", str(res.get("message", "")), Color("#f59e0b"))
+		update_ui()
+		update_bank_panel()
+		SaveManager.save_game()
 
 
 func _borrow_loan(amount: int, interest_rate: float) -> void:
@@ -9236,10 +9523,61 @@ func _check_asset_disaster_event() -> void:
 	]
 
 	var disaster: Dictionary = disasters.pick_random()
-	PlayerData.owned_assets.clear()
-	PlayerData.happiness = maxi(5, PlayerData.happiness - 30)
-	add_life_event("🚨 %s: %s" % [disaster["title"], disaster["msg"]], "disaster")
-	_show_simple_popup("🚨 CATASTROPHIC ASSET LOSS", "%s\n\n%s" % [disaster["title"], disaster["msg"]], Color("#ef4444"))
+	var result: Dictionary = AssetInsuranceManager.protect_assets_from_disaster(PlayerData, disaster["title"])
+	var saved: Array = result.get("saved_assets", [])
+	var lost: Array = result.get("lost_assets", [])
+	var payout: int = int(result.get("payout_value", 0))
+	var lost_val: int = int(result.get("lost_value", 0))
+
+	if lost.is_empty():
+		# 100% saved by insurance!
+		PlayerData.happiness = maxi(5, PlayerData.happiness - 2)
+		var msg: String = "%s\n\n🛡️ INSURANCE CLAIM APPROVED: Because you held active First National Pixel Bank Insurance policies, 100%% of your damages were covered ($%s in claims covered). All %d of your assets have been completely preserved and restored!" % [
+			disaster["msg"],
+			_format_number(payout),
+			saved.size()
+		]
+		add_life_event("🛡️ %s: Disaster struck, but active insurance policies fully covered $%s in damages! All %d assets preserved." % [disaster["title"], _format_number(payout), saved.size()], "event")
+		_show_simple_popup("🛡️ INSURANCE SAVED YOUR ASSETS!", msg, Color("#10b981"))
+	elif saved.is_empty():
+		# 100% lost (uninsured)
+		PlayerData.happiness = maxi(5, PlayerData.happiness - 30)
+		var msg: String = "%s\n\n🚨 UNINSURED TOTAL LOSS: You had NO insurance coverage for your assets! All %d of your vehicles and properties were completely destroyed ($%s total loss)." % [
+			disaster["msg"],
+			lost.size(),
+			_format_number(lost_val)
+		]
+		add_life_event("🚨 %s: %s" % [disaster["title"], msg], "disaster")
+		_show_simple_popup("🚨 CATASTROPHIC ASSET LOSS", msg, Color("#ef4444"))
+	else:
+		# Partial insurance coverage
+		PlayerData.happiness = maxi(5, PlayerData.happiness - 15)
+		var msg: String = "%s\n\n• 🛡️ Covered by Insurance: %d asset(s) saved ($%s value)\n• 🚨 Uninsured Total Loss: %d asset(s) destroyed ($%s lost) due to lack of insurance coverage!" % [
+			disaster["msg"],
+			saved.size(),
+			_format_number(payout),
+			lost.size(),
+			_format_number(lost_val)
+		]
+		add_life_event("⚠️ %s: Partial insurance coverage. Saved %d assets ($%s); lost %d uninsured assets ($%s)." % [disaster["title"], saved.size(), _format_number(payout), lost.size(), _format_number(lost_val)], "event")
+		_show_simple_popup("⚠️ PARTIAL DISASTER LOSS", msg, Color("#f59e0b"))
+
+
+func _check_asset_incidents() -> void:
+	if PlayerData.owned_assets.is_empty():
+		return
+	var incident_res: Dictionary = AssetInsuranceManager.check_yearly_asset_incidents(PlayerData)
+	if incident_res.get("occurred", false):
+		var msg: String = str(incident_res.get("message", ""))
+		var is_protected: bool = bool(incident_res.get("protected", false))
+		if is_protected:
+			add_life_event("🛡️ " + msg, "event")
+			_show_simple_popup("🛡️ ASSET INSURANCE CLAIM", msg, Color("#10b981"))
+		else:
+			PlayerData.happiness = maxi(5, PlayerData.happiness - 15)
+			add_life_event("💥 " + msg, "disaster")
+			_show_simple_popup("💥 UNINSURED ASSET LOSS", msg, Color("#ef4444"))
+		update_ui()
 
 
 func _process_yearly_freelance_projects() -> void:

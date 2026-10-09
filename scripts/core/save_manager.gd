@@ -63,6 +63,7 @@ func capture_data() -> Dictionary:
 		"credit_card_paid_this_year": PlayerData.credit_card_paid_this_year,
 		"owned_assets": PlayerData.owned_assets,
 		"health_insurance": PlayerData.health_insurance,
+		"asset_insurance": PlayerData.asset_insurance,
 		"education_level": PlayerData.education_level,
 		"grades": PlayerData.grades,
 		"has_scholarship": PlayerData.has_scholarship,
@@ -352,6 +353,7 @@ func apply_data(data: Dictionary) -> bool:
 		PlayerData.active_buffs.erase(b_id)
 	PlayerData.owned_assets.clear()
 	PlayerData.health_insurance = str(data.get("health_insurance", "none"))
+	PlayerData.asset_insurance = Dictionary(data.get("asset_insurance", { "vehicle": false, "property": false }))
 	var saved_assets = data.get("owned_assets", [])
 	if saved_assets is Array:
 		for a in saved_assets:
