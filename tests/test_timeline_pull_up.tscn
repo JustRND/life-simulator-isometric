@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btest_timeline_pullup_001"]
+
+[ext_resource type="Script" path="res://tests/test_timeline_pull_up.gd" id="1_test"]
+
+[node name="TestTimelinePullUp" type="Node"]
+script = ExtResource("1_test")

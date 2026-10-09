@@ -33,12 +33,23 @@ var annual_event_popup_chance: float = 0.45
 @onready var balance_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/BalanceLabel
 
 # Main Screen / Timeline
-@onready var life_feed: RichTextLabel = $SafeArea/MainColumn/LifeFeedPanel/MarginContainer/LifeFeed
+@onready var life_feed: RichTextLabel = (
+	get_node_or_null("SafeArea/MainColumn/TimelinePanel/TimelineContent/MarginContainer/LifeFeed") as RichTextLabel
+	if has_node("SafeArea/MainColumn/TimelinePanel/TimelineContent/MarginContainer/LifeFeed")
+	else get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/MarginContainer/LifeFeed") as RichTextLabel
+)
+@onready var timeline_drawer: PanelContainer = get_node_or_null("SafeArea/MainColumn/TimelinePanel") as PanelContainer
+@onready var timeline_pull_up_btn: Button = get_node_or_null("SafeArea/MainColumn/TimelinePullUpButton") as Button
+@onready var close_timeline_btn: Button = get_node_or_null("SafeArea/MainColumn/TimelinePanel/TimelineContent/TimelineHeaderRow/CloseTimelineButton") as Button
 @onready var isometric_room: Node2D = get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/RoomViewportContainer/RoomSubViewport/IsometricRoom") as Node2D
 @onready var health_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HealthBar
 @onready var happiness_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HappinessBar
 @onready var smarts_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/SmartsBar
 @onready var looks_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/LooksBar
+
+var _is_timeline_open: bool = false
+var _timeline_drawer_tween: Tween = null
+
 
 # Loading Screen
 @onready var loading_screen: Control = get_node_or_null("LoadingScreen") as Control
@@ -301,6 +312,12 @@ func _connect_runtime_signals() -> void:
 	if charity_btn != null and not charity_btn.pressed.is_connected(_on_charity_item_pressed):
 		charity_btn.pressed.connect(_on_charity_item_pressed)
 
+	if timeline_pull_up_btn != null and not timeline_pull_up_btn.pressed.is_connected(_on_timeline_pull_up_button_pressed):
+		timeline_pull_up_btn.pressed.connect(_on_timeline_pull_up_button_pressed)
+	if close_timeline_btn != null and not close_timeline_btn.pressed.is_connected(_on_close_timeline_button_pressed):
+		close_timeline_btn.pressed.connect(_on_close_timeline_button_pressed)
+
+
 
 func _configure_ui() -> void:
 	_configure_creation()
@@ -356,12 +373,15 @@ func _configure_ui() -> void:
 	life_feed.add_theme_font_size_override("normal_font_size", 28)
 	life_feed.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
-	var life_margin := get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/MarginContainer") as MarginContainer
+	var life_margin := get_node_or_null("SafeArea/MainColumn/TimelinePanel/TimelineContent/MarginContainer") as MarginContainer
+	if life_margin == null:
+		life_margin = get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/MarginContainer") as MarginContainer
 	if life_margin != null:
 		life_margin.add_theme_constant_override("margin_left", 30)
 		life_margin.add_theme_constant_override("margin_right", 30)
 		life_margin.add_theme_constant_override("margin_top", 24)
 		life_margin.add_theme_constant_override("margin_bottom", 24)
+
 
 	var page := StyleBoxFlat.new()
 	page.bg_color = Color("#f8fafc") if is_light else Color(0.055, 0.085, 0.17, 0.98)
@@ -1673,6 +1693,86 @@ func _on_room_cycle_button_pressed() -> void:
 	SaveManager.save_game_debounced()
 
 
+func _on_timeline_pull_up_button_pressed() -> void:
+	_toggle_timeline_drawer()
+
+
+func _on_close_timeline_button_pressed() -> void:
+	_close_timeline_drawer()
+
+
+func _toggle_timeline_drawer() -> void:
+	if _is_timeline_open:
+		_close_timeline_drawer()
+	else:
+		_open_timeline_drawer()
+
+
+func _open_timeline_drawer() -> void:
+	if timeline_drawer == null:
+		return
+	_is_timeline_open = true
+	if timeline_pull_up_btn != null:
+		timeline_pull_up_btn.icon = preload("res://assets/ui/timeline_pulldown_icon.png")
+		timeline_pull_up_btn.tooltip_text = "Hide Timeline"
+	
+	timeline_drawer.visible = true
+	timeline_drawer.set_meta("is_animating", true)
+	if _timeline_drawer_tween != null and _timeline_drawer_tween.is_valid():
+		_timeline_drawer_tween.kill()
+		
+	var base_top: float = 264.0
+	var base_bottom: float = (timeline_pull_up_btn.offset_top - 8.0) if timeline_pull_up_btn != null else -530.0
+	timeline_drawer.modulate.a = 0.0
+	timeline_drawer.offset_top = base_top + 140.0
+	timeline_drawer.offset_bottom = base_bottom + 140.0
+	
+	_timeline_drawer_tween = create_tween().set_parallel(true)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_top", base_top, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_bottom", base_bottom, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_timeline_drawer_tween.chain().tween_callback(func():
+		if is_instance_valid(timeline_drawer):
+			timeline_drawer.remove_meta("is_animating")
+	)
+	
+	_scroll_timeline_to_latest.call_deferred()
+
+
+func _close_timeline_drawer() -> void:
+	_is_timeline_open = false
+	if timeline_pull_up_btn != null:
+		timeline_pull_up_btn.icon = preload("res://assets/ui/timeline_pullup_icon.png")
+		timeline_pull_up_btn.tooltip_text = "Show Timeline"
+	if timeline_drawer == null:
+		return
+	timeline_drawer.set_meta("is_animating", true)
+	if _timeline_drawer_tween != null and _timeline_drawer_tween.is_valid():
+		_timeline_drawer_tween.kill()
+		
+	var base_top: float = 264.0
+	var base_bottom: float = (timeline_pull_up_btn.offset_top - 8.0) if timeline_pull_up_btn != null else -530.0
+	_timeline_drawer_tween = create_tween().set_parallel(true)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_top", base_top + 120.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_bottom", base_bottom + 120.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_timeline_drawer_tween.chain().tween_callback(func():
+		if is_instance_valid(timeline_drawer) and not _is_timeline_open:
+			timeline_drawer.visible = false
+			timeline_drawer.offset_top = base_top
+			timeline_drawer.offset_bottom = base_bottom
+			timeline_drawer.remove_meta("is_animating")
+	)
+
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and _is_timeline_open:
+		_close_timeline_drawer()
+		get_viewport().set_input_as_handled()
+
+
+
 func _on_close_settings_button_pressed() -> void:
 	panel_pull_up.cancel()
 	preload("res://scripts/ui/panel_close.gd").dismiss(settings_overlay, false, func(): show_tab("timeline"), settings_overlay.get_node("SettingsCard"))
@@ -1850,6 +1950,11 @@ func show_tab(tab_name: String) -> void:
 		action_bar.visible = is_home
 	if age_button != null:
 		age_button.visible = is_home
+	if timeline_pull_up_btn != null:
+		timeline_pull_up_btn.visible = is_home
+	if not is_home and _is_timeline_open:
+		_close_timeline_drawer()
+
 
 	if tab_name == "settings":
 		if settings_overlay != null:

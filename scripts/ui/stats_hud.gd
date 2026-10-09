@@ -93,4 +93,15 @@ func _layout(panel: Control) -> void:
 	# Reserve the measured HUD height rather than relying on a fixed timeline end.
 	panel.offset_bottom = navigation.offset_top - 16.0
 	panel.offset_top = panel.offset_bottom - panel.get_combined_minimum_size().y
-	feed.offset_bottom = panel.offset_top - 16.0
+
+	var pull_btn := panel.get_parent().get_node_or_null("TimelinePullUpButton") as Control
+	if pull_btn != null:
+		pull_btn.offset_bottom = panel.offset_top
+		pull_btn.offset_top = pull_btn.offset_bottom - 46.0
+
+	var timeline_panel := panel.get_parent().get_node_or_null("TimelinePanel") as Control
+	if timeline_panel != null and not timeline_panel.has_meta("is_animating"):
+		timeline_panel.offset_bottom = (pull_btn.offset_top if pull_btn != null else panel.offset_top) - 8.0
+
+	feed.offset_bottom = (pull_btn.offset_top if pull_btn != null else panel.offset_top) - 8.0
+
