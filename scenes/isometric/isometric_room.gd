@@ -81,6 +81,8 @@ func _ensure_character() -> void:
 		if child.get_script() == IsometricCharacterScript or child.has_method("set_room"):
 			_character_instance = child
 			_character_instance.set_room(self)
+			if _character_instance.has_method("update_appearance"):
+				_character_instance.call("update_appearance")
 			return
 			
 	# Instantiate character if not present in scene

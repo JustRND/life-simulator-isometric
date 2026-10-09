@@ -17,6 +17,7 @@ func capture_data() -> Dictionary:
 		"portrait_variant": PlayerData.portrait_variant,
 		"has_started_game": PlayerData.has_started_game,
 		"selected_room_id": PlayerData.selected_room_id,
+		"character_appearance": PlayerData.character_appearance,
 		"birth_story": PlayerData.birth_story,
 		"birth_month": PlayerData.birth_month,
 		"birth_day": PlayerData.birth_day,
@@ -251,6 +252,20 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.portrait_variant = int(data.get("portrait_variant", PlayerData.portrait_track))
 	PlayerData.has_started_game = bool(data.get("has_started_game", false))
 	PlayerData.selected_room_id = str(data.get("selected_room_id", "room_wood"))
+	var raw_app = data.get("character_appearance", {})
+	if raw_app is Dictionary and not raw_app.is_empty():
+		PlayerData.character_appearance = raw_app
+	else:
+		PlayerData.character_appearance = {
+			"age_group": "adult",
+			"gender": "neutral",
+			"body_id": "default",
+			"hair_id": "",
+			"top_id": "",
+			"bottom_id": "",
+			"shoes_id": "",
+			"accessory_id": ""
+		}
 
 	PlayerData.birth_story = str(data.get("birth_story", ""))
 	PlayerData.birth_month = str(data.get("birth_month", "January"))

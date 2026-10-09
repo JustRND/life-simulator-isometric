@@ -1236,6 +1236,8 @@ func update_ui() -> void:
 	if isometric_room != null and isometric_room.has_method("set_room") and PlayerData.selected_room_id != "":
 		if isometric_room.current_room_id != PlayerData.selected_room_id:
 			isometric_room.set_room(PlayerData.selected_room_id)
+		if isometric_room.has_method("update_character"):
+			isometric_room.update_character()
 	name_label.text = PlayerData.first_name
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
 	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"

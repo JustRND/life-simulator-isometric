@@ -143,6 +143,8 @@ sprite_frames = SubResource("SpriteFrames_char")
 animation = &"idle_se"
 offset = Vector2(0, -148)
 
+[node name="VisualLayers" type="Node2D" parent="."]
+
 [node name="InteractionArea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
