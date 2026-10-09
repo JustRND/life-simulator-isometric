@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://biz_close_fade_in_001"]
+
+[ext_resource type="Script" path="res://tests/test_business_closure_and_fade_in.gd" id="1_test"]
+
+[node name="TestBusinessClosureAndFadeIn" type="Node"]
+script = ExtResource("1_test")

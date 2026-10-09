@@ -559,8 +559,8 @@ static func found_business(biz_id: String, business_name: String = "", is_unlice
 		"branches": 1,
 		"facility_tier": 1,
 		"revenue_scale": 1.0,
-		"treasury": 10000, # Initial seed liquidity inside business bank account
-		"employees": 4,
+		"treasury": maxi(25000, int(cost * 0.25)), # Initial seed working capital inside business bank account
+		"employees": maxi(2, mini(4, int(cost / 75000))),
 		"marketing_budget": 5000,
 		"annual_revenue": 0,
 		"annual_opex": 0,
@@ -803,13 +803,14 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		generated_revenue = int(generated_revenue * scale)
 
 		# Operating Expenses:
-		# Payroll: $32,000 per staff
-		var payroll: int = emp_count * 32000
+		# Base operational expenses include foundational facility overhead and core staff (2 employees)
+		var baseline_staff: int = 2
+		var extra_staff: int = maxi(0, emp_count - baseline_staff)
+		var extra_payroll: int = extra_staff * 28000
 		var loan_bal: int = int(b.get("loan_balance", 0))
 		var loan_interest: int = int(float(loan_bal) * float(b.get("loan_interest_rate", BUSINESS_LOAN_INTEREST_RATE)))
-		# Facility overhead: Tier 1: $14k, Tier 2: $28k, Tier 3: $42k, Tier 4: $56k, Tier 5: $70k
-		var facility_overhead: int = facility_tier * 14000
-		var total_opex: int = int((base_opex + payroll + facility_overhead) * scale) + mkt + loan_interest
+		var extra_facility: int = maxi(0, facility_tier - 1) * 14000
+		var total_opex: int = int((base_opex + extra_payroll + extra_facility) * scale) + mkt + loan_interest
 
 		var net_profit: int = generated_revenue - total_opex
 
@@ -850,28 +851,35 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 			int(b.get("treasury", 0))
 		], "finance")
 
-		# Check for Business Flop & Bankruptcy ("some might die and flop")
+		# Check for Business Flop & Bankruptcy
 		var is_flop := false
 		var cur_treasury: int = int(b.get("treasury", 0))
 		var cons_losses: int = int(b.get("consecutive_losses", 0))
 		var biz_age: int = PlayerData.age - int(b.get("founded_age", PlayerData.age))
-		var max_deficit: int = maxi(60000, int(generated_revenue * 0.25))
+		var startup_cost: int = int(def.get("startup_cost", 75000))
+		var max_deficit: int = maxi(80000, int(startup_cost * 0.75))
 
 		if cur_treasury < -max_deficit:
 			is_flop = true
-		elif cons_losses >= 3 and cur_treasury <= 0:
-			is_flop = true
-		elif cons_losses >= 2 and cur_treasury < -maxi(30000, int(generated_revenue * 0.12)):
-			is_flop = true
+		elif biz_age > 2:
+			# Established businesses failing over 3+ consecutive years
+			if cons_losses >= 3 and cur_treasury < -maxi(30000, int(startup_cost * 0.25)):
+				is_flop = true
+			elif cons_losses >= 4 and cur_treasury <= 0:
+				is_flop = true
 
+		var close_reason: String = ""
+		var personal_liability: int = 0
 		if is_flop:
 			b["is_closed"] = true
 			PlayerData.happiness = maxi(0, PlayerData.happiness - 15)
 			PlayerData.credit_score = maxi(350, PlayerData.credit_score - 30)
+			close_reason = "Operating losses over consecutive fiscal years depleted corporate treasury reserves (Deficit: -$%d) during a %s. Creditors called in liabilities and liquidated commercial assets." % [absi(cur_treasury), market_label]
+			b["close_reason"] = close_reason
 			PlayerData.add_life_log_entry("💥 BUSINESS FLOPPED & DISSOLVED: '%s' suffered catastrophic deficits during a %s and has flopped! Creditors liquidated remaining assets and shuttered operations permanently." % [b_name, market_label], "finance")
 			PlayerData.add_milestone("Enterprise '%s' flopped and closed." % b_name, PlayerData.age, "📉")
 			if loan_bal > 0:
-				var personal_liability: int = mini(35000, loan_bal / 2)
+				personal_liability = mini(35000, loan_bal / 2)
 				PlayerData.debt += personal_liability
 				PlayerData.add_life_log_entry("⚠️ Creditors assigned $%d in liquidated loan guarantee obligations to your personal debt." % personal_liability, "finance")
 
@@ -897,6 +905,8 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 				elif raid_roll <= 75:
 					# Padlocked & dissolved
 					b["is_closed"] = true
+					close_reason = "Regulatory marshals and municipal licensing inspectors padlocked and seized the premises for conducting commercial operations without required state licenses."
+					b["close_reason"] = close_reason
 					PlayerData.add_life_log_entry("🚨 FORCED CLOSURE & SEIZURE: Court injunction padlocked and forcefully shuttered '%s' for illicit unlicensed operation! Operations permanently dissolved." % b_name, "crime")
 				else:
 					# Prison Sentence & shutdown
@@ -909,6 +919,8 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 					PlayerData.job_company = ""
 					PlayerData.job_salary = 0
 					PlayerData.happiness = maxi(0, PlayerData.happiness - 35)
+					close_reason = "Federal authorities shuttered and confiscated the enterprise following a criminal conviction and %d-year prison sentence for running an unlicensed enterprise." % sentence
+					b["close_reason"] = close_reason
 					PlayerData.add_life_log_entry("⛓️ CRIMINAL CONVICTION & PRISON: You were arrested by federal agents and sentenced to %d years in prison for running an illegal unlicensed enterprise ('%s')! Enterprise confiscated." % [sentence, b_name], "crime")
 
 		results.append({
@@ -918,7 +930,10 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 			"net_profit": net_profit,
 			"tax_accrued": tax_accrued,
 			"treasury": int(b.get("treasury", 0)),
-			"is_closed": bool(b.get("is_closed", false))
+			"is_closed": bool(b.get("is_closed", false)),
+			"close_reason": str(b.get("close_reason", close_reason)),
+			"personal_liability": personal_liability,
+			"market_label": market_label
 		})
 
 	# Clean up any closed/flopped/raided businesses

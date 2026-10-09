@@ -200,7 +200,6 @@ func _ready() -> void:
 	mobile_kb.name = "MobileKeyboardManager"
 	add_child(mobile_kb)
 	var pull_up = preload("res://scripts/ui/panel_pull_up.gd")
-	pull_up.watch(event_overlay.get_node("EventPanel"), event_overlay)
 	pull_up.watch(reset_confirmation_overlay.get_node("ConfirmCard"), reset_confirmation_overlay)
 	pull_up.watch(new_game_panel)
 
@@ -1372,6 +1371,8 @@ func _adjust_safe_area() -> void:
 func trigger_event() -> void:
 	if PlayerData.is_dead:
 		return
+	if current_event != null:
+		return
 	if PlayerData.age >= 18 and not PlayerData.is_in_prison and not LifeLibrary.data.people.is_empty() and randf() < 0.25:
 		var person: Dictionary = LifeLibrary.data.people.pick_random()
 		add_life_event("You met %s from %s and enjoyed a friendly conversation." % [person.name, person.country], "event")
@@ -1510,17 +1511,37 @@ func show_event_popup() -> void:
 	desc_inset.content_margin_bottom = 20
 	event_description.add_theme_stylebox_override("normal", desc_inset)
 
-	event_overlay.visible = true
-	age_button.disabled = true
+	# Ensure EventPanel is anchored at its resting center position before fading in
+	var event_panel := event_overlay.get_node_or_null("EventPanel") as Control
+	if event_panel != null:
+		event_panel.offset_left = -440.0
+		event_panel.offset_top = -540.0
+		event_panel.offset_right = 440.0
+		event_panel.offset_bottom = 540.0
 
 	var buttons: Array[Button] = []
 	for button in [event_choice_1, event_choice_2, event_choice_3, event_choice_4]:
 		if button != null:
 			buttons.append(button)
 			button.visible = false
+			# Temporarily block input during the brief 0.20s fade-in to prevent accidental taps from spamming Age
+			button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			for font_key in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color", "font_focus_color"]:
 				button.add_theme_color_override(font_key, Color.TRANSPARENT)
 			button.add_theme_font_size_override("font_size", 1)
+
+	event_overlay.modulate.a = 0.0
+	event_overlay.visible = true
+	age_button.disabled = true
+
+	# Fade in EventPanel seamlessly without upward slide over Age button
+	var f_tween := event_overlay.create_tween()
+	f_tween.tween_property(event_overlay, "modulate:a", 1.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	f_tween.tween_callback(func():
+		for b in buttons:
+			if is_instance_valid(b) and b.visible:
+				b.mouse_filter = Control.MOUSE_FILTER_STOP
+	)
 
 	var used_choice_icons: Array[String] = []
 	var choice_colors := [Color("#0284c7"), Color("#10b981"), Color("#f59e0b"), Color("#8b5cf6")]
@@ -1584,7 +1605,11 @@ func show_event_popup() -> void:
 
 func hide_event_popup() -> void:
 	if event_overlay != null:
-		preload("res://scripts/ui/panel_close.gd").dismiss(event_overlay, false, Callable(), event_overlay.get_node_or_null("EventPanel"))
+		# Pull-down exit animation via panel_close.dismiss, then restore Age button once exited
+		preload("res://scripts/ui/panel_close.gd").dismiss(event_overlay, false, func():
+			if age_button != null and not PlayerData.is_dead:
+				age_button.disabled = false
+		, event_overlay.get_node_or_null("EventPanel"))
 
 
 func choose_event_option(choice_index: int) -> void:
@@ -1613,7 +1638,6 @@ func choose_event_option(choice_index: int) -> void:
 	current_event = null
 	current_event_choices.clear()
 	hide_event_popup()
-	age_button.disabled = false
 	update_ui()
 	SaveManager.save_game()
 
@@ -6711,7 +6735,7 @@ func _show_job_category_modal(category_id: String) -> void:
 
 
 func _show_simple_popup(title_text: String, msg_text: String, border_color: Color = Color("#00f0ff")) -> void:
-	var m: Dictionary = _create_cyber_modal(title_text, "", border_color)
+	var m: Dictionary = _create_cyber_modal(title_text, "", border_color, true)
 	var lbl := Label.new()
 	lbl.text = msg_text
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -6720,9 +6744,9 @@ func _show_simple_popup(title_text: String, msg_text: String, border_color: Colo
 	var list_node: VBoxContainer = m.get("list")
 	list_node.add_child(lbl)
 	var ov: Control = m.get("overlay")
+	var card_node: Control = m.get("card")
 	var close_btn := _create_cyber_button("Dismiss", border_color, func():
-		if is_instance_valid(ov):
-			ov.queue_free()
+		preload("res://scripts/ui/panel_close.gd").dismiss(ov, true, Callable(), card_node)
 	)
 	list_node.add_child(close_btn)
 	ov.visible = true
@@ -9144,14 +9168,48 @@ func _process_yearly_business_operations() -> void:
 		return
 
 	var results: Array[Dictionary] = BusinessManager.simulate_yearly_businesses()
+	var closure_events: Array[Dictionary] = []
+
 	for r in results:
-		var profit_str: String = ("+$%s" % _format_number(int(r["net_profit"]))) if int(r["net_profit"]) >= 0 else ("-$%s" % _format_number(abs(int(r["net_profit"]))))
-		add_life_event("🏢 %s Year-End Audit: Revenue: $%s | Net Profit: %s | Corporate Tax Accrued: $%s." % [
-			str(r.get("name", "Business")),
-			_format_number(int(r.get("revenue", 0))),
-			profit_str,
-			_format_number(int(r.get("tax_accrued", 0)))
-		], "finance")
+		var b_name: String = str(r.get("name", "Business"))
+		var is_closed: bool = bool(r.get("is_closed", false))
+		var profit_val: int = int(r.get("net_profit", 0))
+		var profit_str: String = ("+$%s" % _format_number(profit_val)) if profit_val >= 0 else ("-$%s" % _format_number(abs(profit_val)))
+
+		if is_closed:
+			var close_reason: String = str(r.get("close_reason", ""))
+			if close_reason.is_empty():
+				close_reason = "Operating losses depleted corporate reserves and creditors liquidated assets."
+			var liability: int = int(r.get("personal_liability", 0))
+			var liab_text: String = (" Creditors assigned $%s in personal debt liability." % _format_number(liability)) if liability > 0 else ""
+
+			# Display business closure in the timeline
+			var timeline_msg: String = "💥 BUSINESS DISSOLVED: '%s' has permanently closed! %s%s" % [b_name, close_reason, liab_text]
+			add_life_event(timeline_msg, "finance")
+
+			closure_events.append({
+				"id": "business_closure",
+				"title": "BUSINESS DISSOLVED",
+				"text": "Your enterprise '%s' has permanently closed down.\n\n%s%s" % [b_name, close_reason, liab_text],
+				"choices": [
+					{
+						"text": "Accept fate and move on",
+						"description": "Accept the closure and move forward."
+					}
+				]
+			})
+		else:
+			add_life_event("🏢 %s Year-End Audit: Revenue: $%s | Net Profit: %s | Corporate Tax Accrued: $%s." % [
+				b_name,
+				_format_number(int(r.get("revenue", 0))),
+				profit_str,
+				_format_number(int(r.get("tax_accrued", 0)))
+			], "finance")
+
+	if not closure_events.is_empty() and current_event == null:
+		current_event = closure_events[0]
+		current_event_choices = current_event.get("choices", [])
+		show_event_popup()
 
 
 func _show_education_modal() -> void:
@@ -11001,7 +11059,7 @@ func _refresh_cyber_modal(existing: Variant, title_text: String, subtitle_text: 
 	return _create_cyber_modal(title_text, subtitle_text, border_color)
 
 
-func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color) -> Dictionary:
+func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color, use_fade_in: bool = false) -> Dictionary:
 	var overlay := ColorRect.new()
 	overlay.set_meta("theme_exempt", true)
 	overlay.color = Color(0.012, 0.035, 0.07, 0.88)
@@ -11033,7 +11091,13 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	margin_outer.add_theme_constant_override("margin_top", top_m)
 	margin_outer.add_theme_constant_override("margin_bottom", bottom_m)
 	overlay.add_child(margin_outer)
-	preload("res://scripts/ui/panel_pull_up.gd").watch(margin_outer, overlay)
+
+	if use_fade_in:
+		overlay.modulate.a = 0.0
+		var f_tween := overlay.create_tween()
+		f_tween.tween_property(overlay, "modulate:a", 1.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	else:
+		preload("res://scripts/ui/panel_pull_up.gd").watch(margin_outer, overlay)
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal_border: Color = border_color.darkened(0.35) if (is_light and border_color.get_luminance() > 0.45) else border_color
@@ -15388,4 +15452,3 @@ func _configure_version_badge() -> void:
 	label.add_theme_color_override("font_color", Color("#b45309") if is_light else Color(0.98, 0.75, 0.25, 1.0))
 	label.add_theme_color_override("font_outline_color", Color(1, 1, 1, 0.8) if is_light else Color(0.1, 0.05, 0, 0.8))
 	label.add_theme_constant_override("outline_size", 2)
-
