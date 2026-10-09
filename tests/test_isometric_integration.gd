@@ -5,6 +5,7 @@ const RoomManager = preload("res://scripts/isometric/room_manager.gd")
 func _ready() -> void:
 	print("=== BEGIN FULL ISOMETRIC INTEGRATION & REGRESSION TEST ===")
 	
+	SaveManager.delete_save()
 	PlayerData.reset_player()
 	PlayerData.first_name = "TestPlayer"
 	PlayerData.age = 18

@@ -3,6 +3,7 @@ extends Node
 func _ready() -> void:
 	print("=== BEGIN MILESTONE 1 VERIFICATION ===")
 	
+	SaveManager.delete_save()
 	PlayerData.reset_player()
 	
 	var main_res := load("res://scenes/main/main_screen.tscn") as PackedScene
@@ -64,7 +65,8 @@ func _ready() -> void:
 	
 	# 7. Verify UI stats and update_ui syncing
 	main.update_ui()
-	assert(char_node.get_node("SpriteAnchor/Sprite2D").texture != null, "Character avatar texture must be populated")
+	var anim_sprite: AnimatedSprite2D = char_node.get_node("AnimatedSprite2D")
+	assert(anim_sprite != null and anim_sprite.sprite_frames != null, "AnimatedSprite2D must exist with valid frames")
 	print("✔ Character appearance synced with PlayerData")
 	
 	# 8. Verify character roaming simulation
