@@ -66,6 +66,7 @@ func section(parent: Node, text: String) -> Label:
 
 func button(parent: Node, text: String, action: Callable) -> Button:
 	var result: Button = pages._button(text, parent, action)
+	result.set_meta("options_button", true)
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	return result
 

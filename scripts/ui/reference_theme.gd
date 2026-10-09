@@ -307,7 +307,7 @@ func _style_header(close: Button) -> void:
 func _style_banking_standout_button(btn: Button, light: bool) -> void:
 	btn.set_meta("bank_standout", true)
 	btn.set_meta("colored_button", true)
-	btn.custom_minimum_size.y = 74.0
+	btn.custom_minimum_size.y = 96.0
 
 	var n_sb := StyleBoxFlat.new()
 	n_sb.set_corner_radius_all(14)

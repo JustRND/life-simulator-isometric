@@ -174,6 +174,20 @@ func _is_activities_button() -> bool:
 		cur = cur.get_parent()
 	return false
 
+func _is_options_button() -> bool:
+	if target == null:
+		return false
+	if target.has_meta("options_button"):
+		return true
+	if target.get_parent() != null and (target.get_parent().has_meta("reference_menu") or target.get_parent().name in ["SettingsList", "SettingsContent"]):
+		return true
+	var cur: Node = target.get_parent()
+	while cur != null:
+		if cur.name == "SettingsOverlay" or cur.name == "SettingsCard" or cur.has_meta("reference_menu"):
+			return true
+		cur = cur.get_parent()
+	return false
+
 func _is_colored_target() -> bool:
 	if target == null:
 		return false
@@ -238,14 +252,16 @@ func _sync() -> void:
 		if space > 0 and space < 8:
 			glyph = first.substr(0, space)
 			first = first.substr(space + 1).strip_edges()
+	var is_options := _is_options_button()
 	for title_text in DETAILS:
 		if source.ends_with(title_text):
 			glyph = DETAILS[title_text][0]
-			if not is_act and lines.size() < 2:
+			# Exclusively the Options panel should have description texts
+			if is_options and lines.size() < 2:
 				lines.append(GameLocale.display(DETAILS[title_text][1]))
 	glyph = str(target.get_meta("action_emoji", glyph))
 	heading.text = first
-	if is_act:
+	if is_act or target.has_meta("bank_standout"):
 		heading.autowrap_mode = TextServer.AUTOWRAP_OFF
 		if description != null:
 			description.text = ""
@@ -259,6 +275,10 @@ func _sync() -> void:
 	art.texture = target.icon
 	art.visible = target.icon != null
 	symbol.visible = target.icon == null
+	if target.has_meta("bank_standout"):
+		symbol.add_theme_font_size_override("font_size", 30)
+	else:
+		symbol.add_theme_font_size_override("font_size", 34)
 	arrow.text = "✓" if target.toggle_mode and target.button_pressed else "›"
 	var ink: Color
 	var secondary: Color
@@ -313,8 +333,32 @@ func _sync() -> void:
 			target.custom_minimum_size.y = 136.0
 		else:
 			target.custom_minimum_size.y = 176.0
+	elif is_options:
+		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
+		if not has_desc:
+			target.custom_minimum_size.y = 96.0
+		else:
+			var h_lines := 1
+			var d_lines := 1
+			if cur_w >= 150.0:
+				var avail_w := cur_w - 140.0
+				var h_chars := maxf(avail_w / 16.0, 10.0)
+				h_lines = int(ceil(float(heading.text.length()) / h_chars))
+				var real_h := heading.get_line_count()
+				if real_h in [1, 2, 3]:
+					h_lines = maxi(h_lines, real_h)
+				var d_chars := maxf(avail_w / 12.0, 12.0)
+				d_lines = int(ceil(float(description.text.length()) / d_chars))
+				var real_d := description.get_line_count()
+				if real_d in [1, 2, 3]:
+					d_lines = maxi(d_lines, real_d)
+			h_lines = clampi(h_lines, 1, 3)
+			d_lines = clampi(d_lines, 1, 3)
+			target.custom_minimum_size.y = 138.0 + float(h_lines - 1) * 36.0 + float(d_lines - 1) * 28.0
+	elif target.has_meta("bank_standout"):
+		target.custom_minimum_size.y = 96.0
 	else:
 		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
-		var min_h := 104.0 if has_desc else (74.0 if is_colored else 84.0)
+		var min_h := 132.0 if has_desc else (74.0 if is_colored else 84.0)
 		target.custom_minimum_size.y = min_h
 

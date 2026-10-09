@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/test_options_and_bank_clipping.gd" id="1_clipping"]
+
+[node name="TestOptionsAndBankClipping" type="Node"]
+script = ExtResource("1_clipping")
