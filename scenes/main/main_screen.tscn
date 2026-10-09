@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://oujxvj38q5k0" path="res://assets/ui/loading_icon.png" id="4_loading"]
 [ext_resource type="Shader" uid="uid://0bwcmxsuaqxt" path="res://assets/ui/background_pulse.gdshader" id="5_bg_pulse"]
 [ext_resource type="FontVariation" uid="uid://cfontbold0001" path="res://assets/fonts/app_font_bold.tres" id="6_font"]
-[ext_resource type="PackedScene" uid="uid://biso_room_0001" path="res://scenes/isometric/isometric_room.tscn" id="7_iso_room"]
+[ext_resource type="PackedScene" path="res://scenes/isometric/isometric_room.tscn" id="7_iso_room"]
 
 [sub_resource type="Theme" id="pixel_theme"]
 default_font = ExtResource("6_font")
@@ -28,19 +28,51 @@ bg_color = Color(0.08, 0.11, 0.22, 0.95)
 border_width_bottom = 6
 border_color = Color(0.396, 0.902, 1, 1)
 
-[sub_resource type="StyleBoxFlat" id="feed"]
-bg_color = Color(0.06, 0.09, 0.18, 0.94)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.22, 0.65, 0.95, 0.95)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
-shadow_color = Color(0.01, 0.03, 0.08, 0.7)
-shadow_size = 12
+[sub_resource type="StyleBoxEmpty" id="feed"]
+
+[sub_resource type="StyleBoxFlat" id="card_button_normal"]
+content_margin_left = 24.0
+content_margin_top = 18.0
+content_margin_right = 24.0
+content_margin_bottom = 18.0
+bg_color = Color(0.12, 0.18, 0.32, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.24, 0.5, 0.8, 0.85)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.01, 0.02, 0.05, 0.4)
+shadow_size = 6
+
+[sub_resource type="StyleBoxFlat" id="card_button_pressed"]
+bg_color = Color(0.08, 0.14, 0.25, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.255, 0.839, 0.424, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="card_button_hover"]
+bg_color = Color(0.12, 0.22, 0.38, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0, 0.94, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0.6, 1, 0.35)
+shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="stats_panel"]
 bg_color = Color(0.06, 0.09, 0.18, 0.85)
@@ -122,50 +154,6 @@ corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 shadow_color = Color(0.01, 0.02, 0.05, 0.5)
 shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="card_button_normal"]
-content_margin_left = 24.0
-content_margin_top = 18.0
-content_margin_right = 24.0
-content_margin_bottom = 18.0
-bg_color = Color(0.12, 0.18, 0.32, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.24, 0.5, 0.8, 0.85)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0.01, 0.02, 0.05, 0.4)
-shadow_size = 6
-
-[sub_resource type="StyleBoxFlat" id="card_button_pressed"]
-bg_color = Color(0.08, 0.14, 0.25, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.255, 0.839, 0.424, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="card_button_hover"]
-bg_color = Color(0.12, 0.22, 0.38, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0.94, 1, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-shadow_color = Color(0, 0.6, 1, 0.35)
-shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="danger"]
 bg_color = Color(0.827, 0.118, 0.145, 1)
@@ -428,10 +416,10 @@ stretch = true
 transparent_bg = true
 handle_input_locally = false
 gui_disable_input = true
-size = Vector2i(1016, 1107)
-render_target_update_mode = 3
+size = Vector2i(1010, 1101)
+render_target_update_mode = 4
 
-[node name="IsometricRoom" parent="SafeArea/MainColumn/LifeFeedPanel/RoomViewportContainer/RoomSubViewport" instance=ExtResource("7_iso_room")]
+[node name="IsometricRoom" parent="SafeArea/MainColumn/LifeFeedPanel/RoomViewportContainer/RoomSubViewport" unique_id=1606842934 instance=ExtResource("7_iso_room")]
 
 [node name="RoomControls" type="MarginContainer" parent="SafeArea/MainColumn/LifeFeedPanel" unique_id=2081928377]
 layout_mode = 2
@@ -444,14 +432,14 @@ custom_minimum_size = Vector2(130, 50)
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
+tooltip_text = "Switch Isometric Room"
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 20
 theme_override_styles/normal = SubResource("card_button_normal")
-theme_override_styles/hover = SubResource("card_button_hover")
 theme_override_styles/pressed = SubResource("card_button_pressed")
+theme_override_styles/hover = SubResource("card_button_hover")
 text = "🏠 Room"
-tooltip_text = "Switch Isometric Room"
 
 [node name="MarginContainer" type="MarginContainer" parent="SafeArea/MainColumn/LifeFeedPanel" unique_id=1230874808]
 visible = false
@@ -2168,6 +2156,7 @@ horizontal_alignment = 1
 
 [connection signal="pressed" from="TopBar/Row/MenuButton" to="." method="_on_settings_nav_button_pressed"]
 [connection signal="pressed" from="ProfileStrip/ProfileMargin/ProfileRow/AvatarButton" to="." method="_on_avatar_button_pressed"]
+[connection signal="pressed" from="SafeArea/MainColumn/LifeFeedPanel/RoomControls/RoomCycleButton" to="." method="_on_room_cycle_button_pressed"]
 [connection signal="pressed" from="SafeArea/MainColumn/ActionBar/ActionRow/InfantButton" to="." method="_on_infant_button_pressed"]
 [connection signal="pressed" from="SafeArea/MainColumn/ActionBar/ActionRow/AssetsButton" to="." method="_on_assets_button_pressed"]
 [connection signal="pressed" from="SafeArea/MainColumn/ActionBar/ActionRow/RelationshipsButton" to="." method="_on_relationships_button_pressed"]
@@ -2207,4 +2196,3 @@ horizontal_alignment = 1
 [connection signal="pressed" from="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices/EventChoice3" to="." method="_on_event_choice_3_pressed"]
 [connection signal="pressed" from="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices/EventChoice4" to="." method="_on_event_choice_4_pressed"]
 [connection signal="gui_input" from="DisclaimerScreen" to="." method="_on_disclaimer_screen_gui_input"]
-[connection signal="pressed" from="SafeArea/MainColumn/LifeFeedPanel/RoomControls/RoomCycleButton" to="." method="_on_room_cycle_button_pressed"]
