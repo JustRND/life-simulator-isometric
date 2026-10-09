@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://test_anim_char_001"]
-
-[ext_resource type="Script" path="res://tests/test_animated_character.gd" id="1_test"]
-
-[node name="TestAnimatedCharacter" type="Node"]
-script = ExtResource("1_test")

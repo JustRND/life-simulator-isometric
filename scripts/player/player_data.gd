@@ -1,7 +1,6 @@
 extends Node
 
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
-const CharacterAppearanceScript = preload("res://scripts/isometric/character_appearance.gd")
 
 var age: int = 0
 var life_id: String = ""
@@ -21,16 +20,6 @@ var portrait_track: int = 0
 var portrait_variant: int = 0
 var has_started_game: bool = false
 var selected_room_id: String = "room_wood"
-var character_appearance: Dictionary = {
-	"age_group": "adult",
-	"gender": "neutral",
-	"body_id": "default",
-	"hair_id": "",
-	"top_id": "",
-	"bottom_id": "",
-	"shoes_id": "",
-	"accessory_id": ""
-}
 
 var birth_story: String = ""
 var birth_month: String = "January"
@@ -184,16 +173,6 @@ func reset_player() -> void:
 	portrait_variant = 0
 	has_started_game = false
 	selected_room_id = "room_wood"
-	character_appearance = {
-		"age_group": "adult",
-		"gender": "neutral",
-		"body_id": "default",
-		"hair_id": "",
-		"top_id": "",
-		"bottom_id": "",
-		"shoes_id": "",
-		"accessory_id": ""
-	}
 
 	birth_story = ""
 	birth_month = "January"
@@ -1383,15 +1362,3 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 		add_life_log_entry("📜 LEGACY: You inherited your late partner %s's estate ($%d deposited into your Bank Balance%s) and continue their legacy at age %d." % [prev_parent_name, inherited_money, asset_text, age], "event")
 	else:
 		add_life_log_entry("📜 LEGACY: You inherited your late parent %s's estate ($%d deposited into your Bank Balance%s) and continue the family bloodline at age %d." % [prev_parent_name, inherited_money, asset_text, age], "event")
-
-
-func get_character_appearance() -> Resource:
-	var app = CharacterAppearanceScript.create_from_dict(character_appearance)
-	app.age_group = CharacterAppearanceScript.get_age_group_from_years(age)
-	return app
-
-
-func set_character_appearance(app: Resource) -> void:
-	if app != null and app.has_method("to_dict"):
-		character_appearance = app.to_dict()
-

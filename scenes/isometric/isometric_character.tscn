@@ -1,133 +1,6 @@
 [gd_scene format=3 uid="uid://c8isochar0001"]
 
 [ext_resource type="Script" path="res://scenes/isometric/isometric_character.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_se_0.png" id="2_wse0"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_se_1.png" id="3_wse1"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_se_2.png" id="4_wse2"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_se_3.png" id="5_wse3"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_sw_0.png" id="6_wsw0"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_sw_1.png" id="7_wsw1"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_sw_2.png" id="8_wsw2"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_sw_3.png" id="9_wsw3"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_ne_0.png" id="10_wne0"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_ne_1.png" id="11_wne1"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_ne_2.png" id="12_wne2"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_ne_3.png" id="13_wne3"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_nw_0.png" id="14_wnw0"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_nw_1.png" id="15_wnw1"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_nw_2.png" id="16_wnw2"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/walk_nw_3.png" id="17_wnw3"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/idle_se.png" id="18_ise"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/idle_sw.png" id="19_isw"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/idle_ne.png" id="20_ine"]
-[ext_resource type="Texture2D" path="res://assets/isometric/characters/processed/idle_nw.png" id="21_inw"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_char"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("20_ine")
-}],
-"loop": true,
-"name": &"idle_ne",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("21_inw")
-}],
-"loop": true,
-"name": &"idle_nw",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("18_ise")
-}],
-"loop": true,
-"name": &"idle_se",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("19_isw")
-}],
-"loop": true,
-"name": &"idle_sw",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("10_wne0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("11_wne1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("12_wne2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("13_wne3")
-}],
-"loop": true,
-"name": &"walk_ne",
-"speed": 6.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("14_wnw0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("15_wnw1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("16_wnw2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("17_wnw3")
-}],
-"loop": true,
-"name": &"walk_nw",
-"speed": 6.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_wse0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("3_wse1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_wse2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("5_wse3")
-}],
-"loop": true,
-"name": &"walk_se",
-"speed": 6.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("6_wsw0")
-}, {
-"duration": 1.0,
-"texture": ExtResource("7_wsw1")
-}, {
-"duration": 1.0,
-"texture": ExtResource("8_wsw2")
-}, {
-"duration": 1.0,
-"texture": ExtResource("9_wsw3")
-}],
-"loop": true,
-"name": &"walk_sw",
-"speed": 6.0
-}]
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_char"]
-radius = 45.0
-height = 240.0
 
 [node name="IsometricCharacter" type="Node2D"]
 y_sort_enabled = true
@@ -135,18 +8,11 @@ script = ExtResource("1_script")
 
 [node name="Shadow" type="Polygon2D" parent="."]
 color = Color(0.04, 0.04, 0.08, 0.45)
-polygon = PackedVector2Array(-54, 0, -48, 11, -28, 20, 0, 24, 28, 20, 48, 11, 54, 0, 48, -11, 28, -20, 0, -24, -28, -20, -48, -11)
+polygon = PackedVector2Array(-48, 0, -42, 10, -24, 18, 0, 22, 24, 18, 42, 10, 48, 0, 42, -10, 24, -18, 0, -22, -24, -18, -42, -10)
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="SpriteAnchor" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="SpriteAnchor"]
 texture_filter = 1
-sprite_frames = SubResource("SpriteFrames_char")
-animation = &"idle_se"
-offset = Vector2(0, -220)
-
-[node name="VisualLayers" type="Node2D" parent="."]
-
-[node name="InteractionArea" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
-position = Vector2(0, -160)
-shape = SubResource("CapsuleShape2D_char")
+scale = Vector2(2, 2)
+offset = Vector2(0, -56)
