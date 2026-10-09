@@ -126,8 +126,8 @@ animations = [{
 }]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_char"]
-radius = 40.0
-height = 160.0
+radius = 45.0
+height = 240.0
 
 [node name="IsometricCharacter" type="Node2D"]
 y_sort_enabled = true
@@ -141,12 +141,12 @@ polygon = PackedVector2Array(-54, 0, -48, 11, -28, 20, 0, 24, 28, 20, 48, 11, 54
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_char")
 animation = &"idle_se"
-offset = Vector2(0, -148)
+offset = Vector2(0, -220)
 
 [node name="VisualLayers" type="Node2D" parent="."]
 
 [node name="InteractionArea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="InteractionArea"]
-position = Vector2(0, -120)
+position = Vector2(0, -160)
 shape = SubResource("CapsuleShape2D_char")

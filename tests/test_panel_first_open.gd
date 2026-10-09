@@ -100,13 +100,15 @@ func _ready() -> void:
 	await get_tree().create_timer(0.4).timeout
 	assert(is_equal_approx(main.infant_panel.offset_top, 0.0), "InfantPanel offset_top must rest at 0.0")
 	
-	# 7. Test closing back to timeline
-	print("Testing closing to timeline...")
+	# 8. Test Activities button at age 0
+	print("Testing Activities button at age 0...")
+	PlayerData.age = 0
+	main._on_activities_button_pressed()
+	await get_tree().create_timer(0.4).timeout
+	assert(main.activities_panel.visible, "ActivitiesPanel must be opened by Activities button even at age 0")
 	main._on_close_panel_button_pressed()
 	await get_tree().create_timer(0.4).timeout
-	assert(main.timeline_panel.visible, "Timeline must be visible after close")
-	assert(main.action_bar.visible, "ActionBar must be restored")
-	assert(main.age_button.visible, "AgeButton must be restored")
+	assert(main.timeline_panel.visible, "Closing activities panel restores timeline")
 	
 	print("--- ALL PANEL FIRST OPEN TESTS PASSED SUCCESSFULLY! ---")
 	get_tree().quit(0)

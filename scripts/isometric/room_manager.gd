@@ -17,31 +17,31 @@ const ROOM_DEFINITIONS: Dictionary = {
 	"room_wood": {
 		"id": "room_wood",
 		"name": "Cream & Wood",
-		"texture_path": "res://assets/isometric/rooms/room_wood.jpg",
+		"texture_path": "res://assets/isometric/rooms/room_wood.png",
 		"walkable_polygon": DEFAULT_WALKABLE_POLYGON
 	},
 	"room_brick": {
 		"id": "room_brick",
 		"name": "Brick & Terracotta",
-		"texture_path": "res://assets/isometric/rooms/room_brick.jpg",
+		"texture_path": "res://assets/isometric/rooms/room_brick.png",
 		"walkable_polygon": DEFAULT_WALKABLE_POLYGON
 	},
 	"room_carpet": {
 		"id": "room_carpet",
 		"name": "Gray & Blue Carpet",
-		"texture_path": "res://assets/isometric/rooms/room_carpet.jpg",
+		"texture_path": "res://assets/isometric/rooms/room_carpet.png",
 		"walkable_polygon": DEFAULT_WALKABLE_POLYGON
 	},
 	"room_modern": {
 		"id": "room_modern",
 		"name": "Tiled & White Marble",
-		"texture_path": "res://assets/isometric/rooms/room_modern.jpg",
+		"texture_path": "res://assets/isometric/rooms/room_modern.png",
 		"walkable_polygon": DEFAULT_WALKABLE_POLYGON
 	},
 	"room_dark": {
 		"id": "room_dark",
 		"name": "Industrial Dark",
-		"texture_path": "res://assets/isometric/rooms/room_dark.jpg",
+		"texture_path": "res://assets/isometric/rooms/room_dark.png",
 		"walkable_polygon": DEFAULT_WALKABLE_POLYGON
 	}
 }

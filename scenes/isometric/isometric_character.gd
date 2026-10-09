@@ -244,7 +244,7 @@ func add_visual_layer(slot_name: String, frames: SpriteFrames, custom_z_index: i
 		layer_node = AnimatedSprite2D.new()
 		layer_node.name = key.capitalize()
 		layer_node.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		layer_node.offset = animated_sprite.offset if animated_sprite else Vector2(0, -148)
+		layer_node.offset = animated_sprite.offset if animated_sprite else Vector2(0, -220)
 		layer_node.z_index = z
 		
 		var container = visual_layers_container if visual_layers_container else self

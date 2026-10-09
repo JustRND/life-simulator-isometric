@@ -1914,12 +1914,6 @@ func _on_relationships_button_pressed() -> void:
 
 
 func _on_activities_button_pressed() -> void:
-	if PlayerData.age < 3:
-		if PlayerData.age == 0:
-			add_life_event("🍼 Infant: You are an infant! Infants spend their time sleeping, crying, and babbling. Tap the AGE button to grow up!", "event")
-		else:
-			add_life_event("🧸 Toddler: You are %d years old. Structured activities and Kindergarten unlock at age 3—tap the AGE button to play and grow!" % PlayerData.age, "event")
-		return
 	show_tab("activities")
 
 

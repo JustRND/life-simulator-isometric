@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2sh5k1vf1rf8"
-path="res://.godot/imported/Pixel-Art Isometric Walking Sprite Sheet.png-d1c2e132c871c2a108f362fb8d6faacf.ctex"
+uid="uid://cvyp7xh68tte7"
+path="res://.godot/imported/character_spritesheet.png-f64db73ca8d5283a3a1f1587f0e13039.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/isometric/characters/Pixel-Art Isometric Walking Sprite Sheet.png"
-dest_files=["res://.godot/imported/Pixel-Art Isometric Walking Sprite Sheet.png-d1c2e132c871c2a108f362fb8d6faacf.ctex"]
+source_file="res://assets/isometric/characters/character_spritesheet.png"
+dest_files=["res://.godot/imported/character_spritesheet.png-f64db73ca8d5283a3a1f1587f0e13039.ctex"]
 
 [params]
 
