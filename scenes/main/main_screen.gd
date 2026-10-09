@@ -15098,15 +15098,17 @@ func _create_stat_gradient_texture(c1: Color, c2: Color) -> GradientTexture2D:
 
 
 func _configure_stat_bars() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var stats_panel_node := get_node_or_null("SafeArea/MainColumn/StatsPanel") as PanelContainer
 	if stats_panel_node != null:
 		var stats_box := StyleBoxFlat.new()
-		stats_box.bg_color = Color("#080e1c")
-		stats_box.border_color = Color("#1e3a5f")
+		stats_box.bg_color = Color("#ffffff") if is_light else Color("#0b1528")
+		stats_box.border_color = Color("#cbd5e1") if is_light else Color("#1e3a5f")
 		stats_box.set_border_width_all(2)
-		stats_box.set_corner_radius_all(10)
-		stats_box.shadow_color = Color(0, 0, 0, 0.6)
-		stats_box.shadow_size = 10
+		stats_box.set_corner_radius_all(16)
+		stats_box.shadow_color = Color(0.08, 0.12, 0.22, 0.18) if is_light else Color(0, 0, 0, 0.55)
+		stats_box.shadow_size = 16
+		stats_box.shadow_offset = Vector2(0, 6)
 		stats_panel_node.add_theme_stylebox_override("panel", stats_box)
 
 	var bars := [
@@ -15118,10 +15120,10 @@ func _configure_stat_bars() -> void:
 
 	# Track Style: Deep cyber inset casing with clean pixel bevel
 	var track_style := StyleBoxFlat.new()
-	track_style.bg_color = Color("#060b17")
-	track_style.border_color = Color("#1e3a5f")
-	track_style.set_border_width_all(2)
-	track_style.set_corner_radius_all(4)
+	track_style.bg_color = Color("#e2e8f0") if is_light else Color("#070e1b")
+	track_style.border_color = Color("#cbd5e1") if is_light else Color("#1e3a5f")
+	track_style.set_border_width_all(1)
+	track_style.set_corner_radius_all(8)
 	track_style.content_margin_left = 3
 	track_style.content_margin_right = 3
 	track_style.content_margin_top = 3
@@ -15140,8 +15142,11 @@ func _configure_stat_bars() -> void:
 		bar.add_theme_constant_override("outline_size", 4)
 		bar.add_theme_stylebox_override("background", track_style)
 
-		var fill_style := StyleBoxTexture.new()
-		fill_style.texture = _create_stat_gradient_texture(entry["c1"], entry["c2"])
+		var fill_style := StyleBoxFlat.new()
+		fill_style.bg_color = entry["c1"]
+		fill_style.border_color = entry["c2"]
+		fill_style.border_width_bottom = 2
+		fill_style.set_corner_radius_all(8)
 		bar.add_theme_stylebox_override("fill", fill_style)
 
 		var label := get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/" + entry["label"] + "Label") as Label
@@ -15157,27 +15162,34 @@ func _configure_stat_bars() -> void:
 		grades_progress_bar.add_theme_color_override("font_outline_color", Color("#000000"))
 		grades_progress_bar.add_theme_constant_override("outline_size", 4)
 		grades_progress_bar.add_theme_stylebox_override("background", track_style)
-		var fill_style := StyleBoxTexture.new()
-		fill_style.texture = _get_or_create_stat_gradient(Color("#10b981"), Color("#047857"))
+		var fill_style := StyleBoxFlat.new()
+		fill_style.bg_color = Color("#0284c7")
+		fill_style.border_color = Color("#1e3a8a")
+		fill_style.border_width_bottom = 2
+		fill_style.set_corner_radius_all(8)
 		grades_progress_bar.add_theme_stylebox_override("fill", fill_style)
 
 
 func _update_stat_bar_color(bar: ProgressBar, value: int, col_left: Color, col_right: Color) -> void:
 	if bar == null:
 		return
-	var fill := bar.get_theme_stylebox("fill") as StyleBoxTexture
-	if fill == null:
-		fill = StyleBoxTexture.new()
-		bar.add_theme_stylebox_override("fill", fill)
-
-	var target_tex: GradientTexture2D
-	if value < 25:
-		target_tex = _get_or_create_stat_gradient(Color("#ef4444"), Color("#991b1b"))
-	else:
-		target_tex = _get_or_create_stat_gradient(col_left, col_right)
-
-	if fill.texture != target_tex:
-		fill.texture = target_tex
+	var fill := bar.get_theme_stylebox("fill")
+	if fill is StyleBoxFlat:
+		if value < 25:
+			fill.bg_color = Color("#ef4444")
+			fill.border_color = Color("#991b1b")
+		else:
+			fill.bg_color = col_left
+			fill.border_color = col_right
+		fill.set_corner_radius_all(8)
+	elif fill is StyleBoxTexture:
+		var target_tex: GradientTexture2D
+		if value < 25:
+			target_tex = _get_or_create_stat_gradient(Color("#ef4444"), Color("#991b1b"))
+		else:
+			target_tex = _get_or_create_stat_gradient(col_left, col_right)
+		if fill.texture != target_tex:
+			fill.texture = target_tex
 
 
 func _configure_custom_icons() -> void:

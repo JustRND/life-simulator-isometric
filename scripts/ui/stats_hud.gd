@@ -16,9 +16,13 @@ func handles(node: Node) -> bool:
 func apply(node: Control, light: bool) -> void:
 	if node.name == "StatsPanel":
 		var panel := StyleBoxFlat.new()
-		panel.bg_color = Color("#ffffff") if light else Color("#151e2b")
-		panel.border_color = Color("#9aaaba") if light else Color("#45576b")
-		panel.border_width_top = 2
+		panel.bg_color = Color("#ffffff") if light else Color("#0b1528")
+		panel.border_color = Color("#cbd5e1") if light else Color("#1e3a5f")
+		panel.set_border_width_all(2)
+		panel.set_corner_radius_all(16)
+		panel.shadow_color = Color(0.08, 0.12, 0.22, 0.18) if light else Color(0, 0, 0, 0.55)
+		panel.shadow_size = 16
+		panel.shadow_offset = Vector2(0, 6)
 		node.add_theme_stylebox_override("panel", panel)
 		if not node.has_meta("stats_layout"):
 			node.set_meta("stats_layout", true)
@@ -27,9 +31,9 @@ func apply(node: Control, light: bool) -> void:
 		_layout.call_deferred(node)
 	elif node is MarginContainer:
 		for side in ["left", "right"]:
-			node.add_theme_constant_override("margin_" + side, 16)
+			node.add_theme_constant_override("margin_" + side, 22)
 		for side in ["top", "bottom"]:
-			node.add_theme_constant_override("margin_" + side, 12)
+			node.add_theme_constant_override("margin_" + side, 16)
 	elif node is VBoxContainer:
 		node.add_theme_constant_override("separation", 4)
 	elif node is Label:
@@ -72,16 +76,33 @@ func apply(node: Control, light: bool) -> void:
 		node.custom_minimum_size = Vector2(34, 34)
 		node.modulate = Color.WHITE
 	elif node is ProgressBar:
-		node.custom_minimum_size.y = 28
+		node.custom_minimum_size.y = 30
 		node.add_theme_font_override("font", font)
-		node.add_theme_font_size_override("font_size", 22)
+		node.add_theme_font_size_override("font_size", 20)
 		node.add_theme_color_override("font_color", Color.WHITE)
 		node.add_theme_color_override("font_outline_color", Color("#111827"))
 		node.add_theme_constant_override("outline_size", 4)
 		var track := StyleBoxFlat.new()
-		track.bg_color = Color("#dce5ed") if light else Color("#27374b")
-		track.set_corner_radius_all(4)
+		track.bg_color = Color("#e2e8f0") if light else Color("#070e1b")
+		track.border_color = Color("#cbd5e1") if light else Color("#1e3a5f")
+		track.set_border_width_all(1)
+		track.set_corner_radius_all(8)
 		node.add_theme_stylebox_override("background", track)
+
+		var stat_name := str(node.name).trim_suffix("Bar")
+		var fill_colors := {
+			"Health": [Color("#10b981"), Color("#047857")],
+			"Happiness": [Color("#f59e0b"), Color("#b45309")],
+			"Smarts": [Color("#0284c7"), Color("#1e3a8a")],
+			"Looks": [Color("#db2777"), Color("#7e22ce")]
+		}
+		if fill_colors.has(stat_name):
+			var fill := StyleBoxFlat.new()
+			fill.bg_color = fill_colors[stat_name][0]
+			fill.border_color = fill_colors[stat_name][1]
+			fill.border_width_bottom = 2
+			fill.set_corner_radius_all(8)
+			node.add_theme_stylebox_override("fill", fill)
 
 func _layout(panel: Control) -> void:
 	if not is_instance_valid(panel) or not panel.is_inside_tree():

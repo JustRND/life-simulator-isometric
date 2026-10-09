@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btest_stats_panel_3d_corners_001"]
+
+[ext_resource type="Script" path="res://tests/test_stats_panel_3d_corners.gd" id="1_test"]
+
+[node name="TestStatsPanel3DCorners" type="Node"]
+script = ExtResource("1_test")

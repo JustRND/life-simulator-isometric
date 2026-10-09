@@ -68,44 +68,49 @@ shadow_color = Color(0, 0.6, 1, 0.35)
 shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="stats_panel"]
-bg_color = Color(0.06, 0.09, 0.18, 0.85)
+bg_color = Color(0.043, 0.082, 0.165, 0.94)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.18, 0.42, 0.65, 0.8)
+border_color = Color(0.118, 0.227, 0.373, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.55)
+shadow_size = 16
+shadow_offset = Vector2(0, 6)
+
+[sub_resource type="StyleBoxFlat" id="track"]
+bg_color = Color(0.027, 0.055, 0.106, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.118, 0.227, 0.373, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-shadow_color = Color(0.02, 0.05, 0.12, 0.5)
-shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="track"]
-bg_color = Color(0.14, 0.18, 0.3, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.24, 0.4, 0.65, 0.9)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="green"]
-bg_color = Color(0.255, 0.839, 0.424, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+bg_color = Color(0.063, 0.725, 0.506, 1)
+border_width_bottom = 2
+border_color = Color(0.024, 0.443, 0.306, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="red"]
-bg_color = Color(1, 0.267, 0.455, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_right = 2
-corner_radius_bottom_left = 2
+bg_color = Color(0.961, 0.62, 0.043, 1)
+border_width_bottom = 2
+border_color = Color(0.706, 0.435, 0.016, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="action_bar"]
 bg_color = Color(0.06, 0.08, 0.16, 0.98)
@@ -577,9 +582,9 @@ theme_override_styles/panel = SubResource("stats_panel")
 
 [node name="StatsMargin" type="MarginContainer" parent="SafeArea/MainColumn/StatsPanel" unique_id=222686823]
 layout_mode = 2
-theme_override_constants/margin_left = 20
+theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 20
+theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 16
 
 [node name="StatsContainer" type="VBoxContainer" parent="SafeArea/MainColumn/StatsPanel/StatsMargin" unique_id=1323886595]
