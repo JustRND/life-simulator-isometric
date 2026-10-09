@@ -22,6 +22,7 @@ func _ready() -> void:
 	await get_tree().process_frame
 	
 	PlayerData.money = 25
+	PlayerData.bank_savings = 0
 	PlayerData.age = 25
 	
 	# 1. Open Casino Modal

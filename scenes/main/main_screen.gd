@@ -12931,7 +12931,7 @@ func _show_charity_modal() -> void:
 	if charity_modal_overlay != null and is_instance_valid(charity_modal_overlay):
 		charity_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Purify Your Soul & Unlock Permanent Blessings", Color("#10b981"))
+	var modal := _create_cyber_modal("🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Boost Karma & Happiness (Once Per Year)", Color("#10b981"))
 	charity_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -12995,63 +12995,20 @@ func _show_charity_modal() -> void:
 
 	list.add_child(summary_card)
 
-	# 2. Active Blessings Card (if any)
-	var active_charity_buff_count: int = 0
-	for c in CharityManager.get_all_charities():
-		if PlayerData.has_buff(str(c.get("buff_id", ""))):
-			active_charity_buff_count += 1
-
-	if active_charity_buff_count > 0:
-		var buff_card := PanelContainer.new()
-		buff_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
-		var bm := MarginContainer.new()
-		bm.add_theme_constant_override("margin_left", 20)
-		bm.add_theme_constant_override("margin_right", 20)
-		bm.add_theme_constant_override("margin_top", 14)
-		bm.add_theme_constant_override("margin_bottom", 14)
-		buff_card.add_child(bm)
-
-		var bv := VBoxContainer.new()
-		bv.add_theme_constant_override("separation", 6)
-		bm.add_child(bv)
-
-		var buff_title := Label.new()
-		buff_title.text = "✨ ACTIVE PERMANENT PHILANTHROPIC BLESSINGS (%d Unlocked):" % active_charity_buff_count
-		buff_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		buff_title.add_theme_font_size_override("font_size", 22)
-		buff_title.add_theme_color_override("font_color", Color("#fbbf24"))
-		bv.add_child(buff_title)
-
-		for c in CharityManager.get_all_charities():
-			var b_id: String = str(c.get("buff_id", ""))
-			if PlayerData.has_buff(b_id):
-				var b_lbl := Label.new()
-				b_lbl.text = "  • %s: %s" % [str(c.get("buff_name", "")), str(c.get("buff_desc", ""))]
-				b_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				b_lbl.add_theme_font_size_override("font_size", 19)
-				b_lbl.add_theme_color_override("font_color", Color("#fef08a"))
-				bv.add_child(b_lbl)
-
-		list.add_child(buff_card)
-
-	# 3. Charity Options List
+	# 2. Charity Options List
 	var charities: Array[Dictionary] = CharityManager.get_all_charities()
 	for c in charities:
 		var c_id: String = str(c.get("id", ""))
 		var c_name: String = str(c.get("name", "Charity"))
 		var c_icon: String = str(c.get("icon", "🤝"))
 		var amount: int = int(c.get("donation_amount", 100))
-		var min_age: int = int(c.get("min_age", 6))
-		var b_id: String = str(c.get("buff_id", ""))
-		var b_name: String = str(c.get("buff_name", ""))
-		var b_desc: String = str(c.get("buff_desc", ""))
 		var desc: String = str(c.get("description", ""))
-		var is_blessed: bool = PlayerData.has_buff(b_id)
+		var hap_gain: int = int(c.get("happiness_boost", 15))
 
 		var card := PanelContainer.new()
 		var card_style := StyleBoxFlat.new()
 		card_style.bg_color = Color("#071318")
-		card_style.border_color = Color("#10b981") if is_blessed else Color("#059669")
+		card_style.border_color = Color("#059669")
 		card_style.set_border_width_all(2)
 		card_style.set_corner_radius_all(14)
 		card_style.shadow_color = Color(0, 0, 0, 0.45)
@@ -13098,21 +13055,13 @@ func _show_charity_modal() -> void:
 		desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
-		# Buff & Spiritual Impact row (NO numerical karma!)
+		# Spiritual Impact row (Karma & Happiness boosts, NO permanent blessings)
 		var perk_box := VBoxContainer.new()
 		perk_box.add_theme_constant_override("separation", 4)
 		cv.add_child(perk_box)
 
-		var buff_lbl := Label.new()
-		var buff_status_prefix := "✨ [Unlocked] " if is_blessed else "🔒 [Cosmic Blessing] "
-		buff_lbl.text = "%s%s: %s" % [buff_status_prefix, b_name, b_desc]
-		buff_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		buff_lbl.add_theme_font_size_override("font_size", 20)
-		buff_lbl.add_theme_color_override("font_color", Color("#38bdf8") if is_blessed else Color("#67e8f9"))
-		perk_box.add_child(buff_lbl)
-
 		var karma_lbl := Label.new()
-		karma_lbl.text = "💫 Spiritual Impact: Profoundly purifies your soul, elevates your karma, and brings deep joy."
+		karma_lbl.text = "💫 Spiritual Impact: Elevates your karma and boosts happiness (+%d%% Happiness)." % hap_gain
 		karma_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		karma_lbl.add_theme_font_size_override("font_size", 19)
 		karma_lbl.add_theme_color_override("font_color", Color("#a7f3d0"))
@@ -13124,13 +13073,10 @@ func _show_charity_modal() -> void:
 		var reason: String = str(eval.get("reason", ""))
 
 		if not is_allowed:
-			var dis_btn := _create_disabled_cyber_button("Contribute $%s" % _format_number(amount), reason)
+			var dis_btn := _create_disabled_cyber_button("Donate $%s" % _format_number(amount), reason)
 			cv.add_child(dis_btn)
 		else:
-			var btn_text: String = "💖 Donate $%s" % _format_number(amount)
-			if is_blessed:
-				btn_text = "💖 Re-Donate $%s (Continue Blessing)" % _format_number(amount)
-			var donate_btn := _create_cyber_button(btn_text, Color("#10b981"), func():
+			var donate_btn := _create_cyber_button("💖 Donate $%s" % _format_number(amount), Color("#10b981"), func():
 				_execute_charity_donation(c_id)
 			)
 			cv.add_child(donate_btn)

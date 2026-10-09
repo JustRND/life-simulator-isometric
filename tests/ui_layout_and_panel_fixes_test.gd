@@ -223,16 +223,15 @@ func test_charity_activities_button_and_donations() -> void:
 	# 3. Verify hidden karma rule across all charities!
 	for c in charities:
 		var desc: String = str(c.get("description", ""))
-		var b_desc: String = str(c.get("buff_desc", ""))
 		var c_name: String = str(c.get("name", ""))
 
 		# Description must NOT mention specific numerical karma value
 		assert(not desc.to_lower().contains("karma +") and not desc.to_lower().contains("+1") and not desc.to_lower().contains("+2"), "Charity description must NEVER specify karma numerical boost: %s" % desc)
-		assert(not b_desc.to_lower().contains("karma +") and not b_desc.to_lower().contains("+1") and not b_desc.to_lower().contains("+2"), "Buff description must NEVER specify karma numerical boost: %s" % b_desc)
 
 		assert(int(c.get("hidden_karma_boost", 0)) > 0, "Charity %s must have positive hidden karma boost" % c_name)
 		assert(int(c.get("happiness_boost", 0)) > 0, "Charity %s must have positive happiness boost" % c_name)
-		assert(str(c.get("buff_id", "")) != "", "Charity %s must have a unique buff" % c_name)
+		# Permanent blessings removed per user requirements
+		assert(not c.has("buff_id"), "Charity %s must NOT grant permanent buffs" % c_name)
 
 	# 4. Verify age requirement gating
 	PlayerData.reset()
@@ -248,7 +247,7 @@ func test_charity_activities_button_and_donations() -> void:
 	var funds_eval := CharityManager.can_donate(PlayerData, "charity_food_bank")
 	assert(not bool(funds_eval.get("allowed", false)), "Player with insufficient funds should not be allowed to donate")
 
-	# 6. Verify successful donation, hidden karma increase, happiness increase, buff granting
+	# 6. Verify successful donation, hidden karma increase, happiness increase, NO permanent buffs
 	PlayerData.money = 100000
 	PlayerData.bank_savings = 50000
 	PlayerData.karma = 10
@@ -261,23 +260,18 @@ func test_charity_activities_button_and_donations() -> void:
 	assert(PlayerData.get_available_funds() == prev_funds - 100, "Should deduct $100 donation fee from available funds")
 	assert(PlayerData.happiness > 30, "Happiness must increase significantly")
 	assert(PlayerData.karma > 10, "Hidden karma must increase significantly")
-	assert(PlayerData.has_buff("buff_philanthropist_heart"), "Must grant Heartwarming Gratitude buff")
+	assert(PlayerData.active_buffs.is_empty(), "Must NOT grant permanent buffs")
 	assert(PlayerData.total_donated_charity == 100, "Lifetime donated tracking must be updated")
 
-	# 7. Verify buff protection (floor)
+	# 7. Verify NO buff protection floors (happiness can naturally drop)
 	PlayerData.happiness = 10
 	PlayerData.enforce_buffs_and_debuffs()
-	assert(PlayerData.happiness >= 50, "buff_philanthropist_heart must prevent happiness from dropping below 50%")
+	assert(PlayerData.happiness == 10, "Charity must not permanently floor happiness at 50%")
 
-	# 8. Test grand benefactor donation
-	var donate_grand := CharityManager.donate(PlayerData, "charity_childrens_wing")
-	assert(bool(donate_grand.get("success", false)), "Grand donation must succeed")
-	assert(PlayerData.has_buff("buff_grand_benefactor"), "Must grant buff_grand_benefactor")
-	PlayerData.happiness = 20
-	PlayerData.health = 20
-	PlayerData.enforce_buffs_and_debuffs()
-	assert(PlayerData.happiness >= 75, "Grand benefactor must enforce happiness floor at 75%")
-	assert(PlayerData.health >= 70, "Grand benefactor must enforce health floor at 70%")
+	# 8. Test annual limit: donating to a second charity in the same year must be blocked
+	var donate_second_eval := CharityManager.can_donate(PlayerData, "charity_childrens_wing")
+	assert(not bool(donate_second_eval.get("allowed", false)), "Donating to another charity in the same year must be rejected")
+	assert(donate_second_eval.get("reason", "").contains("once per year"), "Reason must mention once per year limit")
 
 	screen.queue_free()
 	print("✔ Charity button and philanthropy system verified.")
@@ -393,7 +387,7 @@ func test_activity_anti_spam_once_per_age() -> void:
 	assert(donate1["success"], "First donation to charity_food_bank must succeed")
 	var can_donate_again = CharityManager.can_donate(PlayerData, "charity_food_bank")
 	assert(not can_donate_again["allowed"], "Second donation to charity_food_bank at same age must be rejected")
-	assert(can_donate_again["reason"].contains("Annual Contribution Made") or can_donate_again["reason"].contains("next year"), "Must state annual contribution made")
+	assert(can_donate_again["reason"].contains("Annual Donation Made") or can_donate_again["reason"].contains("next year"), "Must state annual contribution made")
 
 	# 3. Salon & Spa Tracking & UI Lock
 	assert(PlayerData.last_salon_activity_age == -1, "last_salon_activity_age starts at -1")
@@ -428,7 +422,7 @@ func test_activity_anti_spam_once_per_age() -> void:
 	assert(PlayerData.last_spa_activity_age == 22, "last_spa_activity_age must persist")
 	assert(PlayerData.last_dating_app_age == 22, "last_dating_app_age must persist")
 	assert(PlayerData.last_pet_adoption_age == 22, "last_pet_adoption_age must persist")
-	assert(PlayerData.last_charity_donation_age.get("charity_food_bank") == 22, "last_charity_donation_age must persist")
+	assert(PlayerData.last_charity_donation_age == 22, "last_charity_donation_age must persist as integer")
 
 	# 7. Aging Up resets availability
 	PlayerData.age = 23

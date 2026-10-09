@@ -136,7 +136,7 @@ var last_salon_activity_age: int = -1
 var last_spa_activity_age: int = -1
 var last_dating_app_age: int = -1
 var last_pet_adoption_age: int = -1
-var last_charity_donation_age: Dictionary = {}
+var last_charity_donation_age: int = -1
 
 var job_id: String = ""
 var job_title: String = ""
@@ -287,7 +287,7 @@ func reset_player() -> void:
 	last_spa_activity_age = -1
 	last_dating_app_age = -1
 	last_pet_adoption_age = -1
-	last_charity_donation_age.clear()
+	last_charity_donation_age = -1
 
 	job_id = ""
 	job_title = ""
@@ -1141,20 +1141,9 @@ func enforce_buffs_and_debuffs() -> void:
 		looks = maxi(looks, 90)
 	if "blessed_mind" in active_buffs:
 		happiness = maxi(happiness, 80)
-	# Philanthropy & Charity Cosmic Buffs
-	if "buff_philanthropist_heart" in active_buffs:
-		happiness = maxi(happiness, 50)
-	if "buff_animal_guardian" in active_buffs:
-		happiness = maxi(happiness, 55)
-	if "buff_youth_mentor" in active_buffs:
-		smarts = maxi(smarts, 60)
-	if "buff_lifesavers_blessing" in active_buffs:
-		health = maxi(health, 60)
-	if "buff_eco_guardian" in active_buffs:
-		happiness = maxi(happiness, 65)
-	if "buff_grand_benefactor" in active_buffs:
-		happiness = maxi(happiness, 75)
-		health = maxi(health, 70)
+	# Purge any legacy charity permanent buffs if present
+	for b_id in ["buff_philanthropist_heart", "buff_animal_guardian", "buff_youth_mentor", "buff_lifesavers_blessing", "buff_eco_guardian", "buff_grand_benefactor"]:
+		active_buffs.erase(b_id)
 
 
 func add_buff(buff_id: String) -> void:

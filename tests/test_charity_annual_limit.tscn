@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://charity_annual_limit_test_001"]
+
+[ext_resource type="Script" path="res://tests/test_charity_annual_limit.gd" id="1_test"]
+
+[node name="TestCharityAnnualLimit" type="Node"]
+script = ExtResource("1_test")

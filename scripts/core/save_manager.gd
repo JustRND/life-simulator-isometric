@@ -329,12 +329,21 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.last_spa_activity_age = int(data.get("last_spa_activity_age", -1))
 	PlayerData.last_dating_app_age = int(data.get("last_dating_app_age", -1))
 	PlayerData.last_pet_adoption_age = int(data.get("last_pet_adoption_age", -1))
-	PlayerData.last_charity_donation_age = Dictionary(data.get("last_charity_donation_age", {}))
+	var raw_c_age = data.get("last_charity_donation_age", -1)
+	if raw_c_age is Dictionary:
+		var max_age: int = -1
+		for v in raw_c_age.values():
+			max_age = maxi(max_age, int(v))
+		PlayerData.last_charity_donation_age = max_age
+	else:
+		PlayerData.last_charity_donation_age = int(raw_c_age)
 	PlayerData.karma = int(data.get("karma", 0))
 	PlayerData.children = Array(data.get("children", []))
 	PlayerData.pregnancy = Dictionary(data.get("pregnancy", {}))
 	PlayerData.active_debuffs = Array(data.get("active_debuffs", []))
 	PlayerData.active_buffs = Array(data.get("active_buffs", []))
+	for b_id in ["buff_philanthropist_heart", "buff_animal_guardian", "buff_youth_mentor", "buff_lifesavers_blessing", "buff_eco_guardian", "buff_grand_benefactor"]:
+		PlayerData.active_buffs.erase(b_id)
 	PlayerData.owned_assets.clear()
 	PlayerData.health_insurance = str(data.get("health_insurance", "none"))
 	var saved_assets = data.get("owned_assets", [])
