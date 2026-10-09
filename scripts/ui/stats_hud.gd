@@ -117,7 +117,7 @@ func _layout(panel: Control) -> void:
 
 	var pull_btn := panel.get_parent().get_node_or_null("TimelinePullUpButton") as Control
 	if pull_btn != null:
-		pull_btn.offset_bottom = panel.offset_top
+		pull_btn.offset_bottom = panel.offset_top - 4.0
 		pull_btn.offset_top = pull_btn.offset_bottom - 46.0
 
 	var timeline_panel := panel.get_parent().get_node_or_null("TimelinePanel") as Control
