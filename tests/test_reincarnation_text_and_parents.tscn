@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://reincarnation_text_parents_test_001"]
+
+[ext_resource type="Script" path="res://tests/test_reincarnation_text_and_parents.gd" id="1_test"]
+
+[node name="TestReincarnationTextAndParents" type="Node"]
+script = ExtResource("1_test")

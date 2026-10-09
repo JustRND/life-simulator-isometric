@@ -271,3 +271,220 @@ static func generate_profile(first_name: String, country: String, gender: String
 		"has_father": dad_present
 	}
 
+
+static func generate_reincarnation_profile(first_name: String, country: String, gender: String, buffs: Array = [], debuffs: Array = []) -> Dictionary:
+	var safe_country := country if NameCatalog.POOLS.has(country) else "United States"
+	var month_idx := randi_range(0, 11)
+	var month_info: Dictionary = MONTH_DATA[month_idx]
+	var month_name: String = month_info["name"]
+	var day: int = randi_range(1, int(month_info["days"]))
+	var zodiac: String = get_zodiac(month_idx + 1, day)
+
+	var last_name := ""
+	var name_parts := first_name.split(" ", false)
+	if name_parts.size() > 1:
+		last_name = name_parts[name_parts.size() - 1]
+	else:
+		var r_parts := NameCatalog.random_name(safe_country, false).split(" ", false)
+		last_name = r_parts[r_parts.size() - 1] if r_parts.size() > 0 else "Smith"
+
+	# Socioeconomic Family Wealth Tier influenced by karmic blessings / curses
+	var family_wealth := "middle_class"
+	if "poverty" in debuffs:
+		family_wealth = "poor"
+	elif "silver_spoon" in buffs or "golden_pedigree" in buffs:
+		family_wealth = "wealthy"
+	else:
+		var wealth_roll := randf()
+		if wealth_roll < 0.25:
+			family_wealth = "poor"
+		elif wealth_roll < 0.80:
+			family_wealth = "middle_class"
+		else:
+			family_wealth = "wealthy"
+
+	var is_orphan: bool = ("no_parents" in debuffs)
+	var has_golden_pedigree: bool = ("golden_pedigree" in buffs)
+
+	var mom_first := ""
+	var mom_name := ""
+	var mom_age := 0
+	var mom_job := ""
+	var mom_edu := ""
+	var mom_health := 0
+	var mom_condition := ""
+	var mom_alive := false
+	var mom_portrait_track: int = randi() % 4
+
+	var dad_present := false
+	var dad_first := ""
+	var dad_name := ""
+	var dad_age := 0
+	var dad_job := ""
+	var dad_edu := ""
+	var dad_health := 0
+	var dad_condition := ""
+	var dad_alive := false
+	var dad_portrait_track: int = randi() % 4
+
+	if is_orphan:
+		mom_name = "Deceased"
+		mom_alive = false
+		mom_health = 0
+		mom_job = "N/A"
+		mom_edu = "N/A"
+		dad_name = "Deceased"
+		dad_alive = false
+		dad_health = 0
+		dad_job = "N/A"
+		dad_edu = "N/A"
+		dad_present = false
+	else:
+		var mom_parts := NameCatalog.random_name(safe_country, true).split(" ", false)
+		mom_first = mom_parts[0] if mom_parts.size() > 0 else "Sarah"
+		mom_name = "%s %s" % [mom_first, last_name]
+		mom_age = randi_range(24, 42)
+		mom_alive = true
+		mom_health = 80
+
+		if has_golden_pedigree:
+			mom_edu = WEALTHY_EDU.pick_random()
+			mom_job = WEALTHY_JOBS.pick_random()
+			mom_health = 90
+		else:
+			match family_wealth:
+				"poor":
+					mom_edu = POOR_EDU.pick_random()
+					mom_job = "unemployed" if randf() < 0.35 else POOR_JOBS.pick_random()
+				"wealthy":
+					mom_edu = WEALTHY_EDU.pick_random()
+					mom_job = WEALTHY_JOBS.pick_random()
+				_:
+					mom_edu = MIDDLE_EDU.pick_random()
+					mom_job = MIDDLE_JOBS.pick_random()
+
+			if randf() < 0.12 and not ("radiant_vitality" in buffs):
+				if randf() < 0.50:
+					mom_condition = CANCER_CONDITIONS.pick_random()
+					mom_health = randi_range(35, 50)
+				else:
+					mom_condition = OTHER_CONDITIONS.pick_random()
+					mom_health = randi_range(50, 65)
+
+		dad_present = has_golden_pedigree or (randf() > 0.12)
+		if dad_present:
+			var dad_parts := NameCatalog.random_name(safe_country, false).split(" ", false)
+			dad_first = dad_parts[0] if dad_parts.size() > 0 else "David"
+			dad_name = "%s %s" % [dad_first, last_name]
+			dad_age = mom_age + randi_range(-2, 4)
+			dad_alive = true
+			dad_health = 80
+
+			if has_golden_pedigree:
+				dad_edu = WEALTHY_EDU.pick_random()
+				dad_job = WEALTHY_JOBS.pick_random()
+				dad_health = 90
+			else:
+				match family_wealth:
+					"poor":
+						dad_edu = POOR_EDU.pick_random()
+						dad_job = "unemployed" if randf() < 0.35 else POOR_JOBS.pick_random()
+					"wealthy":
+						dad_edu = WEALTHY_EDU.pick_random()
+						dad_job = WEALTHY_JOBS.pick_random()
+					_:
+						dad_edu = MIDDLE_EDU.pick_random()
+						dad_job = MIDDLE_JOBS.pick_random()
+
+				if randf() < 0.12 and not ("radiant_vitality" in buffs):
+					if randf() < 0.50:
+						dad_condition = CANCER_CONDITIONS.pick_random()
+						dad_health = randi_range(35, 50)
+					else:
+						dad_condition = OTHER_CONDITIONS.pick_random()
+						dad_health = randi_range(50, 65)
+		else:
+			dad_name = "Unknown"
+			dad_alive = false
+			dad_age = 0
+			dad_job = "N/A"
+			dad_edu = "N/A"
+			dad_health = 0
+
+	var circumstance: String = CONCEPTION_STORIES.pick_random()
+	var gender_term := "male" if gender.to_upper() == "MALE" else "female"
+
+	var lines: Array[String] = []
+	lines.append("I am a %s who came into the world in %s." % [gender_term, LifeLibrary.birth_location(safe_country)])
+	lines.append(circumstance)
+	lines.append("My birthday is %s %d. I am a %s." % [month_name, day, zodiac])
+	lines.append("My name is %s." % first_name)
+
+	# Socioeconomic background line
+	if has_golden_pedigree:
+		lines.append("I was born into a prestigious, high-society family of renowned professionals who cherish and support me.")
+	elif family_wealth == "wealthy":
+		lines.append("I was born into an affluent, wealthy family surrounded by luxury and high society.")
+	elif family_wealth == "poor":
+		lines.append("I was born into an impoverished household where money is tight and every dollar counts.")
+	else:
+		lines.append("I was born into a hardworking middle-class family residing in a cozy suburban neighborhood.")
+
+	# Parents description
+	if is_orphan:
+		lines.append("I was born an orphan. Both of my biological parents are absent or deceased, and I am being raised in austere state foster care.")
+	else:
+		if mom_alive:
+			if mom_job == "unemployed":
+				lines.append("My mother is %s (age %d), currently unemployed with a %s education." % [mom_name, mom_age, mom_edu])
+			else:
+				lines.append("My mother is %s (age %d), a %s with a %s education." % [mom_name, mom_age, mom_job, mom_edu])
+
+			if mom_condition != "":
+				if mom_condition in CANCER_CONDITIONS:
+					lines.append("Your mother has cancer (%s)." % mom_condition)
+				else:
+					lines.append("Your mother suffers from %s." % mom_condition)
+
+		if dad_present and dad_alive:
+			if dad_job == "unemployed":
+				lines.append("My father is %s (age %d), currently unemployed with a %s education." % [dad_name, dad_age, dad_edu])
+			else:
+				lines.append("My father is %s (age %d), a %s with a %s education." % [dad_name, dad_age, dad_job, dad_edu])
+
+			if dad_condition != "":
+				if dad_condition in CANCER_CONDITIONS:
+					lines.append("Your father has cancer (%s)." % dad_condition)
+				else:
+					lines.append("Your father suffers from %s." % dad_condition)
+		elif mom_alive:
+			lines.append("My mother is raising me as a single parent.")
+
+	var full_text := "\n".join(lines)
+
+	return {
+		"story": full_text,
+		"birth_description": full_text,
+		"birth_month": month_name,
+		"birth_day": day,
+		"zodiac": zodiac,
+		"family_wealth": family_wealth,
+		"mother_name": mom_name,
+		"mother_age": mom_age,
+		"mother_job": mom_job,
+		"mother_education": mom_edu,
+		"mother_condition": mom_condition,
+		"mother_health": mom_health,
+		"mother_portrait_track": mom_portrait_track,
+		"mother_alive": mom_alive,
+		"father_name": dad_name,
+		"father_age": dad_age,
+		"father_job": dad_job,
+		"father_education": dad_edu,
+		"father_condition": dad_condition,
+		"father_health": dad_health,
+		"father_portrait_track": dad_portrait_track,
+		"father_alive": dad_alive,
+		"has_father": dad_present and dad_alive
+	}
+

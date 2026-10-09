@@ -59,6 +59,19 @@ func _ready() -> void:
 	assert(not PlayerData.mother_alive and not PlayerData.father_alive, "Orphaned at birth debuff enforced")
 	assert(PlayerData.debt >= 60000, "Crazy debt debuff enforced")
 	assert(PlayerData.health <= 25 and PlayerData.smarts <= 25, "Bad stats debuff enforced")
+
+	# Check formatted reincarnation text (no raw keys!)
+	var condemned_log_text: String = str(PlayerData.life_log[0]["text"])
+	assert(not condemned_log_text.contains("bad_stats") and not condemned_log_text.contains("no_parents") and not condemned_log_text.contains("crazy_debt"), "Must not show raw code keys: %s" % condemned_log_text)
+	assert(condemned_log_text.contains("Diminished Core Attributes") and condemned_log_text.contains("Orphaned at Birth") and condemned_log_text.contains("Ancestral Debt Burden"), "Must show human readable debuff titles: %s" % condemned_log_text)
+	assert(condemned_log_text.contains("📉") and condemned_log_text.contains("🏚️") and condemned_log_text.contains("⛓️"), "Must include debuff icons: %s" % condemned_log_text)
+
+	# Check parents description for orphan
+	assert(PlayerData.birth_story != "", "Birth story must be generated")
+	assert(PlayerData.birth_story.contains("orphan") or PlayerData.birth_story.contains("foster care"), "Orphan birth story must describe parents situation: %s" % PlayerData.birth_story)
+	assert(PlayerData.life_log.size() >= 2, "Life log must include both reincarnation decree and birth/parents description")
+	assert(str(PlayerData.life_log[1]["text"]).contains("orphan") or str(PlayerData.life_log[1]["text"]).contains("foster care"), "Timeline must contain parents description: %s" % str(PlayerData.life_log[1]["text"]))
+
 	print("✔ Test 5: Reincarnated life under Bad Karma verified (Debt: $%d, Health: %d, Smarts: %d)" % [
 		PlayerData.debt, PlayerData.health, PlayerData.smarts
 	])
@@ -80,6 +93,21 @@ func _ready() -> void:
 	assert(PlayerData.money == 0, "Silver spoon trust fund deposited into bank balance")
 	assert(PlayerData.smarts >= 100, "Super smarts buff enforced")
 	assert(PlayerData.mother_relationship == 100, "Golden pedigree buff enforced")
+
+	# Check formatted reincarnation text (no raw keys!)
+	var blessed_log_text: String = str(PlayerData.life_log[0]["text"])
+	assert(not blessed_log_text.contains("super_smarts") and not blessed_log_text.contains("silver_spoon") and not blessed_log_text.contains("golden_pedigree"), "Must not show raw code keys: %s" % blessed_log_text)
+	assert(blessed_log_text.contains("Transcendent Genius") and blessed_log_text.contains("Silver Spoon Legacy") and blessed_log_text.contains("Golden Pedigree"), "Must show human readable buff titles: %s" % blessed_log_text)
+	assert(blessed_log_text.contains("🧠") and blessed_log_text.contains("💎") and blessed_log_text.contains("👑"), "Must include buff icons: %s" % blessed_log_text)
+
+	# Check parents description for blessed rebirth
+	assert(PlayerData.birth_story != "", "Birth story must be generated")
+	assert(PlayerData.birth_story.contains("My mother is") and PlayerData.birth_story.contains("My father is"), "Birth story must include parents description: %s" % PlayerData.birth_story)
+	assert(PlayerData.life_log.size() >= 2, "Life log must include both reincarnation decree and birth/parents description")
+	assert(str(PlayerData.life_log[1]["text"]).contains("My mother is"), "Timeline must contain parents description: %s" % str(PlayerData.life_log[1]["text"]))
+	assert(PlayerData.mother_education != "" and PlayerData.father_education != "", "Parents education must be initialized")
+	assert(PlayerData.mother_base_age > 0 and PlayerData.father_base_age > 0, "Parents base age must be initialized")
+
 	print("✔ Test 6: Reincarnated life under Good Karma verified (Bank Savings: $%d, Smarts: %d)" % [
 		PlayerData.bank_savings, PlayerData.smarts
 	])
@@ -160,4 +188,8 @@ func _ready() -> void:
 	print("✔ Test 10: Afterlife minigame instantiation, debuff/buff rolling, and identity randomization verified")
 
 	print("--- ALL 10 TESTS PASSED SUCCESSFULLY! ---")
+	var fa := FileAccess.open("res://test_afterlife_result.txt", FileAccess.WRITE)
+	if fa != null:
+		fa.store_string("SUCCESS: ALL 10 AFTERLIFE & REINCARNATION TESTS PASSED!")
+		fa.close()
 	get_tree().quit(0)

@@ -1,6 +1,31 @@
 extends Node
 
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
+const BirthStoryGeneratorRef = preload("res://scripts/core/birth_story_generator.gd")
+
+const KARMIC_MODIFIERS := {
+	# Cosmic Buffs
+	"super_smarts": {"title": "Transcendent Genius", "icon": "🧠"},
+	"silver_spoon": {"title": "Silver Spoon Legacy", "icon": "💎"},
+	"radiant_vitality": {"title": "Radiant Vitality", "icon": "❤️"},
+	"divine_looks": {"title": "Divine Radiance", "icon": "✨"},
+	"blessed_mind": {"title": "Serene Mind", "icon": "🧘"},
+	"golden_pedigree": {"title": "Golden Pedigree", "icon": "👑"},
+	# Karmic Debuffs
+	"bad_stats": {"title": "Diminished Core Attributes", "icon": "📉"},
+	"random_illness": {"title": "Congenital Chronic Illness", "icon": "🩺"},
+	"poverty": {"title": "Crushing Generational Poverty", "icon": "💸"},
+	"no_parents": {"title": "Orphaned at Birth", "icon": "🏚️"},
+	"stuck_happiness": {"title": "Anhedonia (Stuck Happiness)", "icon": "⚡"},
+	"health_cap_50": {"title": "Frail Vessel (Health Capped at 50%)", "icon": "💔"},
+	"crazy_debt": {"title": "Ancestral Debt Burden", "icon": "⛓️"}
+}
+
+static func format_karmic_modifier(modifier_id: String) -> String:
+	if KARMIC_MODIFIERS.has(modifier_id):
+		var info: Dictionary = KARMIC_MODIFIERS[modifier_id]
+		return "%s %s" % [info.get("icon", ""), info.get("title", modifier_id)]
+	return modifier_id.capitalize().replace("_", " ")
 
 var age: int = 0
 var life_id: String = ""
@@ -1208,29 +1233,40 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 	portrait_variant = int(identity.get("portrait_variant", 0))
 	has_started_game = true
 
-	# Parents setup
-	if "no_parents" in active_debuffs:
-		mother_name = "Deceased"
-		mother_alive = false
-		mother_health = 0
-		father_name = "Deceased"
-		father_alive = false
-		father_health = 0
-	else:
-		mother_name = "Elena"
-		mother_job = "Retail Associate"
-		mother_alive = true
-		mother_health = 80
-		father_name = "Marcus"
-		father_job = "Mechanic"
-		father_alive = true
-		father_health = 80
+	# Generate rich reincarnation profile with full character & parents description
+	var profile: Dictionary = BirthStoryGeneratorRef.generate_reincarnation_profile(
+		first_name,
+		birthplace,
+		gender,
+		active_buffs,
+		active_debuffs
+	)
 
-	if "golden_pedigree" in active_buffs:
-		mother_job = "Chief Surgeon"
-		father_job = "Venture Capitalist"
-		mother_relationship = 100
-		father_relationship = 100
+	birth_story = str(profile.get("story", ""))
+	birth_month = str(profile.get("birth_month", "January"))
+	birth_day = int(profile.get("birth_day", 1))
+	zodiac = str(profile.get("zodiac", "Capricorn"))
+	family_wealth = str(profile.get("family_wealth", "middle_class"))
+
+	mother_name = str(profile.get("mother_name", "Elena"))
+	mother_job = str(profile.get("mother_job", "Retail Associate"))
+	mother_base_age = int(profile.get("mother_age", 35))
+	mother_education = str(profile.get("mother_education", "High School"))
+	mother_condition = str(profile.get("mother_condition", ""))
+	mother_health = int(profile.get("mother_health", 80))
+	mother_portrait_track = int(profile.get("mother_portrait_track", randi() % 4))
+	mother_alive = bool(profile.get("mother_alive", true))
+	mother_relationship = 100 if "golden_pedigree" in active_buffs else (0 if not mother_alive else 80)
+
+	father_name = str(profile.get("father_name", "Marcus"))
+	father_job = str(profile.get("father_job", "Mechanic"))
+	father_base_age = int(profile.get("father_age", 37))
+	father_education = str(profile.get("father_education", "High School"))
+	father_condition = str(profile.get("father_condition", ""))
+	father_health = int(profile.get("father_health", 80))
+	father_portrait_track = int(profile.get("father_portrait_track", randi() % 4))
+	father_alive = bool(profile.get("father_alive", true))
+	father_relationship = 100 if "golden_pedigree" in active_buffs else (0 if not father_alive else 80)
 
 	# Base stats
 	if "bad_stats" in active_debuffs:
@@ -1270,12 +1306,31 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 	karma = 0
 	enforce_buffs_and_debuffs()
 
+	# 1. Timeline Reincarnation Judgment event with human-readable titles and icons
 	var desc_karmic := "⚖️ REINCARNATION: You were judged by the Cosmic Arbiter."
-	if active_debuffs.size() > 0:
-		desc_karmic += " Bound by karmic penalties: %s." % ", ".join(active_debuffs)
-	elif active_buffs.size() > 0:
-		desc_karmic += " Blessed with cosmic gifts: %s." % ", ".join(active_buffs)
+	var gift_names: Array[String] = []
+	for b in active_buffs:
+		gift_names.append(format_karmic_modifier(str(b)))
+
+	var penalty_names: Array[String] = []
+	for d in active_debuffs:
+		penalty_names.append(format_karmic_modifier(str(d)))
+
+	if gift_names.size() > 0 and penalty_names.size() > 0:
+		desc_karmic += " Blessed with cosmic gifts: %s. Bound by karmic penalties: %s." % [", ".join(gift_names), ", ".join(penalty_names)]
+	elif gift_names.size() > 0:
+		desc_karmic += " Blessed with cosmic gifts: %s." % ", ".join(gift_names)
+	elif penalty_names.size() > 0:
+		desc_karmic += " Bound by karmic penalties: %s." % ", ".join(penalty_names)
+	else:
+		desc_karmic += " Reborn into a balanced mortal vessel."
+
 	add_life_log_entry(desc_karmic, "event")
+
+	# 2. Timeline Character & Parents description
+	if birth_story != "":
+		add_life_log_entry(birth_story, "milestone")
+	add_milestone("Reborn in %s." % birthplace, 0, "🍼")
 
 
 func takeover_as_child(child: Dictionary, inherited_money: int, inherited_assets: Array = []) -> void:
