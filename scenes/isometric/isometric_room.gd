@@ -41,6 +41,7 @@ func _ready() -> void:
 	_ensure_character()
 	_ensure_parents()
 	_ensure_children()
+	_ensure_partner()
 
 func _on_viewport_size_changed() -> void:
 	_update_camera_zoom()
@@ -233,11 +234,63 @@ func _ensure_children() -> void:
 			if not active_kid_names.has(child.name):
 				child.queue_free()
 
+func _ensure_partner() -> void:
+	if not characters:
+		return
+		
+	var is_married: bool = false
+	var p_name: String = ""
+	var p_status: String = ""
+	var p_gender: String = "FEMALE"
+	var p_age: int = 25
+	var p_track: int = 0
+	var p_eth: String = "white"
+	
+	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
+		if PlayerData.has_method("has_partner") and PlayerData.has_partner():
+			p_status = PlayerData.get_partner_status() if PlayerData.has_method("get_partner_status") else str(PlayerData.partner.get("status", ""))
+			if p_status in ["Wife", "Husband", "Spouse"] and bool(PlayerData.partner.get("is_alive", true)):
+				is_married = true
+				p_name = PlayerData.get_partner_name() if PlayerData.has_method("get_partner_name") else str(PlayerData.partner.get("name", "Partner"))
+				p_gender = str(PlayerData.partner.get("gender", "FEMALE" if p_status == "Wife" else "MALE"))
+				p_age = int(PlayerData.partner.get("age", PlayerData.age if "age" in PlayerData else 25))
+				p_track = int(PlayerData.partner.get("portrait_track", PlayerData.partner.get("portrait_variant", 0)))
+				p_eth = str(PlayerData.partner.get("ethnicity", PlayerData.ethnicity if "ethnicity" in PlayerData else "white"))
+				
+	var partner_node = characters.get_node_or_null("PartnerCharacter")
+	if not is_married:
+		if partner_node != null:
+			partner_node.queue_free()
+		return
+		
+	var display_age: int = maxi(p_age, 18)
+	var p_tex: Texture2D = PortraitCatalog.get_portrait(display_age, p_gender, p_track, p_eth)
+	
+	var char_scene := load("res://scenes/isometric/isometric_character.tscn") as PackedScene
+	if not char_scene:
+		return
+		
+	if partner_node == null:
+		partner_node = char_scene.instantiate()
+		partner_node.name = "PartnerCharacter"
+		characters.add_child(partner_node)
+		partner_node.call("set_room", self)
+		var spawn_pos := Vector2(80, 210)
+		if not is_point_walkable(spawn_pos):
+			spawn_pos = get_random_walkable_point()
+		partner_node.position = spawn_pos
+		partner_node.idle_timer = randf_range(1.2, 3.2)
+		
+	if partner_node.has_method("setup_npc"):
+		var role_str: String = "%s: %s" % [p_status, p_name] if p_name != "" else p_status
+		partner_node.call("setup_npc", p_tex, role_str)
+
 func update_character() -> void:
 	if _character_instance and _character_instance.has_method("update_appearance"):
 		_character_instance.call("update_appearance")
 	_ensure_parents()
 	_ensure_children()
+	_ensure_partner()
 
 func is_point_walkable(pt: Vector2) -> bool:
 	if not walkable_area or walkable_area.polygon.size() < 3:

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_married_partner_001"]
+
+[ext_resource type="Script" path="res://tests/test_married_partner_in_room.gd" id="1_test"]
+
+[node name="TestMarriedPartnerInRoom" type="Node"]
+script = ExtResource("1_test")
