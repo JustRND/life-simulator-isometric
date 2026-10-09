@@ -326,6 +326,7 @@ func _configure_ui() -> void:
 	_configure_stat_bars()
 	_configure_portrait()
 	_configure_button_contrasts()
+	_configure_version_badge()
 
 	var disclaimer_card := get_node_or_null("DisclaimerScreen/CenterContainer/DisclaimerCard") as PanelContainer
 	if disclaimer_card != null:
@@ -15358,3 +15359,33 @@ func _on_action_bar_btn_up(btn: Button) -> void:
 		return
 	var tween := create_tween()
 	tween.tween_property(btn, "scale", Vector2(1.05, 1.05), 0.08).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+func _configure_version_badge() -> void:
+	var badge := get_node_or_null("TopBar/Row/AlphaVersionMargin/AlphaBadge") as PanelContainer
+	var label := get_node_or_null("TopBar/Row/AlphaVersionMargin/AlphaBadge/AlphaBadgeMargin/AlphaVersionLabel") as Label
+	if badge == null or label == null:
+		return
+
+	badge.set_meta("reference_part", true)
+	label.set_meta("reference_part", true)
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var ver: String = LifeLibrary.get_version_string()
+	var formatted_ver: String = ver if ver.begins_with("v") or ver.begins_with("V") else ("v" + ver)
+	label.text = "ALPHA " + formatted_ver
+
+	var badge_box := StyleBoxFlat.new()
+	badge_box.bg_color = Color(0.961, 0.62, 0.043, 0.16) if is_light else Color(0.961, 0.62, 0.043, 0.12)
+	badge_box.border_color = Color(0.85, 0.45, 0.02, 0.85) if is_light else Color(0.961, 0.62, 0.043, 0.70)
+	badge_box.set_border_width_all(1)
+	badge_box.set_corner_radius_all(8)
+	badge_box.shadow_color = Color(0, 0, 0, 0.08) if is_light else Color(0.961, 0.62, 0.043, 0.20)
+	badge_box.shadow_size = 4
+	badge_box.shadow_offset = Vector2(0, 2)
+	badge.add_theme_stylebox_override("panel", badge_box)
+
+	label.add_theme_color_override("font_color", Color("#b45309") if is_light else Color(0.98, 0.75, 0.25, 1.0))
+	label.add_theme_color_override("font_outline_color", Color(1, 1, 1, 0.8) if is_light else Color(0.1, 0.05, 0, 0.8))
+	label.add_theme_constant_override("outline_size", 2)
+

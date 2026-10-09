@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btest_alpha_version_badge_001"]
+
+[ext_resource type="Script" path="res://tests/test_alpha_version_badge.gd" id="1_test"]
+
+[node name="TestAlphaVersionBadge" type="Node"]
+script = ExtResource("1_test")

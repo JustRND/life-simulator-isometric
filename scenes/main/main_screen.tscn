@@ -16,6 +16,21 @@ bg_color = Color(0.0745, 0.0588, 0.1647, 1)
 border_width_bottom = 6
 border_color = Color(0.396, 0.902, 1, 1)
 
+[sub_resource type="StyleBoxFlat" id="alpha_badge"]
+bg_color = Color(0.961, 0.62, 0.043, 0.12)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.961, 0.62, 0.043, 0.7)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.961, 0.62, 0.043, 0.2)
+shadow_size = 4
+shadow_offset = Vector2(0, 2)
+
 [sub_resource type="StyleBoxFlat" id="profile"]
 bg_color = Color(0.08, 0.11, 0.22, 0.95)
 border_width_bottom = 6
@@ -368,6 +383,33 @@ theme_override_colors/font_outline_color = Color(0.925, 0.247, 0.655, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 46
 text = "LIFE.EXE"
+vertical_alignment = 1
+
+[node name="AlphaVersionMargin" type="MarginContainer" parent="TopBar/Row" unique_id=2083918231]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/margin_right = 24
+
+[node name="AlphaBadge" type="PanelContainer" parent="TopBar/Row/AlphaVersionMargin" unique_id=2083918232]
+layout_mode = 2
+theme_override_styles/panel = SubResource("alpha_badge")
+
+[node name="AlphaBadgeMargin" type="MarginContainer" parent="TopBar/Row/AlphaVersionMargin/AlphaBadge" unique_id=2083918233]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 6
+
+[node name="AlphaVersionLabel" type="Label" parent="TopBar/Row/AlphaVersionMargin/AlphaBadge/AlphaBadgeMargin" unique_id=2083918234]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_font")
+theme_override_colors/font_color = Color(0.98, 0.75, 0.25, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 0.8)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 22
+text = "ALPHA v0.1.0"
+horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ProfileStrip" type="PanelContainer" parent="." unique_id=1122009277]

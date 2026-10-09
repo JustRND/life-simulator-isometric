@@ -15,10 +15,17 @@ const ACHIEVEMENTS = [
 	["asset", "Proud Owner", "Own your first asset."],
 	["graduate", "Cap and Gown", "Earn a degree."]
 ]
+const GAME_VERSION: String = "0.1.0"
 var profile_path := "user://life_library.json"
 var slots_path := "user://lives"
 var resume_path := SaveManager.SAVE_PATH
 var data: Dictionary = {"cities": [], "people": [], "achievements": {}, "theme": "dark", "active_slot": "", "muted": false, "language": "en", "currency": "USD", "haptics_enabled": true}
+
+func get_version_string() -> String:
+	var ver: String = str(ProjectSettings.get_setting("application/config/version", GAME_VERSION)).strip_edges()
+	if ver.is_empty():
+		ver = GAME_VERSION
+	return ver
 
 
 func _ready() -> void:
