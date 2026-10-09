@@ -1325,7 +1325,11 @@ func _adjust_safe_area() -> void:
 
 	if is_instance_valid(safe_area):
 		safe_area.offset_top = top_m
-		safe_area.offset_bottom = -bottom_m
+		safe_area.offset_bottom = 0.0
+	if is_instance_valid(action_bar):
+		action_bar.offset_bottom = 0.0
+	if is_instance_valid(age_button):
+		age_button.offset_bottom = 0.0
 
 	if is_instance_valid(top_bar):
 		top_bar.offset_top = top_m

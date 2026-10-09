@@ -7,10 +7,10 @@ extends RefCounted
 ## Centered at (0, 0), these are (0, -269), (884, 196), (0, 666), (-884, 196).
 ## Inset by safe margins from walls and ledges:
 const DEFAULT_WALKABLE_POLYGON: PackedVector2Array = [
-	Vector2(0, -150),    # Top back corner (inset from baseboard)
-	Vector2(670, 200),   # Right corner (inset from right edge)
-	Vector2(0, 540),     # Bottom front corner (inset from front rim)
-	Vector2(-670, 200)   # Left corner (inset from left edge)
+	Vector2(0, -120),    # Top back corner (inset safely from baseboard)
+	Vector2(630, 200),   # Right corner (inset safely from right edge)
+	Vector2(0, 500),     # Bottom front corner (inset safely from front rim)
+	Vector2(-630, 200)   # Left corner (inset safely from left edge)
 ]
 
 const ROOM_DEFINITIONS: Dictionary = {

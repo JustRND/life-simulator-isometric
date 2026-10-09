@@ -2,6 +2,7 @@ extends Node2D
 
 const RoomManager = preload("res://scripts/isometric/room_manager.gd")
 const IsometricCharacterScript = preload("res://scenes/isometric/isometric_character.gd")
+const PortraitCatalog = preload("res://scripts/core/portrait_catalog.gd")
 
 @export_enum("room_wood", "room_brick", "room_carpet", "room_modern", "room_dark") var initial_room: String = "room_wood"
 @export var show_debug_walkable_area: bool = false
@@ -38,6 +39,7 @@ func _ready() -> void:
 	set_room(initial_room)
 	_update_camera_zoom()
 	_ensure_character()
+	_ensure_parents()
 
 func _on_viewport_size_changed() -> void:
 	_update_camera_zoom()
@@ -52,13 +54,12 @@ func _update_camera_zoom() -> void:
 	if vp_size.x <= 0 or vp_size.y <= 0:
 		return
 		
-	# The room artwork is 2048 x 2048.
-	# Scale proportionally to fit both width and height within the SubViewport,
-	# maintaining 1:1 pixel aspect ratio.
-	var zoom_factor: float = minf(vp_size.x / 2048.0, vp_size.y / 2048.0)
-	zoom_factor = clampf(zoom_factor, 0.05, 4.0)
+	# Zoom out slightly (0.86x) to show full room walls and floor with ample breathing room,
+	# creating the optical illusion that the room is large and expansive.
+	var base_zoom: float = minf(vp_size.x / 2048.0, vp_size.y / 2048.0)
+	var zoom_factor: float = clampf(base_zoom * 0.86, 0.05, 4.0)
 	camera.zoom = Vector2(zoom_factor, zoom_factor)
-	camera.position = Vector2.ZERO
+	camera.position = Vector2(0, 80)
 
 func set_room(room_id: String) -> void:
 	current_room_id = room_id
@@ -78,17 +79,18 @@ func _ensure_character() -> void:
 		return
 		
 	for child in characters.get_children():
-		if child.get_script() == IsometricCharacterScript or child.has_method("set_room"):
+		if (child.get_script() == IsometricCharacterScript or child.has_method("set_room")) and child.name == "IsometricCharacter":
 			_character_instance = child
 			_character_instance.set_room(self)
 			if _character_instance.has_method("update_appearance"):
 				_character_instance.call("update_appearance")
 			return
 			
-	# Instantiate character if not present in scene
+	# Instantiate player character if not present in scene
 	var char_scene := load("res://scenes/isometric/isometric_character.tscn") as PackedScene
 	if char_scene:
 		var ch := char_scene.instantiate() as Node2D
+		ch.name = "IsometricCharacter"
 		characters.add_child(ch)
 		_character_instance = ch
 		_character_instance.call("set_room", self)
@@ -96,9 +98,67 @@ func _ensure_character() -> void:
 		if _character_instance.has_method("update_appearance"):
 			_character_instance.call("update_appearance")
 
+func _ensure_parents() -> void:
+	if not characters:
+		return
+		
+	var mother_alive: bool = true
+	var father_alive: bool = true
+	var age: int = 0
+	var eth: String = "white"
+	var track: int = 0
+	var m_base_age: int = 35
+	var f_base_age: int = 37
+	
+	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
+		mother_alive = PlayerData.mother_alive if "mother_alive" in PlayerData else true
+		father_alive = PlayerData.father_alive if "father_alive" in PlayerData else true
+		age = PlayerData.age if "age" in PlayerData else 0
+		eth = PlayerData.ethnicity if "ethnicity" in PlayerData else "white"
+		track = PlayerData.portrait_track if "portrait_track" in PlayerData else 0
+		m_base_age = PlayerData.mother_base_age if "mother_base_age" in PlayerData else 35
+		f_base_age = PlayerData.father_base_age if "father_base_age" in PlayerData else 37
+		
+	var char_scene := load("res://scenes/isometric/isometric_character.tscn") as PackedScene
+	if not char_scene:
+		return
+		
+	# Mother bobbly head
+	var mother_node = characters.get_node_or_null("MotherCharacter")
+	if mother_alive:
+		var m_tex: Texture2D = PortraitCatalog.get_portrait(m_base_age + age, "FEMALE", (track + 1) % 4, eth)
+		if mother_node == null:
+			mother_node = char_scene.instantiate()
+			mother_node.name = "MotherCharacter"
+			characters.add_child(mother_node)
+			mother_node.call("set_room", self)
+			mother_node.position = Vector2(-160, 220)
+			mother_node.idle_timer = randf_range(1.5, 3.5)
+		if mother_node.has_method("setup_npc"):
+			mother_node.call("setup_npc", m_tex, "Mother")
+	elif mother_node != null:
+		mother_node.queue_free()
+		
+	# Father bobbly head
+	var father_node = characters.get_node_or_null("FatherCharacter")
+	if father_alive:
+		var f_tex: Texture2D = PortraitCatalog.get_portrait(f_base_age + age, "MALE", (track + 2) % 4, eth)
+		if father_node == null:
+			father_node = char_scene.instantiate()
+			father_node.name = "FatherCharacter"
+			characters.add_child(father_node)
+			father_node.call("set_room", self)
+			father_node.position = Vector2(160, 240)
+			father_node.idle_timer = randf_range(1.0, 3.0)
+		if father_node.has_method("setup_npc"):
+			father_node.call("setup_npc", f_tex, "Father")
+	elif father_node != null:
+		father_node.queue_free()
+
 func update_character() -> void:
 	if _character_instance and _character_instance.has_method("update_appearance"):
 		_character_instance.call("update_appearance")
+	_ensure_parents()
 
 func is_point_walkable(pt: Vector2) -> bool:
 	if not walkable_area or walkable_area.polygon.size() < 3:

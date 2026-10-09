@@ -17,8 +17,12 @@ enum State {
 @export var walk_speed: float = 160.0
 @export var min_idle_time: float = 1.5
 @export var max_idle_time: float = 4.0
-@export var character_scale: float = 2.0
+@export var character_scale: float = 1.1
 @export var roam_enabled: bool = true
+
+@export var is_npc: bool = false
+@export var npc_role: String = ""
+var custom_texture: Texture2D = null
 
 var current_state: State = State.IDLE
 var target_position: Vector2 = Vector2.ZERO
@@ -96,8 +100,8 @@ func _process_walking(delta: float) -> void:
 		
 	# Walk bounce and squash-and-stretch
 	walk_cycle += delta * 12.0
-	var bounce: float = absf(sin(walk_cycle)) * 10.0
-	var squish: float = sin(walk_cycle * 2.0) * 0.05
+	var bounce: float = absf(sin(walk_cycle)) * 5.0
+	var squish: float = sin(walk_cycle * 2.0) * 0.04
 	
 	if sprite_anchor:
 		sprite_anchor.position.y = -bounce
@@ -105,13 +109,13 @@ func _process_walking(delta: float) -> void:
 		sprite.scale = Vector2(character_scale * (1.0 - squish), character_scale * (1.0 + squish))
 	
 	if shadow:
-		var shadow_squeeze: float = 1.0 - (bounce / 10.0) * 0.15
+		var shadow_squeeze: float = 1.0 - (bounce / 5.0) * 0.15
 		shadow.scale = Vector2(shadow_squeeze, shadow_squeeze)
 
 func _pick_next_destination() -> void:
 	if _room_ref and _room_ref.has_method("get_random_walkable_point"):
 		var next_pt: Vector2 = _room_ref.get_random_walkable_point()
-		if next_pt != Vector2.ZERO and next_pt.distance_to(position) > 30.0:
+		if next_pt != Vector2.ZERO and next_pt.distance_to(position) > 20.0:
 			target_position = next_pt
 			current_state = State.WALKING
 			walk_cycle = 0.0
@@ -131,6 +135,13 @@ func _stop_walking() -> void:
 	if shadow:
 		shadow.scale = Vector2.ONE
 
+## Configures this character as an NPC (e.g. mother, father)
+func setup_npc(p_tex: Texture2D, p_role: String = "") -> void:
+	is_npc = true
+	npc_role = p_role
+	custom_texture = p_tex
+	update_appearance()
+
 ## Updates the sprite texture from PlayerData and PortraitCatalog
 func update_appearance() -> void:
 	if not sprite:
@@ -139,6 +150,12 @@ func update_appearance() -> void:
 	# Ensure crisp pixel filtering
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	
+	if is_npc and custom_texture != null:
+		sprite.texture = custom_texture
+		sprite.offset = Vector2(0, -45)
+		sprite.scale = Vector2(character_scale, character_scale)
+		return
+		
 	# Fetch portrait from game's PortraitCatalog
 	var tex: Texture2D = null
 	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
@@ -155,5 +172,5 @@ func update_appearance() -> void:
 	if tex != null:
 		sprite.texture = tex
 		# Offset so character's feet rest at (0, 0)
-		sprite.offset = Vector2(0, -56)
+		sprite.offset = Vector2(0, -45)
 		sprite.scale = Vector2(character_scale, character_scale)

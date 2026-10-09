@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://biso_room_0001"]
 
 [ext_resource type="Script" path="res://scenes/isometric/isometric_room.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/isometric/rooms/room_wood.jpg" id="2_wood"]
+[ext_resource type="Texture2D" path="res://assets/isometric/rooms/room_wood.png" id="2_wood"]
 [ext_resource type="PackedScene" path="res://scenes/isometric/isometric_character.tscn" id="3_char"]
 
 [node name="IsometricRoom" type="Node2D"]
@@ -9,13 +9,15 @@ y_sort_enabled = true
 script = ExtResource("1_script")
 
 [node name="RoomBackground" type="Sprite2D" parent="."]
+z_index = -10
 texture_filter = 1
 texture = ExtResource("2_wood")
 
 [node name="WalkableArea" type="Polygon2D" parent="."]
 visible = false
+z_index = -5
 color = Color(0.2, 0.8, 0.4, 0.3)
-polygon = PackedVector2Array(0, -150, 670, 200, 0, 540, -670, 200)
+polygon = PackedVector2Array(0, -120, 630, 200, 0, 500, -630, 200)
 
 [node name="WorldObjects" type="Node2D" parent="."]
 y_sort_enabled = true
@@ -27,3 +29,4 @@ y_sort_enabled = true
 position = Vector2(0, 200)
 
 [node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, 80)
