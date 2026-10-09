@@ -7499,12 +7499,10 @@ func _show_freelance_modal() -> void:
 # COMMERCIAL BUSINESSES & ENTERPRISE SYSTEM
 # -----------------------------------------------------------------------------
 func _show_business_modal(initial_tab: String = "", selected_uid: String = "") -> void:
-	if business_modal_overlay != null and is_instance_valid(business_modal_overlay):
-		business_modal_overlay.queue_free()
 	if business_category_modal_overlay != null and is_instance_valid(business_category_modal_overlay):
 		business_category_modal_overlay.queue_free()
 
-	var modal := _create_cyber_modal("🏢 ENTERPRISES & COMMERCIAL VENTURES", "Found Companies, Manage Corporate Financials, Pay Taxes & Scale Ventures", Color("#f59e0b"))
+	var modal := _refresh_cyber_modal(business_modal_overlay, "🏢 ENTERPRISES & COMMERCIAL VENTURES", "Found Companies, Manage Corporate Financials, Pay Taxes & Scale Ventures", Color("#f59e0b"))
 	business_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -10802,6 +10800,24 @@ func _create_activity_modal_base(title_text: String, subtitle_text: String = "",
 	return _create_cyber_modal(title_text, subtitle_text, border_color)
 
 
+## Refresh an open modal's contents without replacing its animated surface or scroll.
+func _refresh_cyber_modal(existing: Variant, title_text: String, subtitle_text: String, border_color: Color) -> Dictionary:
+	if is_instance_valid(existing) and not existing.is_queued_for_deletion() and existing.is_visible_in_tree() and not existing.has_meta("closing_panel") and existing.has_meta("modal_view"):
+		var view: Dictionary = existing.get_meta("modal_view")
+		for child in view.list.get_children():
+			view.list.remove_child(child)
+			child.queue_free()
+		# Remove content-specific controls pinned outside the scroll area, such as tabs.
+		for child in view.vbox.get_children():
+			if child not in view.shell_children:
+				view.vbox.remove_child(child)
+				child.queue_free()
+		view.title.text = title_text
+		view.subtitle.text = subtitle_text
+		return view
+	return _create_cyber_modal(title_text, subtitle_text, border_color)
+
+
 func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color) -> Dictionary:
 	var overlay := ColorRect.new()
 	overlay.set_meta("theme_exempt", true)
@@ -10957,7 +10973,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(overlay)
 
-	return {
+	var view := {
 		"overlay": overlay,
 		"card": card,
 		"title": title_lbl,
@@ -10965,8 +10981,11 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 		"vbox": main_vbox,
 		"scroll": scroll,
 		"list": content_list,
-		"close_button": close_btn
+		"close_button": close_btn,
+		"shell_children": main_vbox.get_children()
 	}
+	overlay.set_meta("modal_view", view)
+	return view
 
 
 func _create_cyber_button(btn_text: String, border_col: Color, on_click: Callable = Callable(), center_align: bool = false) -> Button:

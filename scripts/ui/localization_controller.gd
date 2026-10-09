@@ -24,7 +24,7 @@ func _check_in_shop(node: Node) -> bool:
 	return false
 
 
-func _register(node: Node) -> void:
+func _register(node: Variant) -> void:
 	if not is_instance_valid(node) or not get_parent().is_ancestor_of(node) or node.has_meta("locale_manual"):
 		return
 	if (node is Label or node is RichTextLabel or node is Button) and not node is OptionButton and not node.has_meta("locale_source"):

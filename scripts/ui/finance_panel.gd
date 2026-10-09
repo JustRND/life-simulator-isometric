@@ -2,6 +2,7 @@ extends Node
 
 var main: Control
 var overlay: Control
+var learning_overlay: Control
 var trade_dialog_overlay: Control
 var selected_tab := "Exchange"
 var message := ""
@@ -111,9 +112,7 @@ func button(parent: Node, text: String, action: Callable, disabled: bool = false
 
 func open() -> void:
 	FinanceMarket.ensure(PlayerData)
-	if is_instance_valid(overlay):
-		overlay.queue_free()
-	var modal: Dictionary = main._create_cyber_modal("FINANCE MARKET", "Prices update when you age up. NPC trading and business results move the market. Trading fee: 1%.", Color("#06b6d4"))
+	var modal: Dictionary = main._refresh_cyber_modal(overlay, "FINANCE MARKET", "Prices update when you age up. NPC trading and business results move the market. Trading fee: 1%.", Color("#06b6d4"))
 	overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 	list.set_meta("panel_spacing", 28)
@@ -764,7 +763,8 @@ func _businesses(list: VBoxContainer) -> void:
 
 
 func open_learning(notice: String = "") -> void:
-	var view: Dictionary = main._create_cyber_modal("LEARNING & SMARTS", "Each activity is available once per year. Any activity protects smarts from annual decay. Gains taper above 85 smarts.", Color("#38bdf8"))
+	var view: Dictionary = main._refresh_cyber_modal(learning_overlay, "LEARNING & SMARTS", "Each activity is available once per year. Any activity protects smarts from annual decay. Gains taper above 85 smarts.", Color("#38bdf8"))
+	learning_overlay = view.overlay
 	label(view.list, "Smarts: %d • Funds: %s" % [PlayerData.smarts, _money(PlayerData.get_available_funds())], 24)
 	if not notice.is_empty():
 		label(view.list, notice, 22, Color("#10b981"))
@@ -780,6 +780,5 @@ func open_learning(notice: String = "") -> void:
 			main.rebuild_life_feed()
 			main.update_ui()
 			SaveManager.save_game()
-			view.overlay.queue_free()
 			open_learning(result)
 		, used or PlayerData.age < int(activity.age) or PlayerData.get_available_funds() < int(activity.cost) or PlayerData.is_in_prison or PlayerData.is_dead, 64)

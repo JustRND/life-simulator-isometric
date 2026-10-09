@@ -101,7 +101,7 @@ static func is_exempt(node: Node) -> bool:
 	return false
 
 
-func _apply_node(node: Node) -> void:
+func _apply_node(node: Variant) -> void:
 	if not is_instance_valid(node) or not node is Control:
 		return
 	if is_exempt(node):
