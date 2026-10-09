@@ -333,6 +333,18 @@ func _configure_ui() -> void:
 		disclaimer_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#00f0ff")))
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
+	var bg_color := Color("#f4f6fa") if is_light else Color(0.043, 0.075, 0.165, 1.0)
+	RenderingServer.set_default_clear_color(bg_color)
+	var bg_node := get_node_or_null("Background") as ColorRect
+	if bg_node != null:
+		bg_node.color = bg_color
+	var load_bg := get_node_or_null("LoadingScreen/LoadingBackground") as ColorRect
+	if load_bg != null:
+		load_bg.color = bg_color
+	var disc_bg := get_node_or_null("DisclaimerScreen/DisclaimerBackground") as ColorRect
+	if disc_bg != null:
+		disc_bg.color = bg_color
+
 	if balance_label != null:
 		var bal_sb := StyleBoxFlat.new()
 		bal_sb.bg_color = Color("#edf3fa") if is_light else Color(0.035, 0.08, 0.16, 0.95)
@@ -1885,12 +1897,14 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.mother_education = str(profile.get("mother_education", "High School"))
 	PlayerData.mother_condition = str(profile.get("mother_condition", ""))
 	PlayerData.mother_health = int(profile.get("mother_health", 80))
+	PlayerData.mother_portrait_track = int(profile.get("mother_portrait_track", randi() % 4))
 	PlayerData.father_name = str(profile.get("father_name", ""))
 	PlayerData.father_job = str(profile.get("father_job", ""))
 	PlayerData.father_base_age = int(profile.get("father_age", 37))
 	PlayerData.father_education = str(profile.get("father_education", "High School"))
 	PlayerData.father_condition = str(profile.get("father_condition", ""))
 	PlayerData.father_health = int(profile.get("father_health", 80))
+	PlayerData.father_portrait_track = int(profile.get("father_portrait_track", randi() % 4))
 	PlayerData.family_wealth = str(profile.get("family_wealth", "middle_class"))
 	PlayerData.add_milestone("Born in %s." % PlayerData.birthplace, 0, "🍼")
 
@@ -4584,7 +4598,7 @@ func update_relationships_panel() -> void:
 			if act_row != null:
 				act_row.queue_free()
 
-	mother_icon.texture = PortraitCatalog.texture(mom_age, "FEMALE", 0, PlayerData.ethnicity)
+	mother_icon.texture = PortraitCatalog.get_portrait(mom_age, "FEMALE", PlayerData.mother_portrait_track, PlayerData.ethnicity)
 	mother_icon.material = PortraitCatalog.cutout_material()
 	mother_icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 
@@ -4641,7 +4655,7 @@ func update_relationships_panel() -> void:
 				if act_row != null:
 					act_row.queue_free()
 
-		father_icon.texture = PortraitCatalog.texture(dad_age, "MALE", 0, PlayerData.ethnicity)
+		father_icon.texture = PortraitCatalog.get_portrait(dad_age, "MALE", PlayerData.father_portrait_track, PlayerData.ethnicity)
 		father_icon.material = PortraitCatalog.cutout_material()
 		father_icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	else:
@@ -5034,7 +5048,7 @@ func _setup_children_cards_ui() -> void:
 		var c_age: int = int(c.get("age", 0))
 		var c_gender: String = str(c.get("gender", "MALE"))
 		var c_rel: int = int(c.get("relationship", 80))
-		var c_variant: int = int(c.get("portrait_variant", 0))
+		var c_variant: int = int(c.get("portrait_track", c.get("portrait_variant", 0)))
 		var c_eth: String = str(c.get("ethnicity", PlayerData.ethnicity))
 
 		var card := PanelContainer.new()

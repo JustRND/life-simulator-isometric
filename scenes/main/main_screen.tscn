@@ -2,9 +2,7 @@
 
 [ext_resource type="Script" uid="uid://mg2mrocjo8a" path="res://scenes/main/main_screen.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://byvoxh4vu2ctd" path="res://assets/ui/ingame_icon.png" id="2_icon"]
-[ext_resource type="Texture2D" uid="uid://bv7l8jf2r62rn" path="res://assets/ui/ingame_background.png" id="3_bg"]
 [ext_resource type="Texture2D" uid="uid://oujxvj38q5k0" path="res://assets/ui/loading_icon.png" id="4_loading"]
-[ext_resource type="Shader" uid="uid://0bwcmxsuaqxt" path="res://assets/ui/background_pulse.gdshader" id="5_bg_pulse"]
 [ext_resource type="FontVariation" uid="uid://cfontbold0001" path="res://assets/fonts/app_font_bold.tres" id="6_font"]
 [ext_resource type="PackedScene" path="res://scenes/isometric/isometric_room.tscn" id="7_iso_room"]
 [ext_resource type="Texture2D" uid="uid://dtlbwkabfqj7i" path="res://assets/ui/timeline_pullup_icon.png" id="8_pullup"]
@@ -12,12 +10,6 @@
 [sub_resource type="Theme" id="pixel_theme"]
 default_font = ExtResource("6_font")
 default_font_size = 28
-
-[sub_resource type="ShaderMaterial" id="BackgroundPulse"]
-shader = ExtResource("5_bg_pulse")
-shader_parameter/cycle_seconds = 4.0
-shader_parameter/strength = 0.65
-shader_parameter/preview_time = -1.0
 
 [sub_resource type="StyleBoxFlat" id="top"]
 bg_color = Color(0.0745, 0.0588, 0.1647, 1)
@@ -323,8 +315,7 @@ grow_vertical = 2
 theme = SubResource("pixel_theme")
 script = ExtResource("1")
 
-[node name="Background" type="TextureRect" parent="." unique_id=766209126]
-material = SubResource("BackgroundPulse")
+[node name="Background" type="ColorRect" parent="." unique_id=766209126]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -332,9 +323,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("3_bg")
-expand_mode = 1
-stretch_mode = 6
+color = Color(0.043, 0.075, 0.165, 1)
 
 [node name="TopBar" type="PanelContainer" parent="." unique_id=982890660]
 layout_mode = 1
@@ -2153,16 +2142,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="LoadingBackground" type="TextureRect" parent="LoadingScreen" unique_id=741161961]
+[node name="LoadingBackground" type="ColorRect" parent="LoadingScreen" unique_id=741161961]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_bg")
-expand_mode = 1
-stretch_mode = 6
+color = Color(0.043, 0.075, 0.165, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="LoadingScreen" unique_id=982934521]
 layout_mode = 1
@@ -2212,16 +2199,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DisclaimerBackground" type="TextureRect" parent="DisclaimerScreen" unique_id=778899113]
+[node name="DisclaimerBackground" type="ColorRect" parent="DisclaimerScreen" unique_id=778899113]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("3_bg")
-expand_mode = 1
-stretch_mode = 6
+color = Color(0.043, 0.075, 0.165, 1)
 
 [node name="DisclaimerOverlayTint" type="ColorRect" parent="DisclaimerScreen" unique_id=778899114]
 layout_mode = 1

@@ -34,6 +34,7 @@ var mother_alive: bool = true
 var mother_health: int = 80
 var mother_education: String = "High School"
 var mother_condition: String = ""
+var mother_portrait_track: int = 0
 
 var father_name: String = ""
 var father_job: String = ""
@@ -43,6 +44,8 @@ var father_alive: bool = true
 var father_health: int = 80
 var father_education: String = "High School"
 var father_condition: String = ""
+var father_portrait_track: int = 0
+
 
 var family_wealth: String = "middle_class"
 var life_milestones: Array = []
@@ -187,6 +190,7 @@ func reset_player() -> void:
 	mother_health = 80
 	mother_education = "High School"
 	mother_condition = ""
+	mother_portrait_track = randi() % 4
 
 	father_name = ""
 	father_job = ""
@@ -196,6 +200,8 @@ func reset_player() -> void:
 	father_health = 80
 	father_education = "High School"
 	father_condition = ""
+	father_portrait_track = randi() % 4
+
 
 	family_wealth = "middle_class"
 	life_milestones.clear()

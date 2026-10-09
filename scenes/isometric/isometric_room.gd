@@ -121,6 +121,9 @@ func _ensure_parents() -> void:
 	var m_base_age: int = 35
 	var f_base_age: int = 37
 	
+	var m_track: int = PlayerData.mother_portrait_track if "mother_portrait_track" in PlayerData else 0
+	var f_track: int = PlayerData.father_portrait_track if "father_portrait_track" in PlayerData else 0
+	
 	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
 		mother_alive = PlayerData.mother_alive if "mother_alive" in PlayerData else true
 		father_alive = PlayerData.father_alive if "father_alive" in PlayerData else true
@@ -131,6 +134,8 @@ func _ensure_parents() -> void:
 		track = PlayerData.portrait_track if "portrait_track" in PlayerData else 0
 		m_base_age = PlayerData.mother_base_age if "mother_base_age" in PlayerData else 35
 		f_base_age = PlayerData.father_base_age if "father_base_age" in PlayerData else 37
+		m_track = PlayerData.mother_portrait_track if "mother_portrait_track" in PlayerData else 0
+		f_track = PlayerData.father_portrait_track if "father_portrait_track" in PlayerData else 0
 		
 	var char_scene := load("res://scenes/isometric/isometric_character.tscn") as PackedScene
 	if not char_scene:
@@ -146,7 +151,7 @@ func _ensure_parents() -> void:
 	# Mother bobbly head
 	var mother_node = characters.get_node_or_null("MotherCharacter")
 	if is_mother_valid:
-		var m_tex: Texture2D = PortraitCatalog.get_portrait(mom_age, "FEMALE", (track + 1) % 4, eth)
+		var m_tex: Texture2D = PortraitCatalog.get_portrait(mom_age, "FEMALE", m_track, eth)
 		if mother_node == null:
 			mother_node = char_scene.instantiate()
 			mother_node.name = "MotherCharacter"
@@ -162,7 +167,7 @@ func _ensure_parents() -> void:
 	# Father bobbly head
 	var father_node = characters.get_node_or_null("FatherCharacter")
 	if is_father_valid:
-		var f_tex: Texture2D = PortraitCatalog.get_portrait(dad_age, "MALE", (track + 2) % 4, eth)
+		var f_tex: Texture2D = PortraitCatalog.get_portrait(dad_age, "MALE", f_track, eth)
 		if father_node == null:
 			father_node = char_scene.instantiate()
 			father_node.name = "FatherCharacter"
@@ -174,6 +179,7 @@ func _ensure_parents() -> void:
 			father_node.call("setup_npc", f_tex, "Father")
 	elif father_node != null:
 		father_node.queue_free()
+
 
 func _ensure_children() -> void:
 	if not characters:
@@ -203,8 +209,9 @@ func _ensure_children() -> void:
 		
 		var kid_age: int = int(kid_data.get("age", 0))
 		var kid_gender: String = str(kid_data.get("gender", "MALE"))
-		var kid_track: int = int(kid_data.get("portrait_track", i))
+		var kid_track: int = int(kid_data.get("portrait_track", kid_data.get("portrait_variant", i)))
 		var kid_eth: String = str(kid_data.get("ethnicity", player_eth))
+
 		
 		var kid_tex: Texture2D = PortraitCatalog.get_portrait(kid_age, kid_gender, kid_track, kid_eth)
 		

@@ -17,6 +17,9 @@ func _ready() -> void:
 
 
 func apply_theme() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var bg_col := Color("#f4f6fa") if is_light else Color(0.043, 0.075, 0.165, 1.0)
+	RenderingServer.set_default_clear_color(bg_col)
 	var parent := get_parent()
 	if parent != null:
 		walk(parent)
@@ -237,4 +240,4 @@ func _apply_node(node: Node) -> void:
 
 	# 4. ColorRect (solid background / backdrop)
 	if originals.has("rect_color"):
-		node.color = Color("#e4edf7") if is_light else originals.rect_color
+		node.color = Color("#f4f6fa") if is_light else originals.rect_color

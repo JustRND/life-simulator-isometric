@@ -1,5 +1,7 @@
 extends Node
 
+const PortraitCatalog = preload("res://scripts/core/portrait_catalog.gd")
+
 func _ready() -> void:
 	print("=== BEGIN PARENTS & CHILDREN IN ROOM VERIFICATION ===")
 	
@@ -40,6 +42,10 @@ func _ready() -> void:
 	assert(room.is_point_walkable(mother.position), "Mother position must be walkable")
 	print("✔ Mother bobbly head verified in room (adult portrait: %s)" % mother_tex.resource_path)
 	
+	var expected_mom_tex = PortraitCatalog.get_portrait(PlayerData.mother_base_age + PlayerData.age, "FEMALE", PlayerData.mother_portrait_track, PlayerData.ethnicity)
+	assert(mother_tex == expected_mom_tex, "Mother avatar in room must match mother portrait track")
+	print("✔ Mother avatar in room matches Relationships Panel avatar (%s)" % mother_tex.resource_path)
+	
 	var father = chars.get_node_or_null("FatherCharacter")
 	assert(father != null, "Father character must exist")
 	assert(father.is_npc == true, "Father must be marked as NPC")
@@ -48,6 +54,21 @@ func _ready() -> void:
 	assert(not "baby" in father_tex.resource_path.to_lower(), "Father must NOT have a baby portrait")
 	assert(room.is_point_walkable(father.position), "Father position must be walkable")
 	print("✔ Father bobbly head verified in room (adult portrait: %s)" % father_tex.resource_path)
+	var expected_dad_tex = PortraitCatalog.get_portrait(PlayerData.father_base_age + PlayerData.age, "MALE", PlayerData.father_portrait_track, PlayerData.ethnicity)
+	assert(father_tex == expected_dad_tex, "Father avatar in room must match father portrait track")
+	print("✔ Father avatar in room matches Relationships Panel avatar (%s)" % father_tex.resource_path)
+	
+	# Verify track change sync (e.g. tracks 1, 2, 3)
+	for t in range(4):
+		PlayerData.mother_portrait_track = t
+		PlayerData.father_portrait_track = (t + 1) % 4
+		room.update_character()
+		await get_tree().process_frame
+		var m_synced_tex = chars.get_node("MotherCharacter/SpriteAnchor/Sprite2D").texture
+		var f_synced_tex = chars.get_node("FatherCharacter/SpriteAnchor/Sprite2D").texture
+		assert(m_synced_tex == PortraitCatalog.get_portrait(PlayerData.mother_base_age + PlayerData.age, "FEMALE", t, PlayerData.ethnicity), "Mother track %d synced" % t)
+		assert(f_synced_tex == PortraitCatalog.get_portrait(PlayerData.father_base_age + PlayerData.age, "MALE", (t + 1) % 4, PlayerData.ethnicity), "Father track %d synced" % ((t + 1) % 4))
+	print("✔ Parents track sync dynamically verified across all 4 tracks")
 	
 	# Simulate steps for both parents
 	for i in range(10):

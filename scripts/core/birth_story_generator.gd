@@ -260,11 +260,14 @@ static func generate_profile(first_name: String, country: String, gender: String
 		"mother_education": mom_edu,
 		"mother_condition": mom_condition,
 		"mother_health": mom_health,
+		"mother_portrait_track": randi() % 4,
 		"father_name": "%s %s" % [dad_first, last_name] if dad_present else "Unknown",
 		"father_age": dad_age if dad_present else 0,
 		"father_job": dad_job if dad_present else "N/A",
 		"father_education": dad_edu if dad_present else "N/A",
 		"father_condition": dad_condition if dad_present else "",
 		"father_health": dad_health,
+		"father_portrait_track": randi() % 4,
 		"has_father": dad_present
 	}
+

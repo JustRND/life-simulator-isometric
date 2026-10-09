@@ -29,6 +29,7 @@ func capture_data() -> Dictionary:
 		"mother_health": PlayerData.mother_health,
 		"mother_education": PlayerData.mother_education,
 		"mother_condition": PlayerData.mother_condition,
+		"mother_portrait_track": PlayerData.mother_portrait_track,
 		"father_name": PlayerData.father_name,
 		"father_job": PlayerData.father_job,
 		"father_base_age": PlayerData.father_base_age,
@@ -37,6 +38,8 @@ func capture_data() -> Dictionary:
 		"father_health": PlayerData.father_health,
 		"father_education": PlayerData.father_education,
 		"father_condition": PlayerData.father_condition,
+		"father_portrait_track": PlayerData.father_portrait_track,
+
 		"family_wealth": PlayerData.family_wealth,
 		"life_milestones": PlayerData.life_milestones,
 		"age": PlayerData.age,
@@ -265,6 +268,7 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.mother_health = int(data.get("mother_health", 80))
 	PlayerData.mother_education = str(data.get("mother_education", "High School"))
 	PlayerData.mother_condition = str(data.get("mother_condition", ""))
+	PlayerData.mother_portrait_track = int(data.get("mother_portrait_track", 0))
 
 	PlayerData.father_name = str(data.get("father_name", ""))
 	PlayerData.father_job = str(data.get("father_job", ""))
@@ -274,6 +278,8 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.father_health = int(data.get("father_health", 80))
 	PlayerData.father_education = str(data.get("father_education", "High School"))
 	PlayerData.father_condition = str(data.get("father_condition", ""))
+	PlayerData.father_portrait_track = int(data.get("father_portrait_track", 0))
+
 
 	PlayerData.family_wealth = str(data.get("family_wealth", "middle_class"))
 	PlayerData.life_milestones = Array(data.get("life_milestones", []))
