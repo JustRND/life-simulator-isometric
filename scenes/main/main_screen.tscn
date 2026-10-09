@@ -2190,6 +2190,19 @@ theme_override_font_sizes/font_size = 32
 text = "0 %"
 horizontal_alignment = 1
 
+[node name="LoadingProgressBar" type="ProgressBar" parent="LoadingScreen/CenterContainer/LoadingVBox" unique_id=2093625869]
+custom_minimum_size = Vector2(400, 16)
+layout_mode = 2
+size_flags_horizontal = 4
+show_percentage = false
+
+[node name="LoadingDetailsLabel" type="Label" parent="LoadingScreen/CenterContainer/LoadingVBox" unique_id=2093625868]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.73, 0.9, 0.99, 1)
+theme_override_font_sizes/font_size = 22
+text = "Loading assets..."
+horizontal_alignment = 1
+
 [node name="DisclaimerScreen" type="Control" parent="." unique_id=778899112]
 z_index = 110
 layout_mode = 1

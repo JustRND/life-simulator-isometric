@@ -42,55 +42,96 @@ html, body {
 	outline: none;
 }
 
-#status, #status-splash, #status-progress {
-	position: absolute;
-	left: 0;
-	right: 0;
-}
-
-#status, #status-splash {
-	top: 0;
-	bottom: 0;
-}
-
 #status {
-	background-color: #090f1d;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100dvh;
+	background-color: #0b132a;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	gap: 22px;
 	visibility: hidden;
 	z-index: 100;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	transition: opacity 0.35s ease;
 }
 
 #status-splash {
-	max-height: 100%;
-	max-width: 100%;
-	margin: auto;
-}
-
-#status-splash.show-image--false {
-	display: none;
-}
-
-#status-splash.fullsize--true {
-	height: 100%;
-	width: 100%;
+	width: min(72vw, 300px);
+	height: min(72vw, 300px);
 	object-fit: contain;
+	border-radius: 24px;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: crisp-edges;
+	filter: drop-shadow(0 0 28px rgba(0, 240, 255, 0.45));
+	animation: cyberLogoFloat 3s ease-in-out infinite;
 }
 
-#status-splash.use-filter--false {
-	image-rendering: pixelated;
+@keyframes cyberLogoFloat {
+	0%, 100% {
+		transform: translateY(0px) scale(1);
+		filter: drop-shadow(0 0 24px rgba(0, 240, 255, 0.4));
+	}
+	50% {
+		transform: translateY(-8px) scale(1.02);
+		filter: drop-shadow(0 0 36px rgba(0, 240, 255, 0.7));
+	}
 }
 
-#status-progress, #status-notice {
-	display: none;
+#status-loading-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	width: 90%;
+	max-width: 440px;
+}
+
+#status-percent {
+	font-size: 32px;
+	font-weight: 800;
+	color: #00f0ff;
+	letter-spacing: 1.5px;
+	text-shadow: 0 0 16px rgba(0, 240, 255, 0.65);
+}
+
+#status-progress-wrap {
+	width: 100%;
+	height: 18px;
+	background: #060b18;
+	border: 2px solid #0284c7;
+	border-radius: 12px;
+	overflow: hidden;
+	padding: 2px;
+	box-sizing: border-box;
+	box-shadow: 0 0 20px rgba(2, 132, 199, 0.45), inset 0 2px 6px rgba(0,0,0,0.85);
+}
+
+#status-progress-fill {
+	height: 100%;
+	width: 0%;
+	background: linear-gradient(90deg, #0284c7, #00f0ff);
+	border-radius: 8px;
+	transition: width 0.12s ease-out;
+	box-shadow: 0 0 12px #00f0ff;
+}
+
+#status-details {
+	font-size: 16px;
+	font-weight: 600;
+	color: #bae6fd;
+	letter-spacing: 0.6px;
+	text-align: center;
+	min-height: 24px;
+	text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
 #status-progress {
-	bottom: 10%;
-	width: 50%;
-	margin: 0 auto;
+	display: none;
 }
 
 #status-notice {
@@ -98,13 +139,14 @@ html, body {
 	border-radius: 0.5rem;
 	border: 1px solid #9b3943;
 	color: #e0e0e0;
-	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+	font-family: inherit;
 	line-height: 1.3;
 	margin: 0 2rem;
 	overflow: hidden;
 	padding: 1rem;
 	text-align: center;
 	z-index: 101;
+	display: none;
 }
 
 @keyframes cyberFadeIn {
@@ -132,7 +174,14 @@ html, body {
 		</noscript>
 
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
+			<img id="status-splash" src="index.png" alt="Life.exe">
+			<div id="status-loading-box">
+				<div id="status-percent">0%</div>
+				<div id="status-progress-wrap">
+					<div id="status-progress-fill"></div>
+				</div>
+				<div id="status-details">Loading assets...</div>
+			</div>
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
@@ -246,13 +295,16 @@ html, body {
 
 		<script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":83786860,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":85631604,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
 	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
+	const statusPercent = document.getElementById('status-percent');
+	const statusProgressFill = document.getElementById('status-progress-fill');
+	const statusDetails = document.getElementById('status-details');
 	const statusNotice = document.getElementById('status-notice');
 
 	let initializing = true;
@@ -263,12 +315,14 @@ const engine = new Engine(GODOT_CONFIG);
 			return;
 		}
 		if (mode === 'hidden') {
-			statusOverlay.remove();
+			statusOverlay.style.opacity = '0';
+			setTimeout(() => {
+				statusOverlay.remove();
+			}, 350);
 			initializing = false;
 			return;
 		}
 		statusOverlay.style.visibility = 'visible';
-		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
 		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
 		statusMode = mode;
 	}
@@ -335,13 +389,40 @@ const engine = new Engine(GODOT_CONFIG);
 				if (current > 0 && total > 0) {
 					statusProgress.value = current;
 					statusProgress.max = total;
+					var pct = Math.min(100, Math.max(0, Math.floor((current / total) * 100)));
+					if (statusPercent) statusPercent.textContent = pct + "%";
+					if (statusProgressFill) statusProgressFill.style.width = pct + "%";
+
+					var mbCurrent = (current / 1048576).toFixed(1);
+					var mbTotal = (total / 1048576).toFixed(1);
+
+					var detail = "Loading assets... (" + mbCurrent + " MB / " + mbTotal + " MB)";
+					if (pct < 15) {
+						detail = "Initializing game engine... (" + mbCurrent + " MB / " + mbTotal + " MB)";
+					} else if (pct < 45) {
+						detail = "Loading game scripts & data... (" + mbCurrent + " MB / " + mbTotal + " MB)";
+					} else if (pct < 75) {
+						detail = "Loading assets & sound effects... (" + mbCurrent + " MB / " + mbTotal + " MB)";
+					} else if (pct < 95) {
+						detail = "Loading isometric rooms & characters... (" + mbCurrent + " MB / " + mbTotal + " MB)";
+					} else {
+						detail = "Finalizing game world... (" + pct + "%)";
+					}
+					if (statusDetails) statusDetails.textContent = detail;
 				} else {
 					statusProgress.removeAttribute('value');
 					statusProgress.removeAttribute('max');
+					if (statusPercent) statusPercent.textContent = "Loading...";
+					if (statusDetails) statusDetails.textContent = "Connecting to game server...";
 				}
 			},
 		}).then(() => {
-			setStatusMode('hidden');
+			if (statusPercent) statusPercent.textContent = "100%";
+			if (statusProgressFill) statusProgressFill.style.width = "100%";
+			if (statusDetails) statusDetails.textContent = "Ready! Starting Life.exe...";
+			setTimeout(() => {
+				setStatusMode('hidden');
+			}, 300);
 		}, displayFailureNotice);
 	}
 }());

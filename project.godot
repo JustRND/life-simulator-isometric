@@ -14,9 +14,11 @@ config/name="Life.exe - Isometric"
 run/main_scene="uid://dtpvigdquw6gc"
 config/features=PackedStringArray("4.7", "Mobile")
 run/max_fps=120
-boot_splash/show_image=false
-boot_splash/use_filter=false
-config/icon="res://icon.svg"
+boot_splash/image="res://assets/ui/loading_screen_icon.png"
+boot_splash/show_image=true
+boot_splash/use_filter=true
+boot_splash/bg_color=Color(0.043, 0.075, 0.165, 1)
+config/icon="res://icon.png"
 
 [autoload]
 
