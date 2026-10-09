@@ -430,6 +430,17 @@ const ITEMS := {
 		"image_path": "res://assets/items/properties/prop_cottage.jpg",
 		"min_age": 18
 	},
+	"prop_suburban_split": {
+		"id": "prop_suburban_split",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Contemporary Split-Level House",
+		"price": 650000,
+		"upkeep": 10500,
+		"happiness_bonus": 19,
+		"desc": "A stylish contemporary split-level family residence with wide picture windows, stone accents, and manicured lawn.",
+		"image_path": "res://assets/items/properties/prop_suburban_split.jpg",
+		"min_age": 18
+	},
 	"prop_townhouse": {
 		"id": "prop_townhouse",
 		"category": CATEGORY_PROPERTIES,
@@ -439,6 +450,17 @@ const ITEMS := {
 		"happiness_bonus": 21,
 		"desc": "A charming three-story brick Victorian townhouse with grand bay windows, wrought iron gates, and warm glowing lamps.",
 		"image_path": "res://assets/items/properties/prop_townhouse.jpg",
+		"min_age": 18
+	},
+	"prop_eco_timber": {
+		"id": "prop_eco_timber",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Eco-Timber Sustainable Home",
+		"price": 850000,
+		"upkeep": 13500,
+		"happiness_bonus": 22,
+		"desc": "A modern eco-designed cedar timber residence featuring rooftop solar panels, smart thermal glass, and serene gardens.",
+		"image_path": "res://assets/items/properties/prop_eco_timber.jpg",
 		"min_age": 18
 	},
 	"prop_house": {
@@ -463,6 +485,17 @@ const ITEMS := {
 		"image_path": "res://assets/items/properties/prop_cabin.jpg",
 		"min_age": 18
 	},
+	"prop_historic_brownstone": {
+		"id": "prop_historic_brownstone",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Heritage Brownstone Mansion",
+		"price": 1500000,
+		"upkeep": 22000,
+		"happiness_bonus": 28,
+		"desc": "An opulent 4-story historic Victorian brownstone mansion with grand exterior stone stoop and ornate architectural relief.",
+		"image_path": "res://assets/items/properties/prop_historic_brownstone.jpg",
+		"min_age": 18
+	},
 	"prop_modern_villa": {
 		"id": "prop_modern_villa",
 		"category": CATEGORY_PROPERTIES,
@@ -472,6 +505,17 @@ const ITEMS := {
 		"happiness_bonus": 30,
 		"desc": "An architectural marvel with floor-to-ceiling glass walls, warm timber soffits, and a luminous infinity pool.",
 		"image_path": "res://assets/items/properties/prop_modern_villa.jpg",
+		"min_age": 18
+	},
+	"prop_alpine_chalet": {
+		"id": "prop_alpine_chalet",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Alpine Ski Chalet",
+		"price": 2100000,
+		"upkeep": 29000,
+		"happiness_bonus": 31,
+		"desc": "A luxury heavy-timber ski lodge in the snowy alpine peaks with stone hearth fireplace and heated outdoor sauna.",
+		"image_path": "res://assets/items/properties/prop_alpine_chalet.jpg",
 		"min_age": 18
 	},
 	"prop_ranch": {
@@ -485,6 +529,17 @@ const ITEMS := {
 		"image_path": "res://assets/items/properties/prop_ranch.jpg",
 		"min_age": 18
 	},
+	"prop_desert_estate": {
+		"id": "prop_desert_estate",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Palm Springs Desert Oasis",
+		"price": 2800000,
+		"upkeep": 38000,
+		"happiness_bonus": 34,
+		"desc": "A private mid-century modern architectural desert compound with illuminated turquoise pool and palm trees under sunset skies.",
+		"image_path": "res://assets/items/properties/prop_desert_estate.jpg",
+		"min_age": 18
+	},
 	"prop_beachfront": {
 		"id": "prop_beachfront",
 		"category": CATEGORY_PROPERTIES,
@@ -494,6 +549,17 @@ const ITEMS := {
 		"happiness_bonus": 36,
 		"desc": "A modern oceanfront villa directly on soft golden sand with a sundeck, swimming pool, and swaying palms.",
 		"image_path": "res://assets/items/properties/prop_beachfront.jpg",
+		"min_age": 18
+	},
+	"prop_harbor_duplex": {
+		"id": "prop_harbor_duplex",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Waterfront Marina Duplex",
+		"price": 3900000,
+		"upkeep": 52000,
+		"happiness_bonus": 38,
+		"desc": "A sleek modern waterfront glass duplex with private deep-water yacht mooring dock and teak dining deck.",
+		"image_path": "res://assets/items/properties/prop_harbor_duplex.jpg",
 		"min_age": 18
 	},
 	"prop_penthouse": {
@@ -529,6 +595,17 @@ const ITEMS := {
 		"image_path": "res://assets/items/properties/prop_chateau.jpg",
 		"min_age": 21
 	},
+	"prop_cliffside_compound": {
+		"id": "prop_cliffside_compound",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Cliffside Architectural Compound",
+		"price": 16500000,
+		"upkeep": 190000,
+		"happiness_bonus": 50,
+		"desc": "A dramatic cliffside masterpiece hanging above the ocean with private helipad, cantilevered pool, and glass elevator.",
+		"image_path": "res://assets/items/properties/prop_cliffside_compound.jpg",
+		"min_age": 21
+	},
 	"prop_private_island": {
 		"id": "prop_private_island",
 		"category": CATEGORY_PROPERTIES,
@@ -538,6 +615,17 @@ const ITEMS := {
 		"happiness_bonus": 55,
 		"desc": "A private tropical island surrounded by turquoise waters, with overwater thatch bungalows, private pier, and beach firepit.",
 		"image_path": "res://assets/items/properties/prop_private_island.jpg",
+		"min_age": 21
+	},
+	"prop_megatower_apex": {
+		"id": "prop_megatower_apex",
+		"category": CATEGORY_PROPERTIES,
+		"name": "Apex Triplex Megatower Sanctuary",
+		"price": 38000000,
+		"upkeep": 420000,
+		"happiness_bonus": 60,
+		"desc": "A sovereign three-story penthouse crown atop a futuristic megatower skyscraper with an indoor botanical garden atrium.",
+		"image_path": "res://assets/items/properties/prop_megatower_apex.jpg",
 		"min_age": 21
 	},
 	"prop_orbital": {
@@ -562,7 +650,7 @@ const ITEMS := {
 		"upkeep": 0,
 		"happiness_bonus": 4,
 		"desc": "A timeless 3-speed steel city cruiser with a front basket and bell. Perfect for sunny rides through the neighborhood.",
-		"image_path": "",
+		"image_path": "res://assets/items/bicycles/bike_commuter.jpg",
 		"min_age": 6
 	},
 	"bike_mountain": {
@@ -573,7 +661,7 @@ const ITEMS := {
 		"upkeep": 0,
 		"happiness_bonus": 7,
 		"desc": "Rugged dual-suspension trail bike equipped with hydraulic disc brakes and knobby off-road tires.",
-		"image_path": "",
+		"image_path": "res://assets/items/bicycles/bike_mountain.jpg",
 		"min_age": 10
 	},
 	"bike_road": {
@@ -584,7 +672,7 @@ const ITEMS := {
 		"upkeep": 40,
 		"happiness_bonus": 12,
 		"desc": "Ultra-lightweight aerodynamic carbon fiber road bike designed for blistering highway sprints and endurance racing.",
-		"image_path": "",
+		"image_path": "res://assets/items/bicycles/bike_road.jpg",
 		"min_age": 14
 	},
 	"bike_cargo_ev": {
@@ -595,7 +683,7 @@ const ITEMS := {
 		"upkeep": 80,
 		"happiness_bonus": 16,
 		"desc": "High-torque pedal-assist electric cargo bike with integrated lithium battery and heavy-duty utility carrier.",
-		"image_path": "",
+		"image_path": "res://assets/items/bicycles/bike_cargo_ev.jpg",
 		"min_age": 14
 	},
 	# =========================================================================
@@ -609,8 +697,19 @@ const ITEMS := {
 		"upkeep": 0,
 		"happiness_bonus": 5,
 		"desc": "A solid sterling silver heirloom ring featuring subtle hand-chiseled detailing.",
-		"image_path": "",
+		"image_path": "res://assets/items/jewelry/jewelry_silver_ring.jpg",
 		"min_age": 14
+	},
+	"jewelry_gold_cufflinks": {
+		"id": "jewelry_gold_cufflinks",
+		"category": CATEGORY_JEWELRY,
+		"name": "18K Solid Gold Guilloché Cufflinks",
+		"price": 1850,
+		"upkeep": 0,
+		"happiness_bonus": 8,
+		"desc": "Handcrafted luxury 18k yellow gold oval cufflinks with intricate engine-turned guilloché patterns and diamond borders.",
+		"image_path": "res://assets/items/jewelry/jewelry_gold_cufflinks.jpg",
+		"min_age": 16
 	},
 	"jewelry_pearl_necklace": {
 		"id": "jewelry_pearl_necklace",
@@ -620,7 +719,18 @@ const ITEMS := {
 		"upkeep": 0,
 		"happiness_bonus": 10,
 		"desc": "An elegant string of glowing iridescent cultured pearls finished with an 18k white gold clasp.",
-		"image_path": "",
+		"image_path": "res://assets/items/jewelry/jewelry_pearl_necklace.jpg",
+		"min_age": 16
+	},
+	"jewelry_sapphire_pendant": {
+		"id": "jewelry_sapphire_pendant",
+		"category": CATEGORY_JEWELRY,
+		"name": "Royal Ceylon Sapphire Halo Pendant",
+		"price": 9500,
+		"upkeep": 0,
+		"happiness_bonus": 14,
+		"desc": "A brilliant oval-cut royal blue Ceylon sapphire framed by a shimmering pavé diamond halo on a platinum chain.",
+		"image_path": "res://assets/items/jewelry/jewelry_sapphire_pendant.jpg",
 		"min_age": 16
 	},
 	"jewelry_diamond_bracelet": {
@@ -631,7 +741,7 @@ const ITEMS := {
 		"upkeep": 0,
 		"happiness_bonus": 18,
 		"desc": "A dazzling continuous band of brilliant-cut diamonds prong-set in pure platinum.",
-		"image_path": "",
+		"image_path": "res://assets/items/jewelry/jewelry_diamond_bracelet.jpg",
 		"min_age": 18
 	},
 	"jewelry_luxury_watch": {
@@ -642,7 +752,18 @@ const ITEMS := {
 		"upkeep": 800,
 		"happiness_bonus": 26,
 		"desc": "A masterwork Swiss mechanical timepiece with an open-heart tourbillon escapement and alligator leather strap.",
-		"image_path": "",
+		"image_path": "res://assets/items/jewelry/jewelry_luxury_watch.jpg",
+		"min_age": 18
+	},
+	"jewelry_emerald_ring": {
+		"id": "jewelry_emerald_ring",
+		"category": CATEGORY_JEWELRY,
+		"name": "Colombian Emerald & Diamond Ring",
+		"price": 110000,
+		"upkeep": 1200,
+		"happiness_bonus": 32,
+		"desc": "A magnificent vivid green emerald-cut Colombian emerald mounted with tapered diamond baguettes in platinum.",
+		"image_path": "res://assets/items/jewelry/jewelry_emerald_ring.jpg",
 		"min_age": 18
 	},
 	"jewelry_royal_tiara": {
@@ -653,7 +774,7 @@ const ITEMS := {
 		"upkeep": 2500,
 		"happiness_bonus": 38,
 		"desc": "An opulent museum-grade diadem crowned with Colombian emeralds and hundreds of pavé diamonds.",
-		"image_path": "",
+		"image_path": "res://assets/items/jewelry/jewelry_royal_tiara.jpg",
 		"min_age": 18
 	},
 	# =========================================================================
@@ -725,7 +846,7 @@ const ITEMS := {
 		"upkeep": 22000,
 		"happiness_bonus": 26,
 		"desc": "A renowned four-seat single-engine high-wing aircraft. The gold standard for private cross-country flying.",
-		"image_path": "",
+		"image_path": "res://assets/items/aircraft/aircraft_cessna.jpg",
 		"min_age": 18
 	},
 	"aircraft_helicopter": {
@@ -736,7 +857,7 @@ const ITEMS := {
 		"upkeep": 120000,
 		"happiness_bonus": 38,
 		"desc": "A high-visibility turbine rotorcraft with glass cockpit and leather cabin seating for executive hops.",
-		"image_path": "",
+		"image_path": "res://assets/items/aircraft/aircraft_helicopter.jpg",
 		"min_age": 18
 	},
 	"aircraft_personal_jet": {
@@ -747,7 +868,7 @@ const ITEMS := {
 		"upkeep": 280000,
 		"happiness_bonus": 48,
 		"desc": "A revolutionary carbon-fiber single-engine personal jet capable of cruising at 28,000 feet in whisper-quiet luxury.",
-		"image_path": "",
+		"image_path": "res://assets/items/aircraft/aircraft_personal_jet.jpg",
 		"min_age": 18
 	},
 	"aircraft_business_jet": {
@@ -758,7 +879,7 @@ const ITEMS := {
 		"upkeep": 3200000,
 		"happiness_bonus": 65,
 		"desc": "The pinnacle of private aviation. Intercontinental speed, master stateroom, conference lounge, and private flight crew.",
-		"image_path": "",
+		"image_path": "res://assets/items/aircraft/aircraft_business_jet.jpg",
 		"min_age": 18
 	},
 	# =========================================================================
@@ -772,7 +893,7 @@ const ITEMS := {
 		"upkeep": 6500,
 		"happiness_bonus": 16,
 		"desc": "A sleek performance powerboat built for wakesurfing, waterskiing, and high-speed coastal cruising.",
-		"image_path": "",
+		"image_path": "res://assets/items/yachts/yacht_speedboat.jpg",
 		"min_age": 18
 	},
 	"yacht_cruiser": {
@@ -783,7 +904,7 @@ const ITEMS := {
 		"upkeep": 42000,
 		"happiness_bonus": 28,
 		"desc": "A twin-diesel express cabin cruiser with sunbathing deck, full galley, and sleeping quarters for weekend voyages.",
-		"image_path": "",
+		"image_path": "res://assets/items/yachts/yacht_cruiser.jpg",
 		"min_age": 18
 	},
 	"yacht_flybridge": {
@@ -794,7 +915,7 @@ const ITEMS := {
 		"upkeep": 210000,
 		"happiness_bonus": 42,
 		"desc": "An Italian-designed luxury motor yacht with panoramic flybridge lounge, hydraulic swim platform, and VIP suites.",
-		"image_path": "",
+		"image_path": "res://assets/items/yachts/yacht_flybridge.jpg",
 		"min_age": 18
 	},
 	"yacht_megayacht": {
@@ -805,7 +926,7 @@ const ITEMS := {
 		"upkeep": 2800000,
 		"happiness_bonus": 62,
 		"desc": "A multi-deck floating palace featuring a helipad, infinity pool, beach club, cinema, and dedicated maritime crew.",
-		"image_path": "",
+		"image_path": "res://assets/items/yachts/yacht_megayacht.jpg",
 		"min_age": 18
 	},
 

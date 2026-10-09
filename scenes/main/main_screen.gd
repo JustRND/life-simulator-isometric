@@ -2724,12 +2724,12 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			ih.add_theme_constant_override("separation", 18)
 			im.add_child(ih)
 
-			# Pixel art picture preview
+			# Modern picture preview
 			var img_rect := TextureRect.new()
 			img_rect.custom_minimum_size = Vector2(130, 130)
 			img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			img_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			img_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 			var img_path: String = str(item.get("image_path", ""))
 			if ResourceLoader.exists(img_path):
 				img_rect.texture = load(img_path)
@@ -3050,7 +3050,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 			p_img.custom_minimum_size = Vector2(400, 300)
 			p_img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			p_img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			p_img.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			p_img.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 			p_img.texture = load(img_path)
 			img_frame.add_child(p_img)
 		else:
