@@ -93,34 +93,38 @@ func _build_ui() -> void:
 		add_theme_constant_override("margin_" + side, 12)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	add_child(row)
 	art = TextureRect.new()
 	art.custom_minimum_size = Vector2(46, 46)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(art)
 	symbol = _label(34)
 	symbol.custom_minimum_size = Vector2(46, 46)
 	symbol.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	symbol.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	symbol.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(symbol)
 	var words := VBoxContainer.new()
 	words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	words.add_theme_constant_override("separation", 0)
+	words.add_theme_constant_override("separation", 4)
 	row.add_child(words)
 	heading = _label(26, true)
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.add_child(heading)
 	description = _label(20)
-	description.visible = false
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.add_child(description)
 	arrow = _label(26)
 	arrow.custom_minimum_size = Vector2(24, 24)
 	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	arrow.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(arrow)
 	_ignore_mouse(self)
 
@@ -157,6 +161,18 @@ func _silence_target() -> void:
 	for key in ["icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_disabled_color", "icon_focus_color"]:
 		target.add_theme_color_override(key, Color.TRANSPARENT)
 	target.add_theme_font_size_override("font_size", 1)
+
+func _is_activities_button() -> bool:
+	if target == null:
+		return false
+	if target.get_parent() != null and target.get_parent().name == "ActList":
+		return true
+	var cur: Node = target.get_parent()
+	while cur != null:
+		if cur.name == "ActivitiesPanel" or cur.name == "ActList":
+			return true
+		cur = cur.get_parent()
+	return false
 
 func _is_colored_target() -> bool:
 	if target == null:
@@ -202,6 +218,7 @@ func _sync() -> void:
 		return
 
 	var is_colored: bool = _is_colored_target()
+	var is_act := _is_activities_button()
 	_cached_text = text
 	_cached_pressed = pressed
 	_cached_disabled = disabled
@@ -224,11 +241,20 @@ func _sync() -> void:
 	for title_text in DETAILS:
 		if source.ends_with(title_text):
 			glyph = DETAILS[title_text][0]
+			if not is_act and lines.size() < 2:
+				lines.append(GameLocale.display(DETAILS[title_text][1]))
 	glyph = str(target.get_meta("action_emoji", glyph))
 	heading.text = first
-	if description != null:
-		description.text = ""
-		description.visible = false
+	if is_act:
+		heading.autowrap_mode = TextServer.AUTOWRAP_OFF
+		if description != null:
+			description.text = ""
+			description.visible = false
+	else:
+		heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if description != null:
+			description.text = "\n".join(lines.slice(1))
+			description.visible = not description.text.is_empty()
 	symbol.text = glyph
 	art.texture = target.icon
 	art.visible = target.icon != null
@@ -262,10 +288,33 @@ func _sync() -> void:
 			accent_ink = ink
 			secondary = ink
 	heading.add_theme_color_override("font_color", ink)
-	if description != null:
+	if description != null and description.visible:
 		description.add_theme_color_override("font_color", secondary)
 	arrow.add_theme_color_override("font_color", accent_ink)
 	symbol.add_theme_color_override("font_color", accent_ink)
-	var min_h := 74.0
-	target.custom_minimum_size.y = min_h
+
+	var is_event := target.name.begins_with("EventChoice") or (target.get_parent() != null and target.get_parent().name == "EventChoices") or target.has_meta("event_choice")
+	if is_act:
+		# Activities buttons are strictly uniform at 96px, with title & emoji centered
+		target.custom_minimum_size.y = 96.0
+	elif is_event:
+		var line_count := 1
+		if cur_w >= 150.0:
+			var avail_w := cur_w - 140.0
+			var chars_per_line := maxf(avail_w / 16.0, 10.0)
+			line_count = int(ceil(float(first.length()) / chars_per_line))
+			var real_lines: int = heading.get_line_count()
+			if real_lines in [1, 2, 3]:
+				line_count = maxi(line_count, real_lines)
+		line_count = clampi(line_count, 1, 3)
+		if line_count <= 1:
+			target.custom_minimum_size.y = 96.0
+		elif line_count == 2:
+			target.custom_minimum_size.y = 136.0
+		else:
+			target.custom_minimum_size.y = 176.0
+	else:
+		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
+		var min_h := 104.0 if has_desc else (74.0 if is_colored else 84.0)
+		target.custom_minimum_size.y = min_h
 

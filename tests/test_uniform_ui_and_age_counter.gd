@@ -64,8 +64,8 @@ func _ready() -> void:
 			assert(r.heading != null and not r.heading.text.is_empty(), 
 				"Button '%s' must have heading title" % child.name)
 			
-			# Height check - should be compact and uniform (approx 74px, <= 90px)
-			assert(child.custom_minimum_size.y <= 90.0, 
+			# Height check - should be compact and uniform (approx 96px, <= 100px)
+			assert(child.custom_minimum_size.y <= 100.0, 
 				"Button '%s' height (%f) must be compact and not ridiculously huge" % [child.name, child.custom_minimum_size.y])
 			assert(child.custom_minimum_size.y >= 70.0,
 				"Button '%s' height (%f) must be at least 70px" % [child.name, child.custom_minimum_size.y])
@@ -96,15 +96,13 @@ func _ready() -> void:
 	var bank_btn: Button = main.bank_button
 	assert(bank_btn != null, "BankButton must exist in AssetsPanel")
 	assert(bank_btn.has_meta("bank_standout"), "BankButton in AssetsPanel MUST have bank_standout meta")
-	assert(bank_btn.custom_minimum_size.y <= 90.0, 
+	assert(bank_btn.custom_minimum_size.y <= 110.0, 
 		"BankButton height (%f) must be compact, not the old 150px" % bank_btn.custom_minimum_size.y)
 	
 	var bank_row = bank_btn.get_node_or_null("ReferenceRow")
 	assert(bank_row != null, "BankButton must have ReferenceRow")
 	assert(bank_row.heading != null and bank_row.heading.text == "BANKING", 
 		"BankButton heading must be 'BANKING'")
-	assert(bank_row.description.text.is_empty() or not bank_row.description.visible,
-		"BankButton must NOT display description text")
 	
 	var normal_sb = bank_btn.get_theme_stylebox("normal")
 	assert(normal_sb is StyleBoxFlat, "BankButton normal stylebox must be StyleBoxFlat")

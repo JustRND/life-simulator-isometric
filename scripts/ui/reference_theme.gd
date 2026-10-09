@@ -182,7 +182,7 @@ func apply(node: Control, light: bool) -> void:
 				node.add_theme_stylebox_override(state, button_surface(light, state))
 		if node.text in ["✕", "×", "X", "✖"]:
 			_style_header(node)
-		elif (node.get_parent() != null and (node.get_parent().name in ["ActList", "AssetsContent", "SettingsList", "SettingsContent"] or node.has_meta("use_reference_row") or node.name == "BankButton")) and not node is OptionButton and not node is CheckButton and not node is CheckBox and node.text.length() > 2:
+		elif (node.get_parent() != null and (node.get_parent().name in ["ActList", "AssetsContent", "SettingsList", "SettingsContent"] or node.get_parent().has_meta("reference_menu") or node.has_meta("use_reference_row") or node.name == "BankButton")) and not node is OptionButton and not node is CheckButton and not node is CheckBox and node.text.length() > 2:
 			var row: Node = node.get_node_or_null("ReferenceRow")
 			if not node.has_meta("reference_row") or row == null:
 				node.set_meta("reference_row", true)
