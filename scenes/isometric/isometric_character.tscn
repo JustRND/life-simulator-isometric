@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://c8isochar0001"]
+
+[ext_resource type="Script" path="res://scenes/isometric/isometric_character.gd" id="1_script"]
+
+[node name="IsometricCharacter" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_script")
+
+[node name="Shadow" type="Polygon2D" parent="."]
+color = Color(0.04, 0.04, 0.08, 0.45)
+polygon = PackedVector2Array(-48, 0, -42, 10, -24, 18, 0, 22, 24, 18, 42, 10, 48, 0, 42, -10, 24, -18, 0, -22, -24, -18, -42, -10)
+
+[node name="SpriteAnchor" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="SpriteAnchor"]
+texture_filter = 1
+scale = Vector2(2, 2)
+offset = Vector2(0, -56)

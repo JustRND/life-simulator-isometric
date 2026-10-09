@@ -19,6 +19,7 @@ var ethnicity: String = "white"
 var portrait_track: int = 0
 var portrait_variant: int = 0
 var has_started_game: bool = false
+var selected_room_id: String = "room_wood"
 
 var birth_story: String = ""
 var birth_month: String = "January"
@@ -171,6 +172,7 @@ func reset_player() -> void:
 	portrait_track = 0
 	portrait_variant = 0
 	has_started_game = false
+	selected_room_id = "room_wood"
 
 	birth_story = ""
 	birth_month = "January"

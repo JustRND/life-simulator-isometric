@@ -9,6 +9,7 @@ const CareerProgression = preload("res://scripts/economy/career_progression.gd")
 const UndergroundProgression = preload("res://scripts/economy/underground_progression.gd")
 const UIStyle = preload("res://scripts/ui/ui_style.gd")
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
+const RoomManager = preload("res://scripts/isometric/room_manager.gd")
 
 
 var portrait: TextureRect
@@ -33,6 +34,7 @@ var annual_event_popup_chance: float = 0.45
 
 # Main Screen / Timeline
 @onready var life_feed: RichTextLabel = $SafeArea/MainColumn/LifeFeedPanel/MarginContainer/LifeFeed
+@onready var isometric_room: Node2D = get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/RoomViewportContainer/RoomSubViewport/IsometricRoom") as Node2D
 @onready var health_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HealthBar
 @onready var happiness_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HappinessBar
 @onready var smarts_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/SmartsBar
@@ -1231,6 +1233,9 @@ func _scroll_after_layout() -> void:
 func update_ui() -> void:
 	PlayerData.enforce_buffs_and_debuffs()
 	_update_portrait()
+	if isometric_room != null and isometric_room.has_method("set_room") and PlayerData.selected_room_id != "":
+		if isometric_room.current_room_id != PlayerData.selected_room_id:
+			isometric_room.set_room(PlayerData.selected_room_id)
 	name_label.text = PlayerData.first_name
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
 	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"
@@ -1647,6 +1652,19 @@ func _on_event_choice_4_pressed() -> void:
 
 func _on_settings_button_pressed() -> void:
 	show_tab("settings")
+
+
+func _on_room_cycle_button_pressed() -> void:
+	var rooms := RoomManager.get_all_room_ids()
+	var current_idx := rooms.find(PlayerData.selected_room_id)
+	if current_idx == -1:
+		current_idx = 0
+	var next_idx := (current_idx + 1) % rooms.size()
+	var next_room := rooms[next_idx]
+	PlayerData.selected_room_id = next_room
+	if isometric_room != null and isometric_room.has_method("set_room"):
+		isometric_room.set_room(next_room)
+	SaveManager.save_game_debounced()
 
 
 func _on_close_settings_button_pressed() -> void:
@@ -14902,6 +14920,8 @@ func _update_portrait() -> void:
 		portrait.texture = PortraitCatalog.get_portrait(PlayerData.age, PlayerData.gender, PlayerData.portrait_track, PlayerData.ethnicity)
 		portrait_key = key
 	portrait.tooltip_text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
+	if isometric_room != null and isometric_room.has_method("update_character"):
+		isometric_room.update_character()
 
 var is_disclaimer_fading: bool = false
 

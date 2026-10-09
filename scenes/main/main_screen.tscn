@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://oujxvj38q5k0" path="res://assets/ui/loading_icon.png" id="4_loading"]
 [ext_resource type="Shader" uid="uid://0bwcmxsuaqxt" path="res://assets/ui/background_pulse.gdshader" id="5_bg_pulse"]
 [ext_resource type="FontVariation" uid="uid://cfontbold0001" path="res://assets/fonts/app_font_bold.tres" id="6_font"]
+[ext_resource type="PackedScene" uid="uid://biso_room_0001" path="res://scenes/isometric/isometric_room.tscn" id="7_iso_room"]
 
 [sub_resource type="Theme" id="pixel_theme"]
 default_font = ExtResource("6_font")
@@ -405,6 +406,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="LifeFeedPanel" type="PanelContainer" parent="SafeArea/MainColumn" unique_id=1000823785]
+clip_contents = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -417,8 +419,44 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("feed")
 
-[node name="MarginContainer" type="MarginContainer" parent="SafeArea/MainColumn/LifeFeedPanel" unique_id=1230874808]
+[node name="RoomViewportContainer" type="SubViewportContainer" parent="SafeArea/MainColumn/LifeFeedPanel" unique_id=2081928374]
 layout_mode = 2
+mouse_filter = 2
+stretch = true
+
+[node name="RoomSubViewport" type="SubViewport" parent="SafeArea/MainColumn/LifeFeedPanel/RoomViewportContainer" unique_id=2081928375]
+transparent_bg = true
+handle_input_locally = false
+gui_disable_input = true
+size = Vector2i(1016, 1107)
+render_target_update_mode = 3
+
+[node name="IsometricRoom" parent="SafeArea/MainColumn/LifeFeedPanel/RoomViewportContainer/RoomSubViewport" instance=ExtResource("7_iso_room")]
+
+[node name="RoomControls" type="MarginContainer" parent="SafeArea/MainColumn/LifeFeedPanel" unique_id=2081928377]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+
+[node name="RoomCycleButton" type="Button" parent="SafeArea/MainColumn/LifeFeedPanel/RoomControls" unique_id=2081928376]
+custom_minimum_size = Vector2(130, 50)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
+theme_override_colors/font_hover_color = Color(0.396, 0.902, 1, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("card_button_normal")
+theme_override_styles/hover = SubResource("card_button_hover")
+theme_override_styles/pressed = SubResource("card_button_pressed")
+text = "🏠 Room"
+tooltip_text = "Switch Isometric Room"
+
+[node name="MarginContainer" type="MarginContainer" parent="SafeArea/MainColumn/LifeFeedPanel" unique_id=1230874808]
+visible = false
+layout_mode = 2
+mouse_filter = 2
 theme_override_constants/margin_left = 28
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 28
@@ -2169,3 +2207,4 @@ horizontal_alignment = 1
 [connection signal="pressed" from="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices/EventChoice3" to="." method="_on_event_choice_3_pressed"]
 [connection signal="pressed" from="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices/EventChoice4" to="." method="_on_event_choice_4_pressed"]
 [connection signal="gui_input" from="DisclaimerScreen" to="." method="_on_disclaimer_screen_gui_input"]
+[connection signal="pressed" from="SafeArea/MainColumn/LifeFeedPanel/RoomControls/RoomCycleButton" to="." method="_on_room_cycle_button_pressed"]
