@@ -180,40 +180,42 @@ func _ready() -> void:
 	if not PlayerData.licenses.has("license_car"):
 		PlayerData.licenses.append("license_car")
 	
+	var car_item := AssetCatalog.get_item("car_sedan")
+	var car_price: int = int(car_item["price"])
 	var car_eval := AssetCatalog.can_purchase_asset(PlayerData, "car_sedan", "credit_card")
-	check(bool(car_eval.get("allowed", false)), "Can purchase Volt Sedan ($22,000) using credit card")
+	check(bool(car_eval.get("allowed", false)), "Can purchase Volt Sedan ($%d) using credit card" % car_price)
 	
 	var buy_car_res := AssetCatalog.buy_asset(PlayerData, "car_sedan", "credit_card")
 	check(bool(buy_car_res.get("success", false)), "Successfully purchased car with credit card")
-	check(PlayerData.credit_card_balance == 22000, "Credit card balance increased by car price ($22,000)")
-	check(PlayerData.get_credit_card_available() == 12500, "Available credit decreased to $12,500 ($34,500 - $22,000)")
+	check(PlayerData.credit_card_balance == car_price, "Credit card balance increased by car price ($%d)" % car_price)
+	check(PlayerData.get_credit_card_available() == 34500 - car_price, "Available credit decreased to $%d" % (34500 - car_price))
 	check(PlayerData.owned_assets.size() == 1, "Car added to player owned assets")
 	check(bool(PlayerData.owned_assets[0].get("purchased_with_credit", false)), "Asset marked as purchased with credit")
 	
 	# Try to buy luxury asset exceeding remaining credit limit:
 	var cannot_buy_aircraft := AssetCatalog.can_purchase_asset(PlayerData, "aircraft_cessna", "credit_card")
-	check(not bool(cannot_buy_aircraft.get("allowed", false)), "Cannot purchase Cessna ($380,000) that exceeds available credit ($12,500)")
+	check(not bool(cannot_buy_aircraft.get("allowed", false)), "Cannot purchase Cessna ($380,000) that exceeds available credit ($%d)" % (34500 - car_price))
 
 	# -------------------------------------------------------------
 	# 3d. MANUAL USAGE REPAYMENTS & 10% MINIMUM LOCK
 	# -------------------------------------------------------------
-	# Total usage is $22,000. Minimum payment locked at 10% = $2,200.
 	var min_pay := maxi(1, int(ceil(PlayerData.credit_card_balance * 0.10)))
-	check(min_pay == 2200, "Minimum payment strictly locked at 10% of usage ($2,200)")
+	var expected_min_pay: int = int(ceil(float(car_price) * 0.10))
+	check(min_pay == expected_min_pay, "Minimum payment strictly locked at 10%% of usage ($%d)" % expected_min_pay)
 
 	# Pay 10%:
 	var score_before := PlayerData.credit_score
 	var paid_10 := PlayerData.repay_credit_card(min_pay)
-	check(paid_10 == 2200, "Paid 10% minimum payment ($2,200)")
-	check(PlayerData.credit_card_balance == 19800, "Remaining usage is $19,800")
-	check(PlayerData.credit_card_paid_this_year == 2200, "Annual payment tracker recorded $2,200")
+	check(paid_10 == expected_min_pay, "Paid 10%% minimum payment ($%d)" % expected_min_pay)
+	check(PlayerData.credit_card_balance == car_price - expected_min_pay, "Remaining usage is $%d" % (car_price - expected_min_pay))
+	check(PlayerData.credit_card_paid_this_year == expected_min_pay, "Annual payment tracker recorded $%d" % expected_min_pay)
 	check(PlayerData.credit_score >= score_before, "Credit score maintained or improved on repayment")
 
 	# Pay 20% of new balance:
 	var pay_20 := maxi(1, int(ceil(PlayerData.credit_card_balance * 0.20)))
 	var paid_20 := PlayerData.repay_credit_card(pay_20)
 	check(paid_20 == pay_20, "Paid 20%% payment ($%d)" % pay_20)
-	check(PlayerData.credit_card_paid_this_year == 2200 + pay_20, "Annual payment tracker accumulated payments")
+	check(PlayerData.credit_card_paid_this_year == expected_min_pay + pay_20, "Annual payment tracker accumulated payments")
 
 	# Custom payoff remaining:
 	var remaining := PlayerData.credit_card_balance

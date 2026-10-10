@@ -1,23 +1,23 @@
 class_name BusinessManager
 extends RefCounted
 
-const CORPORATE_TAX_RATE: float = 0.22
+const CORPORATE_TAX_RATE: float = 0.30
 const BUSINESS_LOAN_INTEREST_RATE: float = 0.085
 
 
 ## Progressive corporate tax rate scaling with portfolio scale and net profit
 static func get_corporate_tax_rate(total_businesses: int, net_profit: int = 0) -> float:
-	# Base corporate tax starts at 22%
+	# Base corporate tax starts at 30%
 	# Each additional business owned increases corporate tax rate by +5%
-	# (1 biz: 22%, 2 biz: 27%, 3 biz: 32%, 4 biz: 37%, 5 biz: 42%, 6+ biz: 47%+)
-	var rate: float = 0.22 + (maxi(0, total_businesses - 1) * 0.05)
+	# (1 biz: 30%, 2 biz: 35%, 3 biz: 40%, 4 biz: 45%, 5 biz: 50%, 6+ biz: 55%+)
+	var rate: float = 0.30 + (maxi(0, total_businesses - 1) * 0.05)
 	if net_profit > 1000000:
 		rate += 0.12
 	elif net_profit > 500000:
 		rate += 0.08
 	elif net_profit > 250000:
 		rate += 0.04
-	return clampf(rate, 0.22, 0.60)
+	return clampf(rate, 0.30, 0.65)
 
 const CATEGORIES: Array[Dictionary] = [
 	{
@@ -833,9 +833,12 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		b["net_profit"] = net_profit
 		b["cumulative_net_profit"] = int(b.get("cumulative_net_profit", 0)) + net_profit - tax_accrued
 
-		# Valuation updates
-		var base_val: int = int(generated_revenue * 0.50) + maxi(0, int(net_profit * 1.20)) + (branches * 15000)
-		b["valuation"] = maxi(15000, base_val)
+		# Valuation updates (uncapped: scales dynamically past $10B without ceiling)
+		if not b.has("listing_uid") or str(b.get("listing_uid", "")).is_empty():
+			var treasury_equity: int = int(maxi(0, int(b.get("treasury", 0))) * 0.40)
+			var base_val: int = int(generated_revenue * 0.65) + maxi(0, int(net_profit * 1.50)) + (branches * 35000) + treasury_equity
+			var prev_val: int = int(b.get("valuation", 15000))
+			b["valuation"] = maxi(15000, maxi(prev_val + int(net_profit * 0.35), base_val))
 
 		var b_name: String = str(b.get("name", "Enterprise"))
 		var profit_str: String = ("+$%d" % net_profit) if net_profit >= 0 else ("-$%d" % abs(net_profit))
@@ -870,18 +873,46 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 
 		var close_reason: String = ""
 		var personal_liability: int = 0
+		var saved_by_insurance := false
 		if is_flop:
-			b["is_closed"] = true
-			PlayerData.happiness = maxi(0, PlayerData.happiness - 15)
-			PlayerData.credit_score = maxi(350, PlayerData.credit_score - 30)
-			close_reason = "Operating losses over consecutive fiscal years depleted corporate treasury reserves (Deficit: -$%d) during a %s. Creditors called in liabilities and liquidated commercial assets." % [absi(cur_treasury), market_label]
-			b["close_reason"] = close_reason
-			PlayerData.add_life_log_entry("💥 BUSINESS FLOPPED & DISSOLVED: '%s' suffered catastrophic deficits during a %s and has flopped! Creditors liquidated remaining assets and shuttered operations permanently." % [b_name, market_label], "finance")
-			PlayerData.add_milestone("Enterprise '%s' flopped and closed." % b_name, PlayerData.age, "📉")
-			if loan_bal > 0:
-				personal_liability = mini(35000, loan_bal / 2)
-				PlayerData.debt += personal_liability
-				PlayerData.add_life_log_entry("⚠️ Creditors assigned $%d in liquidated loan guarantee obligations to your personal debt." % personal_liability, "finance")
+			var is_insured: bool = AssetInsuranceManager.is_business_insured(PlayerData)
+			if is_insured:
+				# Business Insurance protects businesses from fully closing down!
+				# Reset business to zero (start over): liabilities cleared, treasury to 0, enterprise retained
+				saved_by_insurance = true
+				b["is_closed"] = false
+				b["treasury"] = 0
+				b["loan_balance"] = 0
+				b["unpaid_taxes"] = 0
+				b["consecutive_losses"] = 0
+				b["annual_revenue"] = 0
+				b["annual_opex"] = 0
+				b["net_profit"] = 0
+				b["cumulative_net_profit"] = 0
+				b["facility_tier"] = 1
+				b["branches"] = 1
+				b["employees"] = 2
+				b["valuation"] = int(def.get("startup_cost", 50000))
+				b["reputation"] = 55
+				b["was_saved_by_insurance"] = true
+				personal_liability = 0
+				close_reason = "Operating deficit absorbed by First National Pixel Bank Business Insurance! The enterprise was restructured and reset to zero without closing down."
+				b["close_reason"] = close_reason
+				PlayerData.happiness = maxi(10, PlayerData.happiness - 5)
+				PlayerData.add_life_log_entry("🛡️ BUSINESS SAVED BY INSURANCE: '%s' suffered catastrophic insolvency during a %s! Your Business Insurance policy cleared corporate debt ($%d) and unpaid taxes, resetting operations to zero so you can start over without closing down!" % [b_name, market_label, loan_bal], "finance")
+				PlayerData.add_milestone("Enterprise '%s' saved by business insurance restructuring." % b_name, PlayerData.age, "🛡️")
+			else:
+				b["is_closed"] = true
+				PlayerData.happiness = maxi(0, PlayerData.happiness - 15)
+				PlayerData.credit_score = maxi(350, PlayerData.credit_score - 30)
+				close_reason = "Operating losses over consecutive fiscal years depleted corporate treasury reserves (Deficit: -$%d) during a %s. Creditors called in liabilities and liquidated commercial assets." % [absi(cur_treasury), market_label]
+				b["close_reason"] = close_reason
+				PlayerData.add_life_log_entry("💥 BUSINESS FLOPPED & DISSOLVED: '%s' suffered catastrophic deficits during a %s and has flopped! Creditors liquidated remaining assets and shuttered operations permanently." % [b_name, market_label], "finance")
+				PlayerData.add_milestone("Enterprise '%s' flopped and closed." % b_name, PlayerData.age, "📉")
+				if loan_bal > 0:
+					personal_liability = mini(35000, loan_bal / 2)
+					PlayerData.debt += personal_liability
+					PlayerData.add_life_log_entry("⚠️ Creditors assigned $%d in liquidated loan guarantee obligations to your personal debt." % personal_liability, "finance")
 
 		# Illicit Unlicensed Business Audit / Crime / Lawsuits / Prison check
 		if not bool(b.get("is_closed", false)) and bool(b.get("is_unlicensed", false)):
@@ -931,6 +962,7 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 			"tax_accrued": tax_accrued,
 			"treasury": int(b.get("treasury", 0)),
 			"is_closed": bool(b.get("is_closed", false)),
+			"saved_by_insurance": saved_by_insurance,
 			"close_reason": str(b.get("close_reason", close_reason)),
 			"personal_liability": personal_liability,
 			"market_label": market_label

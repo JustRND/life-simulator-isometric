@@ -137,7 +137,8 @@ var owned_assets: Array[Dictionary] = []
 var health_insurance: String = "none"
 var asset_insurance: Dictionary = {
 	"vehicle": false,
-	"property": false
+	"property": false,
+	"business": false
 }
 
 var education_level: String = "None"
@@ -302,7 +303,7 @@ func reset_player() -> void:
 	credit_card_paid_this_year = 0
 	owned_assets.clear()
 	health_insurance = "none"
-	asset_insurance = { "vehicle": false, "property": false }
+	asset_insurance = { "vehicle": false, "property": false, "business": false }
 
 	education_level = "None"
 	grades = 75
@@ -1532,7 +1533,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	credit_card_apr = 0.18
 	credit_card_paid_this_year = 0
 	karma = 0
-	asset_insurance = { "vehicle": false, "property": false }
+	asset_insurance = { "vehicle": false, "property": false, "business": false }
 
 	owned_assets.clear()
 	for a in assets_copy:

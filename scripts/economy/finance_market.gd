@@ -257,10 +257,12 @@ static func advance_year(p: Node) -> void:
 				performance = clampf(float(business.get("net_profit", 0)) / maxf(1.0, float(business.get("annual_revenue", 1))), -0.2, 0.2)
 		c.performance = performance
 		for trader in p.finance_market.traders:
+			trader.cash = maxf(float(trader.cash), float(c.price) * 50.0)
 			var held := int(trader.positions.get(c.uid, 0))
 			var demand := clampf(0.5 + performance + economy, 0.15, 0.85)
 			if randf() < demand:
-				var quantity := mini(randi_range(50, 600), mini(int(c.available), int(float(trader.cash) / float(c.price))))
+				var max_affordable := int(float(trader.cash) / maxf(0.01, float(c.price)))
+				var quantity := mini(randi_range(50, 600), mini(int(c.available), max_affordable))
 				trader.cash = float(trader.cash) - quantity * float(c.price)
 				trader.positions[c.uid] = held + quantity
 				c.available = int(c.available) - quantity
@@ -273,7 +275,8 @@ static func advance_year(p: Node) -> void:
 				c.npc_sells = int(c.npc_sells) + quantity
 		var pressure := float(int(c.npc_buys) - int(c.npc_sells)) / FLOAT
 		var move := clampf(economy + performance * 0.5 + pressure * 0.4 + randf_range(-0.12, 0.12), -0.45, 0.45)
-		c.price = snappedf(clampf(float(c.price) * (1.0 + move), 0.1, 100000.0), 0.01)
+		# Uncapped business valuations: stock price has no upper limit, scaling freely past $10B into hundreds of billions
+		c.price = snappedf(maxf(0.1, float(c.price) * (1.0 + move)), 0.01)
 		if str(c.business_uid).is_empty() and p.age > int(c.opened_age) + 1 and randf() < 0.08:
 			_close(p, c)
 		else:
