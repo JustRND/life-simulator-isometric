@@ -131,6 +131,9 @@ var will_modal_overlay: Control = null
 var salon_modal_overlay: Control = null
 var spa_modal_overlay: Control = null
 var mental_institution_modal_overlay: Control = null
+var household_modal_overlay: Control = null
+var _pending_move_out_on_purchase: bool = false
+var _pending_move_out_on_lease: bool = false
 
 # Assets Panel
 @onready var assets_panel: PanelContainer = $AssetsPanel
@@ -342,6 +345,10 @@ func _connect_runtime_signals() -> void:
 	var rent_house_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/RentHouseActItem") as Button
 	if rent_house_btn != null and not rent_house_btn.pressed.is_connected(_on_rent_house_item_pressed):
 		rent_house_btn.pressed.connect(_on_rent_house_item_pressed)
+
+	var household_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/HouseholdActItem") as Button
+	if household_btn != null and not household_btn.pressed.is_connected(_on_household_item_pressed):
+		household_btn.pressed.connect(_on_household_item_pressed)
 
 	if timeline_pull_up_btn != null and not timeline_pull_up_btn.pressed.is_connected(_on_timeline_pull_up_button_pressed):
 		timeline_pull_up_btn.pressed.connect(_on_timeline_pull_up_button_pressed)
@@ -3301,6 +3308,23 @@ func _open_asset_marketplace_modal(category: String) -> void:
 	bm.add_child(bal_lbl)
 	content_list.add_child(bal_card)
 
+	if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
+		var move_card := PanelContainer.new()
+		move_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+		var mbm := MarginContainer.new()
+		mbm.add_theme_constant_override("margin_left", 18)
+		mbm.add_theme_constant_override("margin_right", 18)
+		mbm.add_theme_constant_override("margin_top", 10)
+		mbm.add_theme_constant_override("margin_bottom", 10)
+		move_card.add_child(mbm)
+		var mlbl := Label.new()
+		mlbl.text = "🚪 MOVING OUT: Purchasing any property below will establish your new home and move you out from your parents' house!"
+		mlbl.add_theme_font_size_override("font_size", 20)
+		mlbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+		mlbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		mbm.add_child(mlbl)
+		content_list.add_child(move_card)
+
 	var items: Array[Dictionary] = AssetCatalog.get_items_by_category(category)
 	for item in items:
 		var item_id: String = str(item.get("id", ""))
@@ -3504,9 +3528,12 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				if buy_res["success"]:
 					add_life_event("🛍️ NEW ACQUISITION: You purchased %s for $%s!" % [item_name, _format_number(price)], "finance")
 					overlay.queue_free()
-					update_ui()
-					update_assets_panel()
-					SaveManager.save_game()
+					if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
+						_execute_move_out("owned", item_name)
+					else:
+						update_ui()
+						update_assets_panel()
+						SaveManager.save_game()
 				else:
 					add_life_event(buy_res["message"], "finance")
 					show_tab("timeline")
@@ -3539,9 +3566,12 @@ func _open_asset_marketplace_modal(category: String) -> void:
 						_format_number(PlayerData.get_credit_card_available())
 					], "finance")
 					overlay.queue_free()
-					update_ui()
-					update_assets_panel()
-					SaveManager.save_game()
+					if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
+						_execute_move_out("owned", item_name)
+					else:
+						update_ui()
+						update_assets_panel()
+						SaveManager.save_game()
 				else:
 					add_life_event(buy_res["message"], "finance")
 					show_tab("timeline")
@@ -3568,9 +3598,12 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				if buy_res["success"]:
 					add_life_event("🛍️ NEW ACQUISITION: You purchased %s for $%s!" % [item_name, _format_number(price)], "finance")
 					overlay.queue_free()
-					update_ui()
-					update_assets_panel()
-					SaveManager.save_game()
+					if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
+						_execute_move_out("owned", item_name)
+					else:
+						update_ui()
+						update_assets_panel()
+						SaveManager.save_game()
 				else:
 					add_life_event(buy_res["message"], "finance")
 					show_tab("timeline")
@@ -7686,6 +7719,357 @@ func _on_shopping_item_pressed() -> void:
 	_show_shopping_modal()
 
 
+func _on_household_item_pressed() -> void:
+	_show_household_interactions_modal()
+
+
+func _show_household_interactions_modal() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var border_color := Color("#10b981")
+	var modal_dict: Dictionary = _create_cyber_modal("🏡 HOUSEHOLD INTERACTIONS", "Living Arrangements, Household Members & Independence", border_color)
+	household_modal_overlay = modal_dict["overlay"]
+	var content_list: VBoxContainer = modal_dict["list"]
+	var overlay: Control = modal_dict["overlay"]
+
+	# 1. CURRENT RESIDENCE STATUS CARD
+	var status_card := PanelContainer.new()
+	status_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 20)
+	sm.add_theme_constant_override("margin_right", 20)
+	sm.add_theme_constant_override("margin_top", 16)
+	sm.add_theme_constant_override("margin_bottom", 16)
+	status_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 10)
+	sm.add_child(sv)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "CURRENT RESIDENCE & HOUSEHOLD"
+	title_lbl.add_theme_font_size_override("font_size", 22)
+	title_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+	sv.add_child(title_lbl)
+
+	var has_moved: bool = bool(PlayerData.get("has_moved_out_from_parents"))
+	var desc_lbl := Label.new()
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.add_theme_font_size_override("font_size", 19)
+	desc_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+
+	if has_moved:
+		var res_name: String = PlayerData.get_current_residence_title() if PlayerData.has_method("get_current_residence_title") else (PlayerData.current_residence_name if PlayerData.current_residence_name != "" else "Independent Residence")
+		var partner_info := ""
+		if PlayerData.has_method("has_partner") and PlayerData.has_partner() and bool(PlayerData.partner.get("is_alive", true)):
+			var p_status: String = PlayerData.get_partner_status() if PlayerData.has_method("get_partner_status") else str(PlayerData.partner.get("status", "Partner"))
+			if p_status in ["Wife", "Husband", "Spouse"]:
+				var p_name: String = PlayerData.get_partner_name() if PlayerData.has_method("get_partner_name") else str(PlayerData.partner.get("name", "Partner"))
+				partner_info = "\n• Partner: %s (%s) residing with you" % [p_name, p_status]
+
+		var kids_info := ""
+		var living_kids: Array = []
+		if PlayerData.has_method("get_living_children"):
+			living_kids = PlayerData.get_living_children()
+		elif "children" in PlayerData and PlayerData.children is Array:
+			for c in PlayerData.children:
+				if c is Dictionary and bool(c.get("is_alive", true)):
+					living_kids.append(c)
+		if not living_kids.is_empty():
+			kids_info = "\n• Children: %d child(ren) residing with you" % living_kids.size()
+
+		var alone_info := ""
+		if partner_info == "" and kids_info == "":
+			alone_info = "\n• Living solo: No partner or children currently in household. Partners move in upon marriage, and children join upon birth or adoption."
+
+		desc_lbl.text = "🏡 Status: Independent Residence\n• Current Home: %s\n• Head of Household: %s (You)%s%s%s\n• Parents: Moved out (Living separately; accessible in Relationships)" % [
+			res_name, PlayerData.first_name, partner_info, kids_info, alone_info
+		]
+	else:
+		var p_mom: String = ("%s (Mother)" % PlayerData.mother_name) if PlayerData.mother_alive and PlayerData.mother_name != "" else "Mother (Deceased/Absent)"
+		var p_dad: String = ("%s (Father)" % PlayerData.father_name) if PlayerData.father_alive and PlayerData.father_name != "" else "Father (Deceased/Absent)"
+		var sibs_text := ""
+		var sibs: Array = []
+		if PlayerData.has_method("get_living_siblings"):
+			sibs = PlayerData.get_living_siblings()
+		if not sibs.is_empty():
+			sibs_text = "\n• Siblings: %d living in household" % sibs.size()
+
+		desc_lbl.text = "🏠 Status: Living with Parents (Childhood Household)\n• Residence: Family Home\n• Dependent: %s (You)\n• Household Guardians: %s, %s%s\n• Note: You share the isometric room with your family until you choose to move out." % [
+			PlayerData.first_name, p_mom, p_dad, sibs_text
+		]
+	sv.add_child(desc_lbl)
+	content_list.add_child(status_card)
+
+	# 2. ACTIONS CARD
+	var act_card := PanelContainer.new()
+	act_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var am := MarginContainer.new()
+	am.add_theme_constant_override("margin_left", 20)
+	am.add_theme_constant_override("margin_right", 20)
+	am.add_theme_constant_override("margin_top", 16)
+	am.add_theme_constant_override("margin_bottom", 16)
+	act_card.add_child(am)
+
+	var av := VBoxContainer.new()
+	av.add_theme_constant_override("separation", 12)
+	am.add_child(av)
+
+	var act_title := Label.new()
+	act_title.text = "HOUSEHOLD ACTIONS"
+	act_title.add_theme_font_size_override("font_size", 22)
+	act_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+	av.add_child(act_title)
+
+	# MOVE OUT FROM PARENTS HOUSE BUTTON
+	if has_moved:
+		var btn_done := _create_disabled_cyber_button("MOVE OUT FROM PARENTS HOUSE", "Already Moved Out (Once per timeline)", true)
+		av.add_child(btn_done)
+	elif PlayerData.age < 18:
+		var btn_minor := _create_disabled_cyber_button("MOVE OUT FROM PARENTS HOUSE", "Requires Adulthood (Unlocked at Age 18)", true)
+		av.add_child(btn_minor)
+	else:
+		var btn_move := _create_cyber_button("🚪 MOVE OUT FROM PARENTS HOUSE", Color("#10b981"), func():
+			_show_move_out_choice_prompt(overlay)
+		, true)
+		btn_move.custom_minimum_size.y = 58
+		btn_move.add_theme_font_size_override("font_size", 22)
+		av.add_child(btn_move)
+
+	# Additional Actions if moved out
+	if has_moved:
+		var cur_room_name: String = RoomManager.get_room_data(PlayerData.selected_room_id).get("name", "Wood")
+		var btn_theme := _create_cyber_button("🎨 Cycle Room Interior Theme (Current: %s)" % cur_room_name, Color("#0284c7"), func():
+			_on_room_cycle_button_pressed()
+			overlay.queue_free()
+			_show_household_interactions_modal()
+		, true)
+		btn_theme.custom_minimum_size.y = 52
+		btn_theme.add_theme_font_size_override("font_size", 20)
+		av.add_child(btn_theme)
+
+		if RentalManager.has_active_lease(PlayerData):
+			var btn_lease := _create_cyber_button("🏠 View / Manage Rental Lease", Color("#10b981"), func():
+				overlay.queue_free()
+				_show_rent_house_modal()
+			, true)
+			btn_lease.custom_minimum_size.y = 52
+			btn_lease.add_theme_font_size_override("font_size", 20)
+			av.add_child(btn_lease)
+
+	content_list.add_child(act_card)
+
+
+func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var border_color := Color("#10b981")
+	var modal_dict: Dictionary = _create_cyber_modal("🚪 MOVE OUT FROM PARENTS' HOUSE", "Choose How to Establish Your New Independent Residence", border_color, true)
+	var content_list: VBoxContainer = modal_dict["list"]
+	var prompt_overlay: Control = modal_dict["overlay"]
+
+	# Explanation card
+	var info_card := PanelContainer.new()
+	info_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var im := MarginContainer.new()
+	im.add_theme_constant_override("margin_left", 20)
+	im.add_theme_constant_override("margin_right", 20)
+	im.add_theme_constant_override("margin_top", 16)
+	im.add_theme_constant_override("margin_bottom", 16)
+	info_card.add_child(im)
+
+	var iv := VBoxContainer.new()
+	iv.add_theme_constant_override("separation", 8)
+	im.add_child(iv)
+
+	var msg_lbl := Label.new()
+	msg_lbl.text = "You are taking the big step of moving out from your parents' house into your own place!\n\nChoose whether you want to buy a house (from the shopping menu) and move in, or rent a place to stay (from the RENT A HOUSE feature):"
+	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	msg_lbl.add_theme_font_size_override("font_size", 20)
+	msg_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	iv.add_child(msg_lbl)
+	content_list.add_child(info_card)
+
+	# 1. If player ALREADY owns property, show option to move into it immediately!
+	var owned_props: Array[Dictionary] = []
+	if PlayerData.has_method("get_owned_properties"):
+		owned_props = PlayerData.get_owned_properties()
+	else:
+		for a in PlayerData.owned_assets:
+			if a is Dictionary and str(a.get("category", "")) == "properties":
+				owned_props.append(a)
+
+	if not owned_props.is_empty():
+		var owned_section := PanelContainer.new()
+		owned_section.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0284c7")))
+		var om := MarginContainer.new()
+		om.add_theme_constant_override("margin_left", 18)
+		om.add_theme_constant_override("margin_right", 18)
+		om.add_theme_constant_override("margin_top", 14)
+		om.add_theme_constant_override("margin_bottom", 14)
+		owned_section.add_child(om)
+
+		var ov := VBoxContainer.new()
+		ov.add_theme_constant_override("separation", 10)
+		om.add_child(ov)
+
+		var sec_lbl := Label.new()
+		sec_lbl.text = "🏡 MOVE INTO ALREADY OWNED REAL ESTATE"
+		sec_lbl.add_theme_font_size_override("font_size", 20)
+		sec_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
+		ov.add_child(sec_lbl)
+
+		for prop in owned_props:
+			var p_name: String = str(prop.get("name", "Owned Home"))
+			var btn_move_owned := _create_cyber_button("🏡 Move into %s & Settle In" % p_name, Color("#0284c7"), func():
+				_execute_move_out("owned", p_name, [prompt_overlay, parent_overlay])
+			, true)
+			btn_move_owned.custom_minimum_size.y = 54
+			btn_move_owned.add_theme_font_size_override("font_size", 21)
+			ov.add_child(btn_move_owned)
+
+		content_list.add_child(owned_section)
+
+	# 2. BUY A HOUSE (SHOPPING MENU)
+	var buy_card := PanelContainer.new()
+	buy_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0284c7")))
+	var bm := MarginContainer.new()
+	bm.add_theme_constant_override("margin_left", 18)
+	bm.add_theme_constant_override("margin_right", 18)
+	bm.add_theme_constant_override("margin_top", 14)
+	bm.add_theme_constant_override("margin_bottom", 14)
+	buy_card.add_child(bm)
+
+	var bv := VBoxContainer.new()
+	bv.add_theme_constant_override("separation", 10)
+	bm.add_child(bv)
+
+	var buy_title := Label.new()
+	buy_title.text = "🛍️ OPTION 1: BUY A HOUSE (SHOPPING MENU)"
+	buy_title.add_theme_font_size_override("font_size", 20)
+	buy_title.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
+	bv.add_child(buy_title)
+
+	var buy_desc := Label.new()
+	buy_desc.text = "Browse residential properties in the real estate market. Purchasing a property will establish your permanent residence and move you out from your parents' house."
+	buy_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	buy_desc.add_theme_font_size_override("font_size", 18)
+	buy_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	bv.add_child(buy_desc)
+
+	var btn_open_buy := _create_cyber_button("🛒 Browse Real Estate Market (Buy & Move In) ➔", Color("#0284c7"), func():
+		_pending_move_out_on_purchase = true
+		prompt_overlay.queue_free()
+		if is_instance_valid(parent_overlay):
+			parent_overlay.queue_free()
+		_open_asset_marketplace_modal(AssetCatalog.CATEGORY_PROPERTIES)
+	, true)
+	btn_open_buy.custom_minimum_size.y = 56
+	btn_open_buy.add_theme_font_size_override("font_size", 21)
+	bv.add_child(btn_open_buy)
+	content_list.add_child(buy_card)
+
+	# 3. If player ALREADY holds an active lease, offer moving into it immediately!
+	if RentalManager.has_active_lease(PlayerData):
+		var rent_dict: Dictionary = PlayerData.rented_property
+		var cur_rent_name: String = str(rent_dict.get("name", "Rented Home"))
+		var lease_card := PanelContainer.new()
+		lease_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+		var lm := MarginContainer.new()
+		lm.add_theme_constant_override("margin_left", 18)
+		lm.add_theme_constant_override("margin_right", 18)
+		lm.add_theme_constant_override("margin_top", 14)
+		lm.add_theme_constant_override("margin_bottom", 14)
+		lease_card.add_child(lm)
+
+		var lv := VBoxContainer.new()
+		lv.add_theme_constant_override("separation", 10)
+		lm.add_child(lv)
+
+		var cur_lease_title := Label.new()
+		cur_lease_title.text = "🏢 MOVE INTO ACTIVE LEASE"
+		cur_lease_title.add_theme_font_size_override("font_size", 20)
+		cur_lease_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+		lv.add_child(cur_lease_title)
+
+		var btn_move_lease := _create_cyber_button("🏠 Move into Leased: %s" % cur_rent_name, border_color, func():
+			_execute_move_out("rented", cur_rent_name, [prompt_overlay, parent_overlay])
+		, true)
+		btn_move_lease.custom_minimum_size.y = 54
+		btn_move_lease.add_theme_font_size_override("font_size", 21)
+		lv.add_child(btn_move_lease)
+		content_list.add_child(lease_card)
+
+	# 4. RENT A PLACE TO STAY (RENT A HOUSE FEATURE)
+	var rent_card := PanelContainer.new()
+	rent_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var rm := MarginContainer.new()
+	rm.add_theme_constant_override("margin_left", 18)
+	rm.add_theme_constant_override("margin_right", 18)
+	rm.add_theme_constant_override("margin_top", 14)
+	rm.add_theme_constant_override("margin_bottom", 14)
+	rent_card.add_child(rm)
+
+	var rv := VBoxContainer.new()
+	rv.add_theme_constant_override("separation", 10)
+	rm.add_child(rv)
+
+	var rent_title := Label.new()
+	rent_title.text = "🏠 OPTION 2: RENT A PLACE TO STAY (RENT A HOUSE)"
+	rent_title.add_theme_font_size_override("font_size", 20)
+	rent_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+	rv.add_child(rent_title)
+
+	var rent_desc := Label.new()
+	rent_desc.text = "Browse residential rentals (studios, apartments, lofts, townhouses). Signing a rental lease allows you to move into your own place with flexible annual terms."
+	rent_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rent_desc.add_theme_font_size_override("font_size", 18)
+	rent_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	rv.add_child(rent_desc)
+
+	var btn_open_rent := _create_cyber_button("🔑 Open RENT A HOUSE Listings (Rent & Move In) ➔", border_color, func():
+		_pending_move_out_on_lease = true
+		prompt_overlay.queue_free()
+		if is_instance_valid(parent_overlay):
+			parent_overlay.queue_free()
+		_show_rent_house_modal()
+	, true)
+	btn_open_rent.custom_minimum_size.y = 56
+	btn_open_rent.add_theme_font_size_override("font_size", 21)
+	rv.add_child(btn_open_rent)
+	content_list.add_child(rent_card)
+
+
+func _execute_move_out(type: String, house_name: String, overlays_to_close: Array = []) -> void:
+	for ov in overlays_to_close:
+		if is_instance_valid(ov):
+			ov.queue_free()
+
+	_pending_move_out_on_purchase = false
+	_pending_move_out_on_lease = false
+
+	PlayerData.has_moved_out_from_parents = true
+	PlayerData.current_residence_name = house_name
+	PlayerData.current_residence_type = type
+
+	var desc := ""
+	if type == "owned":
+		desc = "🏡 INDEPENDENCE: You moved out from your parents' house and moved into your owned property (%s)! Your parents remain in your life and relationships, while you now live in your own home." % house_name
+	else:
+		desc = "🏡 INDEPENDENCE: You moved out from your parents' house and moved into your rented residence (%s)! Your parents remain in your life and relationships, while you now live in your own leased home." % house_name
+
+	add_life_event(desc, "lifestyle")
+	if PlayerData.has_method("add_milestone"):
+		PlayerData.add_milestone("Moved out from parents' house into %s." % house_name, PlayerData.age, "🏡")
+
+	# Clear out parents and siblings from the isometric room immediately!
+	if isometric_room != null and isometric_room.has_method("update_character"):
+		isometric_room.update_character()
+
+	update_ui()
+	update_assets_panel()
+	SaveManager.save_game()
+	show_tab("timeline")
+
+
 func _on_rent_house_item_pressed() -> void:
 	if PlayerData.age < 18:
 		add_life_event("🧸 You live with your family! Residential rental leases unlock at adulthood (Age 18+).", "lifestyle")
@@ -7722,6 +8106,23 @@ func _show_rent_house_modal() -> void:
 	bal_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bm.add_child(bal_lbl)
 	content_list.add_child(bal_card)
+
+	if _pending_move_out_on_lease:
+		var move_card := PanelContainer.new()
+		move_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+		var rbm := MarginContainer.new()
+		rbm.add_theme_constant_override("margin_left", 18)
+		rbm.add_theme_constant_override("margin_right", 18)
+		rbm.add_theme_constant_override("margin_top", 10)
+		rbm.add_theme_constant_override("margin_bottom", 10)
+		move_card.add_child(rbm)
+		var rmlbl := Label.new()
+		rmlbl.text = "🚪 MOVING OUT: Signing any lease below will establish your new residence and move you out from your parents' house!"
+		rmlbl.add_theme_font_size_override("font_size", 20)
+		rmlbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+		rmlbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rbm.add_child(rmlbl)
+		content_list.add_child(move_card)
 
 	# Current Lease Status Card
 	var status_card := PanelContainer.new()
@@ -7842,9 +8243,12 @@ func _show_rent_house_modal() -> void:
 			if bool(lease_res.get("success", false)):
 				add_life_event(str(lease_res.get("message", "")), "lifestyle")
 				overlay.queue_free()
-				update_ui()
-				SaveManager.save_game()
-				show_tab("timeline")
+				if _pending_move_out_on_lease:
+					_execute_move_out("rented", r_name)
+				else:
+					update_ui()
+					SaveManager.save_game()
+					show_tab("timeline")
 			else:
 				add_life_event(str(lease_res.get("message", "Cannot sign lease.")), "finance")
 		, true)

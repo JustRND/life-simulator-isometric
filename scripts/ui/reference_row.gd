@@ -27,6 +27,8 @@ const DETAILS = {
 	"Bank & Loans": ["🏦", "Checking, savings and loans"],
 	"RENT A HOUSE": ["🏠", "Lease apartments, lofts and family homes"],
 	"Rent a House": ["🏠", "Lease apartments, lofts and family homes"],
+	"HOUSEHOLD INTERACTIONS": ["🏡", "Manage living arrangements and moving out"],
+	"Household Interactions": ["🏡", "Manage living arrangements and moving out"],
 }
 var target: Button
 var heading: Label

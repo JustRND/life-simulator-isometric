@@ -48,6 +48,9 @@ var portrait_track: int = 0
 var portrait_variant: int = 0
 var has_started_game: bool = false
 var selected_room_id: String = "room_wood"
+var has_moved_out_from_parents: bool = false
+var current_residence_name: String = ""
+var current_residence_type: String = "parents"
 
 var birth_story: String = ""
 var birth_month: String = "January"
@@ -217,6 +220,9 @@ func reset_player() -> void:
 	portrait_variant = 0
 	has_started_game = false
 	selected_room_id = "room_wood"
+	has_moved_out_from_parents = false
+	current_residence_name = ""
+	current_residence_type = "parents"
 
 	birth_story = ""
 	birth_month = "January"
@@ -1764,3 +1770,28 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 		add_life_log_entry("📜 LEGACY: You inherited your late sibling %s's estate ($%d deposited into your Bank Balance%s) and carry forward the %s family legacy at age %d." % [prev_parent_name, inherited_money, asset_text, get_family_name(), age], "event")
 	else:
 		add_life_log_entry("📜 LEGACY: You inherited your late parent %s's estate ($%d deposited into your Bank Balance%s) and continue the family bloodline at age %d." % [prev_parent_name, inherited_money, asset_text, age], "event")
+
+
+func get_owned_properties() -> Array[Dictionary]:
+	var props: Array[Dictionary] = []
+	for a in owned_assets:
+		if a is Dictionary and str(a.get("category", "")) == "properties":
+			props.append(a)
+	return props
+
+
+func get_current_residence_title() -> String:
+	if not has_moved_out_from_parents:
+		return "Family Home (Parents' Household)"
+	if current_residence_name != "":
+		return current_residence_name
+	if not rented_property.is_empty() and str(rented_property.get("name", "")) != "":
+		return str(rented_property.get("name", "Rented Residence"))
+	var owned_p := get_owned_properties()
+	if not owned_p.is_empty():
+		return str(owned_p[0].get("name", "Owned Residence"))
+	return "Independent Residence"
+
+
+func has_independent_residence() -> bool:
+	return has_moved_out_from_parents

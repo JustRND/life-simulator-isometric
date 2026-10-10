@@ -65,6 +65,9 @@ func capture_data() -> Dictionary:
 		"owned_assets": PlayerData.owned_assets.duplicate(true),
 		"mortgages": PlayerData.mortgages.duplicate(true),
 		"rented_property": PlayerData.rented_property.duplicate(true),
+		"has_moved_out_from_parents": PlayerData.has_moved_out_from_parents,
+		"current_residence_name": PlayerData.current_residence_name,
+		"current_residence_type": PlayerData.current_residence_type,
 		"siblings": PlayerData.siblings.duplicate(true),
 		"health_insurance": PlayerData.health_insurance,
 		"asset_insurance": PlayerData.asset_insurance,
@@ -386,6 +389,9 @@ func apply_data(data: Dictionary) -> bool:
 		if c is Dictionary:
 			NpcLifeProgress.ensure(c)
 	PlayerData.ex_partners = Array(data.get("ex_partners", []))
+	PlayerData.has_moved_out_from_parents = bool(data.get("has_moved_out_from_parents", false))
+	PlayerData.current_residence_name = str(data.get("current_residence_name", ""))
+	PlayerData.current_residence_type = str(data.get("current_residence_type", "parents"))
 	PlayerData.last_parent_interact_age = int(data.get("last_parent_interact_age", -1))
 	PlayerData.last_mother_spend_time_age = int(data.get("last_mother_spend_time_age", -1))
 	PlayerData.last_mother_compliment_age = int(data.get("last_mother_compliment_age", -1))

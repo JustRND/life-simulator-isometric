@@ -113,6 +113,16 @@ func _ensure_parents() -> void:
 	if not characters:
 		return
 		
+	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
+		if bool(PlayerData.get("has_moved_out_from_parents")):
+			var m_node = characters.get_node_or_null("MotherCharacter")
+			if m_node != null:
+				m_node.queue_free()
+			var f_node = characters.get_node_or_null("FatherCharacter")
+			if f_node != null:
+				f_node.queue_free()
+			return
+		
 	var mother_alive: bool = true
 	var father_alive: bool = true
 	var m_name: String = ""
@@ -290,6 +300,13 @@ func _ensure_partner() -> void:
 func _ensure_siblings() -> void:
 	if not characters:
 		return
+
+	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
+		if bool(PlayerData.get("has_moved_out_from_parents")):
+			for child in characters.get_children():
+				if child.name.begins_with("SiblingCharacter_"):
+					child.queue_free()
+			return
 
 	var living_sibs: Array = []
 	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
