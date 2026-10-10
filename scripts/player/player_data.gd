@@ -127,6 +127,8 @@ var last_childhood_gig_age: int = -1
 var karma: int = 0
 var money: int = 0
 var bank_savings: int = 0
+var pension_account: Dictionary = {}
+var savings_account: Dictionary = {}
 var debt: int = 0
 var tax_debt: int = 0
 var loan_balance: int = 0
@@ -301,6 +303,9 @@ func reset_player() -> void:
 	karma = 0
 	money = 0
 	bank_savings = 0
+	pension_account = {}
+	savings_account = {}
+	preload("res://scripts/economy/pension_and_savings_manager.gd").ensure(self)
 	debt = 0
 	tax_debt = 0
 	loan_balance = 0
@@ -737,13 +742,17 @@ func get_net_worth() -> int:
 	for business in owned_businesses:
 		business_value += int(maxi(0, int(business.get("valuation", 0)) + int(business.get("treasury", 0)) - int(business.get("loan_balance", 0)) - int(business.get("unpaid_taxes", 0))) * float(business.get("owner_fraction", 1.0)))
 	var crypto_val: int = preload("res://scripts/economy/crypto_market.gd").portfolio_value(self)
-	return money + bank_savings + get_total_asset_value() + business_value + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) + crypto_val - get_total_debt()
+	var pension_val: int = int(pension_account.get("balance", 0))
+	var savings_val: int = int(savings_account.get("balance", 0))
+	return money + bank_savings + savings_val + pension_val + get_total_asset_value() + business_value + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) + crypto_val - get_total_debt()
 
 
 func get_personal_net_worth() -> int:
 	# Strictly personal net worth: Business valuation DOES NOT count as a player asset or personal net worth for credit cards
 	var crypto_val: int = preload("res://scripts/economy/crypto_market.gd").portfolio_value(self)
-	return money + bank_savings + get_total_asset_value() + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) + crypto_val - get_total_debt()
+	var pension_val: int = int(pension_account.get("balance", 0))
+	var savings_val: int = int(savings_account.get("balance", 0))
+	return money + bank_savings + savings_val + pension_val + get_total_asset_value() + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) + crypto_val - get_total_debt()
 
 
 func grant_starting_assets() -> void:
@@ -1630,6 +1639,8 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	var inherited_businesses := owned_businesses.duplicate(true)
 	var inherited_market := finance_market.duplicate(true)
 	var inherited_crypto := crypto_wallet.duplicate(true)
+	var inherited_savings := savings_account.duplicate(true)
+	var late_pension_balance := int(pension_account.get("balance", 0))
 	var prev_parent_name: String = first_name
 	var prev_gender: String = gender
 	var prev_parent_edu: String = education_level
@@ -1767,6 +1778,24 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	# Bank savings adds the inherited money to the heir's personal savings:
 	bank_savings = maxi(0, bank_savings + inherited_money)
 
+	# Inherit savings account directly:
+	var inherited_savings_balance: int = int(inherited_savings.get("balance", 0))
+	savings_account = inherited_savings.duplicate(true)
+	savings_account["balance"] = inherited_savings_balance
+
+	# PENSION ACCOUNT CANNOT BE INHERITED (forfeited upon death/succession):
+	pension_account = {
+		"balance": 0,
+		"total_contributed": 0,
+		"contribution_pct": 0.05,
+		"employer_match_pct": 0.03,
+		"interest_rate": 0.065,
+		"is_annuity_active": false,
+		"total_annuity_paid": 0,
+		"last_year_interest": 0,
+		"is_enrolled": false
+	}
+
 	var crypto_val: int = CryptoMarketRef.portfolio_value(self)
 	var crypto_holdings_count: int = 0
 	if crypto_wallet.has("coins") and crypto_wallet["coins"] is Dictionary:
@@ -1782,9 +1811,21 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 				first_name, rel_label, prev_parent_name, crypto_holdings_count, CryptoMarketRef._format_num(crypto_val)
 			])
 
+	if late_pension_balance > 0:
+		add_life_log_entry("🔒 NON-TRANSFERABLE PENSION: Late %s's Pension Account ($%s) could not be inherited and was forfeited to the pension trust upon death." % [
+			prev_parent_name, preload("res://scripts/economy/pension_and_savings_manager.gd")._format_num(late_pension_balance)
+		], "finance")
+
+	if inherited_savings_balance > 0:
+		add_life_log_entry("💰 GENERATIONAL SAVINGS INHERITED: You inherited late %s's High-Yield Savings Account ($%s) intact as generational family wealth." % [
+			prev_parent_name, preload("res://scripts/economy/pension_and_savings_manager.gd")._format_num(inherited_savings_balance)
+		], "finance")
+
 	var extra_items: Array[String] = []
 	if owned_assets.size() > 0:
 		extra_items.append("%d property/vehicle asset%s" % [owned_assets.size(), "s" if owned_assets.size() > 1 else ""])
+	if inherited_savings_balance > 0:
+		extra_items.append("High-Yield Savings ($%s)" % preload("res://scripts/economy/pension_and_savings_manager.gd")._format_num(inherited_savings_balance))
 	if crypto_holdings_count > 0:
 		extra_items.append("%d cryptocurrency asset%s (~$%s)" % [crypto_holdings_count, "s" if crypto_holdings_count > 1 else "", CryptoMarketRef._format_num(crypto_val)])
 	if owned_businesses.size() > 0:

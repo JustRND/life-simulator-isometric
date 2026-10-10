@@ -51,6 +51,8 @@ func capture_data() -> Dictionary:
 		"mental_state": PlayerData.mental_state,
 		"money": PlayerData.money,
 		"bank_savings": PlayerData.bank_savings,
+		"pension_account": PlayerData.pension_account,
+		"savings_account": PlayerData.savings_account,
 		"debt": PlayerData.debt,
 		"tax_debt": PlayerData.tax_debt,
 		"loan_balance": PlayerData.loan_balance,
@@ -307,6 +309,9 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.mental_state = int(data.get("mental_state", 80))
 	PlayerData.money = int(data.get("money", 0))
 	PlayerData.bank_savings = int(data.get("bank_savings", 0))
+	PlayerData.pension_account = Dictionary(data.get("pension_account", {}))
+	PlayerData.savings_account = Dictionary(data.get("savings_account", {}))
+	preload("res://scripts/economy/pension_and_savings_manager.gd").ensure(PlayerData)
 	PlayerData.debt = int(data.get("debt", 0))
 	# Legacy mixed debt stays in general debt; do not invent an unpaid tax amount.
 	PlayerData.tax_debt = maxi(0, int(data.get("tax_debt", 0)))

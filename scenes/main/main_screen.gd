@@ -958,6 +958,10 @@ func age_up() -> void:
 	for c_log in crypto_logs:
 		add_life_event(c_log, "finance")
 
+	var ps_logs := preload("res://scripts/economy/pension_and_savings_manager.gd").advance_year(PlayerData)
+	for ps_log in ps_logs:
+		add_life_event(ps_log, "finance")
+
 	# 7f. Social Media Audience Growth & Monetization
 	var social_logs := SocialMediaManager.process_yearly_social_media(PlayerData)
 	for s_log in social_logs:
@@ -13610,6 +13614,10 @@ var finance_hub_modal_overlay: ColorRect = null
 var crypto_modal_overlay: ColorRect = null
 var crypto_trade_dialog_overlay: ColorRect = null
 var crypto_status_notice: String = ""
+var pension_modal_overlay: ColorRect = null
+var savings_modal_overlay: ColorRect = null
+var pension_status_notice: String = ""
+var savings_status_notice: String = ""
 
 
 func _setup_all_translucent_scrollbars() -> void:
@@ -16139,6 +16147,7 @@ func _on_finance_item_pressed() -> void:
 func _show_finance_hub_modal() -> void:
 	FinanceMarket.ensure(PlayerData)
 	CryptoMarket.ensure(PlayerData)
+	preload("res://scripts/economy/pension_and_savings_manager.gd").ensure(PlayerData)
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal := _refresh_cyber_modal(finance_hub_modal_overlay, "🏛️ FINANCE HUB", "Manage liquid capital, equity markets, cryptocurrency assets, and commercial banking.", Color("#0ea5e9"))
@@ -16169,6 +16178,8 @@ func _show_finance_hub_modal() -> void:
 	var liquid_total: int = PlayerData.money + PlayerData.bank_savings
 	var equities_val: int = int(round(FinanceMarket.portfolio_value(PlayerData)))
 	var crypto_val: int = int(round(CryptoMarket.portfolio_value(PlayerData)))
+	var pension_bal: int = int(PlayerData.pension_account.get("balance", 0))
+	var savings_bal: int = int(PlayerData.savings_account.get("balance", 0))
 	var net_worth: int = PlayerData.get_net_worth()
 
 	var stats_grid := GridContainer.new()
@@ -16194,6 +16205,8 @@ func _show_finance_hub_modal() -> void:
 	_add_stat_row.call("Liquid Funds (Cash + Bank):", "$%s" % _format_number(liquid_total), Color("#0f172a") if is_light else Color("#f8fafc"))
 	_add_stat_row.call("Public Equities Value:", "$%s" % _format_number(equities_val), Color("#0284c7") if is_light else Color("#38bdf8"))
 	_add_stat_row.call("Cryptocurrency Holdings:", "$%s" % _format_number(crypto_val), Color("#d97706") if is_light else Color("#f59e0b"))
+	_add_stat_row.call("Savings Account (Inherited):", "$%s" % _format_number(savings_bal), Color("#15803d") if is_light else Color("#34d399"))
+	_add_stat_row.call("Pension Fund (Non-Inherited):", "$%s" % _format_number(pension_bal), Color("#7c3aed") if is_light else Color("#a78bfa"))
 	_add_stat_row.call("Total Net Worth:", "$%s" % _format_number(net_worth), Color("#16a34a") if is_light else Color("#22c55e"))
 
 	list.add_child(summary_card)
@@ -16205,7 +16218,7 @@ func _show_finance_hub_modal() -> void:
 	hubs_heading.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	list.add_child(hubs_heading)
 
-	# 3. Three Dedicated Division Cards / Buttons
+	# 3. Dedicated Division Cards / Buttons
 	var _open_market = func():
 		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
 		finance_hub_modal_overlay = null
@@ -16222,6 +16235,16 @@ func _show_finance_hub_modal() -> void:
 		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
 		finance_hub_modal_overlay = null
 		_on_bank_button_pressed()
+
+	var _open_pension = func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
+		finance_hub_modal_overlay = null
+		_show_pension_account_modal()
+
+	var _open_savings = func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
+		finance_hub_modal_overlay = null
+		_show_savings_account_modal()
 
 	var divisions := [
 		{
@@ -16244,6 +16267,20 @@ func _show_finance_hub_modal() -> void:
 			"desc": "Checking and savings accounts with compounding interest, personal liquidity loans, mortgages, and debt settlement.",
 			"color": Color("#38bdf8"),
 			"action": _open_bank
+		},
+		{
+			"title": "👴  PENSION ACCOUNT (CANNOT BE INHERITED)",
+			"tag": "RETIREMENT & ANNUITY FUND",
+			"desc": "Tax-advantaged 6.5% APR retirement annuity fund with 3% company match. Penalty-free at age 60+. Cannot be inherited (forfeited upon death).",
+			"color": Color("#8b5cf6"),
+			"action": _open_pension
+		},
+		{
+			"title": "💰  SAVINGS ACCOUNT (CAN BE INHERITED)",
+			"tag": "GENERATIONAL WEALTH TRUST",
+			"desc": "High-yield 4.2% APY savings account for family wealth. 100% guaranteed to transfer to your children and next-generation heirs upon succession.",
+			"color": Color("#10b981"),
+			"action": _open_savings
 		}
 	]
 
@@ -16831,6 +16868,632 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 	list.add_child(cancel_btn)
 
 	crypto_trade_dialog_overlay.visible = true
+
+
+# -----------------------------------------------------------------------------
+# PENSION ACCOUNT MODAL (CANNOT BE INHERITED)
+# -----------------------------------------------------------------------------
+func _show_pension_account_modal() -> void:
+	var ps_mgr = preload("res://scripts/economy/pension_and_savings_manager.gd")
+	ps_mgr.ensure(PlayerData)
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var modal := _refresh_cyber_modal(pension_modal_overlay, "👴 PENSION ACCOUNT (CANNOT BE INHERITED)", "Retirement & Annuity Trust • 6.5% APR Growth • Age 60+ Full Vesting", Color("#8b5cf6"))
+	pension_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 16)
+
+	# 1. Back button row
+	var top_row := HBoxContainer.new()
+	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_child(top_row)
+
+	var back_btn := _create_cyber_button("← Back to Finance Hub", Color("#64748b"), func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(pension_modal_overlay, false)
+		pension_modal_overlay = null
+		_show_finance_hub_modal()
+	)
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back_btn.custom_minimum_size.y = 46
+	top_row.add_child(back_btn)
+
+	# 2. Inheritance Warning Policy Card
+	var policy_card := PanelContainer.new()
+	policy_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#ef4444") if is_light else Color("#dc2626")))
+	var pm := MarginContainer.new()
+	pm.add_theme_constant_override("margin_left", 18)
+	pm.add_theme_constant_override("margin_right", 18)
+	pm.add_theme_constant_override("margin_top", 12)
+	pm.add_theme_constant_override("margin_bottom", 12)
+	policy_card.add_child(pm)
+
+	var pv := VBoxContainer.new()
+	pv.add_theme_constant_override("separation", 6)
+	pm.add_child(pv)
+
+	var policy_title := Label.new()
+	policy_title.text = "🔒 INHERITANCE POLICY: CANNOT BE INHERITED"
+	policy_title.add_theme_font_size_override("font_size", 20)
+	policy_title.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#fca5a5"))
+	pv.add_child(policy_title)
+
+	var policy_desc := Label.new()
+	policy_desc.text = "Under statutory retirement regulations, this account provides personal lifetime retirement security. The balance CANNOT BE INHERITED by your children or next generation. Upon death, remaining funds revert to the plan trust. Use the Savings Account for transferable generational wealth."
+	policy_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	policy_desc.add_theme_font_size_override("font_size", 16)
+	policy_desc.add_theme_color_override("font_color", Color("#450a0a") if is_light else Color("#fecaca"))
+	pv.add_child(policy_desc)
+	list.add_child(policy_card)
+
+	# Status Notice (if any)
+	if pension_status_notice != "":
+		var not_card := PanelContainer.new()
+		not_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+		var nm := MarginContainer.new()
+		nm.add_theme_constant_override("margin_left", 16)
+		nm.add_theme_constant_override("margin_right", 16)
+		nm.add_theme_constant_override("margin_top", 10)
+		nm.add_theme_constant_override("margin_bottom", 10)
+		not_card.add_child(nm)
+		var n_lbl := Label.new()
+		n_lbl.text = pension_status_notice
+		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		n_lbl.add_theme_font_size_override("font_size", 18)
+		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+		nm.add_child(n_lbl)
+		list.add_child(not_card)
+		pension_status_notice = ""
+
+	# 3. Overview Card
+	var p_data: Dictionary = PlayerData.pension_account
+	var p_bal: int = int(p_data.get("balance", 0))
+	var p_contributed: int = int(p_data.get("total_contributed", 0))
+	var c_pct: float = float(p_data.get("contribution_pct", 0.05))
+	var is_annuity: bool = bool(p_data.get("is_annuity_active", false))
+	var is_retired: bool = PlayerData.age >= 60
+
+	var ov_card := PanelContainer.new()
+	ov_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
+	var om := MarginContainer.new()
+	om.add_theme_constant_override("margin_left", 20)
+	om.add_theme_constant_override("margin_right", 20)
+	om.add_theme_constant_override("margin_top", 16)
+	om.add_theme_constant_override("margin_bottom", 16)
+	ov_card.add_child(om)
+
+	var ov := VBoxContainer.new()
+	ov.add_theme_constant_override("separation", 10)
+	om.add_child(ov)
+
+	var bal_head := Label.new()
+	bal_head.text = "RETIREMENT FUND BALANCE"
+	bal_head.add_theme_font_size_override("font_size", 18)
+	bal_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+	ov.add_child(bal_head)
+
+	var bal_val := Label.new()
+	bal_val.text = "$%s" % _format_number(p_bal)
+	bal_val.add_theme_font_size_override("font_size", 38)
+	bal_val.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
+	ov.add_child(bal_val)
+
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 20)
+	grid.add_theme_constant_override("v_separation", 6)
+	ov.add_child(grid)
+
+	var _add_row = func(k: String, v: String, c: Color):
+		var kl := Label.new()
+		kl.text = k
+		kl.add_theme_font_size_override("font_size", 17)
+		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		grid.add_child(kl)
+		var vl := Label.new()
+		vl.text = v
+		vl.add_theme_font_size_override("font_size", 17)
+		vl.add_theme_color_override("font_color", c)
+		grid.add_child(vl)
+
+	_add_row.call("Compounding Growth:", "6.5% APR Annual Return", Color("#15803d") if is_light else Color("#4ade80"))
+	_add_row.call("Total Contributed:", "$%s" % _format_number(p_contributed), Color("#0f172a") if is_light else Color("#f8fafc"))
+
+	var match_text := "3% of salary (+ $%s/yr matched)" % _format_number(int(round(float(PlayerData.job_salary) * 0.03))) if (PlayerData.job_salary > 0 and not PlayerData.is_in_prison) else "No Active Employer"
+	_add_row.call("Company 401k Match:", match_text, Color("#0284c7") if is_light else Color("#38bdf8"))
+
+	var status_text := "✅ Vested & Retired (Age %d/60) - Penalty Free" % PlayerData.age if is_retired else "⏳ Accumulating (Age %d/60) - 20%% Early Penalty" % PlayerData.age
+	var status_col := Color("#15803d") if is_retired else Color("#d97706")
+	_add_row.call("Retirement Status:", status_text, status_col)
+
+	list.add_child(ov_card)
+
+	# 4. Salary Contribution Rate Card
+	var rate_card := PanelContainer.new()
+	rate_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
+	var rm := MarginContainer.new()
+	rm.add_theme_constant_override("margin_left", 20)
+	rm.add_theme_constant_override("margin_right", 20)
+	rm.add_theme_constant_override("margin_top", 14)
+	rm.add_theme_constant_override("margin_bottom", 14)
+	rate_card.add_child(rm)
+
+	var rv := VBoxContainer.new()
+	rv.add_theme_constant_override("separation", 10)
+	rm.add_child(rv)
+
+	var rate_title := Label.new()
+	rate_title.text = "AUTOMATIC ANNUAL SALARY CONTRIBUTION"
+	rate_title.add_theme_font_size_override("font_size", 18)
+	rate_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
+	rv.add_child(rate_title)
+
+	var rate_desc := Label.new()
+	rate_desc.text = "Select percentage of your salary automatically deducted and invested each year (Current: %d%%):" % int(round(c_pct * 100.0))
+	rate_desc.add_theme_font_size_override("font_size", 16)
+	rate_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rate_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	rv.add_child(rate_desc)
+
+	var rate_btn_row := HBoxContainer.new()
+	rate_btn_row.add_theme_constant_override("separation", 8)
+	rv.add_child(rate_btn_row)
+
+	for pct_val in [0.0, 0.05, 0.10, 0.15, 0.20]:
+		var pct_int := int(round(pct_val * 100.0))
+		var btn_label := "Off (0%)" if pct_int == 0 else "%d%%" % pct_int
+		var is_cur: bool = is_equal_approx(c_pct, pct_val)
+		var b_col := Color("#7c3aed") if is_cur else Color("#475569")
+		var b := _create_cyber_button(btn_label, b_col, func():
+			ps_mgr.set_pension_contribution_pct(PlayerData, pct_val)
+			pension_status_notice = "Pension contribution updated to %s." % btn_label
+			_show_pension_account_modal()
+		, true)
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size.y = 44
+		b.add_theme_font_size_override("font_size", 17)
+		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		b.set_meta("center_text", true)
+		rate_btn_row.add_child(b)
+
+	list.add_child(rate_card)
+
+	# 5. Manual Deposit Card
+	var dep_card := PanelContainer.new()
+	dep_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+	var dm := MarginContainer.new()
+	dm.add_theme_constant_override("margin_left", 20)
+	dm.add_theme_constant_override("margin_right", 20)
+	dm.add_theme_constant_override("margin_top", 14)
+	dm.add_theme_constant_override("margin_bottom", 14)
+	dep_card.add_child(dm)
+
+	var dv := VBoxContainer.new()
+	dv.add_theme_constant_override("separation", 10)
+	dm.add_child(dv)
+
+	var dep_title := Label.new()
+	dep_title.text = "DEPOSIT LIQUID CAPITAL INTO PENSION"
+	dep_title.add_theme_font_size_override("font_size", 18)
+	dep_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+	dv.add_child(dep_title)
+
+	var avail_lbl := Label.new()
+	avail_lbl.text = "Available Capital (Cash + Bank): $%s" % _format_number(PlayerData.get_available_funds())
+	avail_lbl.add_theme_font_size_override("font_size", 16)
+	avail_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	dv.add_child(avail_lbl)
+
+	var dep_btn_row := HBoxContainer.new()
+	dep_btn_row.add_theme_constant_override("separation", 8)
+	dv.add_child(dep_btn_row)
+
+	var deposit_amounts := [500, 2500, 10000]
+	for amt in deposit_amounts:
+		var d_btn := _create_cyber_button("+ $%s" % _format_number(amt), Color("#10b981"), func():
+			var res = ps_mgr.deposit_pension(PlayerData, amt)
+			pension_status_notice = res["message"]
+			update_ui()
+			_show_pension_account_modal()
+		, true)
+		d_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		d_btn.custom_minimum_size.y = 46
+		d_btn.add_theme_font_size_override("font_size", 17)
+		d_btn.disabled = PlayerData.get_available_funds() < amt
+		d_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		d_btn.set_meta("center_text", true)
+		dep_btn_row.add_child(d_btn)
+
+	var d_all := _create_cyber_button("Deposit All Cash", Color("#059669"), func():
+		var amt: int = PlayerData.money
+		if amt > 0:
+			var res = ps_mgr.deposit_pension(PlayerData, amt)
+			pension_status_notice = res["message"]
+			update_ui()
+			_show_pension_account_modal()
+	, true)
+	d_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	d_all.custom_minimum_size.y = 46
+	d_all.add_theme_font_size_override("font_size", 17)
+	d_all.disabled = PlayerData.money <= 0
+	d_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	d_all.set_meta("center_text", true)
+	dep_btn_row.add_child(d_all)
+
+	list.add_child(dep_card)
+
+	# 6. Withdrawal Card
+	var with_card := PanelContainer.new()
+	with_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f43f5e") if is_light else Color("#e11d48")))
+	var wm := MarginContainer.new()
+	wm.add_theme_constant_override("margin_left", 20)
+	wm.add_theme_constant_override("margin_right", 20)
+	wm.add_theme_constant_override("margin_top", 14)
+	wm.add_theme_constant_override("margin_bottom", 14)
+	with_card.add_child(wm)
+
+	var wv := VBoxContainer.new()
+	wv.add_theme_constant_override("separation", 10)
+	wm.add_child(wv)
+
+	var with_title := Label.new()
+	with_title.text = "WITHDRAW RETIREMENT CAPITAL"
+	with_title.add_theme_font_size_override("font_size", 18)
+	with_title.add_theme_color_override("font_color", Color("#be123c") if is_light else Color("#fb7185"))
+	wv.add_child(with_title)
+
+	var with_warning := Label.new()
+	if is_retired:
+		with_warning.text = "✅ You are Age 60+. All withdrawals are 100% tax and penalty-free."
+		with_warning.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
+	else:
+		with_warning.text = "⚠️ Warning: You are under age 60. Early withdrawals trigger a 20% statutory penalty fee."
+		with_warning.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#fca5a5"))
+	with_warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	with_warning.add_theme_font_size_override("font_size", 16)
+	wv.add_child(with_warning)
+
+	var with_btn_row := HBoxContainer.new()
+	with_btn_row.add_theme_constant_override("separation", 8)
+	wv.add_child(with_btn_row)
+
+	var with_amounts := [1000, 5000, 25000]
+	for amt in with_amounts:
+		var w_btn := _create_cyber_button("- $%s" % _format_number(amt), Color("#e11d48"), func():
+			var res = ps_mgr.withdraw_pension(PlayerData, amt)
+			pension_status_notice = res["message"]
+			update_ui()
+			_show_pension_account_modal()
+		, true)
+		w_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		w_btn.custom_minimum_size.y = 46
+		w_btn.add_theme_font_size_override("font_size", 17)
+		w_btn.disabled = p_bal < amt
+		w_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		w_btn.set_meta("center_text", true)
+		with_btn_row.add_child(w_btn)
+
+	var w_all := _create_cyber_button("Withdraw All", Color("#be123c"), func():
+		if p_bal > 0:
+			var res = ps_mgr.withdraw_pension(PlayerData, p_bal)
+			pension_status_notice = res["message"]
+			update_ui()
+			_show_pension_account_modal()
+	, true)
+	w_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	w_all.custom_minimum_size.y = 46
+	w_all.add_theme_font_size_override("font_size", 17)
+	w_all.disabled = p_bal <= 0
+	w_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	w_all.set_meta("center_text", true)
+	with_btn_row.add_child(w_all)
+
+	list.add_child(with_card)
+
+	# 7. Annuity Distribution Mode (Age 60+)
+	if is_retired:
+		var ann_card := PanelContainer.new()
+		ann_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
+		var anm := MarginContainer.new()
+		anm.add_theme_constant_override("margin_left", 20)
+		anm.add_theme_constant_override("margin_right", 20)
+		anm.add_theme_constant_override("margin_top", 14)
+		anm.add_theme_constant_override("margin_bottom", 14)
+		ann_card.add_child(anm)
+
+		var anv := VBoxContainer.new()
+		anv.add_theme_constant_override("separation", 10)
+		anm.add_child(anv)
+
+		var ann_title := Label.new()
+		ann_title.text = "RETIREMENT ANNUITY PAYOUT MODE"
+		ann_title.add_theme_font_size_override("font_size", 18)
+		ann_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+		anv.add_child(ann_title)
+
+		var ann_desc := Label.new()
+		ann_desc.text = "When active, your pension fund will automatically disburse an 8% annual distribution directly into your cash balance each year for comfortable retirement living."
+		ann_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ann_desc.add_theme_font_size_override("font_size", 16)
+		ann_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+		anv.add_child(ann_desc)
+
+		var ann_toggle_btn := _create_cyber_button(
+			"⏹️ Pause Annual Annuity Payout" if is_annuity else "▶️ Activate Annual Annuity Payout (8%/yr)",
+			Color("#0284c7") if not is_annuity else Color("#e11d48"),
+			func():
+				var res = ps_mgr.toggle_pension_annuity(PlayerData, not is_annuity)
+				pension_status_notice = res["message"]
+				_show_pension_account_modal()
+		, true)
+		ann_toggle_btn.custom_minimum_size.y = 48
+		ann_toggle_btn.add_theme_font_size_override("font_size", 18)
+		anv.add_child(ann_toggle_btn)
+
+		list.add_child(ann_card)
+
+	pension_modal_overlay.visible = true
+
+
+# -----------------------------------------------------------------------------
+# SAVINGS ACCOUNT MODAL (CAN BE INHERITED)
+# -----------------------------------------------------------------------------
+func _show_savings_account_modal() -> void:
+	var ps_mgr = preload("res://scripts/economy/pension_and_savings_manager.gd")
+	ps_mgr.ensure(PlayerData)
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var modal := _refresh_cyber_modal(savings_modal_overlay, "💰 SAVINGS ACCOUNT (CAN BE INHERITED)", "High-Yield Generational Savings • 4.2% APY • 100% Transferable to Heirs", Color("#10b981"))
+	savings_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 16)
+
+	# 1. Back button row
+	var top_row := HBoxContainer.new()
+	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_child(top_row)
+
+	var back_btn := _create_cyber_button("← Back to Finance Hub", Color("#64748b"), func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(savings_modal_overlay, false)
+		savings_modal_overlay = null
+		_show_finance_hub_modal()
+	)
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back_btn.custom_minimum_size.y = 46
+	top_row.add_child(back_btn)
+
+	# 2. Inheritance Guarantee Card
+	var guarantee_card := PanelContainer.new()
+	guarantee_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+	var gm := MarginContainer.new()
+	gm.add_theme_constant_override("margin_left", 18)
+	gm.add_theme_constant_override("margin_right", 18)
+	gm.add_theme_constant_override("margin_top", 12)
+	gm.add_theme_constant_override("margin_bottom", 12)
+	guarantee_card.add_child(gm)
+
+	var gv := VBoxContainer.new()
+	gv.add_theme_constant_override("separation", 6)
+	gm.add_child(gv)
+
+	var g_title := Label.new()
+	g_title.text = "🛡️ INHERITANCE POLICY: 100% INHERITABLE TO NEXT GENERATION"
+	g_title.add_theme_font_size_override("font_size", 20)
+	g_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+	gv.add_child(g_title)
+
+	var g_desc := Label.new()
+	g_desc.text = "This High-Yield Savings Account is fully designated as generational family wealth. 100% of this account's capital will be safely transferred to your children and next-generation heirs upon estate succession, preserving compounding family prosperity."
+	g_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	g_desc.add_theme_font_size_override("font_size", 16)
+	g_desc.add_theme_color_override("font_color", Color("#064e3b") if is_light else Color("#a7f3d0"))
+	gv.add_child(g_desc)
+	list.add_child(guarantee_card)
+
+	# Status Notice (if any)
+	if savings_status_notice != "":
+		var not_card := PanelContainer.new()
+		not_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+		var nm := MarginContainer.new()
+		nm.add_theme_constant_override("margin_left", 16)
+		nm.add_theme_constant_override("margin_right", 16)
+		nm.add_theme_constant_override("margin_top", 10)
+		nm.add_theme_constant_override("margin_bottom", 10)
+		not_card.add_child(nm)
+		var n_lbl := Label.new()
+		n_lbl.text = savings_status_notice
+		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		n_lbl.add_theme_font_size_override("font_size", 18)
+		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+		nm.add_child(n_lbl)
+		list.add_child(not_card)
+		savings_status_notice = ""
+
+	# 3. Overview Card
+	var s_data: Dictionary = PlayerData.savings_account
+	var s_bal: int = int(s_data.get("balance", 0))
+	var s_interest_earned: int = int(s_data.get("total_interest_earned", 0))
+	var next_year_est: int = int(round(float(s_bal) * 0.042))
+
+	var ov_card := PanelContainer.new()
+	ov_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#059669")))
+	var om := MarginContainer.new()
+	om.add_theme_constant_override("margin_left", 20)
+	om.add_theme_constant_override("margin_right", 20)
+	om.add_theme_constant_override("margin_top", 16)
+	om.add_theme_constant_override("margin_bottom", 16)
+	ov_card.add_child(om)
+
+	var ov := VBoxContainer.new()
+	ov.add_theme_constant_override("separation", 10)
+	om.add_child(ov)
+
+	var bal_head := Label.new()
+	bal_head.text = "GENERATIONAL SAVINGS BALANCE"
+	bal_head.add_theme_font_size_override("font_size", 18)
+	bal_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+	ov.add_child(bal_head)
+
+	var bal_val := Label.new()
+	bal_val.text = "$%s" % _format_number(s_bal)
+	bal_val.add_theme_font_size_override("font_size", 38)
+	bal_val.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
+	ov.add_child(bal_val)
+
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 20)
+	grid.add_theme_constant_override("v_separation", 6)
+	ov.add_child(grid)
+
+	var _add_row = func(k: String, v: String, c: Color):
+		var kl := Label.new()
+		kl.text = k
+		kl.add_theme_font_size_override("font_size", 17)
+		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		grid.add_child(kl)
+		var vl := Label.new()
+		vl.text = v
+		vl.add_theme_font_size_override("font_size", 17)
+		vl.add_theme_color_override("font_color", c)
+		grid.add_child(vl)
+
+	_add_row.call("Annual APY Return:", "4.2% APY Compounding", Color("#15803d") if is_light else Color("#4ade80"))
+	_add_row.call("Est. Next Year Yield:", "+$%s" % _format_number(next_year_est), Color("#0284c7") if is_light else Color("#38bdf8"))
+	_add_row.call("Total Interest Earned:", "+$%s" % _format_number(s_interest_earned), Color("#0f172a") if is_light else Color("#f8fafc"))
+	_add_row.call("Withdrawal Rules:", "Instant & Penalty-Free Anytime", Color("#15803d") if is_light else Color("#4ade80"))
+
+	list.add_child(ov_card)
+
+	# 4. Deposit Funds Card
+	var dep_card := PanelContainer.new()
+	dep_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+	var dm := MarginContainer.new()
+	dm.add_theme_constant_override("margin_left", 20)
+	dm.add_theme_constant_override("margin_right", 20)
+	dm.add_theme_constant_override("margin_top", 14)
+	dm.add_theme_constant_override("margin_bottom", 14)
+	dep_card.add_child(dm)
+
+	var dv := VBoxContainer.new()
+	dv.add_theme_constant_override("separation", 10)
+	dm.add_child(dv)
+
+	var dep_title := Label.new()
+	dep_title.text = "DEPOSIT FUNDS INTO SAVINGS"
+	dep_title.add_theme_font_size_override("font_size", 18)
+	dep_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+	dv.add_child(dep_title)
+
+	var avail_lbl := Label.new()
+	avail_lbl.text = "Available Capital (Cash + Bank): $%s" % _format_number(PlayerData.get_available_funds())
+	avail_lbl.add_theme_font_size_override("font_size", 16)
+	avail_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	dv.add_child(avail_lbl)
+
+	var dep_btn_row := HBoxContainer.new()
+	dep_btn_row.add_theme_constant_override("separation", 8)
+	dv.add_child(dep_btn_row)
+
+	var deposit_amounts := [500, 2500, 10000]
+	for amt in deposit_amounts:
+		var d_btn := _create_cyber_button("+ $%s" % _format_number(amt), Color("#10b981"), func():
+			var res = ps_mgr.deposit_savings(PlayerData, amt)
+			savings_status_notice = res["message"]
+			update_ui()
+			_show_savings_account_modal()
+		, true)
+		d_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		d_btn.custom_minimum_size.y = 46
+		d_btn.add_theme_font_size_override("font_size", 17)
+		d_btn.disabled = PlayerData.get_available_funds() < amt
+		d_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		d_btn.set_meta("center_text", true)
+		dep_btn_row.add_child(d_btn)
+
+	var d_all := _create_cyber_button("Deposit All Cash", Color("#059669"), func():
+		var amt: int = PlayerData.money
+		if amt > 0:
+			var res = ps_mgr.deposit_savings(PlayerData, amt)
+			savings_status_notice = res["message"]
+			update_ui()
+			_show_savings_account_modal()
+	, true)
+	d_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	d_all.custom_minimum_size.y = 46
+	d_all.add_theme_font_size_override("font_size", 17)
+	d_all.disabled = PlayerData.money <= 0
+	d_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	d_all.set_meta("center_text", true)
+	dep_btn_row.add_child(d_all)
+
+	list.add_child(dep_card)
+
+	# 5. Withdraw Funds Card
+	var with_card := PanelContainer.new()
+	with_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0284c7") if is_light else Color("#0284c7")))
+	var wm := MarginContainer.new()
+	wm.add_theme_constant_override("margin_left", 20)
+	wm.add_theme_constant_override("margin_right", 20)
+	wm.add_theme_constant_override("margin_top", 14)
+	wm.add_theme_constant_override("margin_bottom", 14)
+	with_card.add_child(wm)
+
+	var wv := VBoxContainer.new()
+	wv.add_theme_constant_override("separation", 10)
+	wm.add_child(wv)
+
+	var with_title := Label.new()
+	with_title.text = "WITHDRAW FUNDS TO CASH"
+	with_title.add_theme_font_size_override("font_size", 18)
+	with_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	wv.add_child(with_title)
+
+	var with_sub := Label.new()
+	with_sub.text = "Withdraw funds anytime with 0% penalty. Cash will be immediately added to your wallet."
+	with_sub.add_theme_font_size_override("font_size", 16)
+	with_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	wv.add_child(with_sub)
+
+	var with_btn_row := HBoxContainer.new()
+	with_btn_row.add_theme_constant_override("separation", 8)
+	wv.add_child(with_btn_row)
+
+	var with_amounts := [500, 2500, 10000]
+	for amt in with_amounts:
+		var w_btn := _create_cyber_button("- $%s" % _format_number(amt), Color("#0284c7"), func():
+			var res = ps_mgr.withdraw_savings(PlayerData, amt)
+			savings_status_notice = res["message"]
+			update_ui()
+			_show_savings_account_modal()
+		, true)
+		w_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		w_btn.custom_minimum_size.y = 46
+		w_btn.add_theme_font_size_override("font_size", 17)
+		w_btn.disabled = s_bal < amt
+		w_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		w_btn.set_meta("center_text", true)
+		with_btn_row.add_child(w_btn)
+
+	var w_all := _create_cyber_button("Withdraw All", Color("#0369a1"), func():
+		if s_bal > 0:
+			var res = ps_mgr.withdraw_savings(PlayerData, s_bal)
+			savings_status_notice = res["message"]
+			update_ui()
+			_show_savings_account_modal()
+	, true)
+	w_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	w_all.custom_minimum_size.y = 46
+	w_all.add_theme_font_size_override("font_size", 17)
+	w_all.disabled = s_bal <= 0
+	w_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	w_all.set_meta("center_text", true)
+	with_btn_row.add_child(w_all)
+
+	list.add_child(with_card)
+
+	savings_modal_overlay.visible = true
 
 
 # --- 1. DOCTOR MODAL ---
@@ -18477,15 +19140,24 @@ func _execute_inheritance_takeover(heir: Dictionary, overlay_to_free: Control, r
 	elif relation_param is String:
 		relation_type = relation_param
 
-	var net_worth: int = maxi(500, PlayerData.get_net_worth())
+	var pension_val: int = int(PlayerData.pension_account.get("balance", 0))
+	var savings_val: int = int(PlayerData.savings_account.get("balance", 0))
+	var net_worth: int = maxi(500, PlayerData.get_net_worth() - pension_val)
 	var roll := randf()
 	var final_amount := net_worth
 	var inheritance_msg := ""
 
 	var crypto_val: int = CryptoMarket.portfolio_value(PlayerData)
-	var crypto_holdings_note := ""
+	var asset_transfer_notes := ""
+	var transfer_parts: Array[String] = []
 	if crypto_val > 0:
-		crypto_holdings_note = " Your cryptocurrency portfolio (~$%s) and physical assets were transferred intact." % _format_number(crypto_val)
+		transfer_parts.append("cryptocurrency portfolio (~$%s)" % _format_number(crypto_val))
+	if savings_val > 0:
+		transfer_parts.append("High-Yield Savings Account ($%s)" % _format_number(savings_val))
+	if transfer_parts.size() > 0:
+		asset_transfer_notes = " Your " + " and ".join(transfer_parts) + " and physical assets were transferred intact."
+	if pension_val > 0:
+		asset_transfer_notes += " (Late pension fund of $%s was non-transferable and forfeited)." % _format_number(pension_val)
 
 	var estate_fees: int = 0
 	var liquid_estate := PlayerData.money + PlayerData.bank_savings - PlayerData.get_total_debt()
@@ -18504,11 +19176,11 @@ func _execute_inheritance_takeover(heir: Dictionary, overlay_to_free: Control, r
 	var remaining_liability := maxi(0, estate_fees - liquid_estate)
 
 	if roll < 0.50:
-		inheritance_msg = "✨ Seamless Succession: 100%% of the estate was transferred without dispute. $%s liquid capital was deposited into your bank balance.%s" % [_format_number(bank_inheritance), crypto_holdings_note]
+		inheritance_msg = "✨ Seamless Succession: 100%% of the estate was transferred without dispute. $%s liquid capital was deposited into your bank balance.%s" % [_format_number(bank_inheritance), asset_transfer_notes]
 	elif roll < 0.75:
-		inheritance_msg = "🏛️ Estate Tax Levy: State tax authorities collected 25%% inheritance tax ($%s). $%s liquid capital was deposited into your bank balance.%s" % [_format_number(estate_fees), _format_number(bank_inheritance), crypto_holdings_note]
+		inheritance_msg = "🏛️ Estate Tax Levy: State tax authorities collected 25%% inheritance tax ($%s). $%s liquid capital was deposited into your bank balance.%s" % [_format_number(estate_fees), _format_number(bank_inheritance), asset_transfer_notes]
 	else:
-		inheritance_msg = "⚖️ Probate Legal Settlement: Estate filing and attorney fees cost $5,000. $%s liquid capital was secured into your bank balance.%s" % [_format_number(bank_inheritance), crypto_holdings_note]
+		inheritance_msg = "⚖️ Probate Legal Settlement: Estate filing and attorney fees cost $5,000. $%s liquid capital was secured into your bank balance.%s" % [_format_number(bank_inheritance), asset_transfer_notes]
 
 	PlayerData.takeover_as_heir(heir, bank_inheritance, PlayerData.owned_assets, relation_type)
 	PlayerData.debt = remaining_liability
