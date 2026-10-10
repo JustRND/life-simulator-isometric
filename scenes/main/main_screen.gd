@@ -957,8 +957,8 @@ func age_up() -> void:
 			honors_hs = " with High Honors"
 		elif PlayerData.grades >= 80:
 			honors_hs = " with Honors"
-		add_life_event("🎓 You graduated from High School%s with a final academic grade of %d%% (%s)!" % [honors_hs, PlayerData.grades, PlayerData.get_letter_grade()], "milestone")
-		PlayerData.add_milestone("Graduated from High School%s (Grade: %d%%)." % [honors_hs, PlayerData.grades], PlayerData.age, "🎓")
+		add_life_event("🎓 You graduated from High School%s with a final academic grade of %d%% (%s, %.2f GPA)!" % [honors_hs, PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa()], "milestone")
+		PlayerData.add_milestone("Graduated from High School%s (Grade: %d%%, %.2f GPA)." % [honors_hs, PlayerData.grades, PlayerData.get_gpa()], PlayerData.age, "🎓")
 	elif PlayerData.education_level == "University Student":
 		PlayerData.university_years += 1
 		var tuition: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
@@ -982,7 +982,7 @@ func age_up() -> void:
 			PlayerData.happiness = mini(100, PlayerData.happiness + 15)
 			var deg_name: String = PlayerData.university_degree if PlayerData.university_degree != "" else "Bachelor's Degree"
 			var maj_name: String = PlayerData.university_major_title if PlayerData.university_major_title != "" else "Specialized Major"
-			var gpa: float = clampf((float(PlayerData.grades) / 100.0) * 4.0, 1.0, 4.0)
+			var gpa: float = PlayerData.get_gpa()
 			var honors := ""
 			if gpa >= 3.90:
 				honors = "as a summa cum laude"
@@ -1005,14 +1005,14 @@ func age_up() -> void:
 			PlayerData.university_years = 0
 			var milestone_text := ""
 			if honors != "":
-				milestone_text = "You graduated from %s %s with a GPA of %.2f." % [uni_title, honors, gpa]
+				milestone_text = "You graduated from %s %s with a GPA of %.2f (Final Grades: %d%%)." % [uni_title, honors, gpa, PlayerData.grades]
 			else:
-				milestone_text = "You graduated from %s with a GPA of %.2f." % [uni_title, gpa]
+				milestone_text = "You graduated from %s with a GPA of %.2f (Final Grades: %d%%)." % [uni_title, gpa, PlayerData.grades]
 			add_life_event("🎓 CONGRATULATIONS! %s Degree: %s in %s! Careers in %s are now unlocked." % [milestone_text, deg_name, maj_name, maj_name], "milestone")
 			PlayerData.add_milestone(milestone_text, PlayerData.age, "🎓")
 		else:
 			var m_label: String = " (%s)" % PlayerData.university_major_title if PlayerData.university_major_title != "" else ""
-			add_life_event("You finished Year %d of 4 at %s%s (Grades: %d%%)." % [PlayerData.university_years, uni_title, m_label, PlayerData.grades], "education")
+			add_life_event("You finished Year %d of 4 at %s%s (Grades: %d%%, %.2f GPA)." % [PlayerData.university_years, uni_title, m_label, PlayerData.grades, PlayerData.get_gpa()], "education")
 
 	# Grades Degradation & Maintenance System (Forces active educational participation)
 	_process_yearly_grades_decay(prev_age)
@@ -1177,36 +1177,40 @@ func _process_yearly_grades_decay(prev_age: int) -> void:
 
 	if is_student:
 		if studied_last_year:
-			# Maintained or gently boosted based on smarts
-			var smarts_bonus: int = int((float(PlayerData.smarts) - 50.0) / 12.0)
-			var drift: int = smarts_bonus + randi_range(0, 2)
-			PlayerData.grades = clamp(PlayerData.grades + drift, 0, 100)
+			# Maintained: no decay! Active studying directly rewards higher smartness with gentle drift
+			var drift: int = 0
+			if PlayerData.smarts >= 75:
+				drift = randi_range(1, 3)
+			elif PlayerData.smarts >= 50:
+				drift = randi_range(0, 1)
+			else:
+				drift = 0
+			if drift > 0:
+				PlayerData.grades = mini(100, PlayerData.grades + drift)
 		else:
-			# Neglected schooling: grades degrade noticeably each unmaintained year (8-12 points)
-			var drop: int = randi_range(8, 12)
-			if PlayerData.smarts >= 80:
-				drop = maxi(5, drop - 3)
+			# Neglected schooling: grades degrade by 5% yearly if not maintained
+			var drop: int = 5
 			PlayerData.grades = maxi(0, PlayerData.grades - drop)
 			if PlayerData.grades == 0:
-				add_life_event("🚨 ACADEMIC RECORD EXPIRED (0%%): You completely neglected your studies at age %d and your grades dropped to 0%%! You must complete an Academic Refresher Course." % prev_age, "education")
+				add_life_event("🚨 ACADEMIC RECORD EXPIRED (0%%): You completely neglected your studies at age %d and your grades dropped by 5%% to 0%%! You must complete an Academic Refresher Course." % prev_age, "education")
 			elif PlayerData.grades < 55:
-				add_life_event("📉 Academic Warning: Without active study at age %d, your marks fell by %d%% to %d%% (%s)!" % [prev_age, drop, PlayerData.grades, PlayerData.get_letter_grade()], "education")
+				add_life_event("📉 Academic Warning: Without active study at age %d, your marks fell by 5%% to %d%% (%s, %.2f GPA)!" % [prev_age, PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa()], "education")
 			else:
-				add_life_event("Academic Neglect: You skipped academic tasks at age %d. Grades dropped by %d%% to %d%% (%s)." % [prev_age, drop, PlayerData.grades, PlayerData.get_letter_grade()], "education")
+				add_life_event("Academic Neglect: You skipped academic tasks at age %d. Grades dropped by 5%% to %d%% (%s, %.2f GPA)." % [prev_age, PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa()], "education")
 	else:
 		# Non-students / graduates / adults
 		if studied_last_year:
-			# Maintained via reading, seminars, minigames, or courses
+			# Maintained via reading, seminars, minigames, or courses: no decay
 			pass
 		elif is_intellectual:
-			# Intellectual careers (doctors, engineers, scientists) slow academic decay
-			var drop: int = randi_range(1, 3)
+			# Intellectual careers (doctors, engineers, scientists) slow academic decay (only 2% yearly)
+			var drop: int = 2
 			PlayerData.grades = maxi(0, PlayerData.grades - drop)
 			if PlayerData.grades == 0:
 				add_life_event("⚠️ ACADEMIC RECORD EXPIRED: Your academic qualification has decayed to 0% due to disuse. You must take an Academic Refresher Course to certify credentials.", "education")
 		else:
-			# Adult without study or mental challenges: grades decay overtime (5-8 points)
-			var drop: int = randi_range(5, 8)
+			# Adult without study or mental challenges: degrades by 5% yearly if not maintained
+			var drop: int = 5
 			PlayerData.grades = maxi(0, PlayerData.grades - drop)
 			if PlayerData.grades == 0:
 				add_life_event("⚠️ ACADEMIC RECORD EXPIRED: Your academic qualification has decayed to 0% due to years of disuse! New job applications and university enrollments now require you to take an Academic Refresher Course.", "education")
@@ -2583,7 +2587,7 @@ func update_infant_panel() -> void:
 			grades_label.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		else:
 			var standing: String = "Honor Roll" if PlayerData.grades >= 85 else ("Satisfactory" if PlayerData.grades >= 70 else ("Passing" if PlayerData.grades >= 55 else ("Failing" if PlayerData.grades > 0 else "EXPIRED (Course Required)")))
-			grades_label.text = "📊 Current Marks: %d%% (%s) • %s" % [PlayerData.grades, PlayerData.get_letter_grade(), standing]
+			grades_label.text = "📊 Current Marks: %d%% (%s, %.2f GPA) • %s" % [PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa(), standing]
 			var g_color: Color
 			if is_light:
 				g_color = Color("#15803d") if PlayerData.grades >= 85 else (Color("#0284c7") if PlayerData.grades >= 70 else (Color("#b45309") if PlayerData.grades >= 55 else Color("#b91c1c")))
@@ -9938,7 +9942,7 @@ func _show_education_modal() -> void:
 		grade_lbl.text = "🧸 School Enrollment: Kindergarten begins at age 3 (in %d year%s)" % [3 - PlayerData.age, "s" if (3 - PlayerData.age) > 1 else ""]
 		grade_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	else:
-		grade_lbl.text = "📊 Current Marks / GPA: %d%% (%s)" % [PlayerData.grades, PlayerData.get_letter_grade()]
+		grade_lbl.text = "📊 Current Marks / GPA: %d%% (%s, %.2f GPA)" % [PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa()]
 		grade_lbl.add_theme_color_override("font_color", grade_color)
 	grade_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	grade_lbl.add_theme_font_size_override("font_size", 28)
@@ -10135,13 +10139,21 @@ func _show_education_modal() -> void:
 					_close_education_modal_and_return_to_main()
 					return
 				PlayerData.last_school_activity_age = PlayerData.age
-				var g_gain := randi_range(6, 10)
+				var base_g_gain := randi_range(7, 9)
+				var g_gain: int = PlayerData.calculate_grades_gain(base_g_gain)
 				var s_gain := randi_range(2, 4)
 				var h_loss := randi_range(3, 5)
 				PlayerData.grades = mini(100, PlayerData.grades + g_gain)
 				PlayerData.smarts = mini(100, PlayerData.smarts + s_gain)
 				PlayerData.happiness = maxi(0, PlayerData.happiness - h_loss)
-				add_life_event("You studied diligently, completing extra credit and reviewing notes.", "education")
+				var intellect_msg := ""
+				if PlayerData.smarts >= 75:
+					intellect_msg = " With your high intellect (%d Smarts), you mastered the material with ease! (Grades +%d%%, Smarts +%d)" % [PlayerData.smarts, g_gain, s_gain]
+				elif PlayerData.smarts < 45:
+					intellect_msg = " Struggling with the complex curriculum (%d Smarts), studying took intense effort. (Grades +%d%%, Smarts +%d)" % [PlayerData.smarts, g_gain, s_gain]
+				else:
+					intellect_msg = " You reviewed lecture notes and completed extra credit. (Grades +%d%%, Smarts +%d)" % [g_gain, s_gain]
+				add_life_event("You studied diligently." + intellect_msg, "education")
 				update_ui()
 				SaveManager.save_game()
 				_close_education_modal_and_return_to_main()
@@ -10217,14 +10229,15 @@ func _show_education_modal() -> void:
 					_close_education_modal_and_return_to_main()
 					return
 				PlayerData.last_school_activity_age = PlayerData.age
-				var g_gain := randi_range(4, 7)
+				var base_g_gain := randi_range(4, 6)
+				var g_gain: int = PlayerData.calculate_grades_gain(base_g_gain)
 				var s_gain := randi_range(2, 4)
 				var k_gain := randi_range(10, 15)
 				PlayerData.grades = mini(100, PlayerData.grades + g_gain)
 				PlayerData.smarts = mini(100, PlayerData.smarts + s_gain)
 				PlayerData.karma += k_gain
 				PlayerData.happiness = mini(100, PlayerData.happiness + 6)
-				add_life_event("👥 Group Leadership: You organized an effective peer study group. Everyone's marks improved! Grades +%d%%." % g_gain, "education")
+				add_life_event("👥 Group Leadership: You organized an effective peer study group. (Grades +%d%%, Smarts +%d, Karma +%d)" % [g_gain, s_gain, k_gain], "education")
 				update_ui()
 				SaveManager.save_game()
 				_close_education_modal_and_return_to_main()
@@ -10260,7 +10273,8 @@ func _show_education_modal() -> void:
 				if PlayerData.get_available_funds() >= 200:
 					PlayerData.last_school_activity_age = PlayerData.age
 					PlayerData.debit_funds(200)
-					var g_gain := randi_range(10, 15)
+					var base_g_gain := randi_range(11, 14)
+					var g_gain: int = PlayerData.calculate_grades_gain(base_g_gain)
 					PlayerData.grades = mini(100, PlayerData.grades + g_gain)
 					add_life_event("You worked with a private academic tutor ($200). Grades improved +%d%%!" % g_gain, "education")
 					update_ui()
@@ -10268,7 +10282,8 @@ func _show_education_modal() -> void:
 					_close_education_modal_and_return_to_main()
 				elif PlayerData.age < 18 and (PlayerData.mother_relationship >= 60 or PlayerData.father_relationship >= 60):
 					PlayerData.last_school_activity_age = PlayerData.age
-					var g_gain := randi_range(10, 15)
+					var base_g_gain := randi_range(11, 14)
+					var g_gain: int = PlayerData.calculate_grades_gain(base_g_gain)
 					PlayerData.grades = mini(100, PlayerData.grades + g_gain)
 					add_life_event("Your supportive parents happily paid $200 for a private tutor. Grades improved +%d%%!" % g_gain, "education")
 					update_ui()
@@ -10353,7 +10368,8 @@ func _show_education_modal() -> void:
 					_close_education_modal_and_return_to_main()
 					return
 				PlayerData.last_school_activity_age = PlayerData.age
-				var g_gain := randi_range(2, 4)
+				var base_g_gain := randi_range(3, 5)
+				var g_gain: int = PlayerData.calculate_grades_gain(base_g_gain)
 				var s_gain := randi_range(2, 4)
 				PlayerData.grades = mini(100, PlayerData.grades + g_gain)
 				PlayerData.smarts = mini(100, PlayerData.smarts + s_gain)
@@ -10808,7 +10824,8 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 				if PlayerData.last_school_activity_age == PlayerData.age:
 					return
 				PlayerData.last_school_activity_age = PlayerData.age
-				var g_gain := randi_range(2, 4)
+				var base_g_gain := randi_range(3, 5)
+				var g_gain: int = PlayerData.calculate_grades_gain(base_g_gain)
 				var s_gain := randi_range(2, 4)
 				PlayerData.grades = mini(100, PlayerData.grades + g_gain)
 				PlayerData.smarts = mini(100, PlayerData.smarts + s_gain)
@@ -11558,7 +11575,8 @@ func _show_education_minigame_results() -> void:
 	rtitle.add_theme_color_override("font_color", border_col)
 	rv.add_child(rtitle)
 
-	var g_boost: int = sc * 5
+	var base_boost: int = sc * 5
+	var g_boost: int = PlayerData.calculate_grades_gain(base_boost)
 	var s_boost: int = mini(3, sc + 1)
 	PlayerData.grades = clamp(PlayerData.grades + g_boost, 0, 100)
 	PlayerData.smarts = mini(100, PlayerData.smarts + s_boost)

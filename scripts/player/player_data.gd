@@ -570,6 +570,26 @@ func get_letter_grade() -> String:
 		return "0% (Course Required)"
 
 
+func get_gpa() -> float:
+	return snappedf(clampf(float(grades) / 25.0, 0.0, 4.0), 0.01)
+
+
+func get_grades_gain_multiplier() -> float:
+	# Direct scaling based on smartness:
+	# Lower smartness = harder grades gain (e.g. 0-25 smarts -> 0.35x-0.675x multiplier)
+	# Baseline smartness (50 smarts) = 1.00x standard multiplier
+	# Higher smartness = easier grades gain (e.g. 75-100 smarts -> 1.325x-1.65x multiplier)
+	var s_clamped: float = clampf(float(smarts), 0.0, 100.0)
+	return 0.35 + 1.30 * (s_clamped / 100.0)
+
+
+func calculate_grades_gain(base_gain: int) -> int:
+	if base_gain <= 0:
+		return 0
+	var mult: float = get_grades_gain_multiplier()
+	return maxi(1, int(round(float(base_gain) * mult)))
+
+
 
 func get_education_display_string() -> String:
 	match education_level:
@@ -1069,7 +1089,11 @@ func apply_effects(effects: Dictionary) -> void:
 	karma += int(effects.get("karma", 0))
 
 	if effects.has("grades"):
-		grades = clamp(grades + int(effects.get("grades", 0)), 0, 100)
+		var raw_grade: int = int(effects.get("grades", 0))
+		if raw_grade > 0:
+			grades = clamp(grades + calculate_grades_gain(raw_grade), 0, 100)
+		else:
+			grades = clamp(grades + raw_grade, 0, 100)
 		last_school_activity_age = age
 
 	if effects.has("bank_savings"):

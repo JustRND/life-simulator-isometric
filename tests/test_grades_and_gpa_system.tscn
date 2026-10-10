@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://grades_and_gpa_system_test_scene"]
+
+[ext_resource type="Script" path="res://tests/test_grades_and_gpa_system.gd" id="1_grades_test"]
+
+[node name="TestGradesAndGPASystem" type="Node"]
+script = ExtResource("1_grades_test")
