@@ -187,34 +187,49 @@ html, body {
 		<script>
 // Cyber Input Overlay for Seamless Mobile Web Input
 (function() {
+	window.isMobileBrowser = function() {
+		try {
+			var ua = navigator.userAgent || '';
+			var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Silk/i.test(ua);
+			var isTouchMac = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+			var hasCoarse = window.matchMedia && (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches);
+			var hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+			return Boolean(isMobileUA || isTouchMac || hasCoarse || hasTouch);
+		} catch(e) {
+			return true;
+		}
+	};
+
 	window.showCyberInputOverlay = function(title, defaultValue, maxLength, inputType, callback) {
 		var existing = document.getElementById('cyber-input-modal');
-		if (existing) {
-			existing.remove();
+		if (existing && typeof existing.cancelInput === 'function') {
+			existing.cancelInput();
 		}
 
 		var overlay = document.createElement('div');
 		overlay.id = 'cyber-input-modal';
-		overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100dvh;background:rgba(2,6,23,0.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:min(12vh, 85px);box-sizing:border-box;touch-action:none;';
+		overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;background:rgba(2,6,23,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;touch-action:manipulation;';
 
 		var card = document.createElement('div');
 		card.className = 'cyber-modal-card';
-		card.style.cssText = 'width:90%;max-width:540px;background:#090f1d;border:2.5px solid #00f0ff;border-radius:18px;padding:24px 20px;box-shadow:0 0 35px rgba(0,240,255,0.45),0 20px 40px rgba(0,0,0,0.92);display:flex;flex-direction:column;gap:18px;box-sizing:border-box;';
+		card.style.cssText = 'width:92%;max-width:540px;background:#090f1d;border:2.5px solid #00f0ff;border-radius:18px;padding:24px 20px;box-shadow:0 0 35px rgba(0,240,255,0.45),0 20px 40px rgba(0,0,0,0.92);display:flex;flex-direction:column;gap:18px;box-sizing:border-box;';
 
 		var titleEl = document.createElement('div');
 		titleEl.textContent = (title || 'ENTER VALUE').toUpperCase();
 		titleEl.style.cssText = 'color:#00f0ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:20px;font-weight:700;letter-spacing:1px;text-align:center;text-shadow:0 0 12px rgba(0,240,255,0.5);line-height:1.3;';
 
-		var input = document.createElement('input');
-		input.type = (inputType === 'number') ? 'number' : 'text';
+		var input = document.createElement(inputType === 'textarea' ? 'textarea' : 'input');
+		if (inputType !== 'textarea') input.type = ['password', 'email'].includes(inputType) ? inputType : 'text';
+		input.inputMode = inputType === 'number' ? 'numeric' : inputType === 'decimal' ? 'decimal' : inputType === 'email' ? 'email' : 'text';
+		input.setAttribute('aria-label', title || 'Enter value');
 		input.value = defaultValue || '';
 		if (maxLength > 0) input.maxLength = maxLength;
 		input.placeholder = 'Type custom name or value...';
-		input.autocapitalize = 'words';
+		input.autocapitalize = inputType === 'text' ? 'words' : 'off';
 		input.autocomplete = 'off';
-		input.autocorrect = 'on';
+		input.autocorrect = inputType === 'text' ? 'on' : 'off';
 		input.spellcheck = false;
-		input.style.cssText = 'width:100%;height:58px;background:#111c35;border:2px solid #38bdf8;border-radius:12px;color:#ffffff;font-size:22px;font-weight:600;padding:0 16px;box-sizing:border-box;outline:none;font-family:inherit;-webkit-appearance:none;box-shadow:inset 0 2px 6px rgba(0,0,0,0.6);';
+		input.style.cssText = 'width:100%;height:58px;background:#111c35;border:2px solid #38bdf8;border-radius:12px;color:#ffffff;font-size:20px;font-weight:600;padding:0 16px;box-sizing:border-box;outline:none;font-family:inherit;-webkit-appearance:none;box-shadow:inset 0 2px 6px rgba(0,0,0,0.6);touch-action:manipulation;';
 
 		input.onfocus = function() {
 			input.style.borderColor = '#00f0ff';
@@ -238,7 +253,31 @@ html, body {
 		confirmBtn.textContent = '✓ CONFIRM';
 		confirmBtn.style.cssText = 'flex:1.5;height:54px;background:linear-gradient(135deg,#0284c7,#00f0ff);border:2px solid #38bdf8;border-radius:12px;color:#000000;font-size:18px;font-weight:800;cursor:pointer;box-shadow:0 0 20px rgba(0,240,255,0.45);-webkit-tap-highlight-color:transparent;transition:all 0.15s ease;';
 
+		var closed = false;
+		function cleanupViewport() {
+			if (window.visualViewport) {
+				window.visualViewport.removeEventListener('resize', adjustViewport);
+				window.visualViewport.removeEventListener('scroll', adjustViewport);
+			}
+		}
+
+		function adjustViewport() {
+			if (!overlay || !overlay.parentNode || !window.visualViewport) return;
+			overlay.style.height = window.visualViewport.height + 'px';
+			overlay.style.top = window.visualViewport.offsetTop + 'px';
+		}
+
+		if (window.visualViewport) {
+			window.visualViewport.addEventListener('resize', adjustViewport);
+			window.visualViewport.addEventListener('scroll', adjustViewport);
+			adjustViewport();
+		}
+
 		function closeAndSubmit(val) {
+			if (closed) return;
+			closed = true;
+			cleanupViewport();
+			input.blur();
 			overlay.remove();
 			if (typeof callback === 'function') {
 				callback(val);
@@ -246,14 +285,24 @@ html, body {
 		}
 
 		function closeCancel() {
-			overlay.remove();
+			closeAndSubmit(null);
 		}
+		overlay.cancelInput = closeCancel;
 
-		confirmBtn.onclick = function() { closeAndSubmit(input.value); };
-		cancelBtn.onclick = function() { closeCancel(); };
+		// Prevent background click-through to game canvas
+		['click', 'pointerdown', 'pointerup', 'touchstart', 'touchend'].forEach(function(type) {
+			overlay.addEventListener(type, function(event) {
+				if (event.target === overlay) {
+					event.stopPropagation();
+				}
+			});
+		});
+
+		confirmBtn.onclick = function(e) { e.stopPropagation(); closeAndSubmit(input.value); };
+		cancelBtn.onclick = function(e) { e.stopPropagation(); closeCancel(); };
 
 		input.onkeydown = function(e) {
-			if (e.key === 'Enter') {
+			if (e.key === 'Enter' && inputType !== 'textarea' && !e.isComposing) {
 				e.preventDefault();
 				closeAndSubmit(input.value);
 			} else if (e.key === 'Escape') {
@@ -278,15 +327,11 @@ html, body {
 
 		input.focus();
 		input.select();
-		setTimeout(function() {
-			input.focus();
-			input.select();
-		}, 50);
 	};
 
 	window.godotPromptInput = function(title, def) {
 		var res = window.prompt(title, def);
-		return res !== null ? res : '___CANCELLED___';
+		return res !== null ? res : null;
 	};
 })();
 		</script>

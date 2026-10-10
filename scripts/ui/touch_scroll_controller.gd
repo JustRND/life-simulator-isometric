@@ -169,7 +169,7 @@ func _handle_touch_up(pos: Vector2) -> void:
 		target_input.grab_focus()
 		var MobileKeyboardManagerRef = load("res://scripts/ui/mobile_keyboard_manager.gd")
 		if MobileKeyboardManagerRef != null:
-			MobileKeyboardManagerRef.open_keyboard(target_input)
+			MobileKeyboardManagerRef.open_keyboard(target_input, target_input.get_meta("mobile_kb_prompt_title", ""), true)
 		return
 
 	var was_swiping_or_scrolled := _is_swiping or _has_scrolled or moved_dist >= SWIPE_THRESHOLD or held_duration > MAX_TAP_DURATION_MS

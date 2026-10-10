@@ -131,4 +131,5 @@ static func deliver_due_baby(player: Node, baby_name: String, baby_gender: Strin
 	child["mother_name"] = pregnancy.mother
 	child["other_parent_name"] = pregnancy.other_parent
 	player.last_baby_age = player.age
-	return "%s gave birth to %s. Your newborn has joined the family." % [pregnancy.mother, baby_name]
+	var final_name: String = str(child.get("name", baby_name))
+	return "%s gave birth to %s. Your newborn has joined the family." % [pregnancy.mother, final_name]

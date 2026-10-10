@@ -1093,7 +1093,10 @@ func age_up() -> void:
 	_process_relationships_aging()
 	if not PlayerData.pregnancy.is_empty():
 		var baby_female := randf() < 0.5
-		var baby_name := NameCatalog.random_name(PlayerData.birthplace if not PlayerData.birthplace.is_empty() else "United States", baby_female).split(" ")[0]
+		var baby_given_name := NameCatalog.random_name(PlayerData.birthplace if not PlayerData.birthplace.is_empty() else "United States", baby_female).split(" ")[0]
+		var baby_name := baby_given_name
+		if PlayerData.is_married():
+			baby_name = "%s %s" % [baby_given_name, PlayerData.get_family_name()]
 		var birth := RelationshipExtras.deliver_due_baby(PlayerData, baby_name, "FEMALE" if baby_female else "MALE")
 		if not birth.is_empty():
 			add_life_event(birth, "family")
@@ -4094,7 +4097,6 @@ func _show_loan_repayment() -> void:
 	MobileKeyboardManager.attach_to_input(amount, "How much would you like to repay? (Whole dollars)")
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount, "⌨️ Type Custom Repayment Amount", "How much would you like to repay? (Whole dollars)", Color("#22c55e"))
 	modal.list.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(amount, "How much would you like to repay? (Whole dollars)")
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#b91c1c") if LifeLibrary.data.theme == "light" else Color("#fca5a5"))
@@ -4202,7 +4204,6 @@ func _show_bank_transfer(deposit: bool) -> void:
 	MobileKeyboardManager.attach_to_input(amount, verb + " amount (whole dollars)")
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount, "⌨️ Type Custom %s Amount" % verb, verb + " amount (whole dollars)", Color("#10b981") if deposit else Color("#fbbf24"))
 	modal.list.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(amount, verb + " amount (whole dollars)")
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#b91c1c") if LifeLibrary.data.theme == "light" else Color("#fca5a5"))
@@ -4499,8 +4500,6 @@ func _show_credit_card_custom_amount_modal(min_pay: int, total_usage: int) -> vo
 	MobileKeyboardManager.attach_to_input(amount_input, "Repayment amount (Min 10%%: $%d)" % min_pay)
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Repayment Amount", "Repayment amount (Min 10%%: $%d)" % min_pay, Color("#06b6d4"))
 	modal.list.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(amount_input, "Repayment amount (Min 10%%: $%d)" % min_pay)
-
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -5743,8 +5742,12 @@ func _interact_partner(action: String) -> void:
 			var baby_female: bool = (randf() < 0.5)
 			var country_for_names: String = PlayerData.birthplace if PlayerData.birthplace != "" else "United States"
 			var raw_name: String = NameCatalog.random_name(country_for_names, baby_female)
-			var baby_name: String = raw_name.split(" ")[0]
-			var _child_dict: Dictionary = PlayerData.add_player_child(baby_name, "FEMALE" if baby_female else "MALE", 0)
+			var baby_given_name: String = raw_name.split(" ")[0]
+			var baby_name: String = baby_given_name
+			if PlayerData.is_married():
+				baby_name = "%s %s" % [baby_given_name, PlayerData.get_family_name()]
+			var child_dict: Dictionary = PlayerData.add_player_child(baby_name, "FEMALE" if baby_female else "MALE", 0)
+			baby_name = str(child_dict.get("name", baby_name))
 			PlayerData.happiness = mini(100, PlayerData.happiness + 25)
 			PlayerData.set_partner_relationship(p_rel + 20)
 			PlayerData.last_partner_interact_age = PlayerData.age
@@ -6054,9 +6057,10 @@ func _show_wedding_modal() -> void:
 	total.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	total.add_theme_font_size_override("font_size", 26)
 	var confirm := _create_cyber_button("💍 Celebrate & Marry", Color("#38bdf8"), func():
+		var res: String = RelationshipExtras.celebrate_wedding(PlayerData, selected[0], selected[1], selected[2])
 		var p_name: String = PlayerData.get_partner_name()
 		PlayerData.add_milestone("Married %s." % p_name, PlayerData.age, "💍")
-		_finish_romance_action(RelationshipExtras.celebrate_wedding(PlayerData, selected[0], selected[1], selected[2]), "milestone")
+		_finish_romance_action(res, "milestone")
 	)
 	var refresh := func():
 		var quote := RelationshipExtras.wedding_quote(selected[0], selected[1], selected[2])
@@ -8970,6 +8974,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 
 		# Custom Repay Inline Controls
 		var repay_input := LineEdit.new()
+		repay_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
 		repay_input.placeholder_text = "Enter whole dollars (Max: $%s)" % _format_number(mini(cur_loan, treasury))
 		repay_input.custom_minimum_size.y = 48
 		repay_input.add_theme_font_size_override("font_size", 20)
@@ -9097,6 +9102,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	inline_custom_box.add_theme_constant_override("separation", 8)
 
 	var custom_input := LineEdit.new()
+	custom_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
 	custom_input.placeholder_text = "Enter amount in whole dollars..."
 	custom_input.custom_minimum_size.y = 48
 	custom_input.add_theme_font_size_override("font_size", 20)
@@ -9345,7 +9351,6 @@ func _show_rename_business_modal(biz: Dictionary) -> void:
 
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(name_edit, "⌨️ Type New Business Name", "Enter new name for %s:" % cur_name, Color("#f59e0b"))
 	edit_box.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(name_edit, "Enter new name for %s:" % cur_name)
 	list.add_child(edit_box)
 
 	var btn_save := _create_cyber_button("💾 Save Business Name", Color("#10b981"), func():
@@ -9473,8 +9478,6 @@ func _show_business_repay_custom_loan(biz: Dictionary, cur_uid: String) -> void:
 	MobileKeyboardManager.attach_to_input(amount_input, "Enter loan repayment amount (whole dollars):")
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Repayment Amount", "Enter loan repayment amount (whole dollars):", Color("#10b981"))
 	modal.list.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(amount_input, "Enter loan repayment amount (whole dollars):")
-
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -9551,8 +9554,6 @@ func _show_business_custom_dividend(biz: Dictionary, cur_uid: String) -> void:
 	MobileKeyboardManager.attach_to_input(amount_input, "Enter dividend withdrawal amount (whole dollars):")
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Dividend Amount", "Enter dividend withdrawal amount (whole dollars):", Color("#10b981"))
 	modal.list.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(amount_input, "Enter dividend withdrawal amount (whole dollars):")
-
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -9621,8 +9622,6 @@ func _show_business_custom_capital(biz: Dictionary, cur_uid: String) -> void:
 	MobileKeyboardManager.attach_to_input(amount_input, "Enter capital injection amount (whole dollars):")
 	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Capital Amount", "Enter capital injection amount (whole dollars):", Color("#0284c7"))
 	modal.list.add_child(kb_btn)
-	MobileKeyboardManager.open_keyboard.call_deferred(amount_input, "Enter capital injection amount (whole dollars):")
-
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))

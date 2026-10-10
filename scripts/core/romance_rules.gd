@@ -19,6 +19,13 @@ static func normalize(player: Node) -> void:
 	# Legacy engagements begin their waiting period at the age they are loaded.
 	if engaged(player) and not player.partner.has("engaged_age"):
 		player.partner["engaged_age"] = player.age
+	if player.has_method("is_married") and player.is_married():
+		if player.has_method("update_partner_family_name_on_marriage"):
+			var cur_p_name: String = str(player.partner.get("name", "")).strip_edges()
+			var fam: String = player.get_family_name()
+			var tokens: PackedStringArray = cur_p_name.split(" ", false)
+			if tokens.size() <= 1 or (not fam.is_empty() and tokens[tokens.size() - 1] != fam):
+				player.update_partner_family_name_on_marriage()
 
 static func can_marry(player: Node) -> bool:
 	normalize(player)
@@ -103,4 +110,6 @@ static func marry(player: Node, cost: int, ceremony: String, happiness_gain: int
 	player.partner["happiness"] = clampi(int(player.partner.happiness) + happiness_gain, 0, 100)
 	player.happiness = clampi(player.happiness + happiness_gain, 0, 100)
 	player.last_partner_interact_age = player.age
+	if player.has_method("update_partner_family_name_on_marriage"):
+		player.update_partner_family_name_on_marriage()
 	return "💍 MARRIED: You and %s celebrated your %s ($%d)! Both partners' happiness +%d." % [player.get_partner_name(), ceremony, cost, happiness_gain]

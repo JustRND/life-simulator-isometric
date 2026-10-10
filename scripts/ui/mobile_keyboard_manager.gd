@@ -3,11 +3,11 @@ extends Node
 
 ## MobileKeyboardManager
 ## Automatically detects mobile devices (Android, iOS) and mobile web browsers (Chrome, Safari, etc.)
-## ensuring that tapping on ANY LineEdit or TextEdit reliably triggers the virtual keyboard.
-
-const PROMPT_CANCEL_SENTINEL := "___CANCELLED___"
+## ensuring that tapping on ANY LineEdit or TextEdit reliably triggers virtual keyboard input.
 
 static var _instance: MobileKeyboardManager = null
+static var _active_callbacks: Dictionary = {}
+static var _is_mobile_cached: int = -1
 
 
 func _ready() -> void:
@@ -31,23 +31,36 @@ func _scan_tree(node: Node) -> void:
 		return
 	if node is LineEdit or node is TextEdit:
 		attach_to_input(node as Control)
-	for child in node.get_children():
+	for child in node.get_children(true):
 		_scan_tree(child)
 
 
 ## Determines if the game is running on a mobile device (native Android/iOS or mobile web browser)
 static func is_mobile() -> bool:
+	if _is_mobile_cached != -1:
+		return _is_mobile_cached == 1
+
 	if OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios"):
+		_is_mobile_cached = 1
 		return true
+
 	var os_name := OS.get_name().to_lower()
 	if os_name == "android" or os_name == "ios":
+		_is_mobile_cached = 1
 		return true
+
 	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD):
+		_is_mobile_cached = 1
 		return true
+
 	if DisplayServer.is_touchscreen_available():
+		_is_mobile_cached = 1
 		return true
+
 	if is_mobile_web():
+		_is_mobile_cached = 1
 		return true
+
 	return false
 
 
@@ -55,16 +68,27 @@ static func is_mobile() -> bool:
 static func is_mobile_web() -> bool:
 	if not OS.has_feature("web"):
 		return false
-	if not OS.has_feature("JavaScript"):
+
+	var win = JavaScriptBridge.get_interface("window")
+	if win == null:
 		return false
+
 	var res = JavaScriptBridge.eval("""
-		Boolean(
-			/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent) ||
-			(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ||
-			(navigator.maxTouchPoints && navigator.maxTouchPoints > 0) ||
-			(window.matchMedia && (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches)) ||
-			('ontouchstart' in window)
-		)
+		(function() {
+			try {
+				if (typeof window.isMobileBrowser === 'function') {
+					return Boolean(window.isMobileBrowser());
+				}
+				var ua = navigator.userAgent || '';
+				var isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Silk/i.test(ua);
+				var isTouchMac = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+				var hasCoarse = window.matchMedia && (window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches);
+				var hasTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+				return Boolean(isMobileUA || isTouchMac || hasCoarse || hasTouch);
+			} catch(e) {
+				return true;
+			}
+		})()
 	""")
 	return bool(res)
 
@@ -73,37 +97,54 @@ static func is_mobile_web() -> bool:
 static func attach_to_input(input_ctrl: Control, prompt_title: String = "") -> void:
 	if input_ctrl == null or not is_instance_valid(input_ctrl):
 		return
-	if input_ctrl.has_meta("mobile_kb_attached"):
-		if not prompt_title.is_empty():
-			input_ctrl.set_meta("mobile_kb_prompt_title", prompt_title)
-		return
-
-	input_ctrl.set_meta("mobile_kb_attached", true)
 	if not prompt_title.is_empty():
 		input_ctrl.set_meta("mobile_kb_prompt_title", prompt_title)
 
+	if input_ctrl.has_meta("mobile_kb_attached"):
+		return
+
+	input_ctrl.set_meta("mobile_kb_attached", true)
+
 	if input_ctrl is LineEdit:
 		var le := input_ctrl as LineEdit
-		le.virtual_keyboard_enabled = true
+		le.virtual_keyboard_enabled = not is_mobile_web()
 		le.focus_mode = Control.FOCUS_ALL
+	elif input_ctrl is TextEdit:
+		input_ctrl.virtual_keyboard_enabled = not is_mobile_web()
+		input_ctrl.focus_mode = Control.FOCUS_ALL
 
 	# Connect gui_input to capture direct screen touches and clicks
+	var touch_down_pos := Vector2.ZERO
+	var touch_down_time: int = 0
+
 	input_ctrl.gui_input.connect(func(event: InputEvent):
 		if event is InputEventScreenTouch:
 			var st := event as InputEventScreenTouch
-			if not st.pressed:
-				open_keyboard(input_ctrl, input_ctrl.get_meta("mobile_kb_prompt_title", ""))
+			if st.pressed:
+				touch_down_pos = st.position
+				touch_down_time = Time.get_ticks_msec()
+			else:
+				var dist := (st.position - touch_down_pos).length()
+				var duration := Time.get_ticks_msec() - touch_down_time
+				if dist < 40.0 and duration < 800:
+					open_keyboard(input_ctrl, input_ctrl.get_meta("mobile_kb_prompt_title", ""), true)
 		elif event is InputEventMouseButton:
 			var mb := event as InputEventMouseButton
-			if mb.button_index == MOUSE_BUTTON_LEFT and not mb.pressed:
-				# On mobile web browsers, screen touches are often emulated as mouse button releases
-				if is_mobile():
-					open_keyboard(input_ctrl, input_ctrl.get_meta("mobile_kb_prompt_title", ""))
+			if mb.button_index == MOUSE_BUTTON_LEFT:
+				if mb.pressed:
+					touch_down_pos = mb.position
+					touch_down_time = Time.get_ticks_msec()
+				else:
+					var dist := (mb.position - touch_down_pos).length()
+					var duration := Time.get_ticks_msec() - touch_down_time
+					if dist < 40.0 and duration < 800:
+						if is_mobile() or is_mobile_web():
+							open_keyboard(input_ctrl, input_ctrl.get_meta("mobile_kb_prompt_title", ""), true)
 	)
 
 	# Connect focus_entered to trigger keyboard whenever the input gains focus
 	input_ctrl.focus_entered.connect(func():
-		if is_mobile():
+		if is_mobile() or is_mobile_web():
 			open_keyboard(input_ctrl, input_ctrl.get_meta("mobile_kb_prompt_title", ""))
 	)
 
@@ -146,17 +187,21 @@ static func create_keyboard_trigger_button(input_ctrl: Control, button_title: St
 	return btn
 
 
-static var _active_callbacks: Dictionary = {}
-
-
 ## Opens the virtual keyboard for the target input control
 static func open_keyboard(input_ctrl: Control, prompt_override: String = "", force_prompt: bool = false) -> void:
 	if input_ctrl == null or not is_instance_valid(input_ctrl):
 		return
 
+	if not input_ctrl.is_visible_in_tree():
+		return
+	if input_ctrl is LineEdit and not input_ctrl.editable:
+		return
+	if input_ctrl is TextEdit and not input_ctrl.editable:
+		return
+
 	# Debounce within 200ms to prevent double-firing
 	var now := Time.get_ticks_msec()
-	var last_open: int = int(input_ctrl.get_meta("last_kb_open_time", 0))
+	var last_open: int = int(input_ctrl.get_meta("last_kb_open_time", -500))
 	if (now - last_open) < 200:
 		return
 	input_ctrl.set_meta("last_kb_open_time", now)
@@ -188,9 +233,9 @@ static func open_keyboard(input_ctrl: Control, prompt_override: String = "", for
 		_prompt_mobile_web(input_ctrl, prompt_override, current_text, max_len)
 
 
-## Prompts the user via native browser modal or cyber overlay on mobile web, guaranteeing OS virtual keyboard input
+## Uses a real browser field so mobile browsers can display their OS keyboard.
 static func _prompt_mobile_web(input_ctrl: Control, prompt_override: String, current_val: String, max_len: int = -1) -> void:
-	if not OS.has_feature("web") or not OS.has_feature("JavaScript"):
+	if not OS.has_feature("web"):
 		return
 
 	var prompt_title := prompt_override
@@ -214,57 +259,44 @@ static func _prompt_mobile_web(input_ctrl: Control, prompt_override: String, cur
 	if prompt_title.is_empty():
 		prompt_title = "Enter text:"
 
-	var input_type := "text"
+	var input_type := "textarea" if input_ctrl is TextEdit else "text"
 	if input_ctrl is LineEdit:
 		var le_typed := input_ctrl as LineEdit
-		if le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_NUMBER or le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_NUMBER_DECIMAL:
+		if le_typed.secret:
+			input_type = "password"
+		elif le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_NUMBER:
 			input_type = "number"
+		elif le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_NUMBER_DECIMAL:
+			input_type = "decimal"
+		elif le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_EMAIL_ADDRESS:
+			input_type = "email"
 
-	# Register asynchronous callback for modern overlay
+	var input_id := input_ctrl.get_instance_id()
+	var input_ref: WeakRef = weakref(input_ctrl)
 	var on_submit = func(args):
-		if input_ctrl == null or not is_instance_valid(input_ctrl):
-			_active_callbacks.erase(input_ctrl)
+		_active_callbacks.erase(input_id)
+		var target = input_ref.get_ref()
+		if not is_instance_valid(target) or not target.is_visible_in_tree():
 			return
 		if args.size() > 0 and args[0] != null:
 			var res_str := str(args[0])
-			if res_str != PROMPT_CANCEL_SENTINEL and res_str != "null":
-				_apply_input_text(input_ctrl, res_str)
-		_active_callbacks.erase(input_ctrl)
+			if res_str != "__CANCELLED__" and res_str != "null":
+				_apply_input_text(target, res_str)
 
 	var cb = JavaScriptBridge.create_callback(on_submit)
-	_active_callbacks[input_ctrl] = cb
-
-	var js_eval := """
-		(function() {
-			var title = %s;
-			var def = %s;
-			var maxL = %d;
-			var inType = %s;
-			if (typeof window.showCyberInputOverlay === 'function') {
-				window.showCyberInputOverlay(title, def, maxL, inType, function(val) {
-					if (window.__godot_kb_cb) {
-						window.__godot_kb_cb(val);
-					}
-				});
-				return '__OPENED_ASYNC__';
-			}
-			if (typeof window.godotPromptInput === 'function') {
-				return window.godotPromptInput(title, def);
-			}
-			var res = window.prompt(title, def);
-			return res !== null ? res : '%s';
-		})()
-	""" % [JSON.stringify(prompt_title), JSON.stringify(current_val), max_len, JSON.stringify(input_type), PROMPT_CANCEL_SENTINEL]
-
+	_active_callbacks[input_id] = cb
 	var win = JavaScriptBridge.get_interface("window")
-	if win != null:
-		win["__godot_kb_cb"] = cb
+	if win == null:
+		_active_callbacks.erase(input_id)
+		return
 
-	var res = JavaScriptBridge.eval(js_eval)
-	if res != null:
-		var res_str := str(res)
-		if res_str != "__OPENED_ASYNC__" and res_str != PROMPT_CANCEL_SENTINEL and res_str != "null":
-			_apply_input_text(input_ctrl, res_str)
+	if bool(JavaScriptBridge.eval("typeof window.showCyberInputOverlay === 'function'")):
+		win.showCyberInputOverlay(prompt_title, current_val, max_len, input_type, cb)
+	else:
+		var result = win.prompt(prompt_title, current_val)
+		_active_callbacks.erase(input_id)
+		if result != null:
+			_apply_input_text(input_ctrl, str(result))
 
 
 static func _apply_input_text(input_ctrl: Control, res_str: String) -> void:
@@ -274,14 +306,15 @@ static func _apply_input_text(input_ctrl: Control, res_str: String) -> void:
 		var le := input_ctrl as LineEdit
 		if le.max_length > 0 and res_str.length() > le.max_length:
 			res_str = res_str.substr(0, le.max_length)
-		le.text = res_str
-		le.text_changed.emit(res_str)
-		le.text_submitted.emit(res_str)
-		# Auto-normalize names if this is a character name field
+		# Normalize before notifying validation and submission handlers.
 		if le.name == "NameInput" or le.get_meta("is_name_input", false):
 			var CreationOptionsRef = load("res://scripts/core/creation_options.gd")
 			if CreationOptionsRef != null:
-				le.text = CreationOptionsRef.normalize_name(le.text)
+				res_str = CreationOptionsRef.normalize_name(res_str)
+		le.text = res_str
+		le.text_changed.emit(le.text)
+		if is_instance_valid(le):
+			le.text_submitted.emit(le.text)
 	elif input_ctrl is TextEdit:
 		var te := input_ctrl as TextEdit
 		te.text = res_str

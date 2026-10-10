@@ -1242,6 +1242,43 @@ func set_partner_relationship(val: int) -> void:
 		partner["relationship"] = clampi(val, 0, 100)
 
 
+func get_family_name() -> String:
+	var tokens: PackedStringArray = first_name.strip_edges().split(" ", false)
+	if tokens.size() > 1:
+		return str(tokens[tokens.size() - 1])
+	if not father_name.is_empty():
+		var f_tokens: PackedStringArray = father_name.strip_edges().split(" ", false)
+		if f_tokens.size() > 1:
+			return str(f_tokens[f_tokens.size() - 1])
+	if not mother_name.is_empty():
+		var m_tokens: PackedStringArray = mother_name.strip_edges().split(" ", false)
+		if m_tokens.size() > 1:
+			return str(m_tokens[m_tokens.size() - 1])
+	if tokens.size() == 1:
+		return str(tokens[0])
+	return "Rivera"
+
+
+func is_married() -> bool:
+	if not has_partner():
+		return false
+	return get_partner_status() in ["Wife", "Husband", "Spouse"] or partner.has("married_age")
+
+
+func update_partner_family_name_on_marriage() -> String:
+	if not has_partner():
+		return ""
+	var fam_name := get_family_name()
+	if fam_name.is_empty():
+		return get_partner_name()
+	var cur_name := get_partner_name().strip_edges()
+	var tokens := cur_name.split(" ", false)
+	var given_name := tokens[0] if tokens.size() > 0 else "Partner"
+	var new_name := "%s %s" % [given_name, fam_name]
+	partner["name"] = new_name
+	return new_name
+
+
 func enforce_buffs_and_debuffs() -> void:
 	if "health_cap_50" in active_debuffs:
 		health = clampi(health, 0, 50)
@@ -1290,8 +1327,15 @@ func get_living_children() -> Array:
 
 
 func add_player_child(c_name: String, c_gender: String, c_age: int = 0) -> Dictionary:
+	var final_name := c_name.strip_edges()
+	if is_married():
+		var fam_name := get_family_name()
+		if not fam_name.is_empty():
+			var tokens := final_name.split(" ", false)
+			var given_name := tokens[0] if tokens.size() > 0 else "Child"
+			final_name = "%s %s" % [given_name, fam_name]
 	var child_data := {
-		"name": c_name,
+		"name": final_name,
 		"gender": c_gender,
 		"age": c_age,
 		"ethnicity": ethnicity,
