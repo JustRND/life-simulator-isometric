@@ -1712,6 +1712,10 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 			company.opened_age = age
 			if not str(company.get("business_uid", "")).is_empty():
 				company.owner = first_name
+	if not crypto_wallet.is_empty():
+		crypto_wallet.last_age = age
+	var CryptoMarketRef = preload("res://scripts/economy/crypto_market.gd")
+	CryptoMarketRef.ensure(self)
 	has_started_game = true
 
 	health = int(heir.get("health", 85))
@@ -1763,7 +1767,33 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	# Bank savings adds the inherited money to the heir's personal savings:
 	bank_savings = maxi(0, bank_savings + inherited_money)
 
-	var asset_text := " and %d property/vehicle assets" % owned_assets.size() if owned_assets.size() > 0 else ""
+	var crypto_val: int = CryptoMarketRef.portfolio_value(self)
+	var crypto_holdings_count: int = 0
+	if crypto_wallet.has("coins") and crypto_wallet["coins"] is Dictionary:
+		for sym in crypto_wallet["coins"]:
+			var h: Dictionary = crypto_wallet["coins"][sym]
+			if float(h.get("amount", 0.0)) > 0.000001:
+				crypto_holdings_count += 1
+
+	if crypto_holdings_count > 0:
+		if crypto_wallet.has("news") and crypto_wallet["news"] is Array:
+			var rel_label := "partner" if relation_type == "partner" else ("sibling" if relation_type == "sibling" else "parent")
+			crypto_wallet["news"].push_front("👑 SUCCESSION: %s inherited late %s %s's cryptocurrency wallet (%d digital asset holdings, ~$ %s)." % [
+				first_name, rel_label, prev_parent_name, crypto_holdings_count, CryptoMarketRef._format_num(crypto_val)
+			])
+
+	var extra_items: Array[String] = []
+	if owned_assets.size() > 0:
+		extra_items.append("%d property/vehicle asset%s" % [owned_assets.size(), "s" if owned_assets.size() > 1 else ""])
+	if crypto_holdings_count > 0:
+		extra_items.append("%d cryptocurrency asset%s (~$%s)" % [crypto_holdings_count, "s" if crypto_holdings_count > 1 else "", CryptoMarketRef._format_num(crypto_val)])
+	if owned_businesses.size() > 0:
+		extra_items.append("%d business%s" % [owned_businesses.size(), "es" if owned_businesses.size() > 1 else ""])
+
+	var asset_text := ""
+	if not extra_items.is_empty():
+		asset_text = " and " + ", ".join(extra_items)
+
 	if relation_type == "partner":
 		add_life_log_entry("📜 LEGACY: You inherited your late partner %s's estate ($%d deposited into your Bank Balance%s) and continue their legacy at age %d." % [prev_parent_name, inherited_money, asset_text, age], "event")
 	elif relation_type == "sibling":

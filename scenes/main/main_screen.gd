@@ -18206,6 +18206,68 @@ func _show_inheritance_selection_modal() -> void:
 	var modal := _create_cyber_modal("📜 ESTATE INHERITANCE & SUCCESSION", "Net Worth: $%s  •  Select an heir to continue lineage" % _format_number(PlayerData.get_net_worth()), Color("#eab308"))
 	var list: VBoxContainer = modal.list
 
+	# Estate Asset Breakdown Card
+	var crypto_val: int = CryptoMarket.portfolio_value(PlayerData)
+	var crypto_coins_count: int = 0
+	if PlayerData.crypto_wallet.has("coins") and PlayerData.crypto_wallet["coins"] is Dictionary:
+		for sym in PlayerData.crypto_wallet["coins"]:
+			var h: Dictionary = PlayerData.crypto_wallet["coins"][sym]
+			if float(h.get("amount", 0.0)) > 0.000001:
+				crypto_coins_count += 1
+
+	var estate_card := PanelContainer.new()
+	estate_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
+	var e_cm := MarginContainer.new()
+	e_cm.add_theme_constant_override("margin_left", 20)
+	e_cm.add_theme_constant_override("margin_right", 20)
+	e_cm.add_theme_constant_override("margin_top", 14)
+	e_cm.add_theme_constant_override("margin_bottom", 14)
+	estate_card.add_child(e_cm)
+
+	var e_vbox := VBoxContainer.new()
+	e_vbox.add_theme_constant_override("separation", 6)
+	e_cm.add_child(e_vbox)
+
+	var e_title := Label.new()
+	e_title.text = "🏛️ TOTAL BEQUEATHABLE ESTATE BREAKDOWN"
+	e_title.add_theme_font_size_override("font_size", 21)
+	e_title.add_theme_color_override("font_color", Color("#38bdf8"))
+	e_vbox.add_child(e_title)
+
+	var prop_val: int = PlayerData.get_total_asset_value()
+	var biz_val: int = 0
+	for business in PlayerData.owned_businesses:
+		biz_val += int(maxi(0, int(business.get("valuation", 0)) + int(business.get("treasury", 0)) - int(business.get("loan_balance", 0)) - int(business.get("unpaid_taxes", 0))) * float(business.get("owner_fraction", 1.0)))
+	var stock_val: int = preload("res://scripts/economy/finance_market.gd").portfolio_value(PlayerData)
+
+	var breakdown_lines: Array[String] = []
+	breakdown_lines.append("• 💵 Liquid Capital (Cash & Bank): $%s" % _format_number(PlayerData.money + PlayerData.bank_savings))
+	if prop_val > 0:
+		breakdown_lines.append("• 🏠 Physical Properties & Vehicles: $%s (%d assets)" % [_format_number(prop_val), PlayerData.owned_assets.size()])
+	if crypto_coins_count > 0:
+		breakdown_lines.append("• 🪙 Cryptocurrency Assets: $%s (%d digital tokens held)" % [_format_number(crypto_val), crypto_coins_count])
+	if biz_val > 0:
+		breakdown_lines.append("• 🏢 Corporate Equity & Businesses: $%s (%d companies)" % [_format_number(biz_val), PlayerData.owned_businesses.size()])
+	if stock_val > 0:
+		breakdown_lines.append("• 📈 Stock Exchange Securities: $%s" % _format_number(stock_val))
+	if PlayerData.get_total_debt() > 0:
+		breakdown_lines.append("• ⚠️ Outstanding Liabilities / Debt: -$%s" % _format_number(PlayerData.get_total_debt()))
+
+	var e_details := Label.new()
+	e_details.text = "\n".join(breakdown_lines)
+	e_details.add_theme_font_size_override("font_size", 18)
+	e_details.add_theme_color_override("font_color", Color("#e2e8f0"))
+	e_vbox.add_child(e_details)
+
+	var e_note := Label.new()
+	e_note.text = "Cryptocurrency token holdings, properties, and business equity will be transferred directly to your chosen heir intact."
+	e_note.add_theme_font_size_override("font_size", 16)
+	e_note.add_theme_color_override("font_color", Color("#94a3b8"))
+	e_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	e_vbox.add_child(e_note)
+
+	list.add_child(estate_card)
+
 	var heirs: Array = []
 	# 1. Living Partner/Spouse
 	if PlayerData.has_partner():
@@ -18370,21 +18432,34 @@ func _execute_inheritance_takeover(heir: Dictionary, overlay_to_free: Control, r
 	var final_amount := net_worth
 	var inheritance_msg := ""
 
+	var crypto_val: int = CryptoMarket.portfolio_value(PlayerData)
+	var crypto_holdings_note := ""
+	if crypto_val > 0:
+		crypto_holdings_note = " Your cryptocurrency portfolio (~$%s) and physical assets were transferred intact." % _format_number(crypto_val)
+
+	var estate_fees: int = 0
+	var liquid_estate := PlayerData.money + PlayerData.bank_savings - PlayerData.get_total_debt()
+
 	if roll < 0.50:
 		final_amount = net_worth
-		inheritance_msg = "✨ Seamless Succession: 100%% of the estate ($%s) was transferred without dispute into your bank balance." % _format_number(final_amount)
+		estate_fees = 0
 	elif roll < 0.75:
 		final_amount = int(net_worth * 0.75)
-		inheritance_msg = "🏛️ Estate Tax Levy: State tax authorities collected 25%% inheritance tax. $%s was deposited into your bank balance." % _format_number(final_amount)
+		estate_fees = maxi(0, net_worth - final_amount)
 	else:
 		final_amount = maxi(250, net_worth - 5000)
-		inheritance_msg = "⚖️ Probate Legal Settlement: Estate filing and attorney fees cost $5,000. $%s was secured into your bank balance." % _format_number(final_amount)
+		estate_fees = maxi(0, net_worth - final_amount)
 
-	# Transfer businesses, shares and physical assets intact, not also as cash.
-	var estate_fees := maxi(0, net_worth - final_amount)
-	var liquid_estate := PlayerData.money + PlayerData.bank_savings - PlayerData.get_total_debt()
 	var bank_inheritance := maxi(0, liquid_estate - estate_fees)
 	var remaining_liability := maxi(0, estate_fees - liquid_estate)
+
+	if roll < 0.50:
+		inheritance_msg = "✨ Seamless Succession: 100%% of the estate was transferred without dispute. $%s liquid capital was deposited into your bank balance.%s" % [_format_number(bank_inheritance), crypto_holdings_note]
+	elif roll < 0.75:
+		inheritance_msg = "🏛️ Estate Tax Levy: State tax authorities collected 25%% inheritance tax ($%s). $%s liquid capital was deposited into your bank balance.%s" % [_format_number(estate_fees), _format_number(bank_inheritance), crypto_holdings_note]
+	else:
+		inheritance_msg = "⚖️ Probate Legal Settlement: Estate filing and attorney fees cost $5,000. $%s liquid capital was secured into your bank balance.%s" % [_format_number(bank_inheritance), crypto_holdings_note]
+
 	PlayerData.takeover_as_heir(heir, bank_inheritance, PlayerData.owned_assets, relation_type)
 	PlayerData.debt = remaining_liability
 	PlayerData.add_life_log_entry(inheritance_msg, "finance")

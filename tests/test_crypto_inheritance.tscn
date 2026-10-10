@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_crypto_inherit_001"]
+
+[ext_resource type="Script" path="res://tests/test_crypto_inheritance.gd" id="1_crypto_inherit_test"]
+
+[node name="TestCryptoInheritance" type="Node"]
+script = ExtResource("1_crypto_inherit_test")
