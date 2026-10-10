@@ -1578,5 +1578,1149 @@
       "title": "Executive Vice President of Flight Standards",
       "salary": 480000
     }
+  ],
+  "job_craft_distiller": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Barrel Cooper",
+      "salary": 68000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Master Blender",
+      "salary": 89000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Distillery Operations Director",
+      "salary": 125000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "VP of Craft Spirits Production",
+      "salary": 180000
+    }
+  ],
+  "job_head_patissier": [
+    {
+      "years": 1,
+      "min_age": 21,
+      "title": "Senior Confectioner",
+      "salary": 59000
+    },
+    {
+      "years": 3,
+      "min_age": 23,
+      "title": "Executive Pastry Chef",
+      "salary": 78000
+    },
+    {
+      "years": 6,
+      "min_age": 26,
+      "title": "Culinary Director of Patisserie",
+      "salary": 110000
+    },
+    {
+      "years": 10,
+      "min_age": 30,
+      "title": "International Master Chocolatier",
+      "salary": 160000
+    }
+  ],
+  "job_tea_sommelier": [
+    {
+      "years": 1,
+      "min_age": 19,
+      "title": "Senior Tea Curator",
+      "salary": 46000
+    },
+    {
+      "years": 3,
+      "min_age": 21,
+      "title": "Head Herbal Infusionist",
+      "salary": 62000
+    },
+    {
+      "years": 6,
+      "min_age": 24,
+      "title": "Director of Beverage Procurement",
+      "salary": 88000
+    },
+    {
+      "years": 10,
+      "min_age": 28,
+      "title": "Global Grand Tea Master",
+      "salary": 130000
+    }
+  ],
+  "job_food_truck_chef": [
+    {
+      "years": 1,
+      "min_age": 19,
+      "title": "Senior Mobile Chef",
+      "salary": 52000
+    },
+    {
+      "years": 3,
+      "min_age": 21,
+      "title": "Food Truck Fleet Manager",
+      "salary": 74000
+    },
+    {
+      "years": 6,
+      "min_age": 24,
+      "title": "Street Food Brand Executive",
+      "salary": 105000
+    },
+    {
+      "years": 10,
+      "min_age": 28,
+      "title": "Restaurateur & Franchise Founder",
+      "salary": 155000
+    }
+  ],
+  "job_luxury_watch_horologist": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Chronograph Specialist",
+      "salary": 82000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Master Tourbillon Horologist",
+      "salary": 115000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Head of Complications & Restoration",
+      "salary": 165000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "High Horology Salon Director",
+      "salary": 230000
+    }
+  ],
+  "job_sneaker_reseller_curator": [
+    {
+      "years": 1,
+      "min_age": 18,
+      "title": "Senior Streetwear Buyer",
+      "salary": 44000
+    },
+    {
+      "years": 3,
+      "min_age": 20,
+      "title": "Head of Rare Collectibles",
+      "salary": 65000
+    },
+    {
+      "years": 6,
+      "min_age": 23,
+      "title": "Apparel Consignment Director",
+      "salary": 95000
+    },
+    {
+      "years": 10,
+      "min_age": 27,
+      "title": "VP of Streetwear Retail",
+      "salary": 140000
+    }
+  ],
+  "job_automotive_sales_closer": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Exotic Sales Executive",
+      "salary": 96000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "VIP Client Relationship Manager",
+      "salary": 135000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "General Sales Manager",
+      "salary": 195000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "Dealership Partner & Principal",
+      "salary": 280000
+    }
+  ],
+  "job_visual_merchandise_designer": [
+    {
+      "years": 1,
+      "min_age": 20,
+      "title": "Senior Store Visual Stylist",
+      "salary": 55000
+    },
+    {
+      "years": 3,
+      "min_age": 22,
+      "title": "Regional Window Display Director",
+      "salary": 78000
+    },
+    {
+      "years": 6,
+      "min_age": 25,
+      "title": "Head of Brand Spatial Design",
+      "salary": 112000
+    },
+    {
+      "years": 10,
+      "min_age": 29,
+      "title": "Global Retail Experience VP",
+      "salary": 165000
+    }
+  ],
+  "job_game_gameplay_programmer": [
+    {
+      "years": 1,
+      "min_age": 21,
+      "title": "Senior Gameplay Engineer",
+      "salary": 88000
+    },
+    {
+      "years": 3,
+      "min_age": 23,
+      "title": "Lead Game Systems Architect",
+      "salary": 124000
+    },
+    {
+      "years": 6,
+      "min_age": 26,
+      "title": "Technical Director",
+      "salary": 175000
+    },
+    {
+      "years": 10,
+      "min_age": 30,
+      "title": "Chief Technology Officer (Gaming)",
+      "salary": 245000
+    }
+  ],
+  "job_penetration_tester": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior Red-Team Specialist",
+      "salary": 142000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Principal Exploit Researcher",
+      "salary": 185000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Director of Offensive Security",
+      "salary": 240000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Chief Information Security Officer (CISO)",
+      "salary": 330000
+    }
+  ],
+  "job_ai_prompt_engineer": [
+    {
+      "years": 1,
+      "min_age": 20,
+      "title": "Senior AI Alignment Engineer",
+      "salary": 108000
+    },
+    {
+      "years": 3,
+      "min_age": 22,
+      "title": "Principal Neural Architect",
+      "salary": 155000
+    },
+    {
+      "years": 6,
+      "min_age": 25,
+      "title": "VP of Foundation Models",
+      "salary": 220000
+    },
+    {
+      "years": 10,
+      "min_age": 29,
+      "title": "Chief Artificial Intelligence Officer",
+      "salary": 310000
+    }
+  ],
+  "job_devops_infra_lead": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Staff Cloud Reliability Architect",
+      "salary": 162000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Principal Infrastructure Engineer",
+      "salary": 205000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "Director of Global Cloud Operations",
+      "salary": 275000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "VP of Engineering Infrastructure",
+      "salary": 370000
+    }
+  ],
+  "job_veterinarian_doctor": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Senior Veterinary Surgeon",
+      "salary": 132000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Head of Veterinary Critical Care",
+      "salary": 170000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "Director of Veterinary Medicine",
+      "salary": 225000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "Chief Veterinary Officer",
+      "salary": 310000
+    }
+  ],
+  "job_compounding_pharmacist": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Senior Clinical Pharmacist",
+      "salary": 138000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Director of Pharmacy Compounding",
+      "salary": 178000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "VP of Hospital Pharmacology",
+      "salary": 235000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "Chief Pharmaceutical Officer",
+      "salary": 320000
+    }
+  ],
+  "job_physical_therapist_lead": [
+    {
+      "years": 1,
+      "min_age": 24,
+      "title": "Senior Sports Physical Therapist",
+      "salary": 110000
+    },
+    {
+      "years": 3,
+      "min_age": 26,
+      "title": "Director of Orthopedic Rehabilitation",
+      "salary": 145000
+    },
+    {
+      "years": 6,
+      "min_age": 29,
+      "title": "Head of Athletic Performance",
+      "salary": 195000
+    },
+    {
+      "years": 10,
+      "min_age": 33,
+      "title": "Chief Physical Therapy Officer",
+      "salary": 270000
+    }
+  ],
+  "job_mri_radiology_tech": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Diagnostic Imaging Tech",
+      "salary": 80000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Lead Nuclear Medicine Technologist",
+      "salary": 105000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Director of Imaging Services",
+      "salary": 142000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "VP of Hospital Diagnostic Radiology",
+      "salary": 195000
+    }
+  ],
+  "job_civil_structural_engineer": [
+    {
+      "years": 1,
+      "min_age": 24,
+      "title": "Senior Structural Project Manager",
+      "salary": 118000
+    },
+    {
+      "years": 3,
+      "min_age": 26,
+      "title": "Principal Civil Infrastructure Lead",
+      "salary": 158000
+    },
+    {
+      "years": 6,
+      "min_age": 29,
+      "title": "Director of Engineering Operations",
+      "salary": 215000
+    },
+    {
+      "years": 10,
+      "min_age": 33,
+      "title": "Chief Civil Engineer & Partner",
+      "salary": 295000
+    }
+  ],
+  "job_nuclear_reactor_technician": [
+    {
+      "years": 1,
+      "min_age": 26,
+      "title": "Control Room Shift Supervisor",
+      "salary": 155000
+    },
+    {
+      "years": 3,
+      "min_age": 28,
+      "title": "Plant Operations Superintendent",
+      "salary": 200000
+    },
+    {
+      "years": 6,
+      "min_age": 31,
+      "title": "Nuclear Safety Director",
+      "salary": 265000
+    },
+    {
+      "years": 10,
+      "min_age": 35,
+      "title": "Chief Nuclear Generating Officer",
+      "salary": 360000
+    }
+  ],
+  "job_commercial_general_contractor": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior Construction Superintendent",
+      "salary": 110000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Commercial Project Executive",
+      "salary": 150000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "VP of Construction Development",
+      "salary": 210000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Managing General Partner",
+      "salary": 290000
+    }
+  ],
+  "job_custom_coachbuilder": [
+    {
+      "years": 1,
+      "min_age": 21,
+      "title": "Senior Aluminum Fabricator",
+      "salary": 72000
+    },
+    {
+      "years": 3,
+      "min_age": 23,
+      "title": "Master Coachbuilder",
+      "salary": 98000
+    },
+    {
+      "years": 6,
+      "min_age": 26,
+      "title": "Head of Atelier Fabrication",
+      "salary": 135000
+    },
+    {
+      "years": 10,
+      "min_age": 30,
+      "title": "Master Craftsman & Studio Director",
+      "salary": 185000
+    }
+  ],
+  "job_venture_capital_associate": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior VC Principal",
+      "salary": 130000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Venture Partner",
+      "salary": 190000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "General Partner",
+      "salary": 285000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Managing Founding Partner",
+      "salary": 420000
+    }
+  ],
+  "job_wealth_portfolio_manager": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Senior Wealth Director",
+      "salary": 165000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Managing Director of Private Wealth",
+      "salary": 235000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "Head of Family Office Services",
+      "salary": 330000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "Chief Investment Officer (CIO)",
+      "salary": 480000
+    }
+  ],
+  "job_ma_advisory_analyst": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior M&A Associate",
+      "salary": 148000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "M&A Vice President",
+      "salary": 215000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Managing Director M&A",
+      "salary": 320000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Global Head of Investment Banking",
+      "salary": 490000
+    }
+  ],
+  "job_corporate_tax_strategist": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Corporate Tax Manager",
+      "salary": 118000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Senior Tax Director",
+      "salary": 165000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Tax Practice Partner",
+      "salary": 240000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Senior Managing Tax Partner",
+      "salary": 340000
+    }
+  ],
+  "job_patent_attorney": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Senior Patent Litigator",
+      "salary": 175000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Intellectual Property Partner",
+      "salary": 245000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "Managing IP Practice Lead",
+      "salary": 340000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "Senior Named Partner",
+      "salary": 480000
+    }
+  ],
+  "job_armed_tactical_marshal": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Tactical Deputy Marshal",
+      "salary": 78000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Supervisory Deputy Marshal",
+      "salary": 102000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Assistant Chief Deputy Marshal",
+      "salary": 138000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "United States Marshal",
+      "salary": 190000
+    }
+  ],
+  "job_compliance_auditor": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior Regulatory Investigator",
+      "salary": 98000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Chief Anti-Money Laundering Officer",
+      "salary": 135000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Director of Regulatory Enforcement",
+      "salary": 185000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Commissioner of Financial Oversight",
+      "salary": 260000
+    }
+  ],
+  "job_environmental_policy_advisor": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior Climate Policy Analyst",
+      "salary": 88000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Director of Energy Transition",
+      "salary": 120000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Deputy Secretary of Energy",
+      "salary": 165000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Cabinet Secretary of Energy & Resources",
+      "salary": 235000
+    }
+  ],
+  "job_3d_environment_artist": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Technical Artist",
+      "salary": 95000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Principal World Art Lead",
+      "salary": 128000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Art Director (VFX & Cinema)",
+      "salary": 175000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "Chief Creative Officer (VFX)",
+      "salary": 250000
+    }
+  ],
+  "job_vr_game_director": [
+    {
+      "years": 1,
+      "min_age": 26,
+      "title": "Senior XR Creative Director",
+      "salary": 126000
+    },
+    {
+      "years": 3,
+      "min_age": 28,
+      "title": "VP of Immersive Experiences",
+      "salary": 170000
+    },
+    {
+      "years": 6,
+      "min_age": 31,
+      "title": "Head of Virtual Reality Studio",
+      "salary": 235000
+    },
+    {
+      "years": 10,
+      "min_age": 35,
+      "title": "Chief Metaverse Officer",
+      "salary": 320000
+    }
+  ],
+  "job_drone_cinematographer": [
+    {
+      "years": 1,
+      "min_age": 21,
+      "title": "Lead Aerial Cinema Pilot",
+      "salary": 78000
+    },
+    {
+      "years": 3,
+      "min_age": 23,
+      "title": "Director of Aerial Photography",
+      "salary": 105000
+    },
+    {
+      "years": 6,
+      "min_age": 26,
+      "title": "Executive Producer (Aerial Cinema)",
+      "salary": 145000
+    },
+    {
+      "years": 10,
+      "min_age": 30,
+      "title": "Founder & Studio Principal",
+      "salary": 205000
+    }
+  ],
+  "job_soundtrack_composer": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Orchestral Arranger",
+      "salary": 88000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Lead Feature Film Composer",
+      "salary": 124000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Director of Music & Scoring",
+      "salary": 178000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "Grammy-Nominated Music Maestro",
+      "salary": 265000
+    }
+  ],
+  "job_heavy_cdl_trucker": [
+    {
+      "years": 1,
+      "min_age": 22,
+      "title": "Senior Heavy Haul Specialist",
+      "salary": 78000
+    },
+    {
+      "years": 3,
+      "min_age": 24,
+      "title": "Fleet Master Trainer",
+      "salary": 102000
+    },
+    {
+      "years": 6,
+      "min_age": 27,
+      "title": "Director of Fleet Safety & Routing",
+      "salary": 138000
+    },
+    {
+      "years": 10,
+      "min_age": 31,
+      "title": "VP of Longhaul Transportation",
+      "salary": 190000
+    }
+  ],
+  "job_medevac_helicopter_pilot": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Senior Medevac Flight Captain",
+      "salary": 142000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Chief Flight Instructor (Rotorcraft)",
+      "salary": 182000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "Director of Emergency Air Operations",
+      "salary": 240000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "VP of Aerial Rescue Systems",
+      "salary": 320000
+    }
+  ],
+  "job_air_cargo_captain": [
+    {
+      "years": 1,
+      "min_age": 27,
+      "title": "Senior Trans-Pacific Flight Captain",
+      "salary": 180000
+    },
+    {
+      "years": 3,
+      "min_age": 29,
+      "title": "Fleet Chief Pilot",
+      "salary": 230000
+    },
+    {
+      "years": 6,
+      "min_age": 32,
+      "title": "Director of Global Flight Operations",
+      "salary": 300000
+    },
+    {
+      "years": 10,
+      "min_age": 36,
+      "title": "VP of Aviation Flight Systems",
+      "salary": 410000
+    }
+  ],
+  "job_harbor_tug_master": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior Harbor Tug Captain",
+      "salary": 98000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Chief Harbor Pilot",
+      "salary": 132000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Harbormaster & Docking Director",
+      "salary": 178000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "Port Operations General Director",
+      "salary": 245000
+    }
+  ],
+  "job_pet_walker_sitter": [
+    {
+      "years": 1,
+      "min_age": 13,
+      "title": "Senior Pet Care Assistant",
+      "salary": 8500
+    },
+    {
+      "years": 3,
+      "min_age": 15,
+      "title": "Pet Care Crew Lead",
+      "salary": 15000
+    },
+    {
+      "years": 6,
+      "min_age": 18,
+      "title": "Neighborhood Animal Service Manager",
+      "salary": 32000
+    },
+    {
+      "years": 10,
+      "min_age": 22,
+      "title": "Regional Pet Care Director",
+      "salary": 54000
+    }
+  ],
+  "job_flyer_distributor": [
+    {
+      "years": 1,
+      "min_age": 14,
+      "title": "Street Promotions Lead",
+      "salary": 7200
+    },
+    {
+      "years": 3,
+      "min_age": 16,
+      "title": "Event Marketing Assistant",
+      "salary": 14000
+    },
+    {
+      "years": 6,
+      "min_age": 19,
+      "title": "Field Marketing Supervisor",
+      "salary": 30000
+    },
+    {
+      "years": 10,
+      "min_age": 23,
+      "title": "Grassroots Campaign Director",
+      "salary": 48000
+    }
+  ],
+  "job_car_wash_detailer": [
+    {
+      "years": 1,
+      "min_age": 15,
+      "title": "Mobile Auto Detailer",
+      "salary": 10500
+    },
+    {
+      "years": 3,
+      "min_age": 17,
+      "title": "Custom Detailing Specialist",
+      "salary": 22000
+    },
+    {
+      "years": 6,
+      "min_age": 20,
+      "title": "Auto Spa Crew Manager",
+      "salary": 40000
+    },
+    {
+      "years": 10,
+      "min_age": 24,
+      "title": "Automotive Detailing Shop Owner",
+      "salary": 68000
+    }
+  ],
+  "job_arcade_attendant": [
+    {
+      "years": 1,
+      "min_age": 16,
+      "title": "Senior Arcade Floor Attendant",
+      "salary": 12000
+    },
+    {
+      "years": 3,
+      "min_age": 18,
+      "title": "Arcade Machine Tech Assistant",
+      "salary": 24000
+    },
+    {
+      "years": 6,
+      "min_age": 21,
+      "title": "Arcade Floor Supervisor",
+      "salary": 42000
+    },
+    {
+      "years": 10,
+      "min_age": 25,
+      "title": "Family Entertainment Center Manager",
+      "salary": 65000
+    }
+  ],
+  "job_syndicate_armorer": [
+    {
+      "years": 1,
+      "min_age": 23,
+      "title": "Senior Syndicate Ballistics Tech",
+      "salary": 120000
+    },
+    {
+      "years": 3,
+      "min_age": 25,
+      "title": "Chief Arsenal Quartermaster",
+      "salary": 165000
+    },
+    {
+      "years": 6,
+      "min_age": 28,
+      "title": "Director of Underworld Ordnance",
+      "salary": 230000
+    },
+    {
+      "years": 10,
+      "min_age": 32,
+      "title": "International Shadow Arms Broker",
+      "salary": 340000
+    }
+  ],
+  "job_heist_wheelman": [
+    {
+      "years": 1,
+      "min_age": 21,
+      "title": "Lead Getaway Specialist",
+      "salary": 112000
+    },
+    {
+      "years": 3,
+      "min_age": 23,
+      "title": "Heist Logistics Coordinator",
+      "salary": 158000
+    },
+    {
+      "years": 6,
+      "min_age": 26,
+      "title": "Tactical Escape Commander",
+      "salary": 220000
+    },
+    {
+      "years": 10,
+      "min_age": 30,
+      "title": "Mastermind Crew Captain",
+      "salary": 310000
+    }
+  ],
+  "job_art_forger": [
+    {
+      "years": 1,
+      "min_age": 24,
+      "title": "Master Provenance Counterfeiter",
+      "salary": 145000
+    },
+    {
+      "years": 3,
+      "min_age": 26,
+      "title": "Principal Document Fabricator",
+      "salary": 200000
+    },
+    {
+      "years": 6,
+      "min_age": 29,
+      "title": "Head of Shadow Authentication",
+      "salary": 275000
+    },
+    {
+      "years": 10,
+      "min_age": 33,
+      "title": "Legendary Forgery Kingpin",
+      "salary": 390000
+    }
+  ],
+  "job_smuggling_pilot": [
+    {
+      "years": 1,
+      "min_age": 25,
+      "title": "Low-Altitude Radar Evader",
+      "salary": 185000
+    },
+    {
+      "years": 3,
+      "min_age": 27,
+      "title": "Aviation Smuggling Corridor Lead",
+      "salary": 250000
+    },
+    {
+      "years": 6,
+      "min_age": 30,
+      "title": "Director of Clandestine Air Routes",
+      "salary": 350000
+    },
+    {
+      "years": 10,
+      "min_age": 34,
+      "title": "Shadow Aviation Cartel Partner",
+      "salary": 500000
+    }
   ]
 }

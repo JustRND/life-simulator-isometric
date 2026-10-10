@@ -17,14 +17,6 @@ func install(screen: Control) -> void:
 	main = screen
 	var list := main.get_node("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList")
 	var jobs := list.get_node("JobsActItem")
-	var freelance := list.get_node_or_null("FreelanceActItem")
-	var market_button: Button = jobs.duplicate(0)
-	market_button.name = "FinanceMarketItem"
-	market_button.text = "📈  Finance Market"
-	list.add_child(market_button)
-	var target_index: int = (freelance.get_index() + 1) if freelance != null else (jobs.get_index() + 1)
-	list.move_child(market_button, target_index)
-	market_button.pressed.connect(open)
 	var learning: Button = jobs.duplicate(0)
 	learning.name = "LearningItem"
 	learning.text = "📚  Learning & Smarts"

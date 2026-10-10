@@ -325,5 +325,113 @@
       "Film & Commercial Director",
       "Lead Cinematographer"
     ]
+  },
+  {
+    "id": "uni_veterinary_med",
+    "name": "St. Jude College of Veterinary Medicine",
+    "icon": "🐾",
+    "tagline": "School of Clinical Veterinary Medicine & Surgery",
+    "major": "veterinary",
+    "major_title": "Veterinary Medicine & Surgery",
+    "degree_title": "Doctor of Veterinary Medicine (D.V.M.)",
+    "description": "Distinguished veterinary medical college preparing doctors in companion animal trauma, livestock health, and clinical surgery.",
+    "tuition": 15500,
+    "min_grades": 68,
+    "min_smarts": 65,
+    "theme_color": "#10b981",
+    "unlocked_careers": [
+      "Licensed Veterinary Surgeon",
+      "Director of Veterinary Medicine"
+    ]
+  },
+  {
+    "id": "uni_pharmacy_pharma",
+    "name": "Apex School of Pharmacy & Pharmaceutical Sciences",
+    "icon": "💊",
+    "tagline": "Center for Clinical Pharmacology & Compounding",
+    "major": "pharmacy",
+    "major_title": "Pharmaceutical Chemistry & Pharmacology",
+    "degree_title": "Doctor of Pharmacy (Pharm.D.)",
+    "description": "Advanced pharmaceutical research center training clinical dispensing pharmacists and bio-medicinal compounders.",
+    "tuition": 15000,
+    "min_grades": 67,
+    "min_smarts": 64,
+    "theme_color": "#06b6d4",
+    "unlocked_careers": [
+      "Clinical Compounding Pharmacist",
+      "Chief Pharmacist"
+    ]
+  },
+  {
+    "id": "uni_civil_infrastructure",
+    "name": "Metropolitan Institute of Civil & Structural Engineering",
+    "icon": "🏗️",
+    "tagline": "Department of Infrastructure & Structural Systems",
+    "major": "civil_engineering",
+    "major_title": "Civil & Infrastructure Engineering",
+    "degree_title": "Bachelor of Science in Civil Engineering (B.S.C.E.)",
+    "description": "Elite polytechnic institution specializing in transport networks, mega-viaducts, dams, and structural integrity.",
+    "tuition": 14000,
+    "min_grades": 65,
+    "min_smarts": 62,
+    "theme_color": "#f59e0b",
+    "unlocked_careers": [
+      "Civil Infrastructure Project Engineer",
+      "Chief Structural Engineer"
+    ]
+  },
+  {
+    "id": "uni_game_interactive",
+    "name": "DigiPen Interactive Entertainment & Game Academy",
+    "icon": "🎮",
+    "tagline": "Institute of Real-Time 3D & Gameplay Systems",
+    "major": "game_design",
+    "major_title": "Interactive Game Design & VR Simulation",
+    "degree_title": "Bachelor of Science in Computer Game Design",
+    "description": "World-renowned gaming academy teaching shader programming, VR interactivity, game physics, and creative direction.",
+    "tuition": 13500,
+    "min_grades": 60,
+    "min_smarts": 58,
+    "theme_color": "#8b5cf6",
+    "unlocked_careers": [
+      "Indie Gameplay Programmer",
+      "Virtual Reality Interactive Director"
+    ]
+  },
+  {
+    "id": "uni_nuclear_fermi",
+    "name": "Fermi Institute of Nuclear Physics & Energy Engineering",
+    "icon": "☢️",
+    "tagline": "Center for Atomic Energy & Reactor Technologies",
+    "major": "nuclear_physics",
+    "major_title": "Nuclear Physics & Reactor Engineering",
+    "degree_title": "Bachelor of Science in Nuclear Engineering (B.S.N.E.)",
+    "description": "Pioneering nuclear institute advancing clean fission reactors, fusion plasma research, and radiation containment.",
+    "tuition": 18000,
+    "min_grades": 75,
+    "min_smarts": 75,
+    "theme_color": "#ef4444",
+    "unlocked_careers": [
+      "Senior Nuclear Reactor Operator",
+      "Chief Nuclear Physicist"
+    ]
+  },
+  {
+    "id": "uni_kinesiology_rehab",
+    "name": "Olympus College of Kinesiology & Physical Therapy",
+    "icon": "🏃",
+    "tagline": "School of Athletic Rehabilitation & Sports Biomechanics",
+    "major": "kinesiology",
+    "major_title": "Kinesiology & Physical Rehabilitation",
+    "degree_title": "Bachelor of Science in Kinesiology & Physical Therapy",
+    "description": "Accredited kinesiology institution educating physical rehabilitation therapists, athletic trainers, and movement specialists.",
+    "tuition": 13000,
+    "min_grades": 62,
+    "min_smarts": 58,
+    "theme_color": "#3b82f6",
+    "unlocked_careers": [
+      "Doctor of Physical Therapy",
+      "Clinical Rehabilitation Director"
+    ]
   }
 ]

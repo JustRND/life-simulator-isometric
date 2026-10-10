@@ -31,6 +31,7 @@ static func format_karmic_modifier(modifier_id: String) -> String:
 var age: int = 0
 var life_id: String = ""
 var finance_market: Dictionary = {}
+var crypto_wallet: Dictionary = {}
 var learning_activities: Dictionary = {}
 
 var health: int = 80
@@ -205,6 +206,7 @@ func reset() -> void:
 
 func reset_player() -> void:
 	finance_market = {}
+	crypto_wallet = {}
 	learning_activities = {}
 	life_id = Crypto.new().generate_random_bytes(16).hex_encode()
 	first_name = ""
@@ -728,12 +730,14 @@ func get_net_worth() -> int:
 	var business_value := 0
 	for business in owned_businesses:
 		business_value += int(maxi(0, int(business.get("valuation", 0)) + int(business.get("treasury", 0)) - int(business.get("loan_balance", 0)) - int(business.get("unpaid_taxes", 0))) * float(business.get("owner_fraction", 1.0)))
-	return money + bank_savings + get_total_asset_value() + business_value + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) - get_total_debt()
+	var crypto_val: int = preload("res://scripts/economy/crypto_market.gd").portfolio_value(self)
+	return money + bank_savings + get_total_asset_value() + business_value + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) + crypto_val - get_total_debt()
 
 
 func get_personal_net_worth() -> int:
 	# Strictly personal net worth: Business valuation DOES NOT count as a player asset or personal net worth for credit cards
-	return money + bank_savings + get_total_asset_value() + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) - get_total_debt()
+	var crypto_val: int = preload("res://scripts/economy/crypto_market.gd").portfolio_value(self)
+	return money + bank_savings + get_total_asset_value() + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) + crypto_val - get_total_debt()
 
 
 func grant_starting_assets() -> void:
@@ -1619,6 +1623,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	NpcLifeProgress.ensure(heir)
 	var inherited_businesses := owned_businesses.duplicate(true)
 	var inherited_market := finance_market.duplicate(true)
+	var inherited_crypto := crypto_wallet.duplicate(true)
 	var prev_parent_name: String = first_name
 	var prev_gender: String = gender
 	var prev_parent_edu: String = education_level
@@ -1664,6 +1669,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	reset_player()
 	owned_businesses = inherited_businesses
 	finance_market = inherited_market
+	crypto_wallet = inherited_crypto
 	if relation_type == "partner":
 		children = preserved_children
 	elif relation_type == "sibling":

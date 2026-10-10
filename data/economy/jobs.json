@@ -971,6 +971,602 @@
         "min_smarts": 80,
         "min_health": 75
       }
+    },
+    {
+      "id": "job_craft_distiller",
+      "title": "Craft Spirits Distiller",
+      "category": "fast_food",
+      "workplace": "Oak & Copper Distillery",
+      "salary": 54000,
+      "description": "Operate copper pot stills, age spirits in charred white oak barrels, and conduct sensory proofing.",
+      "min_age": 21,
+      "requirements": {
+        "required_license": "license_distillery_master",
+        "min_smarts": 50
+      }
+    },
+    {
+      "id": "job_head_patissier",
+      "title": "Artisan Head Patissier",
+      "category": "fast_food",
+      "workplace": "Le Petit Croissant",
+      "salary": 48000,
+      "description": "Craft delicate mille-feuille, laminated croissants, and glossy mirror-glazed showpieces.",
+      "min_age": 20,
+      "requirements": {
+        "required_license": "license_commercial_baking",
+        "min_health": 45
+      }
+    },
+    {
+      "id": "job_tea_sommelier",
+      "title": "Master Tea Sommelier",
+      "category": "fast_food",
+      "workplace": "Jade Leaf Tea House",
+      "salary": 38000,
+      "description": "Curate ceremonial matcha whisking, seasonal oolong steepings, and botanical tea tastings.",
+      "min_age": 18,
+      "requirements": {
+        "min_smarts": 45,
+        "min_happiness": 40
+      }
+    },
+    {
+      "id": "job_food_truck_chef",
+      "title": "Gourmet Food Truck Chef",
+      "category": "fast_food",
+      "workplace": "Neon Nomad Street Eats",
+      "salary": 42000,
+      "description": "Grill artisan street tacos and Korean BBQ sliders in high-energy urban festival pop-ups.",
+      "min_age": 18,
+      "requirements": {
+        "required_license": "license_food_safety",
+        "min_health": 50
+      }
+    },
+    {
+      "id": "job_luxury_watch_horologist",
+      "title": "Luxury Watchmaker & Horologist",
+      "category": "retail",
+      "workplace": "Geneva Timepieces Salon",
+      "salary": 65000,
+      "description": "Regulate mechanical escapements, test waterproof seals, and advise VIP collector watch clients.",
+      "min_age": 21,
+      "requirements": {
+        "required_license": "license_appraiser",
+        "min_smarts": 60
+      }
+    },
+    {
+      "id": "job_sneaker_reseller_curator",
+      "title": "Streetwear & Sneaker Curator",
+      "category": "retail",
+      "workplace": "HypeVault Gallery",
+      "salary": 34000,
+      "description": "Authenticate rare deadstock sneakers, negotiate consignment drops, and host midnight streetwear releases.",
+      "min_age": 17,
+      "requirements": {
+        "min_looks": 50,
+        "min_happiness": 45
+      }
+    },
+    {
+      "id": "job_automotive_sales_closer",
+      "title": "Supercar Dealership Sales Closer",
+      "category": "retail",
+      "workplace": "Apex Exotic Motors",
+      "salary": 72000,
+      "description": "Conduct bespoke test drives in exotic V12 hypercars and close multimillion-dollar buyer leases.",
+      "min_age": 21,
+      "requirements": {
+        "required_license": "license_car",
+        "min_looks": 55
+      }
+    },
+    {
+      "id": "job_visual_merchandise_designer",
+      "title": "Visual Merchandising Stylist",
+      "category": "retail",
+      "workplace": "Galerie Moderne",
+      "salary": 44000,
+      "description": "Design seasonal window display narratives, geometric mannequins, and boutique retail mood lighting.",
+      "min_age": 19,
+      "requirements": {
+        "min_looks": 55,
+        "min_smarts": 50
+      }
+    },
+    {
+      "id": "job_game_gameplay_programmer",
+      "title": "Indie Gameplay Programmer",
+      "category": "it_tech",
+      "workplace": "PixelForge Studios",
+      "salary": 68000,
+      "description": "Code responsive character mechanics, camera controls, combat balance, and boss encounters in Godot.",
+      "min_age": 20,
+      "requirements": {
+        "required_major": "game_design",
+        "min_education": "University Graduate",
+        "min_smarts": 65
+      }
+    },
+    {
+      "id": "job_penetration_tester",
+      "title": "Lead Penetration Tester",
+      "category": "it_tech",
+      "workplace": "IronShield Cybersecurity",
+      "salary": 115000,
+      "description": "Execute authorized red-team exploits, hunt zero-day CVE vulnerabilities, and fortify enterprise firewalls.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_cyber",
+        "min_smarts": 75
+      }
+    },
+    {
+      "id": "job_ai_prompt_engineer",
+      "title": "Generative AI Prompt Engineer",
+      "category": "it_tech",
+      "workplace": "Synthetix Intelligence",
+      "salary": 82000,
+      "description": "Architect context chains, few-shot agentic reasoning pipelines, and synthetic data generation systems.",
+      "min_age": 19,
+      "requirements": {
+        "min_smarts": 70,
+        "min_grades": 60
+      }
+    },
+    {
+      "id": "job_devops_infra_lead",
+      "title": "Site Reliability & Cloud Infrastructure Lead",
+      "category": "it_tech",
+      "workplace": "HyperCloud Systems",
+      "salary": 130000,
+      "description": "Maintain multi-region Kubernetes clusters, automated CI/CD pipelines, and 99.999% cloud service uptime.",
+      "min_age": 24,
+      "requirements": {
+        "required_major": "it",
+        "min_education": "University Graduate",
+        "min_smarts": 78
+      }
+    },
+    {
+      "id": "job_veterinarian_doctor",
+      "title": "Licensed Veterinary Surgeon",
+      "category": "medical_healthcare",
+      "workplace": "City Animal Specialty Hospital",
+      "salary": 105000,
+      "description": "Perform life-saving soft tissue surgery, diagnostic imaging, and internal medicine for companion animals.",
+      "min_age": 24,
+      "requirements": {
+        "required_license": "license_veterinary",
+        "required_major": "veterinary",
+        "min_education": "University Graduate",
+        "min_smarts": 72
+      }
+    },
+    {
+      "id": "job_compounding_pharmacist",
+      "title": "Clinical Compounding Pharmacist",
+      "category": "medical_healthcare",
+      "workplace": "Apothecary BioPharma",
+      "salary": 112000,
+      "description": "Formulate specialized oral suspensions, transdermal creams, and sterile infusions for hospital clinics.",
+      "min_age": 24,
+      "requirements": {
+        "required_license": "license_clinical_pharmacist",
+        "required_major": "pharmacy",
+        "min_education": "University Graduate",
+        "min_smarts": 70
+      }
+    },
+    {
+      "id": "job_physical_therapist_lead",
+      "title": "Doctor of Physical Therapy",
+      "category": "medical_healthcare",
+      "workplace": "Velocity Sports Rehab Clinic",
+      "salary": 88000,
+      "description": "Develop progressive spinal mobilization exercises, functional strength protocols, and injury rehabilitation.",
+      "min_age": 23,
+      "requirements": {
+        "required_license": "license_physical_therapist",
+        "required_major": "kinesiology",
+        "min_education": "University Graduate",
+        "min_health": 55
+      }
+    },
+    {
+      "id": "job_mri_radiology_tech",
+      "title": "Diagnostic MRI & Radiology Technologist",
+      "category": "medical_healthcare",
+      "workplace": "Metro Medical Imaging",
+      "salary": 64000,
+      "description": "Operate high-tesla magnetic resonance scanners, position patients accurately, and analyze radiological scans.",
+      "min_age": 21,
+      "requirements": {
+        "min_smarts": 65,
+        "min_health": 50
+      }
+    },
+    {
+      "id": "job_civil_structural_engineer",
+      "title": "Civil Infrastructure Project Engineer",
+      "category": "trades_craft",
+      "workplace": "Vanguard Civil Builders",
+      "salary": 92000,
+      "description": "Calculate load-bearing dynamics, concrete reinforcement tension, and coordinate bridge construction.",
+      "min_age": 23,
+      "requirements": {
+        "required_license": "license_general_contractor",
+        "required_major": "civil_engineering",
+        "min_education": "University Graduate",
+        "min_smarts": 70
+      }
+    },
+    {
+      "id": "job_nuclear_reactor_technician",
+      "title": "Senior Nuclear Reactor Operator",
+      "category": "trades_craft",
+      "workplace": "Fermi Energy Power Station",
+      "salary": 125000,
+      "description": "Monitor core neutron flux, coolant pressurized valves, and maintain zero-emission grid power output.",
+      "min_age": 25,
+      "requirements": {
+        "required_license": "license_nuclear_operator",
+        "required_major": "nuclear_physics",
+        "min_education": "University Graduate",
+        "min_smarts": 80
+      }
+    },
+    {
+      "id": "job_commercial_general_contractor",
+      "title": "General Building Contractor",
+      "category": "trades_craft",
+      "workplace": "Skyline Construction Corp",
+      "salary": 86000,
+      "description": "Lead multimillion-dollar commercial high-rise projects, sub-contractors, architectural inspections, and safety.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_general_contractor",
+        "min_health": 60
+      }
+    },
+    {
+      "id": "job_custom_coachbuilder",
+      "title": "Bespoke Auto Coachbuilder & Welder",
+      "category": "trades_craft",
+      "workplace": "Atelier Coachworks",
+      "salary": 58000,
+      "description": "Wheel English wheel aluminum bodywork, TIG weld custom tubular roll cages, and hand-craft custom bodywork.",
+      "min_age": 20,
+      "requirements": {
+        "min_health": 60,
+        "min_smarts": 50
+      }
+    },
+    {
+      "id": "job_venture_capital_associate",
+      "title": "Venture Capital Investment Associate",
+      "category": "finance_business",
+      "workplace": "Nexus Alpha Ventures",
+      "salary": 95000,
+      "description": "Model valuation cap tables, evaluate AI startup pitch decks, and conduct financial due diligence.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_finra_series7",
+        "required_major": "finance",
+        "min_education": "University Graduate",
+        "min_smarts": 75
+      }
+    },
+    {
+      "id": "job_wealth_portfolio_manager",
+      "title": "Private Wealth & Family Office Manager",
+      "category": "finance_business",
+      "workplace": "Blackstone & Sterling Advisory",
+      "salary": 120000,
+      "description": "Allocate multi-asset generational portfolios across equities, real estate, hedge funds, and private debt.",
+      "min_age": 24,
+      "requirements": {
+        "required_license": "license_finra_series7",
+        "required_major": "finance",
+        "min_education": "University Graduate",
+        "min_smarts": 78
+      }
+    },
+    {
+      "id": "job_ma_advisory_analyst",
+      "title": "Mergers & Acquisitions Financial Analyst",
+      "category": "finance_business",
+      "workplace": "Rothschild & Vance Capital",
+      "salary": 108000,
+      "description": "Build DCF financial models, draft confidential information memoranda (CIM), and structure corporate mergers.",
+      "min_age": 22,
+      "requirements": {
+        "required_major": "finance",
+        "min_education": "University Graduate",
+        "min_smarts": 76
+      }
+    },
+    {
+      "id": "job_corporate_tax_strategist",
+      "title": "Senior Corporate Tax Strategist",
+      "category": "finance_business",
+      "workplace": "Deloitte & Sterling LLP",
+      "salary": 88000,
+      "description": "Design cross-border transfer pricing strategies, corporate tax optimization, and regulatory audit defenses.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_bookkeeper",
+        "required_major": "accounting",
+        "min_education": "University Graduate",
+        "min_smarts": 74
+      }
+    },
+    {
+      "id": "job_patent_attorney",
+      "title": "Registered Patent Prosecution Attorney",
+      "category": "legal_public_service",
+      "workplace": "Vance, Cross & Patent Law",
+      "salary": 135000,
+      "description": "Draft complex utility patent claims, respond to USPTO office actions, and litigate infringement suits.",
+      "min_age": 24,
+      "requirements": {
+        "required_license": "license_patent_bar",
+        "required_major": "law",
+        "min_education": "University Graduate",
+        "min_smarts": 80
+      }
+    },
+    {
+      "id": "job_armed_tactical_marshal",
+      "title": "Federal Armed Court Marshal",
+      "category": "legal_public_service",
+      "workplace": "Department of Justice Security",
+      "salary": 62000,
+      "description": "Provide high-threat federal courtroom security, tactical prisoner transport, and judicial protection details.",
+      "min_age": 21,
+      "requirements": {
+        "required_license": "license_tactical_security",
+        "min_health": 70,
+        "min_karma": 20
+      }
+    },
+    {
+      "id": "job_compliance_auditor",
+      "title": "Corporate Regulatory & Anti-Fraud Auditor",
+      "category": "legal_public_service",
+      "workplace": "Financial Crimes Enforcement",
+      "salary": 76000,
+      "description": "Investigate corporate embezzlement, reconcile offshore shell transactions, and ensure SEC compliance.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_bookkeeper",
+        "min_smarts": 68
+      }
+    },
+    {
+      "id": "job_environmental_policy_advisor",
+      "title": "Clean Energy Policy Advisor",
+      "category": "legal_public_service",
+      "workplace": "Bureau of Natural Resources",
+      "salary": 70000,
+      "description": "Author environmental impact assessments, draft carbon tax credit legislation, and guide clean energy grants.",
+      "min_age": 22,
+      "requirements": {
+        "required_major": "environmental",
+        "min_education": "University Graduate",
+        "min_smarts": 66
+      }
+    },
+    {
+      "id": "job_3d_environment_artist",
+      "title": "Lead 3D World & Environment Artist",
+      "category": "arts_entertainment",
+      "workplace": "Dreamscape VFX Studio",
+      "salary": 74000,
+      "description": "Sculpt photorealistic cyberpunk cityscapes, foliage geometry, and PBR shaders for AAA productions.",
+      "min_age": 21,
+      "requirements": {
+        "required_major": "arts",
+        "min_education": "University Graduate",
+        "min_smarts": 60
+      }
+    },
+    {
+      "id": "job_vr_game_director",
+      "title": "Virtual Reality Interactive Director",
+      "category": "arts_entertainment",
+      "workplace": "MetaPixel Interactive",
+      "salary": 98000,
+      "description": "Direct spatial VR interactions, haptic feedback design, and narrative pacing for next-gen headsets.",
+      "min_age": 25,
+      "requirements": {
+        "required_major": "game_design",
+        "min_education": "University Graduate",
+        "min_smarts": 72
+      }
+    },
+    {
+      "id": "job_drone_cinematographer",
+      "title": "Aerial Drone Director of Photography",
+      "category": "arts_entertainment",
+      "workplace": "SkyCam Productions",
+      "salary": 62000,
+      "description": "Pilot heavy-lift FPV camera rigs capturing sweeping aerial cinematography for Hollywood features.",
+      "min_age": 20,
+      "requirements": {
+        "required_license": "license_drone",
+        "min_health": 50
+      }
+    },
+    {
+      "id": "job_soundtrack_composer",
+      "title": "Orchestral Film & Game Soundtrack Composer",
+      "category": "arts_entertainment",
+      "workplace": "Sonic Odyssey Scoring",
+      "salary": 68000,
+      "description": "Compose emotive brass symphonies, synthesizer textures, and leitmotifs for cinematic video games.",
+      "min_age": 21,
+      "requirements": {
+        "required_major": "music",
+        "min_education": "University Graduate",
+        "min_smarts": 64
+      }
+    },
+    {
+      "id": "job_heavy_cdl_trucker",
+      "title": "Cross-Country Intermodal Freight Driver",
+      "category": "aviation_maritime",
+      "workplace": "Continental Longhaul Logistics",
+      "salary": 62000,
+      "description": "Haul 80,000-pound refrigerated semi-trucks across interstate mountain passes in all weather.",
+      "min_age": 21,
+      "requirements": {
+        "required_license": "license_commercial_cdl",
+        "min_health": 60
+      }
+    },
+    {
+      "id": "job_medevac_helicopter_pilot",
+      "title": "Emergency Medevac Rescue Helicopter Pilot",
+      "category": "aviation_maritime",
+      "workplace": "LifeFlight Trauma Air",
+      "salary": 115000,
+      "description": "Conduct high-speed emergency rotorcraft medevac flights, rooftop hospital landings, and offshore extractions.",
+      "min_age": 24,
+      "requirements": {
+        "required_license": "license_helicopter_commercial",
+        "min_health": 75,
+        "min_smarts": 72
+      }
+    },
+    {
+      "id": "job_air_cargo_captain",
+      "title": "International Heavy Air Cargo Captain",
+      "category": "aviation_maritime",
+      "workplace": "Atlas Global Air Cargo",
+      "salary": 145000,
+      "description": "Command wide-body Boeing freight freighters on intercontinental oceanic routes carrying heavy priority cargo.",
+      "min_age": 26,
+      "requirements": {
+        "required_license": "license_pilot",
+        "min_smarts": 80,
+        "min_health": 75
+      }
+    },
+    {
+      "id": "job_harbor_tug_master",
+      "title": "Deepwater Harbor Tugboat Master",
+      "category": "aviation_maritime",
+      "workplace": "Metro Port Navigation",
+      "salary": 78000,
+      "description": "Maneuver 6,000-horsepower twin-z-drive tugboats guiding massive container ships safely to terminal docks.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_boating",
+        "min_health": 65
+      }
+    },
+    {
+      "id": "job_pet_walker_sitter",
+      "title": "Neighborhood Pet Walker & Sitter",
+      "category": "entry_odd_jobs",
+      "workplace": "Paws & Trails Care",
+      "salary": 6200,
+      "description": "Walk neighbor dogs through local parks, feed playful cats, and earn tips on sunny afternoons.",
+      "min_age": 12,
+      "requirements": {
+        "min_happiness": 40
+      }
+    },
+    {
+      "id": "job_flyer_distributor",
+      "title": "Promotional Flyer & Poster Distributor",
+      "category": "entry_odd_jobs",
+      "workplace": "Local Venue Promoters",
+      "salary": 5000,
+      "description": "Hand out neon concert flyers outside subway exits and tape posters to designated community boards.",
+      "min_age": 13,
+      "requirements": {
+        "min_health": 40
+      }
+    },
+    {
+      "id": "job_car_wash_detailer",
+      "title": "Driveway Car Wash & Wheel Detailer",
+      "category": "entry_odd_jobs",
+      "workplace": "Self-Employed",
+      "salary": 7200,
+      "description": "Soap foam spray, hand sponge, and tire-shine neighbors cars in weekend driveways.",
+      "min_age": 14,
+      "requirements": {
+        "min_health": 45
+      }
+    },
+    {
+      "id": "job_arcade_attendant",
+      "title": "Retro Arcade & VR Booth Attendant",
+      "category": "entry_odd_jobs",
+      "workplace": "Pixel Galaxy Arcade",
+      "salary": 8400,
+      "description": "Refill ticket reels, untangle VR headset cables, and hand out prize counter plushies to smiling kids.",
+      "min_age": 15,
+      "requirements": {
+        "min_happiness": 45
+      }
+    },
+    {
+      "id": "job_syndicate_armorer",
+      "title": "Black Market Weapons Armorer",
+      "category": "underworld_crime",
+      "workplace": "Underground Armory",
+      "salary": 92000,
+      "description": "Modify serial markings, hand-mill suppressed barrels, and calibrate specialized tactical firearms.",
+      "min_age": 22,
+      "requirements": {
+        "required_license": "license_armorer",
+        "max_karma": -25
+      }
+    },
+    {
+      "id": "job_heist_wheelman",
+      "title": "High-Speed Gateway Driver & Wheelman",
+      "category": "underworld_crime",
+      "workplace": "Shadow Syndicate",
+      "salary": 85000,
+      "description": "Pilot tuned turbo getaways through back-alleys, dodging police cruisers and spikes with pinpoint drift.",
+      "min_age": 20,
+      "requirements": {
+        "required_license": "license_car",
+        "max_karma": -20
+      }
+    },
+    {
+      "id": "job_art_forger",
+      "title": "Master Artwork & Document Forger",
+      "category": "underworld_crime",
+      "workplace": "Counterfeit Atelier",
+      "salary": 110000,
+      "description": "Recreate renaissance brushstrokes, vintage parchment patinas, and counterfeit notarized certificates.",
+      "min_age": 23,
+      "requirements": {
+        "min_smarts": 80,
+        "max_karma": -30
+      }
+    },
+    {
+      "id": "job_smuggling_pilot",
+      "title": "Clandestine Contraband Flight Courier",
+      "category": "underworld_crime",
+      "workplace": "Offshore Smugglers",
+      "salary": 140000,
+      "description": "Fly unregistered twin-prop light aircraft under coastal radar nets into private remote dirt airstrips.",
+      "min_age": 24,
+      "requirements": {
+        "required_license": "license_pilot",
+        "max_karma": -40
+      }
     }
   ]
 }

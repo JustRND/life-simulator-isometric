@@ -86,6 +86,27 @@ const LICENSES: Array[Dictionary] = [
 		"unlocked_feature": "Yacht & Marine Vessel Piloting",
 		"description": "Maritime safety qualification permitting the legal navigation and commanding of power speedboats, cruisers, and luxury ocean yachts."
 	},
+	{
+		"id": "license_commercial_cdl",
+		"name": "Commercial Driver License (Class A CDL)",
+		"icon": "🚛",
+		"category": "vehicle",
+		"fee": 8500,
+		"min_age": 21,
+		"unlocked_feature": "Heavy Freight & Intermodal Transport Operation",
+		"description": "Commercial trucking endorsement authorizing legal operation of heavy articulated freight trucks, tankers, and intermodal haulers."
+	},
+	{
+		"id": "license_helicopter_commercial",
+		"name": "Commercial Rotorcraft & Helicopter Flight License",
+		"icon": "🚁",
+		"category": "vehicle",
+		"fee": 42000,
+		"requires_license": "flight_school",
+		"min_age": 21,
+		"unlocked_feature": "Commercial Air Charter & Medevac Piloting",
+		"description": "FAA commercial rotorcraft credential certifying turbine helicopter navigation, mountain flight rescue, and offshore aviation."
+	},
 
 	# --- F&B LICENSES ---
 	{
@@ -109,6 +130,28 @@ const LICENSES: Array[Dictionary] = [
 		"unlocked_feature": "Commercial Kitchen & Catering Operations",
 		"description": "Department of Public Health certification for food safety standards, culinary sanitation, and commercial kitchen leadership."
 	},
+	{
+		"id": "license_distillery_master",
+		"name": "Master Distiller & Spirits Artisan License",
+		"icon": "🥃",
+		"category": "fnb",
+		"fee": 18000,
+		"min_age": 21,
+		"unlocked_feature": "Commercial Craft Spirits & Distillery Operations",
+		"job_id": "job_craft_distiller",
+		"description": "Alcohol & Tobacco Tax and Trade Bureau license permitting the distillation, oak barrel aging, and distribution of distilled spirits."
+	},
+	{
+		"id": "license_commercial_baking",
+		"name": "Master Artisan Baker & Confectioner License",
+		"icon": "🥐",
+		"category": "fnb",
+		"fee": 12000,
+		"min_age": 18,
+		"unlocked_feature": "Commercial Patisserie & Baking Leadership",
+		"job_id": "job_head_patissier",
+		"description": "Culinary arts commission credential verifying master artisan pastry baking, industrial sourdough fermentation, and confectionery safety."
+	},
 
 	# --- FIREARM LICENSES ---
 	{
@@ -131,6 +174,29 @@ const LICENSES: Array[Dictionary] = [
 		"unlocked_feature": "Freelance Private Investigator",
 		"job_id": "freelance_pi",
 		"description": "Department of Licensing detective credential permitting covert surveillance, missing person skips, and corporate counter-espionage."
+	},
+	{
+		"id": "license_tactical_security",
+		"name": "Armed Tactical Security Officer License",
+		"icon": "🛡️",
+		"category": "firearm",
+		"fee": 8000,
+		"requires_license": "license_firearm",
+		"min_age": 21,
+		"unlocked_feature": "Armed Executive Protection & Vault Escort",
+		"job_id": "job_armed_tactical_marshal",
+		"description": "State board credential authorizing armed guard duties, high-threat executive escort, cash-in-transit armored vaults, and crisis security."
+	},
+	{
+		"id": "license_armorer",
+		"name": "Certified Tactical Armorer & Weapons Specialist License",
+		"icon": "🧰",
+		"category": "firearm",
+		"fee": 16000,
+		"min_age": 21,
+		"unlocked_feature": "Tactical Armory & Firearm Customization",
+		"job_id": "job_syndicate_armorer",
+		"description": "Certified armorer credential permitting tactical firearm precision maintenance, machining customizations, and ballistic diagnostics."
 	},
 
 	# --- SERVICES LICENSES ---
@@ -243,6 +309,83 @@ const LICENSES: Array[Dictionary] = [
 		"unlocked_feature": "Freelance Certified Bookkeeper",
 		"job_id": "freelance_bookkeeper",
 		"description": "National accounting board certification for corporate ledger balancing, accounts payable reconciliation, and tax documentation."
+	},
+	{
+		"id": "license_general_contractor",
+		"name": "State Licensed General Building Contractor",
+		"icon": "🏗️",
+		"category": "services",
+		"fee": 38000,
+		"min_age": 21,
+		"unlocked_feature": "Heavy Infrastructure & Commercial Construction",
+		"job_id": "job_commercial_general_contractor",
+		"description": "State construction licensing board certification authorizing commercial mega-structure general contracting, structural steel framing, and civic engineering."
+	},
+	{
+		"id": "license_veterinary",
+		"name": "Licensed Doctor of Veterinary Medicine (DVM)",
+		"icon": "🐾",
+		"category": "services",
+		"fee": 48000,
+		"min_age": 24,
+		"unlocked_feature": "Veterinary Clinical Practice & Surgery",
+		"job_id": "job_veterinarian_doctor",
+		"description": "State veterinary medical board license permitting clinical animal diagnosis, orthopedic surgeries, pharmacology dispensation, and emergency veterinary hospital leadership."
+	},
+	{
+		"id": "license_clinical_pharmacist",
+		"name": "Registered Board-Certified Pharmacist (PharmD)",
+		"icon": "💊",
+		"category": "services",
+		"fee": 45000,
+		"min_age": 24,
+		"unlocked_feature": "Specialty Pharmaceutical Dispensation & Compounding",
+		"job_id": "job_compounding_pharmacist",
+		"description": "Board of Pharmacy certification authorizing precision compounding, controlled narcotic dispensation, pharmacokinetic consultations, and clinical pharmacy operations."
+	},
+	{
+		"id": "license_finra_series7",
+		"name": "FINRA Series 7 & 66 Securities License",
+		"icon": "📈",
+		"category": "services",
+		"fee": 28000,
+		"min_age": 21,
+		"unlocked_feature": "Securities Underwriting & Wealth Advisory",
+		"job_id": "job_venture_capital_associate",
+		"description": "Financial Industry Regulatory Authority credentials permitting registered general securities representation, equity underwriting, and discretionary wealth advisory."
+	},
+	{
+		"id": "license_patent_bar",
+		"name": "Registered USPTO Patent Attorney Bar License",
+		"icon": "📜",
+		"category": "services",
+		"fee": 34000,
+		"min_age": 23,
+		"unlocked_feature": "Patent Prosecution & Intellectual Property Litigation",
+		"job_id": "job_patent_attorney",
+		"description": "United States Patent and Trademark Office bar registration authorizing patent claims prosecution, intellectual property litigation, and trade-secret legal arbitration."
+	},
+	{
+		"id": "license_nuclear_operator",
+		"name": "NRC Certified Senior Nuclear Reactor Operator License",
+		"icon": "☢️",
+		"category": "services",
+		"fee": 65000,
+		"min_age": 25,
+		"unlocked_feature": "Nuclear Reactor Utility Operation & SMR Management",
+		"job_id": "job_nuclear_reactor_technician",
+		"description": "Nuclear Regulatory Commission senior operator license certifying nuclear reactor core control room command, reactivity management, and emergency meltdown safety."
+	},
+	{
+		"id": "license_physical_therapist",
+		"name": "Licensed Physical Therapy Practitioner (DPT)",
+		"icon": "🏃",
+		"category": "services",
+		"fee": 36000,
+		"min_age": 23,
+		"unlocked_feature": "Physical Rehabilitation & Sports Therapy",
+		"job_id": "job_physical_therapist_lead",
+		"description": "State physical therapy licensing board credential authorizing orthopedic rehabilitation, neuromuscular re-education, athletic injury conditioning, and sports therapy."
 	}
 ]
 

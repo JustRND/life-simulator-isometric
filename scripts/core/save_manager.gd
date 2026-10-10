@@ -8,6 +8,7 @@ func capture_data() -> Dictionary:
 	return {
 		"life_id": PlayerData.life_id,
 		"finance_market": PlayerData.finance_market,
+		"crypto_wallet": PlayerData.crypto_wallet,
 		"learning_activities": PlayerData.learning_activities,
 		"first_name": PlayerData.first_name,
 		"birthplace": PlayerData.birthplace,
@@ -252,6 +253,8 @@ func apply_data(data: Dictionary) -> bool:
 
 	PlayerData.first_name = str(data.get("first_name", ""))
 	PlayerData.finance_market = Dictionary(data.get("finance_market", {}))
+	PlayerData.crypto_wallet = Dictionary(data.get("crypto_wallet", {}))
+	preload("res://scripts/economy/crypto_market.gd").ensure(PlayerData)
 	PlayerData.learning_activities = Dictionary(data.get("learning_activities", {}))
 	PlayerData.life_id = str(data.get("life_id", ""))
 	if PlayerData.life_id.is_empty():

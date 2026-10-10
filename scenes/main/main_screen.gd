@@ -12,6 +12,7 @@ const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
 const RoomManager = preload("res://scripts/isometric/room_manager.gd")
 const MortgageManager = preload("res://scripts/economy/mortgage_manager.gd")
 const RentalManager = preload("res://scripts/economy/rental_manager.gd")
+const CryptoMarket = preload("res://scripts/economy/crypto_market.gd")
 
 
 var portrait: TextureRect
@@ -129,6 +130,7 @@ var pet_adoption_modal_overlay: Control = null
 var will_modal_overlay: Control = null
 var salon_modal_overlay: Control = null
 var spa_modal_overlay: Control = null
+var mental_institution_modal_overlay: Control = null
 
 # Assets Panel
 @onready var assets_panel: PanelContainer = $AssetsPanel
@@ -943,6 +945,9 @@ func age_up() -> void:
 	# 7e. Commercial Business Yearly Financial Simulation
 	_process_yearly_business_operations()
 	FinanceMarket.advance_year(PlayerData)
+	var crypto_logs := preload("res://scripts/economy/crypto_market.gd").advance_year(PlayerData)
+	for c_log in crypto_logs:
+		add_life_event(c_log, "finance")
 
 	# 7f. Social Media Audience Growth & Monetization
 	var social_logs := SocialMediaManager.process_yearly_social_media(PlayerData)
@@ -12760,8 +12765,11 @@ var meditation_modal_overlay: ColorRect = null
 var dating_app_modal_overlay: ColorRect = null
 var charity_modal_overlay: ColorRect = null
 var romance_action_modal_overlay: ColorRect = null
-var mental_institution_modal_overlay: ColorRect = null
 var current_dating_candidate: Dictionary = {}
+var finance_hub_modal_overlay: ColorRect = null
+var crypto_modal_overlay: ColorRect = null
+var crypto_trade_dialog_overlay: ColorRect = null
+var crypto_status_notice: String = ""
 
 
 func _setup_all_translucent_scrollbars() -> void:
@@ -15268,8 +15276,598 @@ func _execute_charity_donation(charity_id: String) -> void:
 	_show_charity_modal()
 
 
+func _on_finance_item_pressed() -> void:
+	if PlayerData.age < 13:
+		add_life_event("🏛️ Financial accounts and markets unlock at age 13 for youth accounts.", "finance")
+		show_tab("timeline")
+		return
+	_show_finance_hub_modal()
+
+
+func _show_finance_hub_modal() -> void:
+	FinanceMarket.ensure(PlayerData)
+	CryptoMarket.ensure(PlayerData)
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var modal := _refresh_cyber_modal(finance_hub_modal_overlay, "🏛️ FINANCE HUB", "Manage liquid capital, equity markets, cryptocurrency assets, and commercial banking.", Color("#0ea5e9"))
+	finance_hub_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 20)
+
+	# 1. Financial Overview Summary Card
+	var summary_card := PanelContainer.new()
+	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0ea5e9")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 20)
+	sm.add_theme_constant_override("margin_right", 20)
+	sm.add_theme_constant_override("margin_top", 16)
+	sm.add_theme_constant_override("margin_bottom", 16)
+	summary_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 10)
+	sm.add_child(sv)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "PORTFOLIO & CAPITAL OVERVIEW"
+	title_lbl.add_theme_font_size_override("font_size", 22)
+	title_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	sv.add_child(title_lbl)
+
+	var liquid_total: int = PlayerData.money + PlayerData.bank_savings
+	var equities_val: int = int(round(FinanceMarket.portfolio_value(PlayerData)))
+	var crypto_val: int = int(round(CryptoMarket.portfolio_value(PlayerData)))
+	var net_worth: int = PlayerData.get_net_worth()
+
+	var stats_grid := GridContainer.new()
+	stats_grid.columns = 2
+	stats_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stats_grid.add_theme_constant_override("h_separation", 24)
+	stats_grid.add_theme_constant_override("v_separation", 8)
+	sv.add_child(stats_grid)
+
+	var _add_stat_row = func(label_text: String, value_text: String, val_color: Color):
+		var lbl_name := Label.new()
+		lbl_name.text = label_text
+		lbl_name.add_theme_font_size_override("font_size", 20)
+		lbl_name.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		stats_grid.add_child(lbl_name)
+
+		var lbl_val := Label.new()
+		lbl_val.text = value_text
+		lbl_val.add_theme_font_size_override("font_size", 20)
+		lbl_val.add_theme_color_override("font_color", val_color)
+		stats_grid.add_child(lbl_val)
+
+	_add_stat_row.call("Liquid Funds (Cash + Bank):", "$%s" % _format_number(liquid_total), Color("#0f172a") if is_light else Color("#f8fafc"))
+	_add_stat_row.call("Public Equities Value:", "$%s" % _format_number(equities_val), Color("#0284c7") if is_light else Color("#38bdf8"))
+	_add_stat_row.call("Cryptocurrency Holdings:", "$%s" % _format_number(crypto_val), Color("#d97706") if is_light else Color("#f59e0b"))
+	_add_stat_row.call("Total Net Worth:", "$%s" % _format_number(net_worth), Color("#16a34a") if is_light else Color("#22c55e"))
+
+	list.add_child(summary_card)
+
+	# 2. Section Heading
+	var hubs_heading := Label.new()
+	hubs_heading.text = "SELECT FINANCIAL DIVISION"
+	hubs_heading.add_theme_font_size_override("font_size", 20)
+	hubs_heading.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+	list.add_child(hubs_heading)
+
+	# 3. Three Dedicated Division Cards / Buttons
+	var _open_market = func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
+		finance_hub_modal_overlay = null
+		var fp = get_node_or_null("FinancePanel")
+		if fp:
+			fp.open()
+
+	var _open_crypto = func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
+		finance_hub_modal_overlay = null
+		_show_crypto_exchange_modal()
+
+	var _open_bank = func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
+		finance_hub_modal_overlay = null
+		_on_bank_button_pressed()
+
+	var divisions := [
+		{
+			"title": "📈  FINANCE MARKET",
+			"tag": "EQUITIES & PRIVATE CAPITAL",
+			"desc": "Trade corporate shares, index funds, municipal bonds, and private equity business buyouts with yearly dividends.",
+			"color": Color("#06b6d4"),
+			"action": _open_market
+		},
+		{
+			"title": "🪙  CRYPTOCURRENCY EXCHANGE",
+			"tag": "SPOT DIGITAL ASSETS",
+			"desc": "High-volatility decentralized tokens (BTC, ETH, SOL, AIX, DOGE). Manage crypto wallet and track market cycles.",
+			"color": Color("#f59e0b"),
+			"action": _open_crypto
+		},
+		{
+			"title": "🏦  BANK & LOANS",
+			"tag": "FIRST NATIONAL PIXEL BANK",
+			"desc": "Checking and savings accounts with compounding interest, personal liquidity loans, mortgages, and debt settlement.",
+			"color": Color("#38bdf8"),
+			"action": _open_bank
+		}
+	]
+
+	for div in divisions:
+		var card := PanelContainer.new()
+		card.add_theme_stylebox_override("panel", load_style_box_cyber_card(div["color"]))
+
+		var cm := MarginContainer.new()
+		cm.add_theme_constant_override("margin_left", 20)
+		cm.add_theme_constant_override("margin_right", 20)
+		cm.add_theme_constant_override("margin_top", 16)
+		cm.add_theme_constant_override("margin_bottom", 16)
+		card.add_child(cm)
+
+		var cv := VBoxContainer.new()
+		cv.add_theme_constant_override("separation", 10)
+		cm.add_child(cv)
+
+		var head_row := HBoxContainer.new()
+		head_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cv.add_child(head_row)
+
+		var div_title := Label.new()
+		div_title.text = div["title"]
+		div_title.add_theme_font_size_override("font_size", 22)
+		div_title.add_theme_color_override("font_color", div["color"].darkened(0.25) if is_light else div["color"])
+		div_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head_row.add_child(div_title)
+
+		var tag_lbl := Label.new()
+		tag_lbl.text = div["tag"]
+		tag_lbl.add_theme_font_size_override("font_size", 16)
+		tag_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		head_row.add_child(tag_lbl)
+
+		var desc_lbl := Label.new()
+		desc_lbl.text = div["desc"]
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_lbl.add_theme_font_size_override("font_size", 18)
+		desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+		cv.add_child(desc_lbl)
+
+		var open_btn := _create_cyber_button("Enter %s →" % div["title"], div["color"], div["action"])
+		open_btn.custom_minimum_size.y = 50
+		cv.add_child(open_btn)
+
+		list.add_child(card)
+
+	finance_hub_modal_overlay.visible = true
+
+
+func _show_crypto_exchange_modal() -> void:
+	CryptoMarket.ensure(PlayerData)
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var modal := _refresh_cyber_modal(crypto_modal_overlay, "🪙 CRYPTOCURRENCY EXCHANGE", "Decentralized Digital Assets • Spot Market Trading • 0.5% Fee", Color("#f59e0b"))
+	crypto_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 20)
+
+	# 1. Back to Finance Hub Button
+	var back_btn := _create_cyber_button("← Back to Finance Hub", Color("#64748b"), func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(crypto_modal_overlay, false)
+		crypto_modal_overlay = null
+		_show_finance_hub_modal()
+	)
+	back_btn.custom_minimum_size.y = 46
+	list.add_child(back_btn)
+
+	# 2. Status Banner (if a recent trade or notice exists)
+	if not crypto_status_notice.is_empty():
+		var notice_card := PanelContainer.new()
+		var n_style := StyleBoxFlat.new()
+		n_style.bg_color = Color("#ecfdf5") if is_light else Color("#064e3b")
+		n_style.border_color = Color("#10b981")
+		n_style.set_border_width_all(2)
+		n_style.set_corner_radius_all(8)
+		n_style.content_margin_left = 16
+		n_style.content_margin_right = 16
+		n_style.content_margin_top = 10
+		n_style.content_margin_bottom = 10
+		notice_card.add_theme_stylebox_override("panel", n_style)
+		var n_lbl := Label.new()
+		n_lbl.text = crypto_status_notice
+		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		n_lbl.add_theme_font_size_override("font_size", 18)
+		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#a7f3d0"))
+		notice_card.add_child(n_lbl)
+		list.add_child(notice_card)
+		crypto_status_notice = ""
+
+	# 3. Portfolio & Sentiment Summary Card
+	var summary_card := PanelContainer.new()
+	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 20)
+	sm.add_theme_constant_override("margin_right", 20)
+	sm.add_theme_constant_override("margin_top", 16)
+	sm.add_theme_constant_override("margin_bottom", 16)
+	summary_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 12)
+	sm.add_child(sv)
+
+	var pnl_data: Dictionary = CryptoMarket.portfolio_pnl(PlayerData)
+	var current_val: float = float(pnl_data.get("current", 0.0))
+	var pnl_val: float = float(pnl_data.get("pnl", 0.0))
+	var pnl_pct: float = float(pnl_data.get("pnl_pct", 0.0))
+	var sentiment: Dictionary = CryptoMarket.get_sentiment_info()
+
+	var port_row := HBoxContainer.new()
+	port_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sv.add_child(port_row)
+
+	var port_title := Label.new()
+	port_title.text = "CRYPTO WALLET VALUE"
+	port_title.add_theme_font_size_override("font_size", 20)
+	port_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+	port_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	port_row.add_child(port_title)
+
+	var sent_badge := Label.new()
+	sent_badge.text = str(sentiment.get("label", "MARKET"))
+	sent_badge.add_theme_font_size_override("font_size", 18)
+	var sent_col := Color(str(sentiment.get("color", "#f59e0b")))
+	sent_badge.add_theme_color_override("font_color", sent_col)
+	port_row.add_child(sent_badge)
+
+	var val_row := HBoxContainer.new()
+	val_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sv.add_child(val_row)
+
+	var val_lbl := Label.new()
+	val_lbl.text = "$%s" % _format_number(int(round(current_val)))
+	val_lbl.add_theme_font_size_override("font_size", 34)
+	val_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	val_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	val_row.add_child(val_lbl)
+
+	var pnl_lbl := Label.new()
+	var pnl_sign := "+" if pnl_val >= 0.0 else ""
+	pnl_lbl.text = "Net P&L: %s$%s (%s%.2f%%)" % [pnl_sign, _format_number(int(round(pnl_val))), pnl_sign, pnl_pct]
+	pnl_lbl.add_theme_font_size_override("font_size", 20)
+	pnl_lbl.add_theme_color_override("font_color", Color("#16a34a" if is_light else "#22c55e") if pnl_val >= 0.0 else Color("#dc2626" if is_light else "#f43f5e"))
+	val_row.add_child(pnl_lbl)
+
+	var sent_desc := Label.new()
+	sent_desc.text = "Cycle: %s — %s" % [str(sentiment.get("label", "")), str(sentiment.get("desc", ""))]
+	sent_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sent_desc.add_theme_font_size_override("font_size", 16)
+	sent_desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+	sv.add_child(sent_desc)
+
+	var liquid_funds_lbl := Label.new()
+	var total_avail: int = PlayerData.money + PlayerData.bank_savings
+	liquid_funds_lbl.text = "Available to Trade: $%s  (Cash: $%s • Bank: $%s)" % [
+		_format_number(total_avail),
+		_format_number(PlayerData.money),
+		_format_number(PlayerData.bank_savings)
+	]
+	liquid_funds_lbl.add_theme_font_size_override("font_size", 16)
+	liquid_funds_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	sv.add_child(liquid_funds_lbl)
+
+	list.add_child(summary_card)
+
+	# 4. Spot Market Assets Heading
+	var assets_head := Label.new()
+	assets_head.text = "SPOT DIGITAL ASSETS"
+	assets_head.add_theme_font_size_override("font_size", 20)
+	assets_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+	list.add_child(assets_head)
+
+	# 5. Coins List
+	var coins: Array = CryptoMarket.get_coins()
+	for c in coins:
+		var coin_id: String = str(c.get("id", ""))
+		var price: float = float(c.get("price", 0.0))
+		var change: float = float(c.get("change_pct", 0.0))
+		var holding: Dictionary = CryptoMarket.get_holding(PlayerData, coin_id)
+		var amount: float = float(holding.get("amount", 0.0))
+		var invested: float = float(holding.get("invested", 0.0))
+		var coin_usd: float = amount * price
+
+		var coin_card := PanelContainer.new()
+		var card_color := Color("#10b981") if change >= 0.0 else Color("#ef4444")
+		coin_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(card_color))
+
+		var cm := MarginContainer.new()
+		cm.add_theme_constant_override("margin_left", 20)
+		cm.add_theme_constant_override("margin_right", 20)
+		cm.add_theme_constant_override("margin_top", 16)
+		cm.add_theme_constant_override("margin_bottom", 16)
+		coin_card.add_child(cm)
+
+		var cv := VBoxContainer.new()
+		cv.add_theme_constant_override("separation", 10)
+		cm.add_child(cv)
+
+		# Top row: Icon + Name + Symbol, Price + Change
+		var top_row := HBoxContainer.new()
+		top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cv.add_child(top_row)
+
+		var name_lbl := Label.new()
+		name_lbl.text = "%s %s (%s)  %s" % [str(c.get("icon", "🪙")), str(c.get("name", "")), str(c.get("symbol", "")), str(c.get("sparkline", ""))]
+		name_lbl.add_theme_font_size_override("font_size", 22)
+		name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		top_row.add_child(name_lbl)
+
+		var pr_col := VBoxContainer.new()
+		pr_col.alignment = BoxContainer.ALIGNMENT_END
+		top_row.add_child(pr_col)
+
+		var price_lbl := Label.new()
+		if price >= 1.0:
+			price_lbl.text = "$%s" % _format_number(int(round(price))) if price >= 1000.0 else "$%.2f" % price
+		else:
+			price_lbl.text = "$%.4f" % price
+		price_lbl.add_theme_font_size_override("font_size", 22)
+		price_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		price_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		pr_col.add_child(price_lbl)
+
+		var chg_lbl := Label.new()
+		var sign_str := "+" if change >= 0.0 else ""
+		chg_lbl.text = "%s%.2f%%" % [sign_str, change]
+		chg_lbl.add_theme_font_size_override("font_size", 17)
+		chg_lbl.add_theme_color_override("font_color", Color("#16a34a" if is_light else "#22c55e") if change >= 0.0 else Color("#dc2626" if is_light else "#f43f5e"))
+		chg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		pr_col.add_child(chg_lbl)
+
+		# Description
+		var desc := Label.new()
+		desc.text = str(c.get("description", ""))
+		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc.add_theme_font_size_override("font_size", 16)
+		desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		cv.add_child(desc)
+
+		# Holding summary row
+		var h_box := PanelContainer.new()
+		var hb_style := StyleBoxFlat.new()
+		hb_style.bg_color = Color("#f1f5f9") if is_light else Color("#111827")
+		hb_style.border_color = Color("#cbd5e1") if is_light else Color("#334155")
+		hb_style.set_border_width_all(1)
+		hb_style.set_corner_radius_all(6)
+		hb_style.content_margin_left = 12
+		hb_style.content_margin_right = 12
+		hb_style.content_margin_top = 8
+		hb_style.content_margin_bottom = 8
+		h_box.add_theme_stylebox_override("panel", hb_style)
+
+		var h_lbl := Label.new()
+		if amount > 0.000001:
+			var holding_pnl: float = coin_usd - invested
+			var pnl_str := ("+$%s" % _format_number(int(round(holding_pnl)))) if holding_pnl >= 0.0 else ("-$%s" % _format_number(int(round(absf(holding_pnl)))))
+			h_lbl.text = "Portfolio: %.4f %s (~$%s) • Invested: $%s • P&L: %s" % [
+				amount,
+				str(c.get("symbol", "")),
+				_format_number(int(round(coin_usd))),
+				_format_number(int(round(invested))),
+				pnl_str
+			]
+			h_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		else:
+			h_lbl.text = "Holdings: 0.00 %s ($0.00)" % str(c.get("symbol", ""))
+			h_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		h_lbl.add_theme_font_size_override("font_size", 16)
+		h_box.add_child(h_lbl)
+		cv.add_child(h_box)
+
+		# Action buttons row
+		var btn_row := HBoxContainer.new()
+		btn_row.add_theme_constant_override("separation", 12)
+		cv.add_child(btn_row)
+
+		var buy_btn := _create_cyber_button("🟢 Buy %s" % str(c.get("symbol", "")), Color("#10b981"), func():
+			_open_crypto_trade_dialog(coin_id, true)
+		)
+		buy_btn.custom_minimum_size.y = 48
+		btn_row.add_child(buy_btn)
+
+		var sell_btn := _create_cyber_button("🔴 Sell %s" % str(c.get("symbol", "")), Color("#f43f5e"), func():
+			_open_crypto_trade_dialog(coin_id, false)
+		)
+		sell_btn.custom_minimum_size.y = 48
+		if amount <= 0.000001:
+			sell_btn.disabled = true
+			sell_btn.text = "Sell (0 Owned)"
+		btn_row.add_child(sell_btn)
+
+		list.add_child(coin_card)
+
+	crypto_modal_overlay.visible = true
+
+
+func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
+	var coin: Dictionary = {}
+	for c in CryptoMarket.get_coins():
+		if str(c.get("id", "")) == coin_id:
+			coin = c
+			break
+	if coin.is_empty():
+		return
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var symbol: String = str(coin.get("symbol", ""))
+	var name: String = str(coin.get("name", ""))
+	var price: float = float(coin.get("price", 1.0))
+	var holding: Dictionary = CryptoMarket.get_holding(PlayerData, coin_id)
+	var owned_amount: float = float(holding.get("amount", 0.0))
+	var total_avail_funds: int = PlayerData.money + PlayerData.bank_savings
+
+	var title_text := "BUY %s (%s)" % [name.to_upper(), symbol] if is_buy else "SELL %s (%s)" % [name.to_upper(), symbol]
+	var sub_text := "Spot price: $%s • Exchange fee: 0.5%%" % (_format_number(int(round(price))) if price >= 1000.0 else "%.2f" % price)
+	var accent_col := Color("#10b981") if is_buy else Color("#f43f5e")
+
+	var modal := _refresh_cyber_modal(crypto_trade_dialog_overlay, title_text, sub_text, accent_col)
+	crypto_trade_dialog_overlay = modal.overlay
+	crypto_trade_dialog_overlay.z_index = 85
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 18)
+
+	var info_lbl := Label.new()
+	if is_buy:
+		info_lbl.text = "Available Funds to Buy: $%s  (Cash: $%s + Bank: $%s)" % [
+			_format_number(total_avail_funds),
+			_format_number(PlayerData.money),
+			_format_number(PlayerData.bank_savings)
+		]
+	else:
+		var held_usd: float = owned_amount * price
+		info_lbl.text = "Available to Sell: %.6f %s  (Estimated Value: ~$%.2f)" % [
+			owned_amount,
+			symbol,
+			held_usd
+		]
+	info_lbl.add_theme_font_size_override("font_size", 18)
+	info_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	list.add_child(info_lbl)
+
+	# Input row
+	var input_lbl := Label.new()
+	input_lbl.text = "Enter USD Amount to Invest:" if is_buy else "Enter %s Units to Sell:" % symbol
+	input_lbl.add_theme_font_size_override("font_size", 18)
+	input_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	list.add_child(input_lbl)
+
+	var input_box := LineEdit.new()
+	input_box.custom_minimum_size.y = 52
+	input_box.add_theme_font_size_override("font_size", 22)
+	input_box.placeholder_text = "e.g. 1000" if is_buy else ("e.g. %.4f" % (owned_amount * 0.5))
+	MobileKeyboardManager.attach_to_input(input_box)
+	list.add_child(input_box)
+
+	# Quick preset buttons
+	var preset_row := HBoxContainer.new()
+	preset_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preset_row.add_theme_constant_override("separation", 8)
+	list.add_child(preset_row)
+
+	var presets: Array = []
+	if is_buy:
+		presets = [
+			{"label": "$100", "val": 100},
+			{"label": "$500", "val": 500},
+			{"label": "$2,500", "val": 2500},
+			{"label": "$10,000", "val": 10000},
+			{"label": "Max Funds", "val": total_avail_funds}
+		]
+	else:
+		presets = [
+			{"label": "25%", "pct": 0.25},
+			{"label": "50%", "pct": 0.50},
+			{"label": "75%", "pct": 0.75},
+			{"label": "100% (All)", "pct": 1.0}
+		]
+
+	# Estimation row
+	var est_lbl := Label.new()
+	est_lbl.text = "Estimated Net After 0.5% Exchange Fee: $0.00"
+	est_lbl.add_theme_font_size_override("font_size", 17)
+	est_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+
+	var _update_estimate = func(txt: String):
+		var raw_val := float(txt.strip_edges().replace(",", ""))
+		if raw_val <= 0.0:
+			est_lbl.text = "Estimated Net After 0.5% Exchange Fee: $0.00"
+			return
+		if is_buy:
+			var net_usd: float = raw_val * 0.995
+			var est_coins: float = net_usd / price
+			est_lbl.text = "You will receive: ~%.6f %s (Fee: $%.2f)" % [est_coins, symbol, raw_val * 0.005]
+		else:
+			var gross_usd: float = raw_val * price
+			var net_usd: float = gross_usd * 0.995
+			est_lbl.text = "You will receive: ~$%.2f Cash (Fee: $%.2f)" % [net_usd, gross_usd * 0.005]
+
+	input_box.text_changed.connect(_update_estimate)
+
+	for p in presets:
+		var p_btn := Button.new()
+		p_btn.text = str(p.get("label", ""))
+		p_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		p_btn.custom_minimum_size.y = 44
+		p_btn.add_theme_font_size_override("font_size", 17)
+		var p_style := StyleBoxFlat.new()
+		p_style.bg_color = Color("#e2e8f0") if is_light else Color("#1e293b")
+		p_style.border_color = accent_col
+		p_style.set_border_width_all(1)
+		p_style.set_corner_radius_all(6)
+		p_btn.add_theme_stylebox_override("normal", p_style)
+		p_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		if is_buy:
+			var val: int = int(p.get("val", 0))
+			p_btn.pressed.connect(func():
+				input_box.text = str(val)
+				_update_estimate.call(input_box.text)
+			)
+		else:
+			var pct: float = float(p.get("pct", 0.0))
+			p_btn.pressed.connect(func():
+				input_box.text = "%.6f" % (owned_amount * pct)
+				_update_estimate.call(input_box.text)
+			)
+		preset_row.add_child(p_btn)
+
+	list.add_child(est_lbl)
+
+	# Action Confirm Button
+	var confirm_btn := _create_cyber_button(
+		"CONFIRM %s %s" % ["BUY" if is_buy else "SELL", symbol],
+		accent_col,
+		func():
+			var raw_val := float(input_box.text.strip_edges().replace(",", ""))
+			if raw_val <= 0.0:
+				return
+
+			var res: Dictionary = {}
+			if is_buy:
+				res = CryptoMarket.buy(PlayerData, coin_id, raw_val)
+			else:
+				res = CryptoMarket.sell(PlayerData, coin_id, raw_val)
+
+			if not bool(res.get("success", false)):
+				crypto_status_notice = "❌ " + str(res.get("message", "Trade failed."))
+			else:
+				crypto_status_notice = "✅ " + str(res.get("message", "Trade executed successfully."))
+				add_life_event(crypto_status_notice, "finance")
+				SaveManager.save_game()
+				update_ui()
+
+			preload("res://scripts/ui/panel_close.gd").dismiss(crypto_trade_dialog_overlay, false)
+			crypto_trade_dialog_overlay = null
+			_show_crypto_exchange_modal()
+	)
+	confirm_btn.custom_minimum_size.y = 54
+	list.add_child(confirm_btn)
+
+	# Cancel Button
+	var cancel_btn := _create_cyber_button("Cancel", Color("#64748b"), func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(crypto_trade_dialog_overlay, false)
+		crypto_trade_dialog_overlay = null
+	)
+	cancel_btn.custom_minimum_size.y = 44
+	list.add_child(cancel_btn)
+
+	crypto_trade_dialog_overlay.visible = true
+
+
 # --- 1. DOCTOR MODAL ---
 func _show_doctor_modal() -> void:
+
 
 	var modal := _refresh_cyber_modal(doctor_modal_overlay, "🩺 ST. JUDE MEDICAL CLINIC", "Advanced Diagnostics, Surgeries, Oncology & Insurance", Color("#38bdf8"))
 	doctor_modal_overlay = modal.overlay

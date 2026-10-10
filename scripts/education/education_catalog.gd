@@ -80,6 +80,18 @@ static func get_major_display_name(major_id: String) -> String:
 			return "Mechanical & Electrical Engineering"
 		"arts":
 			return "Digital Arts & Interactive Media"
+		"veterinary":
+			return "Veterinary Medicine & Surgery"
+		"pharmacy":
+			return "Pharmaceutical Chemistry & Pharmacology"
+		"civil_engineering":
+			return "Civil & Infrastructure Engineering"
+		"game_design":
+			return "Interactive Game Design & VR Simulation"
+		"nuclear_physics":
+			return "Nuclear Physics & Reactor Engineering"
+		"kinesiology":
+			return "Kinesiology & Physical Rehabilitation"
 		_:
 			return major_id.capitalize()
 
