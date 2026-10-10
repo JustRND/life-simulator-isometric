@@ -77,6 +77,7 @@ var _timeline_drawer_tween: Tween = null
 @onready var relationships_button: Button = $SafeArea/MainColumn/ActionBar/ActionRow/RelationshipsButton
 @onready var activities_button: Button = $SafeArea/MainColumn/ActionBar/ActionRow/ActivitiesButton
 var button_sounds: Node = null
+var background_music: Node = null
 
 # Navigation panels
 @onready var timeline_panel: Control = $SafeArea
@@ -220,6 +221,15 @@ func _ready() -> void:
 		button_sounds = get_node("ButtonSounds")
 	if button_sounds != null and button_sounds.has_method("wire_core_buttons"):
 		button_sounds.wire_core_buttons(infant_button, assets_button, age_button, relationships_button, activities_button)
+
+	# Ambient background music (subtle, seamless loop)
+	if get_node_or_null("BackgroundMusic") == null:
+		var bgm := preload("res://scripts/ui/background_music.gd").new()
+		bgm.name = "BackgroundMusic"
+		add_child(bgm)
+		background_music = bgm
+	else:
+		background_music = get_node("BackgroundMusic")
 
 	# Configure translucent, sleek scroll indicators on every page and scroll container
 	_setup_all_translucent_scrollbars()
