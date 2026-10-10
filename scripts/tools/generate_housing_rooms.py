@@ -1,19 +1,17 @@
 """
 Script to build and process all 24 isometric room templates for 'The Housing Update'.
 Produces:
-1. 100% transparent backgrounds outside the isometric cutaway walls and floor (no white canvas, no exterior trees).
+1. 100% transparent backgrounds outside the isometric cutaway walls and floor (no white canvas, no exterior clutter).
 2. Authentic 16-bit pixel art styling matching the character avatars (512x512 quantized grid upscaled with Nearest Neighbor to 2048x2048).
-3. Thematic window vista composites and color grading for all 24 property rooms.
+3. Thematic architectural color grading and mood lighting for all 24 property rooms (zero 2D photo pastes).
 4. Optimized .import files for Godot lossy WebP compression.
 """
 
 import os
-from collections import deque
 import numpy as np
 from PIL import Image, ImageDraw, ImageEnhance
 
 BRAIN_DIR = r"C:\Users\ACER PREDATOR\.gemini\antigravity\brain\9b9cf3a4-7eb3-4ba0-b76b-7dbeeb740e47"
-PROP_DIR = r"assets\items\properties"
 ROOMS_DIR = r"assets\isometric\rooms"
 
 os.makedirs(ROOMS_DIR, exist_ok=True)
@@ -32,145 +30,103 @@ GENERATED_ROOMS = {
     "room_cabin": os.path.join(BRAIN_DIR, "room_cabin_1791645376132.jpg"),
 }
 
-# Diorama cutaway boundary polygons in 1024x1024 space
+# Exact diorama cutaway boundary polygons in 1024x1024 space
 BASE_POLYGONS = {
-    "room_capsule": [(500, 52), (928, 260), (928, 696), (500, 928), (70, 696), (70, 268)],
-    "room_tenement": [(512, 60), (926, 258), (926, 764), (512, 982), (98, 764), (98, 258)],
-    "room_studio": [(500, 46), (958, 230), (958, 799), (500, 976), (65, 797), (65, 230)],
-    "room_condo": [(500, 95), (928, 315), (928, 680), (500, 895), (96, 680), (96, 315)],
-    "room_cottage": [(512, 60), (914, 268), (914, 735), (512, 966), (88, 722), (88, 272)],
-    "room_suburban_split": [(500, 51), (950, 285), (950, 721), (500, 964), (50, 708), (50, 298)],
-    "room_townhouse": [(500, 92), (895, 272), (895, 730), (500, 950), (128, 730), (128, 272)],
-    "room_eco_timber": [(500, 80), (915, 289), (915, 760), (500, 976), (105, 795), (105, 290)],
-    "room_house": [(500, 114), (946, 335), (946, 665), (500, 917), (54, 665), (54, 335)],
-    "room_cabin": [(500, 79), (912, 363), (912, 715), (500, 975), (95, 755), (95, 354)],
+    "room_capsule": [(512, 44), (952, 290), (952, 696), (512, 951), (70, 696), (70, 290)],
+    "room_tenement": [(511, 47), (926, 260), (926, 767), (511, 982), (98, 767), (98, 260)],
+    "room_studio": [(511, 41), (964, 230), (964, 796), (511, 982), (59, 796), (59, 230)],
+    "room_condo": [(511, 98), (939, 320), (939, 680), (507, 936), (85, 680), (85, 320)],
+    "room_cottage": [(512, 45), (934, 280), (934, 735), (512, 990), (88, 735), (88, 280)],
+    "room_suburban_split": [(510, 45), (977, 301), (977, 705), (510, 970), (46, 705), (46, 301)],
+    "room_townhouse": [(511, 72), (917, 280), (917, 760), (512, 974), (106, 760), (106, 280)],
+    "room_eco_timber": [(511, 74), (942, 303), (942, 748), (500, 965), (81, 748), (81, 303)],
+    "room_house": [(500, 95), (960, 335), (960, 670), (500, 940), (42, 670), (42, 335)],
+    "room_cabin": [(626, 23), (954, 385), (932, 410), (932, 745), (511, 981), (91, 745), (91, 410), (71, 380), (250, 195)],
 }
 
-# Remaining 14 property room specifications
+# Remaining 14 property room specifications with architectural lighting and color grading
 SYNTHESIS_SPECS = [
     {
         "id": "room_historic_brownstone",
         "base": "room_townhouse",
-        "exterior": "prop_historic_brownstone.jpg",
-        "window_box": (180, 240, 440, 580),
-        "blend_factor": 0.82,
         "r": 1.15, "g": 0.90, "b": 0.85, # Rich Victorian mahogany & crimson
         "bright": 0.96, "contrast": 1.10
     },
     {
         "id": "room_modern_villa",
         "base": "room_condo",
-        "exterior": "prop_modern_villa.jpg",
-        "window_box": (610, 230, 830, 560),
-        "blend_factor": 0.90,
         "r": 1.02, "g": 1.05, "b": 1.10, # Clean minimalist white & pool cyan
         "bright": 1.12, "contrast": 1.05
     },
     {
         "id": "room_alpine_chalet",
         "base": "room_cabin",
-        "exterior": "prop_alpine_chalet.jpg",
-        "window_box": (160, 250, 410, 560),
-        "blend_factor": 0.88,
         "r": 0.96, "g": 1.00, "b": 1.14, # Alpine snow & roaring hearth
         "bright": 1.02, "contrast": 1.08
     },
     {
         "id": "room_ranch",
         "base": "room_cabin",
-        "exterior": "prop_ranch.jpg",
-        "window_box": (160, 250, 410, 560),
-        "blend_factor": 0.88,
         "r": 1.18, "g": 1.05, "b": 0.82, # Golden sunset oak & pasture hills
         "bright": 1.04, "contrast": 1.06
     },
     {
         "id": "room_desert_estate",
         "base": "room_suburban_split",
-        "exterior": "prop_desert_estate.jpg",
-        "window_box": (590, 200, 860, 520),
-        "blend_factor": 0.88,
         "r": 1.12, "g": 1.02, "b": 0.92, # Desert stacked stone & pool palms
         "bright": 1.05, "contrast": 1.05
     },
     {
         "id": "room_beachfront",
         "base": "room_eco_timber",
-        "exterior": "prop_beachfront.jpg",
-        "window_box": (530, 160, 860, 680),
-        "blend_factor": 0.92,
-        "r": 1.04, "g": 1.08, "b": 1.16, # Sun-bleached shiplap & ocean waves
+        "r": 1.04, "g": 1.08, "b": 1.16, # Sun-bleached shiplap & ocean breeze
         "bright": 1.14, "contrast": 1.04
     },
     {
         "id": "room_harbor_duplex",
         "base": "room_condo",
-        "exterior": "prop_harbor_duplex.jpg",
-        "window_box": (610, 230, 830, 560),
-        "blend_factor": 0.90,
         "r": 0.94, "g": 1.02, "b": 1.18, # Marina nautical blue & teak deck
         "bright": 1.05, "contrast": 1.06
     },
     {
         "id": "room_penthouse",
         "base": "room_condo",
-        "exterior": "prop_penthouse.jpg",
-        "window_box": (610, 230, 830, 560),
-        "blend_factor": 0.92,
         "r": 1.08, "g": 1.04, "b": 1.00, # Calacatta marble gold & high-rise night skyline
         "bright": 1.04, "contrast": 1.12
     },
     {
         "id": "room_cyber_mansion",
         "base": "room_condo",
-        "exterior": "prop_cyber_mansion.jpg",
-        "window_box": (610, 230, 830, 560),
-        "blend_factor": 0.88,
         "r": 0.82, "g": 0.94, "b": 1.25, # Matte carbon & vibrant cyber neon cyan
         "bright": 0.88, "contrast": 1.22
     },
     {
         "id": "room_chateau",
         "base": "room_townhouse",
-        "exterior": "prop_chateau.jpg",
-        "window_box": (180, 240, 440, 580),
-        "blend_factor": 0.86,
         "r": 1.18, "g": 1.10, "b": 0.88, # French gilded gold boiserie & vineyards
         "bright": 1.06, "contrast": 1.08
     },
     {
         "id": "room_cliffside_compound",
         "base": "room_suburban_split",
-        "exterior": "prop_cliffside_compound.jpg",
-        "window_box": (590, 200, 860, 520),
-        "blend_factor": 0.90,
         "r": 0.90, "g": 0.95, "b": 1.08, # Basalt dark stone & crashing cliff ocean
         "bright": 0.94, "contrast": 1.18
     },
     {
         "id": "room_private_island",
         "base": "room_eco_timber",
-        "exterior": "prop_private_island.jpg",
-        "window_box": (530, 160, 860, 680),
-        "blend_factor": 0.92,
         "r": 1.08, "g": 1.12, "b": 1.04, # Tropical bamboo pavilion & turquoise lagoon
         "bright": 1.12, "contrast": 1.04
     },
     {
         "id": "room_megatower_apex",
         "base": "room_condo",
-        "exterior": "prop_megatower_apex.jpg",
-        "window_box": (610, 230, 830, 560),
-        "blend_factor": 0.92,
         "r": 1.02, "g": 1.08, "b": 1.18, # Cloud-piercing apex sanctuary & sky horizon
         "bright": 1.10, "contrast": 1.08
     },
     {
         "id": "room_orbital",
         "base": "room_condo",
-        "exterior": "prop_orbital.jpg",
-        "window_box": (610, 230, 830, 560),
-        "blend_factor": 0.95,
         "r": 0.80, "g": 0.92, "b": 1.30, # Deep space cupola & glowing blue Earth curve
         "bright": 0.85, "contrast": 1.25
     }
@@ -179,51 +135,17 @@ SYNTHESIS_SPECS = [
 def make_diorama_transparent(im_rgb, poly):
     """
     Renders everything outside the room walls and floor 100% transparent.
-    Uses:
-    1. Precise diorama hexagon clipping (removes outside trees, neighborhood houses, gardens).
-    2. Connected border floodfill to eliminate any white background or cast shadows.
+    Uses precise diorama cutaway polygon masking to eliminate background canvas,
+    drop shadows, and exterior clutter while keeping 100% of interior geometry.
     """
-    arr = np.array(im_rgb, dtype=np.float32)
-    h, w, _ = arr.shape
-    
-    corner_colors = [arr[0, 0], arr[0, w-1], arr[h-1, 0], arr[h-1, w-1]]
-    mean_bg = np.mean(corner_colors, axis=0)
-    
-    dist = np.linalg.norm(arr - mean_bg, axis=2)
-    # Candidate for outside background: near corner background or bright background
-    is_candidate = (dist < 85) | (np.min(arr, axis=2) > 185)
-    
-    visited = np.zeros((h, w), dtype=bool)
-    queue = deque()
-    for y in range(h):
-        for x in [0, w-1]:
-            if is_candidate[y, x] and not visited[y, x]:
-                visited[y, x] = True
-                queue.append((y, x))
-    for x in range(w):
-        for y in [0, h-1]:
-            if is_candidate[y, x] and not visited[y, x]:
-                visited[y, x] = True
-                queue.append((y, x))
-                
-    while queue:
-        y, x = queue.popleft()
-        for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
-            ny, nx = y + dy, x + dx
-            if 0 <= ny < h and 0 <= nx < w and not visited[ny, nx]:
-                if is_candidate[ny, nx]:
-                    visited[ny, nx] = True
-                    queue.append((ny, nx))
-                    
+    w, h = im_rgb.size
     poly_mask = Image.new('L', (w, h), 0)
     draw = ImageDraw.Draw(poly_mask)
     draw.polygon(poly, fill=255)
-    poly_arr = np.array(poly_mask) > 0
     
-    alpha = ((~visited) & poly_arr) * 255
-    alpha = alpha.astype(np.uint8)
-    
-    return Image.fromarray(np.dstack([arr.astype(np.uint8), alpha]))
+    res = im_rgb.copy()
+    res.putalpha(poly_mask)
+    return res
 
 def pixelate_and_scale(im_rgba, target_size=(2048, 2048), pixel_grid=512, colors=128):
     """
@@ -239,26 +161,6 @@ def pixelate_and_scale(im_rgba, target_size=(2048, 2048), pixel_grid=512, colors
     rgb_quant.putalpha(a_small)
     
     return rgb_quant.resize(target_size, Image.Resampling.NEAREST)
-
-def composite_window_vista(base_img, exterior_path, window_box, blend_factor=0.88):
-    """Composites the property exterior view into the window bounding box."""
-    x1, y1, x2, y2 = window_box
-    win_w = x2 - x1
-    win_h = y2 - y1
-    
-    ext = Image.open(exterior_path).convert("RGBA")
-    ext_resized = ext.resize((win_w, win_h), Image.Resampling.LANCZOS)
-    
-    base_arr = np.array(base_img)
-    ext_arr = np.array(ext_resized)
-    
-    region = base_arr[y1:y2, x1:x2, :3].astype(float)
-    ext_rgb = ext_arr[:, :, :3].astype(float)
-    
-    blended = region * (1.0 - blend_factor) + ext_rgb * blend_factor
-    base_arr[y1:y2, x1:x2, :3] = np.clip(blended, 0, 255).astype(np.uint8)
-    
-    return Image.fromarray(base_arr)
 
 def apply_color_grading(im, r_scale=1.0, g_scale=1.0, b_scale=1.0, brightness=1.0, contrast=1.0):
     """Applies channel scaling, brightness, and contrast adjustments."""
@@ -348,19 +250,11 @@ def main():
     for spec in SYNTHESIS_SPECS:
         room_id = spec["id"]
         base_id = spec["base"]
-        ext_filename = spec["exterior"]
-        ext_path = os.path.join(PROP_DIR, ext_filename)
         
         print(f"Synthesizing {room_id} (base {base_id})...")
         base_im = raw_bases[base_id].copy()
         
-        # 1. Composite exterior window vista
-        if os.path.exists(ext_path):
-            base_im = composite_window_vista(
-                base_im, ext_path, spec["window_box"], spec["blend_factor"]
-            )
-            
-        # 2. Color grading & lighting adjustments
+        # 1. Color grading & architectural mood lighting adjustments
         base_im = apply_color_grading(
             base_im,
             r_scale=spec["r"],
@@ -370,11 +264,11 @@ def main():
             contrast=spec["contrast"]
         )
         
-        # 3. Clean diorama transparency using base room's polygon
+        # 2. Clean diorama transparency using base room's polygon
         poly = BASE_POLYGONS[base_id]
         im_clean = make_diorama_transparent(base_im, poly)
         
-        # 4. Pixel art conversion & 2048x2048 upscale
+        # 3. Pixel art conversion & 2048x2048 upscale
         im_pixel = pixelate_and_scale(im_clean)
         
         out_path = os.path.join(ROOMS_DIR, f"{room_id}.png")
@@ -387,13 +281,12 @@ def main():
     if os.path.exists(wood_path):
         print("\n=== Pixelating Legacy room_wood.png ===")
         wood_im = Image.open(wood_path).convert("RGBA")
-        # Pixelate legacy wood
         wood_pixel = pixelate_and_scale(wood_im)
         wood_pixel.save(wood_path, "PNG")
         create_import_file(wood_path)
         print("Updated room_wood.png")
 
-    print("\nAll 24 housing rooms + starter rooms successfully built in pixel art style with zero background!")
+    print("\nAll 24 housing rooms + starter rooms successfully built in pixel art style with zero background and zero overlays!")
 
 if __name__ == "__main__":
     main()
