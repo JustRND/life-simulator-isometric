@@ -13,7 +13,7 @@ const PROPERTY_BASE_PREMIUM := 6000
 const PROPERTY_RATE := 0.030 # 3.0% annual rate of property portfolio value
 
 const BUSINESS_BASE_PREMIUM := 10000
-const BUSINESS_RATE := 0.025 # 2.5% annual rate of commercial business portfolio scale/valuation
+const BUSINESS_RATE := 0.005 # 0.5% annual rate of commercial business portfolio scale/valuation
 
 const VEHICLE_ASSET_CATEGORIES := [
 	AssetCatalog.CATEGORY_CARS,

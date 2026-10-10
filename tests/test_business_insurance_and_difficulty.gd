@@ -111,7 +111,7 @@ func _ready() -> void:
 	check(base_biz_prem == 10000, "Base business insurance premium is $10,000 when holding 0 enterprises (Got: %d)" % base_biz_prem)
 
 	# Add a business with $1,000,000 valuation:
-	# Premium = 10,000 base + 2.5% of 1,000,000 = 10,000 + 25,000 = $35,000
+	# Premium = 10,000 base + 0.5% of 1,000,000 = 10,000 + 5,000 = $15,000
 	var biz1 := {
 		"uid": "biz_test_1",
 		"type_id": "biz_software_studio",
@@ -124,10 +124,10 @@ func _ready() -> void:
 	}
 	PlayerData.owned_businesses.append(biz1)
 	var prem_1m := AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-	check(prem_1m == 35000, "Scaled business premium for $1M valuation is $35,000 (Got: %d)" % prem_1m)
+	check(prem_1m == 15000, "Scaled business premium for $1M valuation is $15,000 (0.5%% rate) (Got: %d)" % prem_1m)
 
 	# Add another business with $9,000,000 valuation (Total = $10,000,000):
-	# Premium = 10,000 + 2.5% of 10,000,000 = 10,000 + 250,000 = $260,000
+	# Premium = 10,000 + 0.5% of 10,000,000 = 10,000 + 50,000 = $60,000
 	var biz2 := {
 		"uid": "biz_test_2",
 		"type_id": "biz_clean_energy",
@@ -140,7 +140,7 @@ func _ready() -> void:
 	}
 	PlayerData.owned_businesses.append(biz2)
 	var prem_10m := AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-	check(prem_10m == 260000, "Scaled business premium for $10M total valuation is $260,000 (Got: %d)" % prem_10m)
+	check(prem_10m == 60000, "Scaled business premium for $10M total valuation is $60,000 (0.5%% rate) (Got: %d)" % prem_10m)
 
 	# -------------------------------------------------------------
 	# 3. TEST BUYING, RENEWAL & CANCELLING BUSINESS INSURANCE
@@ -149,7 +149,7 @@ func _ready() -> void:
 	var buy_res := AssetInsuranceManager.buy_insurance(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
 	check(bool(buy_res.get("success", false)), "Successfully purchased Business Insurance")
 	check(AssetInsuranceManager.is_business_insured(PlayerData), "Player now has active Business Insurance policy")
-	check(PlayerData.bank_savings + PlayerData.money == 1000000 - 260000, "Premium debited correctly from funds")
+	check(PlayerData.bank_savings + PlayerData.money == 1000000 - 60000, "Premium debited correctly from funds")
 
 	# Annual billing:
 	var logs := AssetInsuranceManager.process_yearly_insurance(PlayerData)
@@ -265,6 +265,68 @@ func _ready() -> void:
 	# Check BuyBusinessInsuranceButton exists in BankPanel
 	var buy_biz_btn = main_scene.find_child("BuyBusinessInsuranceButton", true, false) as Button
 	check(buy_biz_btn != null, "BuyBusinessInsuranceButton exists in BankPanel AssetInsuranceCard")
+
+	# -------------------------------------------------------------
+	# 7. TEST 20% NET PROFIT AUTO-TRANSFER TO PLAYER BANK SAVINGS
+	# -------------------------------------------------------------
+	print("\n--- 7. Testing 20% Business Net Profit Auto-Transfer to Player Bank ---")
+	PlayerData.reset_player()
+	PlayerData.bank_savings = 50000
+	var profit_biz := {
+		"uid": "profitable_biz",
+		"type_id": "biz_software_studio",
+		"name": "Profitable Software",
+		"valuation": 2000000,
+		"treasury": 100000,
+		"employees": 2,
+		"branches": 1,
+		"facility_tier": 1,
+		"marketing_budget": 25000,
+		"revenue_scale": 5.0,
+		"reputation": 95,
+		"owner_fraction": 1.0,
+		"consecutive_losses": 0
+	}
+	PlayerData.owned_businesses.append(profit_biz)
+	var prev_savings := PlayerData.bank_savings
+	var prev_treasury := int(profit_biz["treasury"])
+
+	var sim_res := BusinessManager.simulate_yearly_businesses()
+	check(sim_res.size() == 1, "Simulation returned result for enterprise")
+	var res_dict: Dictionary = sim_res[0]
+	var net_prof: int = int(res_dict.get("net_profit", 0))
+	var payout: int = int(res_dict.get("player_payout", 0))
+	print("Simulation Net Profit: $%d | 20%% Player Payout: $%d" % [net_prof, payout])
+
+	check(net_prof > 0, "Business generated positive net profit")
+	check(payout == int(float(net_prof) * 0.20), "Player payout is precisely 20%% of net profit (Got: %d, Expected: %d)" % [payout, int(float(net_prof) * 0.20)])
+	check(PlayerData.bank_savings == prev_savings + payout, "Player bank savings received exactly 20%% net profit transfer (Savings: $%d -> $%d)" % [prev_savings, PlayerData.bank_savings])
+	check(int(profit_biz["treasury"]) > prev_treasury, "Corporate treasury received retained earnings after tax and owner payout")
+
+	# -------------------------------------------------------------
+	# 8. TEST FUNDS PANEL UI (NET WORTH, VALUATION, TREASURY CONDITIONAL VISIBILITY)
+	# -------------------------------------------------------------
+	print("\n--- 8. Testing Funds Panel HUD (Net Worth & Conditional Biz Display) ---")
+	# Scenario A: Player owns businesses -> Valuation and Treasury MUST be shown
+	main_scene.update_ui()
+	var bal_text_with_biz: String = main_scene.balance_label.text
+	print("BalanceLabel text with business:\n%s" % bal_text_with_biz)
+	check("CASH" in bal_text_with_biz, "Funds panel displays CASH")
+	check("BANK" in bal_text_with_biz, "Funds panel displays BANK")
+	check("NET WORTH" in bal_text_with_biz, "Funds panel displays NET WORTH")
+	check("VALUATION" in bal_text_with_biz, "Funds panel displays VALUATION when owning business")
+	check("TREASURY" in bal_text_with_biz, "Funds panel displays TREASURY when owning business")
+
+	# Scenario B: Player does NOT own any business -> Valuation and Treasury MUST be HIDDEN
+	PlayerData.owned_businesses.clear()
+	main_scene.update_ui()
+	var bal_text_no_biz: String = main_scene.balance_label.text
+	print("BalanceLabel text without business:\n%s" % bal_text_no_biz)
+	check("CASH" in bal_text_no_biz, "Funds panel displays CASH without business")
+	check("BANK" in bal_text_no_biz, "Funds panel displays BANK without business")
+	check("NET WORTH" in bal_text_no_biz, "Funds panel displays NET WORTH without business")
+	check(not ("VALUATION" in bal_text_no_biz), "Funds panel HIDES VALUATION when player has no business")
+	check(not ("TREASURY" in bal_text_no_biz), "Funds panel HIDES TREASURY when player has no business")
 
 	# Clean up
 	main_scene.queue_free()

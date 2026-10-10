@@ -378,16 +378,16 @@ func _configure_ui() -> void:
 		bal_sb.corner_radius_top_right = 12
 		bal_sb.corner_radius_bottom_right = 12
 		bal_sb.corner_radius_bottom_left = 12
-		bal_sb.content_margin_left = 18
-		bal_sb.content_margin_right = 18
-		bal_sb.content_margin_top = 8
-		bal_sb.content_margin_bottom = 8
+		bal_sb.content_margin_left = 14
+		bal_sb.content_margin_right = 14
+		bal_sb.content_margin_top = 6
+		bal_sb.content_margin_bottom = 6
 		bal_sb.shadow_color = Color(0, 0, 0, 0.12 if is_light else 0.25)
 		bal_sb.shadow_size = 8
 		balance_label.add_theme_stylebox_override("normal", bal_sb)
 		balance_label.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
-		balance_label.add_theme_font_size_override("font_size", 20)
-		balance_label.custom_minimum_size = Vector2(260, 96)
+		balance_label.add_theme_font_size_override("font_size", 16)
+		balance_label.custom_minimum_size = Vector2(260, 92)
 		balance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		balance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		balance_label.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1363,16 +1363,47 @@ func update_ui() -> void:
 	if age_label != null:
 		age_label.text = "Age: %d" % PlayerData.age
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
-	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"
-	balance_label.text = "💵 $%s CASH\n🏦 $%s %s" % [
-		_format_number(PlayerData.money),
-		_format_number(PlayerData.bank_savings),
-		bank_title
-	]
-	balance_label.tooltip_text = "Cash (Wallet): $%s\nBank Balance (Savings): $%s\nClick to view Bank & Savings" % [
-		_format_number(PlayerData.money),
-		_format_number(PlayerData.bank_savings)
-	]
+	var nw: int = PlayerData.get_net_worth()
+	var nw_str := "-$%s" % _format_number(absi(nw)) if nw < 0 else "$%s" % _format_number(nw)
+	var has_biz: bool = not PlayerData.owned_businesses.is_empty()
+
+	if has_biz:
+		var total_biz_val: int = 0
+		var total_biz_treasury: int = 0
+		for b in PlayerData.owned_businesses:
+			total_biz_val += int(b.get("valuation", 0))
+			total_biz_treasury += int(b.get("treasury", 0))
+		balance_label.text = "💵 $%s CASH\n🏦 $%s BANK\n💎 %s NET WORTH\n🏢 $%s VALUATION\n💰 $%s TREASURY" % [
+			_format_number(PlayerData.money),
+			_format_number(PlayerData.bank_savings),
+			nw_str,
+			_format_number(total_biz_val),
+			_format_number(total_biz_treasury)
+		]
+		balance_label.add_theme_font_size_override("font_size", 13)
+		balance_label.add_theme_constant_override("line_spacing", 1)
+		balance_label.custom_minimum_size = Vector2(280, 116)
+		balance_label.tooltip_text = "Cash (Wallet): $%s\nBank Savings: $%s\nNet Worth: %s\nBusiness Valuation: $%s\nCorporate Treasury: $%s\nClick to view Bank & Savings" % [
+			_format_number(PlayerData.money),
+			_format_number(PlayerData.bank_savings),
+			nw_str,
+			_format_number(total_biz_val),
+			_format_number(total_biz_treasury)
+		]
+	else:
+		balance_label.text = "💵 $%s CASH\n🏦 $%s BANK\n💎 %s NET WORTH" % [
+			_format_number(PlayerData.money),
+			_format_number(PlayerData.bank_savings),
+			nw_str
+		]
+		balance_label.add_theme_font_size_override("font_size", 16)
+		balance_label.add_theme_constant_override("line_spacing", 3)
+		balance_label.custom_minimum_size = Vector2(260, 92)
+		balance_label.tooltip_text = "Cash (Wallet): $%s\nBank Savings: $%s\nNet Worth: %s\nClick to view Bank & Savings" % [
+			_format_number(PlayerData.money),
+			_format_number(PlayerData.bank_savings),
+			nw_str
+		]
 
 	if nationality_flag != null and PlayerData.birthplace != "":
 		nationality_flag.texture = CreationOptions.get_flag_for_country(PlayerData.birthplace)
@@ -3691,7 +3722,7 @@ func update_bank_panel() -> void:
 
 	var biz_info := Label.new()
 	var biz_status_text := "✅ ACTIVE POLICY (100% Protected against bankruptcy, insolvency & liquidation)" if biz_has_ins else "⚠️ UNINSURED (Commercial ventures will fully close down and liquidate upon bankruptcy!)"
-	biz_info.text = "• Status: %s\n• Registered Portfolio: %d enterprises (Combined Valuation: $%s)\n• Annual Premium: $%s / year ($10,000 base + 2.5%% enterprise scale)\n• Protection: In the event of bankruptcy, insurance settles corporate liabilities and resets operations to zero so you never lose ownership." % [
+	biz_info.text = "• Status: %s\n• Registered Portfolio: %d enterprises (Combined Valuation: $%s)\n• Annual Premium: $%s / year ($10,000 base + 0.5%% enterprise scale)\n• Protection: In the event of bankruptcy, insurance settles corporate liabilities and resets operations to zero so you never lose ownership." % [
 		biz_status_text,
 		biz_count,
 		_format_number(biz_val),
@@ -4106,7 +4137,7 @@ func _show_insurance_modal() -> void:
 
 	var biz_lbl := Label.new()
 	var biz_stat := "✅ ACTIVE POLICY (Protected)" if biz_has_ins else "⚠️ UNINSURED (High Risk!)"
-	biz_lbl.text = "• Status: %s\n• Registered Portfolio: %d enterprises ($%s valuation)\n• Premium: $%s / year ($10,000 base + 2.5%% valuation)\n• Protection: Prevents businesses from fully closing down on insolvency. Absorbs debt liabilities and resets operations to zero for a fresh restart." % [
+	biz_lbl.text = "• Status: %s\n• Registered Portfolio: %d enterprises ($%s valuation)\n• Premium: $%s / year ($10,000 base + 0.5%% valuation)\n• Protection: Prevents businesses from fully closing down on insolvency. Absorbs debt liabilities and resets operations to zero for a fresh restart." % [
 		biz_stat, biz_count, _format_number(biz_val), _format_number(biz_premium)
 	]
 	biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -9986,10 +10017,13 @@ func _process_yearly_business_operations() -> void:
 				]
 			})
 		else:
-			add_life_event("🏢 %s Year-End Audit: Revenue: $%s | Net Profit: %s | Corporate Tax Accrued: $%s." % [
+			var payout: int = int(r.get("player_payout", 0))
+			var payout_str: String = " | 20%% Owner Bank Payout: +$%s" % _format_number(payout) if payout > 0 else ""
+			add_life_event("🏢 %s Year-End Audit: Revenue: $%s | Net Profit: %s%s | Corporate Tax Accrued: $%s." % [
 				b_name,
 				_format_number(int(r.get("revenue", 0))),
 				profit_str,
+				payout_str,
 				_format_number(int(r.get("tax_accrued", 0)))
 			], "finance")
 

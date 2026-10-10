@@ -766,6 +766,7 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		if def.is_empty():
 			continue
 
+		var b_name: String = str(b.get("name", "Enterprise"))
 		var min_rev: int = int(def.get("base_revenue_min", 60000))
 		var max_rev: int = int(def.get("base_revenue_max", 120000))
 		var base_opex: int = int(def.get("base_opex", 45000))
@@ -817,11 +818,20 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		# Progressive Conglomerate & Portfolio Tax Calculation (the more businesses you have the more tax you pay)
 		var tax_rate := get_corporate_tax_rate(total_businesses, net_profit)
 		var tax_accrued: int = 0
+		var player_payout: int = 0
 		if net_profit > 0:
 			tax_accrued = int(float(net_profit) * tax_rate)
-			# Pay accrued tax out of operating earnings so corporate treasury doesn't unrealistically inflate with untaxed millions
+			# 20% of the business net profit is automatically transferred to the character's bank account
+			var owner_frac: float = float(b.get("owner_fraction", 1.0))
+			player_payout = int(float(net_profit) * 0.20 * owner_frac)
+			if player_payout > 0:
+				PlayerData.bank_savings += player_payout
+				PlayerData.add_life_log_entry("💰 %s PROFIT DISTRIBUTION: 20%% of net profit ($%d) was automatically transferred to your bank account!" % [b_name, player_payout], "finance")
+			
+			# Remaining after-tax profit (after 20% owner transfer) enters corporate treasury
 			var after_tax_profit := net_profit - tax_accrued
-			b["treasury"] = int(b.get("treasury", 0)) + after_tax_profit
+			var retained_earnings := maxi(0, after_tax_profit - player_payout)
+			b["treasury"] = int(b.get("treasury", 0)) + retained_earnings
 			b["consecutive_losses"] = 0
 		else:
 			# Loss burns corporate treasury reserves directly
@@ -840,7 +850,7 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 			var prev_val: int = int(b.get("valuation", 15000))
 			b["valuation"] = maxi(15000, maxi(prev_val + int(net_profit * 0.35), base_val))
 
-		var b_name: String = str(b.get("name", "Enterprise"))
+		b_name = str(b.get("name", "Enterprise"))
 		var profit_str: String = ("+$%d" % net_profit) if net_profit >= 0 else ("-$%d" % abs(net_profit))
 
 		PlayerData.add_life_log_entry("🏢 %s Report [%s]: Revenue: $%d | OpEx: $%d | Net: %s | Corp Tax (%d%%): $%d | Treasury: $%d" % [
@@ -959,6 +969,7 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 			"revenue": generated_revenue,
 			"opex": total_opex,
 			"net_profit": net_profit,
+			"player_payout": player_payout,
 			"tax_accrued": tax_accrued,
 			"treasury": int(b.get("treasury", 0)),
 			"is_closed": bool(b.get("is_closed", false)),
