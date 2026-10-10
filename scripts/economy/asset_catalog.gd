@@ -378,12 +378,12 @@ const ITEMS := {
 	"prop_capsule": {
 		"id": "prop_capsule",
 		"category": CATEGORY_PROPERTIES,
-		"name": "Micro Capsule Pod",
+		"name": "Cozy Starter Home",
 		"price": 104000,
 		"upkeep": 2600,
 		"happiness_bonus": 6,
-		"desc": "A compact, high-tech sleeping pod apartment with holographic terminals and cozy mood lighting in the cyber district.",
-		"image_path": "res://assets/items/properties/prop_capsule.jpg",
+		"desc": "A charming single-story starter house with a welcoming front porch, neat lawn, and warm glowing windows—perfect for humble beginnings.",
+		"image_path": "res://assets/items/properties/prop_starter_home.jpg",
 		"min_age": 18
 	},
 	"prop_tenement": {
@@ -1013,7 +1013,8 @@ const ITEMS := {
 }
 
 static func get_item(item_id: String) -> Dictionary:
-	return ITEMS.get(item_id, {}).duplicate(true)
+	var actual_id := "prop_capsule" if item_id == "prop_starter_home" else item_id
+	return ITEMS.get(actual_id, {}).duplicate(true)
 
 static func get_items_by_category(category: String) -> Array[Dictionary]:
 	var list: Array[Dictionary] = []
@@ -1075,10 +1076,11 @@ static func can_afford(player_data: Node, price: int) -> bool:
 	return total_funds >= price
 
 static func can_purchase_asset(player_data: Node, item_id: String, payment_method: String = "funds") -> Dictionary:
-	if not ITEMS.has(item_id):
+	var actual_id := "prop_capsule" if item_id == "prop_starter_home" else item_id
+	if not ITEMS.has(actual_id):
 		return {"allowed": false, "reason": "Item not found in catalog."}
 
-	var item: Dictionary = ITEMS[item_id]
+	var item: Dictionary = ITEMS[actual_id]
 	var category: String = str(item.get("category", ""))
 	var price: int = int(item.get("price", 0))
 	var min_age: int = int(item.get("min_age", 18))
@@ -1138,15 +1140,48 @@ static func can_purchase_asset(player_data: Node, item_id: String, payment_metho
 
 	return {"allowed": true, "reason": "Eligible to purchase."}
 
+static func create_asset_instance(item_id: String, purchase_age: int = 0) -> Dictionary:
+	var actual_id := "prop_capsule" if item_id == "prop_starter_home" else item_id
+	if not ITEMS.has(actual_id):
+		return {}
+	var item: Dictionary = ITEMS[actual_id]
+	var price: int = int(item.get("price", 0))
+	var instance_id: String = "%s_%d_%d" % [actual_id, purchase_age, randi() % 10000]
+	return {
+		"instance_id": instance_id,
+		"item_id": actual_id,
+		"category": str(item.get("category", "")),
+		"name": str(item.get("name", "")),
+		"purchase_price": price,
+		"current_value": price,
+		"purchase_age": purchase_age,
+		"condition": 100,
+		"image_path": str(item.get("image_path", "")),
+		"upkeep": int(item.get("upkeep", 0)),
+		"happiness_bonus": int(item.get("happiness_bonus", 5)),
+		"last_used_age": -1,
+		"purchased_with_credit": false
+	}
+
+static func grant_starting_property(player_data: Node) -> Dictionary:
+	for asset in player_data.owned_assets:
+		if str(asset.get("category", "")) == CATEGORY_PROPERTIES:
+			return {}
+	var starter := create_asset_instance("prop_capsule", player_data.age)
+	if not starter.is_empty():
+		player_data.owned_assets.append(starter)
+	return starter
+
 static func buy_asset(player_data: Node, item_id: String, payment_method: String = "funds") -> Dictionary:
-	var eval := can_purchase_asset(player_data, item_id, payment_method)
+	var actual_id := "prop_capsule" if item_id == "prop_starter_home" else item_id
+	var eval := can_purchase_asset(player_data, actual_id, payment_method)
 	if not bool(eval.get("allowed", false)):
 		return {
 			"success": false,
 			"message": str(eval.get("reason", "Cannot purchase asset."))
 		}
 
-	var item: Dictionary = ITEMS[item_id]
+	var item: Dictionary = ITEMS[actual_id]
 	var price: int = int(item.get("price", 0))
 
 	if payment_method == "credit_card":
@@ -1157,22 +1192,8 @@ static func buy_asset(player_data: Node, item_id: String, payment_method: String
 		# Debit funds: Prefer bank savings first, then draw remainder from cash
 		player_data.debit_funds(price)
 
-	var instance_id: String = "%s_%d_%d" % [item_id, player_data.age, randi() % 10000]
-	var new_asset: Dictionary = {
-		"instance_id": instance_id,
-		"item_id": item_id,
-		"category": str(item.get("category", "")),
-		"name": str(item.get("name", "")),
-		"purchase_price": price,
-		"current_value": price,
-		"purchase_age": player_data.age,
-		"condition": 100,
-		"image_path": str(item.get("image_path", "")),
-		"upkeep": int(item.get("upkeep", 0)),
-		"happiness_bonus": int(item.get("happiness_bonus", 5)),
-		"last_used_age": -1,
-		"purchased_with_credit": payment_method == "credit_card"
-	}
+	var new_asset: Dictionary = create_asset_instance(actual_id, player_data.age)
+	new_asset["purchased_with_credit"] = (payment_method == "credit_card")
 
 	player_data.owned_assets.append(new_asset)
 	player_data.happiness = mini(100, player_data.happiness + int(item.get("happiness_bonus", 10)))
@@ -1192,6 +1213,12 @@ static func sell_asset(player_data: Node, instance_id: String) -> Dictionary:
 	for i in range(player_data.owned_assets.size() - 1, -1, -1):
 		var asset: Dictionary = player_data.owned_assets[i]
 		if asset.get("instance_id", "") == instance_id:
+			if str(asset.get("category", "")) == CATEGORY_PROPERTIES and player_data.age < 18:
+				return {
+					"success": false,
+					"message": "You cannot sell real estate as a minor! Your family manages the residence until you reach adulthood at age 18."
+				}
+
 			var total_value: int = int(asset.get("current_value", asset.get("purchase_price", 0)))
 			var was_credit: bool = bool(asset.get("purchased_with_credit", false))
 			var pay_to_card: int = 0
@@ -1260,7 +1287,10 @@ static func use_asset(player_data: Node, instance_id: String) -> Dictionary:
 					player_data.smarts = mini(100, player_data.smarts + 1)
 					action_desc = "You ran tactical target transition and defensive handling drills at the range with your %s!" % asset.get("name", "firearm")
 				_:
-					action_desc = "You spent a serene, luxurious weekend relaxing at your %s!" % asset.get("name", "residence")
+					if player_data.age < 18:
+						action_desc = "You spent a cozy day relaxing with your family at your %s!" % asset.get("name", "residence")
+					else:
+						action_desc = "You spent a serene, luxurious weekend relaxing at your %s!" % asset.get("name", "residence")
 			return {
 				"success": true,
 				"message": action_desc
@@ -1275,7 +1305,10 @@ static func process_yearly_assets(player_data: Node) -> Array[String]:
 
 		# 1. Maintenance / Upkeep auto-debit
 		if upkeep > 0:
-			if player_data.bank_savings >= upkeep:
+			# If player is a minor (< 18), parents / guardians cover family residence and asset upkeep
+			if player_data.age < 18:
+				pass
+			elif player_data.bank_savings >= upkeep:
 				player_data.bank_savings -= upkeep
 			elif player_data.get_available_funds() >= upkeep:
 				player_data.debit_funds(upkeep)

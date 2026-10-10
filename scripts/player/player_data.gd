@@ -301,6 +301,7 @@ func reset_player() -> void:
 	credit_card_apr = 0.18
 	credit_card_paid_this_year = 0
 	owned_assets.clear()
+	grant_starting_assets()
 	health_insurance = "none"
 	asset_insurance = { "vehicle": false, "property": false }
 
@@ -726,6 +727,15 @@ func get_net_worth() -> int:
 func get_personal_net_worth() -> int:
 	# Strictly personal net worth: Business valuation DOES NOT count as a player asset or personal net worth for credit cards
 	return money + bank_savings + get_total_asset_value() + preload("res://scripts/economy/finance_market.gd").portfolio_value(self) - get_total_debt()
+
+
+func grant_starting_assets() -> void:
+	for asset in owned_assets:
+		if str(asset.get("category", "")) == "properties":
+			return
+	var starter: Dictionary = AssetCatalog.create_asset_instance("prop_capsule", age)
+	if not starter.is_empty():
+		owned_assets.append(starter)
 
 
 func get_owned_assets_by_category(category: String) -> Array[Dictionary]:
@@ -1538,6 +1548,8 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	for a in assets_copy:
 		if a is Dictionary:
 			owned_assets.append(a.duplicate(true))
+	if owned_assets.is_empty():
+		grant_starting_assets()
 
 	if relation_type == "partner":
 		partner = {}

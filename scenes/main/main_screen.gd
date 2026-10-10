@@ -1398,14 +1398,10 @@ func update_ui() -> void:
 		infant_button.icon = preload("res://scripts/ui/modern_navigation.gd").icon("life")
 		infant_button.text = PlayerData.get_stage_name()
 
-	# Assets Button Dimming & Tooltip Gating for Infants / Toddlers
+	# Assets Button Tooltip
 	if assets_button != null:
-		if PlayerData.age < 5:
-			assets_button.tooltip_text = "🔒 Assets unlock at age 5 (Childhood)"
-			assets_button.modulate = Color(0.65, 0.65, 0.65, 0.8)
-		else:
-			assets_button.tooltip_text = "Assets & Net Worth"
-			assets_button.modulate = Color.WHITE
+		assets_button.tooltip_text = "Assets & Real Estate"
+		assets_button.modulate = Color.WHITE
 
 	# If panels are open, refresh them
 	if relationships_panel.visible:
@@ -2074,6 +2070,7 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.father_health = int(profile.get("father_health", 80))
 	PlayerData.father_portrait_track = int(profile.get("father_portrait_track", randi() % 4))
 	PlayerData.family_wealth = str(profile.get("family_wealth", "middle_class"))
+	PlayerData.grant_starting_assets()
 	PlayerData.add_milestone("Born in %s." % PlayerData.birthplace, 0, "🍼")
 
 	hide_new_game_screen()
@@ -2105,12 +2102,6 @@ func _on_start_game_button_pressed() -> void:
 
 
 func show_tab(tab_name: String) -> void:
-	if tab_name == "assets" and PlayerData.age < 5:
-		if PlayerData.age == 0:
-			add_life_event("🍼 Restricted: You are an infant! Infants do not possess financial assets or bank accounts yet. Advance age (+1 Year) to grow up.", "finance")
-		else:
-			add_life_event("🧸 Restricted: You are %d years old. Financial assets and wealth management unlock at age 5 (Childhood)—advance age to grow up!" % PlayerData.age, "finance")
-		return
 
 	var touch_controller = get_node_or_null("TouchScrollController")
 	if touch_controller != null and touch_controller.has_method("reset_state"):
@@ -2864,10 +2855,11 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			iv.add_child(act_row)
 
 			var cat: String = str(item.get("category", ""))
+			var is_minor_property: bool = (cat == AssetCatalog.CATEGORY_PROPERTIES and PlayerData.age < 18)
 			var is_used: bool = int(item.get("last_used_age", -1)) == PlayerData.age
 			var use_text := "Joyride (Used)" if is_used else "🏎️ Joyride"
 			if cat == AssetCatalog.CATEGORY_PROPERTIES:
-				use_text = "Relax (Used)" if is_used else "🎉 Host Party"
+				use_text = "Relax (Used)" if is_used else ("🏡 Relax" if PlayerData.age < 18 else "🎉 Host Party")
 
 			var instance_id: String = str(item.get("instance_id", ""))
 			var btn_use := _create_cyber_button(use_text, Color("#0284c7"), func():
@@ -2888,16 +2880,25 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 				btn_use.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			act_row.add_child(btn_use)
 
-			var btn_sell := _create_cyber_button("💰 Sell ($%s)" % _format_number(cur_val), Color("#f43f5e"), func():
+			var sell_label: String = "🔒 Minor (Age 18+)" if is_minor_property else ("💰 Sell ($%s)" % _format_number(cur_val))
+			var btn_sell := _create_cyber_button(sell_label, Color("#f43f5e"), func():
+				if is_minor_property:
+					add_life_event("🔒 Restricted: You cannot sell real estate as a minor! You must be at least 18 years old.", "finance")
+					return
 				var res = AssetCatalog.sell_asset(PlayerData, instance_id)
 				if res["success"]:
 					add_life_event("💰 ASSET SOLD: You sold %s for $%s!" % [item.get("name", "Asset"), _format_number(res["sale_price"])], "finance")
 					update_ui()
 					update_assets_panel()
+				else:
+					add_life_event(res.get("message", "Cannot sell asset."), "finance")
 			)
 			btn_sell.custom_minimum_size.y = 48
 			btn_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn_sell.add_theme_font_size_override("font_size", 18)
+			if is_minor_property:
+				btn_sell.disabled = true
+				btn_sell.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			act_row.add_child(btn_sell)
 
 	assets_list.add_child(section_card)

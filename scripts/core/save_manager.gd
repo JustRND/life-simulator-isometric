@@ -358,7 +358,12 @@ func apply_data(data: Dictionary) -> bool:
 	if saved_assets is Array:
 		for a in saved_assets:
 			if a is Dictionary:
+				if a.get("item_id", "") == "prop_capsule":
+					a["name"] = "Cozy Starter Home"
+					a["image_path"] = "res://assets/items/properties/prop_starter_home.jpg"
 				PlayerData.owned_assets.append(a)
+	if PlayerData.owned_assets.is_empty() and PlayerData.age == 0:
+		PlayerData.grant_starting_assets()
 	PlayerData.enforce_buffs_and_debuffs()
 
 	PlayerData.partner = Dictionary(data.get("partner", {}))
