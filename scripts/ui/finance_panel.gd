@@ -191,11 +191,78 @@ func _perform(result: String) -> void:
 
 
 func _exchange(list: VBoxContainer) -> void:
-	var listings_label := label(list, "8 active listings • 24 company archetypes • NPC-owned businesses can close and reopen.", 21)
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	# Macro Market Climate Banner
+	var reg_info: Dictionary = FinanceMarket.get_regime_info(PlayerData)
+	var avg_change: float = float(PlayerData.finance_market.get("avg_change", 0.0))
+	var is_mkt_up: bool = avg_change >= 0.0
+	var reg_card := PanelContainer.new()
+	reg_card.set_meta("reference_part", true)
+	var r_style := StyleBoxFlat.new()
+	r_style.bg_color = Color("#f0fdf4" if is_light else "#022c22") if is_mkt_up else Color("#fef2f2" if is_light else "#450a0a")
+	r_style.border_color = Color(reg_info.get("color", Color("#10b981")))
+	r_style.set_border_width_all(2)
+	r_style.set_corner_radius_all(12)
+	r_style.shadow_color = Color(0, 0, 0, 0.25)
+	r_style.shadow_size = 6
+	reg_card.add_theme_stylebox_override("panel", r_style)
+	list.add_child(reg_card)
+
+	var rm := MarginContainer.new()
+	rm.add_theme_constant_override("margin_left", 18)
+	rm.add_theme_constant_override("margin_right", 18)
+	rm.add_theme_constant_override("margin_top", 16)
+	rm.add_theme_constant_override("margin_bottom", 16)
+	reg_card.add_child(rm)
+
+	var rv := VBoxContainer.new()
+	rv.add_theme_constant_override("separation", 8)
+	rm.add_child(rv)
+
+	var r_top := HBoxContainer.new()
+	r_top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rv.add_child(r_top)
+
+	var reg_lbl := label(r_top, str(reg_info.get("title", "MARKET CLIMATE")), 24, Color(reg_info.get("color", Color("#10b981"))))
+	reg_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var avg_badge := label(r_top, "Exchange Avg: %s%.1f%%" % ["+" if is_mkt_up else "", avg_change], 22, Color(reg_info.get("color", Color("#10b981"))))
+
+	label(rv, str(reg_info.get("desc", "")), 19, Color("#334155" if is_light else "#cbd5e1"))
+
+	# Latest financial wire headlines
+	var news_list: Array = PlayerData.finance_market.get("news", [])
+	if not news_list.is_empty():
+		var ticker_box := PanelContainer.new()
+		var tb_style := StyleBoxFlat.new()
+		tb_style.bg_color = Color("#0f172a" if not is_light else "#f1f5f9")
+		tb_style.set_corner_radius_all(6)
+		tb_style.content_margin_left = 12
+		tb_style.content_margin_right = 12
+		tb_style.content_margin_top = 8
+		tb_style.content_margin_bottom = 8
+		ticker_box.add_theme_stylebox_override("panel", tb_style)
+		rv.add_child(ticker_box)
+
+		var news_txt := " • ".join(news_list)
+		label(ticker_box, "📰 Financial Wire: %s" % news_txt, 18, Color("#0284c7" if is_light else "#38bdf8"))
+
+	# Live Quote Pulse action
+	var pulse_row := HBoxContainer.new()
+	pulse_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rv.add_child(pulse_row)
+	var pulse_btn := create_market_button(pulse_row, "🔄 Pulse Live Quotes", Color("#0284c7"), func():
+		FinanceMarket.tick_live_market(PlayerData)
+		open()
+	, false, 44)
+	pulse_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	pulse_btn.add_theme_font_size_override("font_size", 18)
+
+	var listings_label := label(list, "8 active listings • 24 company archetypes • Dynamic market cycles with crashes & rallies.", 21)
 	listings_label.name = "ActiveListings"
 	label(list, "Acquisitions need no license. Price includes a 25% control premium; shares you already own reduce the cost. Delisting returns 80% of share value; bankruptcy returns zero.", 19, Color("#64748b"))
-	
-	var is_light: bool = LifeLibrary.data.theme == "light"
+
 	for c in FinanceMarket.active(PlayerData):
 		var card := PanelContainer.new()
 		card.set_meta("reference_part", true)
@@ -209,34 +276,48 @@ func _exchange(list: VBoxContainer) -> void:
 		c_style.shadow_offset = Vector2(0, 3)
 		card.add_theme_stylebox_override("panel", c_style)
 		list.add_child(card)
-		
+
 		var cm := MarginContainer.new()
 		cm.add_theme_constant_override("margin_left", 18)
 		cm.add_theme_constant_override("margin_right", 18)
 		cm.add_theme_constant_override("margin_top", 16)
 		cm.add_theme_constant_override("margin_bottom", 16)
 		card.add_child(cm)
-		
+
 		var cv := VBoxContainer.new()
 		cv.add_theme_constant_override("separation", 10)
 		cm.add_child(cv)
-		
+
 		# 1. Company Header Row with Name & Price Trend Badge
 		var header_row := HBoxContainer.new()
 		header_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cv.add_child(header_row)
-		
+
 		var name_lbl := label(header_row, "🏛️ " + str(c.name), 28, Color("#0369a1") if is_light else Color("#38bdf8"))
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		
+
 		var change := (float(c.price) / maxf(0.01, float(c.previous)) - 1.0) * 100.0
 		var price_box := PanelContainer.new()
 		price_box.set_meta("reference_part", true)
 		var pb_style := StyleBoxFlat.new()
 		var is_up := change >= 0.0
-		pb_style.bg_color = Color("#dcfce7" if is_light else "#064e3b") if is_up else Color("#fee2e2" if is_light else "#7f1d1d")
-		pb_style.border_color = Color("#10b981") if is_up else Color("#ef4444")
-		pb_style.set_border_width_all(1)
+		var is_crash := change <= -30.0
+		var is_surge := change >= 35.0
+
+		if is_crash:
+			pb_style.bg_color = Color("#7f1d1d" if not is_light else "#fee2e2")
+			pb_style.border_color = Color("#ef4444")
+		elif is_surge:
+			pb_style.bg_color = Color("#064e3b" if not is_light else "#dcfce7")
+			pb_style.border_color = Color("#10b981")
+		elif is_up:
+			pb_style.bg_color = Color("#064e3b" if not is_light else "#dcfce7")
+			pb_style.border_color = Color("#10b981")
+		else:
+			pb_style.bg_color = Color("#7f1d1d" if not is_light else "#fee2e2")
+			pb_style.border_color = Color("#f87171")
+
+		pb_style.set_border_width_all(2)
 		pb_style.set_corner_radius_all(8)
 		pb_style.content_margin_left = 12
 		pb_style.content_margin_right = 12
@@ -244,23 +325,52 @@ func _exchange(list: VBoxContainer) -> void:
 		pb_style.content_margin_bottom = 4
 		price_box.add_theme_stylebox_override("panel", pb_style)
 		header_row.add_child(price_box)
-		
+
 		var trend_sign := "▲ +" if is_up else "▼ "
+		var badge_prefix := ""
+		if is_surge:
+			badge_prefix = "🚀 SURGE "
+		elif is_crash:
+			badge_prefix = "💥 CRASH "
+
 		var trend_lbl := Label.new()
-		trend_lbl.text = "%s (%s%.1f%%)" % [_money(c.price), trend_sign, absf(change)]
+		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
 		trend_lbl.add_theme_font_size_override("font_size", 21)
-		trend_lbl.add_theme_color_override("font_color", Color("#15803d" if is_light else "#34d399") if is_up else Color("#b91c1c" if is_light else "#fca5a5"))
+		var text_col: Color
+		if is_crash:
+			text_col = Color("#ef4444" if not is_light else "#b91c1c")
+		elif is_surge or is_up:
+			text_col = Color("#34d399" if not is_light else "#15803d")
+		else:
+			text_col = Color("#fca5a5" if not is_light else "#b91c1c")
+		trend_lbl.add_theme_color_override("font_color", text_col)
 		price_box.add_child(trend_lbl)
-		
-		# 2. Company Details
-		label(cv, "Owner: %s  •  Floating Shares: %d" % [c.owner, int(c.available)], 21, Color("#64748b"))
+
+		# 2. Company Details, Sector, and Volatility Profile
+		var sec_name: String = str(c.get("sector", "Industrial"))
+		var vol_val: float = float(c.get("volatility", 0.35))
+		var vol_desc := "⚡ High Beta Speculative" if vol_val > 0.50 else ("🛡️ Defensive Value" if vol_val < 0.28 else "⚖️ Moderate Growth")
+		label(cv, "Sector: %s • Profile: %s • Floating Shares: %d" % [sec_name, vol_desc, int(c.available)], 20, Color("#64748b"))
+
+		# 3. Dynamic Sparkline & Price Range
+		var hist: Array = c.get("history", [])
+		var spark := FinanceMarket.generate_sparkline(hist)
+		var ath: float = float(c.get("all_time_high", c.price))
+		var atl: float = float(c.get("all_time_low", c.price))
+		label(cv, "Price Trend: %s  •  All-Time Range: $%s — $%s" % [spark, snappedf(atl, 0.01), snappedf(ath, 0.01)], 19, Color("#0284c7" if is_light else "#38bdf8"))
+
+		# 4. Catalyst Event Headline
+		var ev_note: String = str(c.get("event_note", ""))
+		if not ev_note.is_empty():
+			label(cv, "News: %s" % ev_note, 19, Color("#15803d" if is_up else "#dc2626"))
+
 		label(cv, "Market Activity: %d buys ---- %d sells" % [int(c.npc_buys), int(c.npc_sells)], 20, Color("#64748b"))
-		
+
 		if not str(c.business_uid).is_empty():
 			label(cv, "👑 Your public company • 80% controlling stake", 22, Color("#eab308"))
 			continue
-		
-		# 3. Holding Status (if player owns shares)
+
+		# 5. Holding Status (if player owns shares)
 		var holdings: Dictionary = PlayerData.finance_market.get("holdings", {})
 		var owned_qty := 0
 		if holdings.has(c.uid):
@@ -268,8 +378,8 @@ func _exchange(list: VBoxContainer) -> void:
 		if owned_qty > 0:
 			var hold_val := owned_qty * float(c.price)
 			label(cv, "💼 Portfolio: You own %d shares (Worth: %s)" % [owned_qty, _money(hold_val)], 22, Color("#10b981"))
-		
-		# 4. Action Buttons with Rounded Corners, Borders, and Shadow Backdrops
+
+		# 6. Action Buttons with Rounded Corners, Borders, and Shadow Backdrops
 		var btn_row := HBoxContainer.new()
 		btn_row.add_theme_constant_override("separation", 12)
 		cv.add_child(btn_row)

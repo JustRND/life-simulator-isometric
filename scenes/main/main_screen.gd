@@ -2847,6 +2847,12 @@ func _render_assets_list() -> void:
 	# 9. Owned Commercial Enterprises (Businesses)
 	_render_owned_businesses_section()
 
+	# 10. Owned Cryptocurrencies & Digital Assets
+	_render_owned_crypto_section()
+
+	# 11. Owned Public Stock Equities & Holdings
+	_render_owned_stocks_section()
+
 
 func _render_owned_assets_section(title_text: String, categories: Array, theme_color: Color) -> void:
 	var section_card := PanelContainer.new()
@@ -10881,6 +10887,310 @@ func _render_owned_businesses_section() -> void:
 			cv.add_child(btn_manage)
 
 			sv.add_child(card)
+
+	assets_list.add_child(section_card)
+
+
+# -----------------------------------------------------------------------------
+# ASSET PANEL OWNED CRYPTOCURRENCY SECTION
+# -----------------------------------------------------------------------------
+func _render_owned_crypto_section() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var section_card := PanelContainer.new()
+	section_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 20)
+	sm.add_theme_constant_override("margin_right", 20)
+	sm.add_theme_constant_override("margin_top", 18)
+	sm.add_theme_constant_override("margin_bottom", 18)
+	section_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 14)
+	sm.add_child(sv)
+
+	CryptoMarket.ensure(PlayerData)
+	var wallet: Dictionary = PlayerData.crypto_wallet
+	var pnl_data: Dictionary = CryptoMarket.portfolio_pnl(PlayerData)
+	var total_crypto_val: int = int(pnl_data.get("current_value", 0))
+	var total_invested: int = int(pnl_data.get("total_cost", 0))
+	var net_gain: int = int(pnl_data.get("net_gain", 0))
+	var gain_pct: float = float(pnl_data.get("pnl_pct", 0.0))
+
+	var coins_dict: Dictionary = wallet.get("coins", {})
+	var held_coins: Array[Dictionary] = []
+	for c in CryptoMarket.COINS:
+		var sym: String = str(c["symbol"])
+		var h: Dictionary = coins_dict.get(sym, {})
+		var amt: float = float(h.get("amount", 0.0))
+		if amt > 0.000001:
+			var price := CryptoMarket.get_price(PlayerData, sym)
+			var cur_val := amt * price
+			var cost := float(h.get("total_invested", 0.0))
+			var coin_pnl := cur_val - cost
+			var coin_pct := (coin_pnl / cost * 100.0) if cost > 0.0 else 0.0
+			held_coins.append({
+				"symbol": sym,
+				"name": str(c["name"]),
+				"icon": str(c["icon"]),
+				"amount": amt,
+				"price": price,
+				"value": cur_val,
+				"cost": cost,
+				"pnl": coin_pnl,
+				"pnl_pct": coin_pct,
+				"spec": c
+			})
+
+	var stitle := Label.new()
+	stitle.text = "🪙 OWNED CRYPTOCURRENCY ASSETS (%d)" % held_coins.size()
+	stitle.add_theme_font_size_override("font_size", 24)
+	stitle.add_theme_color_override("font_color", Color("#d97706") if is_light else Color("#fbbf24"))
+	sv.add_child(stitle)
+
+	if held_coins.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "You do not currently hold any cryptocurrencies in your wallet. Trade Bitcoin, Ethereum, Solana, and more on the Cryptocurrency Exchange!"
+		empty_lbl.add_theme_font_size_override("font_size", 20)
+		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(empty_lbl)
+
+		var btn_open := _create_cyber_button("🪙 Open Cryptocurrency Exchange ➔", Color("#f59e0b"), func():
+			_show_crypto_exchange_modal()
+		)
+		btn_open.custom_minimum_size.y = 52
+		btn_open.add_theme_font_size_override("font_size", 20)
+		sv.add_child(btn_open)
+	else:
+		# Summary Stats Bar
+		var summary_panel := PanelContainer.new()
+		var sp_style := StyleBoxFlat.new()
+		sp_style.bg_color = Color("#fef3c7") if is_light else Color("#1c1917")
+		sp_style.border_color = Color("#f59e0b")
+		sp_style.set_border_width_all(1)
+		sp_style.set_corner_radius_all(8)
+		sp_style.content_margin_left = 14
+		sp_style.content_margin_right = 14
+		sp_style.content_margin_top = 10
+		sp_style.content_margin_bottom = 10
+		summary_panel.add_theme_stylebox_override("panel", sp_style)
+		sv.add_child(summary_panel)
+
+		var s_v := VBoxContainer.new()
+		s_v.add_theme_constant_override("separation", 6)
+		summary_panel.add_child(s_v)
+
+		var s_lbl := Label.new()
+		var is_pnl_up: bool = net_gain >= 0
+		var sign_str := "+$" if is_pnl_up else "-$"
+		var sign_pct := "+" if is_pnl_up else ""
+		s_lbl.text = "Portfolio Value: $%s  •  Invested: $%s  •  Net Return: %s%s (%s%.1f%%)" % [
+			_format_number(total_crypto_val),
+			_format_number(total_invested),
+			sign_str,
+			_format_number(absi(net_gain)),
+			sign_pct,
+			gain_pct
+		]
+		s_lbl.add_theme_font_size_override("font_size", 19)
+		s_lbl.add_theme_color_override("font_color", Color("#15803d" if is_light else "#4ade80") if is_pnl_up else Color("#dc2626" if is_light else "#f87171"))
+		s_v.add_child(s_lbl)
+
+		var sent_info: Dictionary = CryptoMarket.get_sentiment_info(PlayerData)
+		var cycle_lbl := Label.new()
+		cycle_lbl.text = "Market Cycle: %s" % sent_info.get("label", "BULL RUN")
+		cycle_lbl.add_theme_font_size_override("font_size", 18)
+		cycle_lbl.add_theme_color_override("font_color", Color(sent_info.get("color", "#10b981")))
+		s_v.add_child(cycle_lbl)
+
+		# List of held coins
+		for coin in held_coins:
+			var card := PanelContainer.new()
+			var c_style := StyleBoxFlat.new()
+			c_style.bg_color = Color("#edf3fa") if is_light else Color("#070e1c")
+			c_style.border_color = Color("#f59e0b").darkened(0.2)
+			c_style.set_border_width_all(2)
+			c_style.set_corner_radius_all(10)
+			card.add_theme_stylebox_override("panel", c_style)
+			sv.add_child(card)
+
+			var cm := MarginContainer.new()
+			cm.add_theme_constant_override("margin_left", 16)
+			cm.add_theme_constant_override("margin_right", 16)
+			cm.add_theme_constant_override("margin_top", 14)
+			cm.add_theme_constant_override("margin_bottom", 14)
+			card.add_child(cm)
+
+			var cv := VBoxContainer.new()
+			cv.add_theme_constant_override("separation", 8)
+			cm.add_child(cv)
+
+			var h_top := HBoxContainer.new()
+			h_top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cv.add_child(h_top)
+
+			var name_l := Label.new()
+			name_l.text = "%s %s (%s)" % [coin["icon"], coin["name"], coin["symbol"]]
+			name_l.add_theme_font_size_override("font_size", 22)
+			name_l.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+			name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			h_top.add_child(name_l)
+
+			var val_badge := Label.new()
+			val_badge.text = "$%s" % _format_number(int(round(coin["value"])))
+			val_badge.add_theme_font_size_override("font_size", 22)
+			val_badge.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+			h_top.add_child(val_badge)
+
+			var detail_l := Label.new()
+			var avg_cost_per_token: float = float(coin["cost"]) / maxf(0.000001, float(coin["amount"]))
+			detail_l.text = "Holdings: %.4f %s  •  Spot: $%s  •  Avg Cost: $%s" % [
+				coin["amount"],
+				coin["symbol"],
+				_format_number(int(round(coin["price"]))),
+				_format_number(int(round(avg_cost_per_token)))
+			]
+			detail_l.add_theme_font_size_override("font_size", 18)
+			detail_l.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+			detail_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			cv.add_child(detail_l)
+
+			var is_coin_up: bool = float(coin["pnl"]) >= 0
+			var c_pnl_lbl := Label.new()
+			var c_sign := "+$" if is_coin_up else "-$"
+			var cp_sign := "+" if is_coin_up else ""
+			c_pnl_lbl.text = "Unrealized PnL: %s%s (%s%.1f%%)" % [
+				c_sign,
+				_format_number(absi(int(round(coin["pnl"])))),
+				cp_sign,
+				coin["pnl_pct"]
+			]
+			c_pnl_lbl.add_theme_font_size_override("font_size", 18)
+			c_pnl_lbl.add_theme_color_override("font_color", Color("#15803d" if is_light else "#4ade80") if is_coin_up else Color("#dc2626" if is_light else "#f87171"))
+			cv.add_child(c_pnl_lbl)
+
+			var btn_trade := _create_cyber_button("🪙 Trade %s on Crypto Exchange ➔" % coin["symbol"], Color("#f59e0b"), func():
+				_show_crypto_exchange_modal()
+			)
+			btn_trade.custom_minimum_size.y = 44
+			btn_trade.add_theme_font_size_override("font_size", 18)
+			cv.add_child(btn_trade)
+
+		var btn_more := _create_cyber_button("🪙 Open Cryptocurrency Exchange ➔", Color("#d97706") if is_light else Color("#f59e0b"), func():
+			_show_crypto_exchange_modal()
+		)
+		btn_more.custom_minimum_size.y = 52
+		btn_more.add_theme_font_size_override("font_size", 20)
+		sv.add_child(btn_more)
+
+	assets_list.add_child(section_card)
+
+
+# -----------------------------------------------------------------------------
+# ASSET PANEL OWNED STOCKS & EQUITIES SECTION
+# -----------------------------------------------------------------------------
+func _render_owned_stocks_section() -> void:
+	FinanceMarket.ensure(PlayerData)
+	var holdings: Dictionary = PlayerData.finance_market.get("holdings", {})
+	if holdings.is_empty():
+		return
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var section_card := PanelContainer.new()
+	section_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#06b6d4")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 20)
+	sm.add_theme_constant_override("margin_right", 20)
+	sm.add_theme_constant_override("margin_top", 18)
+	sm.add_theme_constant_override("margin_bottom", 18)
+	section_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 14)
+	sm.add_child(sv)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "📈 OWNED STOCKS & PUBLIC EQUITIES (%d)" % holdings.size()
+	title_lbl.add_theme_font_size_override("font_size", 24)
+	title_lbl.add_theme_color_override("font_color", Color("#0891b2") if is_light else Color("#22d3ee"))
+	sv.add_child(title_lbl)
+
+	for uid in holdings:
+		var pos: Dictionary = holdings[uid]
+		var c := FinanceMarket.issuer(PlayerData, uid)
+		var cur_price: float = float(c.get("price", pos.get("price", 10.0)))
+		var qty: int = int(pos.get("quantity", 0))
+		if qty <= 0:
+			continue
+		var val: float = qty * cur_price
+		var cost: float = float(pos.get("cost", 0.0))
+		var gain := val - cost
+		var gain_pct := (gain / cost * 100.0) if cost > 0.0 else 0.0
+
+		var card := PanelContainer.new()
+		var c_style := StyleBoxFlat.new()
+		c_style.bg_color = Color("#edf3fa") if is_light else Color("#070e1c")
+		c_style.border_color = Color("#06b6d4").darkened(0.2)
+		c_style.set_border_width_all(2)
+		c_style.set_corner_radius_all(10)
+		card.add_theme_stylebox_override("panel", c_style)
+		sv.add_child(card)
+
+		var cm := MarginContainer.new()
+		cm.add_theme_constant_override("margin_left", 16)
+		cm.add_theme_constant_override("margin_right", 16)
+		cm.add_theme_constant_override("margin_top", 14)
+		cm.add_theme_constant_override("margin_bottom", 14)
+		card.add_child(cm)
+
+		var cv := VBoxContainer.new()
+		cv.add_theme_constant_override("separation", 8)
+		cm.add_child(cv)
+
+		var h_top := HBoxContainer.new()
+		h_top.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cv.add_child(h_top)
+
+		var name_l := Label.new()
+		name_l.text = "🏛️ " + str(pos.get("name", "Stock " + uid))
+		name_l.add_theme_font_size_override("font_size", 22)
+		name_l.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		h_top.add_child(name_l)
+
+		var val_badge := Label.new()
+		val_badge.text = "$%s" % _format_number(int(round(val)))
+		val_badge.add_theme_font_size_override("font_size", 22)
+		val_badge.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		h_top.add_child(val_badge)
+
+		var is_up := gain >= 0
+		var sub_l := Label.new()
+		var s_sign := "+$" if is_up else "-$"
+		var sp_sign := "+" if is_up else ""
+		sub_l.text = "%d shares @ $%s/sh (Cost: $%s)  •  Return: %s%s (%s%.1f%%)" % [
+			qty,
+			_format_number(int(round(cur_price))),
+			_format_number(int(round(cost))),
+			s_sign,
+			_format_number(absi(int(round(gain)))),
+			sp_sign,
+			gain_pct
+		]
+		sub_l.add_theme_font_size_override("font_size", 18)
+		sub_l.add_theme_color_override("font_color", Color("#15803d" if is_light else "#4ade80") if is_up else Color("#dc2626" if is_light else "#f87171"))
+		sub_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		cv.add_child(sub_l)
+
+		var btn_trade := _create_cyber_button("📈 Trade on Finance Market ➔", Color("#06b6d4"), func():
+			var fp = get_node_or_null("FinancePanel")
+			if fp:
+				fp.open()
+		)
+		btn_trade.custom_minimum_size.y = 44
+		btn_trade.add_theme_font_size_override("font_size", 18)
+		cv.add_child(btn_trade)
 
 	assets_list.add_child(section_card)
 
