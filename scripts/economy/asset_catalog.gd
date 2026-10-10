@@ -10,6 +10,8 @@ const CATEGORY_PROPERTIES := "properties"
 const CATEGORY_AIRCRAFT := "aircraft"
 const CATEGORY_YACHTS := "yachts"
 const CATEGORY_FIREARMS := "firearms"
+const CATEGORY_ART := "art"
+const CATEGORY_ANTIQUES := "antiques"
 
 const ITEMS := {
 	# =========================================================================
@@ -1009,6 +1011,366 @@ const ITEMS := {
 		"desc": "A blueprint bolt-action marksman rifle bedded in an aerospace aluminum chassis with a 26-inch fluted match barrel and a variable 24x magnification scope.",
 		"image_path": "res://assets/items/firearms/gun_precision_rifle.jpg",
 		"min_age": 21
+	},
+
+	# =========================================================================
+	# 🎨 16 FINE ART & MASTERPIECES
+	# =========================================================================
+	"art_indie_print": {
+		"id": "art_indie_print",
+		"category": CATEGORY_ART,
+		"name": "\"Neon Reverie\" Framed Indie Print",
+		"price": 450,
+		"upkeep": 15,
+		"happiness_bonus": 4,
+		"desc": "A vibrant contemporary cyberpunk street art print in a sleek black acrylic float frame, signed and numbered by an emerging indie artist.",
+		"image_path": "res://assets/items/art/art_indie_print.jpg",
+		"min_age": 12
+	},
+	"art_oil_landscape": {
+		"id": "art_oil_landscape",
+		"category": CATEGORY_ART,
+		"name": "\"Twilight Mist over Pine Valley\" Oil Canvas",
+		"price": 1800,
+		"upkeep": 45,
+		"happiness_bonus": 6,
+		"desc": "A serene impressionist landscape painting depicting evening mist settling over mountain pines and alpine valleys, framed in carved gilded wood.",
+		"image_path": "res://assets/items/art/art_oil_landscape.jpg",
+		"min_age": 14
+	},
+	"art_bronze_statuette": {
+		"id": "art_bronze_statuette",
+		"category": CATEGORY_ART,
+		"name": "\"The Thinker's Stride\" Bronze Figurine",
+		"price": 3500,
+		"upkeep": 75,
+		"happiness_bonus": 8,
+		"desc": "A dynamic modernist figurative sculpture cast in solid heavy bronze with a dark hand-burnished patina, mounted on a polished black marble plinth.",
+		"image_path": "res://assets/items/art/art_bronze_statuette.jpg",
+		"min_age": 16
+	},
+	"art_watercolor_coastal": {
+		"id": "art_watercolor_coastal",
+		"category": CATEGORY_ART,
+		"name": "\"Seaside Solitude\" Original Watercolor",
+		"price": 6200,
+		"upkeep": 120,
+		"happiness_bonus": 10,
+		"desc": "A fluid plein-air master watercolor capturing crashing ocean surf against coastal cliffs at golden hour, mounted under archival museum glass.",
+		"image_path": "res://assets/items/art/art_watercolor_coastal.jpg",
+		"min_age": 16
+	},
+	"art_geometric_abstract": {
+		"id": "art_geometric_abstract",
+		"category": CATEGORY_ART,
+		"name": "\"Chromatic Synthesis #7\" Acrylic on Linen",
+		"price": 12000,
+		"upkeep": 220,
+		"happiness_bonus": 12,
+		"desc": "A large-format geometric abstraction featuring contrasting sharp color blocks, cobalt blue, crimson, and gold leaf accents in a floating metal frame.",
+		"image_path": "res://assets/items/art/art_geometric_abstract.jpg",
+		"min_age": 18
+	},
+	"art_marble_bust": {
+		"id": "art_marble_bust",
+		"category": CATEGORY_ART,
+		"name": "\"Bust of Seraphina\" Carved Carrara Marble",
+		"price": 24000,
+		"upkeep": 400,
+		"happiness_bonus": 14,
+		"desc": "A classical sculpted bust carved from pure white Italian Carrara marble, showcasing lifelike facial drapery and delicate carved ringlets.",
+		"image_path": "res://assets/items/art/art_marble_bust.jpg",
+		"min_age": 18
+	},
+	"art_renaissance_study": {
+		"id": "art_renaissance_study",
+		"category": CATEGORY_ART,
+		"name": "\"Anatomy of the Human Spirit\" Charcoal Study",
+		"price": 45000,
+		"upkeep": 700,
+		"happiness_bonus": 16,
+		"desc": "A rare framed 17th-century Florentine figurative charcoal sketch on sepia parchment with intricate anatomical crosshatching and museum UV glass.",
+		"image_path": "res://assets/items/art/art_renaissance_study.jpg",
+		"min_age": 18
+	},
+	"art_cyber_kinetic": {
+		"id": "art_cyber_kinetic",
+		"category": CATEGORY_ART,
+		"name": "\"Bioluminescent Tide\" Kinetic Light Sculpture",
+		"price": 78000,
+		"upkeep": 1200,
+		"happiness_bonus": 18,
+		"desc": "A wall-mounted kinetic light sculpture combining sculpted brushed titanium with pulsing optical fiber waves that shift in organic rhythmic patterns.",
+		"image_path": "res://assets/items/art/art_cyber_kinetic.jpg",
+		"min_age": 18
+	},
+	"art_expressionist_portrait": {
+		"id": "art_expressionist_portrait",
+		"category": CATEGORY_ART,
+		"name": "\"The Wanderer's Solace\" Expressionist Oil",
+		"price": 140000,
+		"upkeep": 2100,
+		"happiness_bonus": 20,
+		"desc": "A deeply emotional avant-garde portrait executed with thick impasto palette knife textures and dramatic cobalt blue and ochre tones.",
+		"image_path": "res://assets/items/art/art_expressionist_portrait.jpg",
+		"min_age": 18
+	},
+	"art_japanese_silk_screen": {
+		"id": "art_japanese_silk_screen",
+		"category": CATEGORY_ART,
+		"name": "\"Cranes Amid Golden Clouds\" 4-Panel Folding Screen",
+		"price": 260000,
+		"upkeep": 3600,
+		"happiness_bonus": 22,
+		"desc": "An authentic Edo-style four-panel folding byobu screen gilded in radiant gold leaf, depicting flying cranes and ancient pines with natural mineral pigments.",
+		"image_path": "res://assets/items/art/art_japanese_silk_screen.jpg",
+		"min_age": 18
+	},
+	"art_surrealist_canvas": {
+		"id": "art_surrealist_canvas",
+		"category": CATEGORY_ART,
+		"name": "\"The Persistence of Memory Fragments\" Surrealist Oil",
+		"price": 480000,
+		"upkeep": 6500,
+		"happiness_bonus": 25,
+		"desc": "An enigmatic surrealist masterwork featuring geometric celestial polyhedrons hovering over dreamlike canyon waterways in an antique gold frame.",
+		"image_path": "res://assets/items/art/art_surrealist_canvas.jpg",
+		"min_age": 18
+	},
+	"art_monumental_sculpture": {
+		"id": "art_monumental_sculpture",
+		"category": CATEGORY_ART,
+		"name": "\"Ascent of the Cosmos\" Titanium & Basalt Monolith",
+		"price": 950000,
+		"upkeep": 12000,
+		"happiness_bonus": 28,
+		"desc": "A breathtaking outdoor fine art installation uniting aircraft-grade iridescent blue-violet titanium spirals with carved volcanic black basalt.",
+		"image_path": "res://assets/items/art/art_monumental_sculpture.jpg",
+		"min_age": 18
+	},
+	"art_post_impressionist": {
+		"id": "art_post_impressionist",
+		"category": CATEGORY_ART,
+		"name": "\"Sunflowers in the Courtyard\" Post-Impressionist Canvas",
+		"price": 2400000,
+		"upkeep": 28000,
+		"happiness_bonus": 32,
+		"desc": "An iconic post-impressionist floral still-life ablaze with swirling cadmium yellow blossoms, rich impasto brushwork, and museum provenance.",
+		"image_path": "res://assets/items/art/art_post_impressionist.jpg",
+		"min_age": 18
+	},
+	"art_baroque_masterpiece": {
+		"id": "art_baroque_masterpiece",
+		"category": CATEGORY_ART,
+		"name": "\"Judith Before the Tribunal\" Baroque Canvas",
+		"price": 6500000,
+		"upkeep": 75000,
+		"happiness_bonus": 36,
+		"desc": "A dramatic 17th-century Baroque masterwork with extreme chiaroscuro spotlighting, exquisite crimson velvet drapery, and museum-grade conservation.",
+		"image_path": "res://assets/items/art/art_baroque_masterpiece.jpg",
+		"min_age": 18
+	},
+	"art_cubist_still_life": {
+		"id": "art_cubist_still_life",
+		"category": CATEGORY_ART,
+		"name": "\"Guitar, Mandolin, and Glass\" Early Cubist Masterwork",
+		"price": 15000000,
+		"upkeep": 160000,
+		"happiness_bonus": 40,
+		"desc": "A historic Parisian cubist collage dismantling spatial perspective into harmonious geometric planes and musical instruments.",
+		"image_path": "res://assets/items/art/art_cubist_still_life.jpg",
+		"min_age": 18
+	},
+	"art_renaissance_icon": {
+		"id": "art_renaissance_icon",
+		"category": CATEGORY_ART,
+		"name": "\"Madonna of the Gilded Meadow\" High Renaissance Masterpiece",
+		"price": 45000000,
+		"upkeep": 450000,
+		"happiness_bonus": 50,
+		"desc": "A peerless 16th-century High Renaissance masterwork panel in egg tempera and 24k gold leaf filigree, celebrated across centuries of world art history.",
+		"image_path": "res://assets/items/art/art_renaissance_icon.jpg",
+		"min_age": 18
+	},
+
+	# =========================================================================
+	# 🏺 16 ANTIQUES & HISTORICAL ARTIFACTS
+	# =========================================================================
+	"antique_vintage_camera": {
+		"id": "antique_vintage_camera",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1934 Leica Rangefinder Brass Camera",
+		"price": 850,
+		"upkeep": 20,
+		"happiness_bonus": 4,
+		"desc": "A fully functional vintage rangefinder camera crafted from black enamel and tarnished brass with textured vulcanite grip and precision mechanical shutter.",
+		"image_path": "res://assets/items/antiques/antique_vintage_camera.jpg",
+		"min_age": 12
+	},
+	"antique_gramophone": {
+		"id": "antique_gramophone",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1912 Victorian Oak Horn Gramophone",
+		"price": 2200,
+		"upkeep": 50,
+		"happiness_bonus": 6,
+		"desc": "A restored wind-up phonograph housed in hand-carved quarter-sawn English oak with a gleaming embossed fluted brass horn and mechanical governor.",
+		"image_path": "res://assets/items/antiques/antique_gramophone.jpg",
+		"min_age": 14
+	},
+	"antique_pocket_watch": {
+		"id": "antique_pocket_watch",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1888 Swiss Gold Hunting Pocket Watch",
+		"price": 4800,
+		"upkeep": 90,
+		"happiness_bonus": 8,
+		"desc": "An ornate solid 18k yellow gold double-hunter pocket watch featuring intricate floral hand-engraving, porcelain Roman dial, and gold watch chain.",
+		"image_path": "res://assets/items/antiques/antique_pocket_watch.jpg",
+		"min_age": 16
+	},
+	"antique_french_mantel_clock": {
+		"id": "antique_french_mantel_clock",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1860 Ormolu Bronze French Mantel Clock",
+		"price": 8500,
+		"upkeep": 150,
+		"happiness_bonus": 10,
+		"desc": "A lavish Second Empire gilded ormolu bronze clock surmounted by classical mythological figures with an 8-day striking bell mechanism.",
+		"image_path": "res://assets/items/antiques/antique_french_mantel_clock.jpg",
+		"min_age": 16
+	},
+	"antique_samurai_katana": {
+		"id": "antique_samurai_katana",
+		"category": CATEGORY_ANTIQUES,
+		"name": "17th-Century Edo Period Signed Katana",
+		"price": 16000,
+		"upkeep": 260,
+		"happiness_bonus": 12,
+		"desc": "An authentic hand-forged Tamahagane folded steel blade with visible wavy hamon temper line, gold dragon menuki, and lacquered scabbard.",
+		"image_path": "res://assets/items/antiques/antique_samurai_katana.jpg",
+		"min_age": 18
+	},
+	"antique_ming_vase": {
+		"id": "antique_ming_vase",
+		"category": CATEGORY_ANTIQUES,
+		"name": "Blue and White Lotus Ming Porcelain Vase",
+		"price": 32000,
+		"upkeep": 480,
+		"happiness_bonus": 14,
+		"desc": "A genuine Ming dynasty porcelain baluster vase decorated in vibrant underglaze cobalt blue lotus blossoms, mounted on a carved rosewood stand.",
+		"image_path": "res://assets/items/antiques/antique_ming_vase.jpg",
+		"min_age": 18
+	},
+	"antique_chippendale_desk": {
+		"id": "antique_chippendale_desk",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1775 George III Mahogany Chippendale Bureau",
+		"price": 55000,
+		"upkeep": 800,
+		"happiness_bonus": 16,
+		"desc": "A stately writing desk crafted from rich flame mahogany featuring secret interior compartments, carved brass drawer pulls, and ball-and-claw feet.",
+		"image_path": "res://assets/items/antiques/antique_chippendale_desk.jpg",
+		"min_age": 18
+	},
+	"antique_astrolabe": {
+		"id": "antique_astrolabe",
+		"category": CATEGORY_ANTIQUES,
+		"name": "16th-Century Brass Islamic Mariners' Astrolabe",
+		"price": 95000,
+		"upkeep": 1400,
+		"happiness_bonus": 18,
+		"desc": "An intricate hand-engraved brass astronomical navigation instrument with calibrated celestial rete plates, zodiac markings, and aged golden patina.",
+		"image_path": "res://assets/items/antiques/antique_astrolabe.jpg",
+		"min_age": 18
+	},
+	"antique_knight_armor": {
+		"id": "antique_knight_armor",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1580 Milanese Polished Steel Full Suit of Armor",
+		"price": 180000,
+		"upkeep": 2500,
+		"happiness_bonus": 20,
+		"desc": "A complete wearable tournament harness of hammered and tempered carbon steel with articulated gauntlets, etched brass filigree, and visored close helmet.",
+		"image_path": "res://assets/items/antiques/antique_knight_armor.jpg",
+		"min_age": 18
+	},
+	"antique_roman_coin_hoard": {
+		"id": "antique_roman_coin_hoard",
+		"category": CATEGORY_ANTIQUES,
+		"name": "Hoard of 12 Roman Imperial Gold Aurei (c. 100 AD)",
+		"price": 320000,
+		"upkeep": 4000,
+		"happiness_bonus": 22,
+		"desc": "A museum-grade hoard of pristine uncirculated gold coins struck under Roman emperors Trajan and Hadrian, presented in a velvet-lined mahogany case.",
+		"image_path": "res://assets/items/antiques/antique_roman_coin_hoard.jpg",
+		"min_age": 18
+	},
+	"antique_persian_silk_rug": {
+		"id": "antique_persian_silk_rug",
+		"category": CATEGORY_ANTIQUES,
+		"name": "18th-Century Safavid Royal Silk Court Carpet",
+		"price": 600000,
+		"upkeep": 7200,
+		"happiness_bonus": 25,
+		"desc": "An opulent hand-knotted pure silk palace rug with over 1,200 knots per square inch in intricate paradise floral medallion motifs and ruby dye.",
+		"image_path": "res://assets/items/antiques/antique_persian_silk_rug.jpg",
+		"min_age": 18
+	},
+	"antique_illuminated_manuscript": {
+		"id": "antique_illuminated_manuscript",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1420 Burgundian Book of Hours (Illuminated Manuscript)",
+		"price": 1100000,
+		"upkeep": 12500,
+		"happiness_bonus": 28,
+		"desc": "A rare medieval vellum manuscript enriched with natural lapis lazuli blues, vermilion cinnabar, and raised 24k gold leaf devotional miniatures.",
+		"image_path": "res://assets/items/antiques/antique_illuminated_manuscript.jpg",
+		"min_age": 18
+	},
+	"antique_dinosaur_fossil": {
+		"id": "antique_dinosaur_fossil",
+		"category": CATEGORY_ANTIQUES,
+		"name": "Complete Juvenile Triceratops Cranium Fossil",
+		"price": 2500000,
+		"upkeep": 25000,
+		"happiness_bonus": 32,
+		"desc": "A spectacular 66-million-year-old fossilized dinosaur skull featuring three formidable horns and intact mineralized bone frill on a museum steel armature.",
+		"image_path": "res://assets/items/antiques/antique_dinosaur_fossil.jpg",
+		"min_age": 18
+	},
+	"antique_stradivarius_violin": {
+		"id": "antique_stradivarius_violin",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1716 Cremonese Stradivarius Pattern Master Violin",
+		"price": 6800000,
+		"upkeep": 65000,
+		"happiness_bonus": 36,
+		"desc": "A world-renowned golden-age Italian concert violin producing legendary acoustic resonance and projection, preserved in its original crushed velvet case.",
+		"image_path": "res://assets/items/antiques/antique_stradivarius_violin.jpg",
+		"min_age": 18
+	},
+	"antique_egyptian_sarcophagus": {
+		"id": "antique_egyptian_sarcophagus",
+		"category": CATEGORY_ANTIQUES,
+		"name": "18th-Dynasty Egyptian Royal Painted Sarcophagus",
+		"price": 18500000,
+		"upkeep": 180000,
+		"happiness_bonus": 40,
+		"desc": "An extraordinary carved cedar mummy sarcophagus covered in polychrome protective hieroglyphs with a gilded gold funeral mask and lapis lazuli eyes.",
+		"image_path": "res://assets/items/antiques/antique_egyptian_sarcophagus.jpg",
+		"min_age": 18
+	},
+	"antique_imperial_faberge_egg": {
+		"id": "antique_imperial_faberge_egg",
+		"category": CATEGORY_ANTIQUES,
+		"name": "1902 Imperial Rosebud Guilloché Faberge Egg",
+		"price": 42000000,
+		"upkeep": 400000,
+		"happiness_bonus": 50,
+		"desc": "A legendary imperial Russian jewel crafted from translucent strawberry guilloche enamel, platinum ribbons, rose-cut diamonds, and a clockwork mechanism.",
+		"image_path": "res://assets/items/antiques/antique_imperial_faberge_egg.jpg",
+		"min_age": 18
 	}
 }
 
@@ -1045,6 +1407,10 @@ static func get_category_display_title(category: String) -> String:
 			return "🛥️ OCEANIC HORIZON • YACHT & MARINE BROKERS"
 		CATEGORY_FIREARMS:
 			return "🎯 IRONCLAD DEFENSE • TACTICAL ARMORY & GUN STORE"
+		CATEGORY_ART:
+			return "🎨 LUMINA FINE ART GALLERY & SALON"
+		CATEGORY_ANTIQUES:
+			return "🏺 RELIC & CROWN • ANTIQUITIES & CURIOS"
 		_:
 			return "COMMERCIAL MARKETPLACE"
 
@@ -1068,6 +1434,10 @@ static func get_category_subtitle(category: String) -> String:
 			return "Ocean power speedboats, luxury flybridge cruisers, and multi-deck sovereign megayachts."
 		CATEGORY_FIREARMS:
 			return "Licensed handguns, home defense shotguns, semi-auto patrol carbines, and precision marksman rifles."
+		CATEGORY_ART:
+			return "Acquire original oil paintings, marble busts, kinetic light sculptures, and museum masterworks."
+		CATEGORY_ANTIQUES:
+			return "Acquire rare historical artifacts, imperial porcelains, royal antiquities, and centuries-old heirlooms."
 		_:
 			return "Browse luxury and commercial goods available for acquisition."
 
@@ -1313,6 +1683,12 @@ static func use_asset(player_data: Node, instance_id: String) -> Dictionary:
 				CATEGORY_FIREARMS:
 					player_data.smarts = mini(100, player_data.smarts + 1)
 					action_desc = "You ran tactical target transition and defensive handling drills at the range with your %s!" % asset.get("name", "firearm")
+				CATEGORY_ART:
+					player_data.smarts = mini(100, player_data.smarts + 1)
+					action_desc = "You spent an afternoon admiring the profound brushwork and aesthetic brilliance of your %s!" % asset.get("name", "artwork")
+				CATEGORY_ANTIQUES:
+					player_data.smarts = mini(100, player_data.smarts + 1)
+					action_desc = "You carefully inspected and preserved the intricate historical craftsmanship of your %s!" % asset.get("name", "antique")
 				_:
 					if player_data.age < 18:
 						action_desc = "You spent a cozy day relaxing with your family at your %s!" % asset.get("name", "residence")
@@ -1369,6 +1745,9 @@ static func process_yearly_assets(player_data: Node) -> Array[String]:
 			asset["current_value"] = maxi(floor_val, cur_val - dep)
 		elif cat in [CATEGORY_JEWELRY, CATEGORY_INSTRUMENTS]:
 			var app: int = int(cur_val * 0.01)
+			asset["current_value"] = cur_val + app
+		elif cat in [CATEGORY_ART, CATEGORY_ANTIQUES]:
+			var app: int = maxi(10, int(round(float(cur_val) * randf_range(0.02, 0.04))))
 			asset["current_value"] = cur_val + app
 		elif cat == CATEGORY_PROPERTIES:
 			# Real estate depreciation: assets lose value over years, making assets cheaper to sell after X number of years

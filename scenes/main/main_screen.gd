@@ -2936,16 +2936,22 @@ func _render_assets_list() -> void:
 	# 7. Owned Firearms & Tactical Defense Arsenal
 	_render_owned_assets_section("🎯 OWNED FIREARMS & DEFENSE ARSENAL", [AssetCatalog.CATEGORY_FIREARMS], Color("#ef4444"))
 
-	# 8. Owned Pets & Animal Companions
+	# 8. Owned Fine Art & Masterpieces
+	_render_owned_assets_section("🎨 OWNED FINE ART & MASTERPIECES", [AssetCatalog.CATEGORY_ART], Color("#a855f7"))
+
+	# 9. Owned Antiques & Historical Artifacts
+	_render_owned_assets_section("🏺 OWNED ANTIQUES & HISTORICAL ARTIFACTS", [AssetCatalog.CATEGORY_ANTIQUES], Color("#d97706"))
+
+	# 10. Owned Pets & Animal Companions
 	_render_owned_pets_section()
 
-	# 9. Owned Commercial Enterprises (Businesses)
+	# 11. Owned Commercial Enterprises (Businesses)
 	_render_owned_businesses_section()
 
-	# 10. Owned Cryptocurrencies & Digital Assets
+	# 12. Owned Cryptocurrencies & Digital Assets
 	_render_owned_crypto_section()
 
-	# 11. Owned Public Stock Equities & Holdings
+	# 13. Owned Public Stock Equities & Holdings
 	_render_owned_stocks_section()
 
 
@@ -3100,9 +3106,28 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			var cat: String = str(item.get("category", ""))
 			var is_minor_property: bool = (cat == AssetCatalog.CATEGORY_PROPERTIES and PlayerData.age < 18)
 			var is_used: bool = int(item.get("last_used_age", -1)) == PlayerData.age
-			var use_text := "Joyride (Used)" if is_used else "🏎️ Joyride"
-			if cat == AssetCatalog.CATEGORY_PROPERTIES:
-				use_text = "Relax (Used)" if is_used else ("🏡 Relax" if PlayerData.age < 18 else "🎉 Host Party")
+			var use_text := "Used This Year" if is_used else "Interact"
+			match cat:
+				AssetCatalog.CATEGORY_CARS, AssetCatalog.CATEGORY_MOTORCYCLES, AssetCatalog.CATEGORY_BICYCLES:
+					use_text = "Joyride (Used)" if is_used else "🏎️ Joyride"
+				AssetCatalog.CATEGORY_AIRCRAFT:
+					use_text = "Flight (Used)" if is_used else "✈️ Take Flight"
+				AssetCatalog.CATEGORY_YACHTS:
+					use_text = "Cruise (Used)" if is_used else "🛥️ Set Sail"
+				AssetCatalog.CATEGORY_PROPERTIES:
+					use_text = "Relax (Used)" if is_used else ("🏡 Relax" if PlayerData.age < 18 else "🎉 Host Party")
+				AssetCatalog.CATEGORY_JEWELRY:
+					use_text = "Worn (Used)" if is_used else "💎 Wear & Flaunt"
+				AssetCatalog.CATEGORY_INSTRUMENTS:
+					use_text = "Practiced (Used)" if is_used else "🎸 Jam Session"
+				AssetCatalog.CATEGORY_FIREARMS:
+					use_text = "Fired (Used)" if is_used else "🎯 Range Practice"
+				AssetCatalog.CATEGORY_ART:
+					use_text = "Admired (Used)" if is_used else "🎨 Admire Art"
+				AssetCatalog.CATEGORY_ANTIQUES:
+					use_text = "Inspected (Used)" if is_used else "🏺 Inspect Relic"
+				_:
+					use_text = "Used This Year" if is_used else "✨ Enjoy Asset"
 
 			var instance_id: String = str(item.get("instance_id", ""))
 			var btn_use := _create_cyber_button(use_text, Color("#0284c7"), func():
@@ -3368,6 +3393,10 @@ func _open_asset_marketplace_modal(category: String) -> void:
 			border_color = Color("#2563eb")
 		AssetCatalog.CATEGORY_FIREARMS:
 			border_color = Color("#ef4444")
+		AssetCatalog.CATEGORY_ART:
+			border_color = Color("#a855f7")
+		AssetCatalog.CATEGORY_ANTIQUES:
+			border_color = Color("#d97706")
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal_dict: Dictionary = _create_cyber_modal(title_text, subtitle_text, border_color)
@@ -3477,6 +3506,9 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				AssetCatalog.CATEGORY_INSTRUMENTS: glyph = "🎸"
 				AssetCatalog.CATEGORY_AIRCRAFT: glyph = "✈️"
 				AssetCatalog.CATEGORY_YACHTS: glyph = "🛥️"
+				AssetCatalog.CATEGORY_FIREARMS: glyph = "🎯"
+				AssetCatalog.CATEGORY_ART: glyph = "🎨"
+				AssetCatalog.CATEGORY_ANTIQUES: glyph = "🏺"
 			icon_lbl.text = glyph
 			icon_lbl.custom_minimum_size = Vector2(280, 150)
 			icon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -3530,6 +3562,12 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				perk_word = "Flight"
 			AssetCatalog.CATEGORY_YACHTS:
 				perk_word = "Cruise"
+			AssetCatalog.CATEGORY_FIREARMS:
+				perk_word = "Tactical"
+			AssetCatalog.CATEGORY_ART:
+				perk_word = "Fine Art"
+			AssetCatalog.CATEGORY_ANTIQUES:
+				perk_word = "Historical"
 
 		var perk_lbl := Label.new()
 		perk_lbl.text = "%s Lifestyle Asset" % perk_word
@@ -15083,7 +15121,7 @@ func _show_asylum_commitment_modal() -> void:
 
 func _show_shopping_modal() -> void:
 
-	var modal := _refresh_cyber_modal(shopping_modal_overlay, "🛍️ COMMERCIAL SHOPPING & DEALERSHIPS", "Vehicles, Properties, Aircraft, Yachts & Luxury Valuables", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(shopping_modal_overlay, "🛍️ COMMERCIAL SHOPPING & DEALERSHIPS", "Vehicles, Properties, Fine Art, Antiques, Aircraft, Yachts & Luxury Valuables", Color("#38bdf8"))
 	shopping_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
@@ -15151,6 +15189,18 @@ func _show_shopping_modal() -> void:
 			"color": Color("#10b981")
 		},
 		{
+			"category": AssetCatalog.CATEGORY_ART,
+			"title": "🎨 Galerie d'Art Moderne & Masterpieces",
+			"desc": "Original oil canvases, bronze sculptures, modernist prints, and museum-grade masterworks.",
+			"color": Color("#a855f7")
+		},
+		{
+			"category": AssetCatalog.CATEGORY_ANTIQUES,
+			"title": "🏺 Royal Antiquities & Historical Curios",
+			"desc": "Centuries-old heirlooms, samurai katanas, Ming porcelain, dinosaur fossils, and imperial relics.",
+			"color": Color("#d97706")
+		},
+		{
 			"category": AssetCatalog.CATEGORY_AIRCRAFT,
 			"title": "✈️ Skylink Aviation & Rotorcraft Dealerships",
 			"desc": "Aerobatic light aircraft, turbine helicopters, and intercontinental private business jets.",
@@ -15177,8 +15227,8 @@ func _show_shopping_modal() -> void:
 			shopping_modal_overlay.queue_free()
 			_open_asset_marketplace_modal(cat_id)
 		)
-		btn.custom_minimum_size.y = 80
-		btn.add_theme_font_size_override("font_size", 24)
+		btn.custom_minimum_size.y = 86
+		btn.add_theme_font_size_override("font_size", 22)
 		list.add_child(btn)
 
 	shopping_modal_overlay.visible = true
