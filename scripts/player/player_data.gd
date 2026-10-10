@@ -47,7 +47,7 @@ var ethnicity: String = "white"
 var portrait_track: int = 0
 var portrait_variant: int = 0
 var has_started_game: bool = false
-var selected_room_id: String = "room_wood"
+var selected_room_id: String = "room_capsule"
 var has_moved_out_from_parents: bool = false
 var current_residence_name: String = ""
 var current_residence_type: String = "parents"
@@ -221,7 +221,7 @@ func reset_player() -> void:
 	portrait_track = 0
 	portrait_variant = 0
 	has_started_game = false
-	selected_room_id = "room_wood"
+	selected_room_id = "room_capsule"
 	has_moved_out_from_parents = false
 	current_residence_name = ""
 	current_residence_type = "parents"
@@ -1866,3 +1866,34 @@ func get_current_residence_title() -> String:
 
 func has_independent_residence() -> bool:
 	return has_moved_out_from_parents
+
+
+func get_active_room_id() -> String:
+	# If player has a specific valid room selected for an owned property
+	var owned_p := get_owned_properties()
+	if not owned_p.is_empty():
+		# Verify if current selected_room_id belongs to an owned property
+		for p in owned_p:
+			var pid: String = str(p.get("item_id", p.get("id", "")))
+			var rid: String = RoomManager.get_room_id_for_property(pid)
+			if selected_room_id == rid or selected_room_id == pid:
+				return rid
+		# Default to first owned property's room
+		var first_prop_id: String = str(owned_p[0].get("item_id", owned_p[0].get("id", "prop_capsule")))
+		var resolved: String = RoomManager.get_room_id_for_property(first_prop_id)
+		selected_room_id = resolved
+		return resolved
+	# Starter / unhoused / parents household
+	if selected_room_id != "" and selected_room_id != "room_wood":
+		return selected_room_id
+	return "room_capsule"
+
+
+func set_active_room_from_property(property_id: String) -> void:
+	selected_room_id = RoomManager.get_room_id_for_property(property_id)
+
+
+func sync_room_with_housing() -> String:
+	var rid := get_active_room_id()
+	selected_room_id = rid
+	return rid

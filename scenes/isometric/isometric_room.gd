@@ -4,10 +4,10 @@ const RoomManager = preload("res://scripts/isometric/room_manager.gd")
 const IsometricCharacterScript = preload("res://scenes/isometric/isometric_character.gd")
 const PortraitCatalog = preload("res://scripts/core/portrait_catalog.gd")
 
-@export_enum("room_wood", "room_brick", "room_carpet", "room_modern", "room_dark") var initial_room: String = "room_wood"
+@export var initial_room: String = "room_capsule"
 @export var show_debug_walkable_area: bool = false
 
-var current_room_id: String = "room_wood"
+var current_room_id: String = "room_capsule"
 
 @onready var room_background: Sprite2D = $RoomBackground
 @onready var walkable_area: Polygon2D = $WalkableArea

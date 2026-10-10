@@ -1388,9 +1388,10 @@ func _scroll_after_layout() -> void:
 func update_ui() -> void:
 	PlayerData.enforce_buffs_and_debuffs()
 	_update_portrait()
-	if isometric_room != null and isometric_room.has_method("set_room") and PlayerData.selected_room_id != "":
-		if isometric_room.current_room_id != PlayerData.selected_room_id:
-			isometric_room.set_room(PlayerData.selected_room_id)
+	var active_room: String = PlayerData.sync_room_with_housing()
+	if isometric_room != null and isometric_room.has_method("set_room") and active_room != "":
+		if isometric_room.current_room_id != active_room:
+			isometric_room.set_room(active_room)
 		if isometric_room.has_method("update_character"):
 			isometric_room.update_character()
 	name_label.text = PlayerData.first_name
@@ -2027,16 +2028,9 @@ func _on_settings_button_pressed() -> void:
 
 
 func _on_room_cycle_button_pressed() -> void:
-	var rooms := RoomManager.get_all_room_ids()
-	var current_idx := rooms.find(PlayerData.selected_room_id)
-	if current_idx == -1:
-		current_idx = 0
-	var next_idx := (current_idx + 1) % rooms.size()
-	var next_room := rooms[next_idx]
-	PlayerData.selected_room_id = next_room
-	if isometric_room != null and isometric_room.has_method("set_room"):
-		isometric_room.set_room(next_room)
-	SaveManager.save_game_debounced()
+	# Room switching on demand has been removed in The Housing Update.
+	# Room style is tied directly to property ownership.
+	pass
 
 
 func _on_timeline_pull_up_button_pressed() -> void:
@@ -3173,6 +3167,41 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 				btn_sell.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			act_row.add_child(btn_sell)
 
+			if item_cat == AssetCatalog.CATEGORY_PROPERTIES:
+				var item_prop_id: String = str(item.get("id", ""))
+				var prop_room_id := RoomManager.get_room_id_for_property(item_prop_id)
+				var is_active_residence := (PlayerData.selected_room_id == prop_room_id)
+				if is_active_residence:
+					var active_box := PanelContainer.new()
+					var ab_style := StyleBoxFlat.new()
+					ab_style.bg_color = Color("#064e3b") if not is_light else Color("#d1fae5")
+					ab_style.border_color = Color("#10b981")
+					ab_style.set_border_width_all(1)
+					ab_style.set_corner_radius_all(6)
+					active_box.add_theme_stylebox_override("panel", ab_style)
+					var ab_lbl := Label.new()
+					ab_lbl.text = "  🏡 CURRENT RESIDENCE & ACTIVE ROOM TEMPLATE  "
+					ab_lbl.add_theme_font_size_override("font_size", 16)
+					ab_lbl.add_theme_color_override("font_color", Color("#34d399") if not is_light else Color("#065f46"))
+					ab_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+					active_box.add_child(ab_lbl)
+					iv.add_child(active_box)
+				else:
+					var btn_set_residence := _create_cyber_button("🏡 Set as Primary Residence / Room", Color("#10b981"), func():
+						PlayerData.selected_room_id = prop_room_id
+						PlayerData.current_residence_name = str(item.get("name", "Owned Residence"))
+						PlayerData.current_residence_type = "owned"
+						if isometric_room != null and isometric_room.has_method("set_room"):
+							isometric_room.set_room(prop_room_id)
+						add_life_event("🏡 RESIDENCE UPDATED: You moved into your owned property (%s)! Your room interior now reflects this home." % str(item.get("name", "Residence")), "lifestyle")
+						update_ui()
+						update_assets_panel()
+						SaveManager.save_game()
+					, true)
+					btn_set_residence.custom_minimum_size.y = 44
+					btn_set_residence.add_theme_font_size_override("font_size", 16)
+					iv.add_child(btn_set_residence)
+
 	assets_list.add_child(section_card)
 
 
@@ -3734,6 +3763,10 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				if buy_res["success"]:
 					add_life_event("🛍️ NEW ACQUISITION: You purchased %s for $%s!" % [item_name, _format_number(price)], "finance")
 					overlay.queue_free()
+					if category == AssetCatalog.CATEGORY_PROPERTIES:
+						PlayerData.set_active_room_from_property(item_id)
+						PlayerData.current_residence_name = item_name
+						PlayerData.current_residence_type = "owned"
 					if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
 						_execute_move_out("owned", item_name)
 					else:
@@ -3772,6 +3805,10 @@ func _open_asset_marketplace_modal(category: String) -> void:
 						_format_number(PlayerData.get_credit_card_available())
 					], "finance")
 					overlay.queue_free()
+					if category == AssetCatalog.CATEGORY_PROPERTIES:
+						PlayerData.set_active_room_from_property(item_id)
+						PlayerData.current_residence_name = item_name
+						PlayerData.current_residence_type = "owned"
 					if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
 						_execute_move_out("owned", item_name)
 					else:
@@ -3804,6 +3841,10 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				if buy_res["success"]:
 					add_life_event("🛍️ NEW ACQUISITION: You purchased %s for $%s!" % [item_name, _format_number(price)], "finance")
 					overlay.queue_free()
+					if category == AssetCatalog.CATEGORY_PROPERTIES:
+						PlayerData.set_active_room_from_property(item_id)
+						PlayerData.current_residence_name = item_name
+						PlayerData.current_residence_type = "owned"
 					if category == AssetCatalog.CATEGORY_PROPERTIES and _pending_move_out_on_purchase:
 						_execute_move_out("owned", item_name)
 					else:
@@ -4128,6 +4169,9 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 			var m_res = MortgageManager.apply_for_mortgage(PlayerData, item_id, term_years, apr)
 			if bool(m_res.get("success", false)):
 				add_life_event(str(m_res.get("message", "")), "finance")
+				PlayerData.set_active_room_from_property(item_id)
+				PlayerData.current_residence_name = item_name
+				PlayerData.current_residence_type = "owned"
 				overlay.queue_free()
 				if previous_overlay != null and is_instance_valid(previous_overlay):
 					previous_overlay.queue_free()
@@ -8043,15 +8087,14 @@ func _show_household_interactions_modal() -> void:
 
 	# Additional Actions if moved out
 	if has_moved:
-		var cur_room_name: String = RoomManager.get_room_data(PlayerData.selected_room_id).get("name", "Wood")
-		var btn_theme := _create_cyber_button("🎨 Cycle Room Interior Theme (Current: %s)" % cur_room_name, Color("#0284c7"), func():
-			_on_room_cycle_button_pressed()
-			overlay.queue_free()
-			_show_household_interactions_modal()
-		, true)
-		btn_theme.custom_minimum_size.y = 52
-		btn_theme.add_theme_font_size_override("font_size", 20)
-		av.add_child(btn_theme)
+		var cur_room_name: String = RoomManager.get_room_data(PlayerData.get_active_room_id()).get("name", "Starter Home")
+		var room_badge := Label.new()
+		room_badge.text = "🏡 Active Room Template: %s\n(Acquire properties in the Real Estate market to unlock new room styles!)" % cur_room_name
+		room_badge.add_theme_font_size_override("font_size", 16)
+		room_badge.add_theme_color_override("font_color", Color("#94a3b8"))
+		room_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		room_badge.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		av.add_child(room_badge)
 
 		if RentalManager.has_active_lease(PlayerData):
 			var btn_lease := _create_cyber_button("🏠 View / Manage Rental Lease", Color("#10b981"), func():
