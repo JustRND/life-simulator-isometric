@@ -214,8 +214,6 @@ func _field(caption: String, secret: bool) -> LineEdit:
 	input.add_theme_stylebox_override("normal", _style(Color("#edf3fa") if is_light else Color("#12213b"), Color("#0284c7") if is_light else Color("#40647e"), 16))
 	body.add_child(input)
 	MobileKeyboardManager.attach_to_input(input, caption)
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(input, "⌨️ Enter " + caption, caption, Color("#0284c7"))
-	body.add_child(kb_btn)
 	return input
 
 func _submit_email() -> void:

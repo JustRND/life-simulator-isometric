@@ -391,8 +391,6 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	line_edit.virtual_keyboard_enabled = true
 	line_edit.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
 	MobileKeyboardManager.attach_to_input(line_edit, "Enter share quantity to %s:" % action_word)
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(line_edit, "⌨️ Type Custom Share Quantity", "Enter share quantity to %s:" % action_word, Color("#0284c7"))
-	list.add_child(kb_btn)
 	
 	# 3. Quick Preset Buttons Row
 	var preset_row := HBoxContainer.new()

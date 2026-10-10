@@ -6,7 +6,6 @@ extends Node
 ## ensuring that tapping on ANY LineEdit or TextEdit reliably triggers virtual keyboard input.
 
 static var _instance: MobileKeyboardManager = null
-static var _active_callbacks: Dictionary = {}
 static var _is_mobile_cached: int = -1
 
 
@@ -107,11 +106,12 @@ static func attach_to_input(input_ctrl: Control, prompt_title: String = "") -> v
 
 	if input_ctrl is LineEdit:
 		var le := input_ctrl as LineEdit
-		le.virtual_keyboard_enabled = not is_mobile_web()
+		le.virtual_keyboard_enabled = true
 		le.focus_mode = Control.FOCUS_ALL
 	elif input_ctrl is TextEdit:
-		input_ctrl.virtual_keyboard_enabled = not is_mobile_web()
-		input_ctrl.focus_mode = Control.FOCUS_ALL
+		var te := input_ctrl as TextEdit
+		te.virtual_keyboard_enabled = true
+		te.focus_mode = Control.FOCUS_ALL
 
 	# Connect gui_input to capture direct screen touches and clicks
 	var touch_down_pos := Vector2.ZERO
@@ -149,40 +149,17 @@ static func attach_to_input(input_ctrl: Control, prompt_title: String = "") -> v
 	)
 
 
-## Creates a styled cyber button dedicated to triggering mobile keyboard input for a specific input field
+## Creates a dummy keyboard trigger button (kept for backwards-compatibility; hidden by default so it does not clutter UI)
 static func create_keyboard_trigger_button(input_ctrl: Control, button_title: String = "⌨️ Type Custom Value", prompt_title: String = "", btn_color: Color = Color("#00f0ff")) -> Button:
 	var btn := Button.new()
 	btn.name = "MobileKeyboardTriggerButton"
 	btn.text = button_title
-	btn.custom_minimum_size.y = 54
-	btn.add_theme_font_size_override("font_size", 22)
-	btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn.set_meta("center_text", true)
-
-	var sb_normal := StyleBoxFlat.new()
-	sb_normal.bg_color = Color(btn_color.r * 0.15, btn_color.g * 0.15, btn_color.b * 0.15, 0.95)
-	sb_normal.border_color = btn_color
-	sb_normal.set_border_width_all(2)
-	sb_normal.set_corner_radius_all(10)
-	sb_normal.content_margin_left = 16
-	sb_normal.content_margin_right = 16
-
-	var sb_hover := sb_normal.duplicate() as StyleBoxFlat
-	sb_hover.bg_color = Color(btn_color.r * 0.3, btn_color.g * 0.3, btn_color.b * 0.3, 0.98)
-	sb_hover.border_color = Color("#ffffff")
-
-	var sb_pressed := sb_normal.duplicate() as StyleBoxFlat
-	sb_pressed.bg_color = btn_color
-
-	btn.add_theme_stylebox_override("normal", sb_normal)
-	btn.add_theme_stylebox_override("hover", sb_hover)
-	btn.add_theme_stylebox_override("pressed", sb_pressed)
-	btn.add_theme_color_override("font_color", Color("#ffffff"))
-	btn.add_theme_color_override("font_hover_color", Color("#ffffff"))
-	btn.add_theme_color_override("font_pressed_color", Color("#000000"))
-
+	btn.visible = false
+	btn.custom_minimum_size = Vector2.ZERO
 	btn.pressed.connect(func():
-		open_keyboard(input_ctrl, prompt_title, true)
+		if input_ctrl != null and is_instance_valid(input_ctrl):
+			input_ctrl.grab_focus()
+			open_keyboard(input_ctrl, prompt_title, true)
 	)
 	return btn
 
@@ -194,9 +171,9 @@ static func open_keyboard(input_ctrl: Control, prompt_override: String = "", for
 
 	if not input_ctrl.is_visible_in_tree():
 		return
-	if input_ctrl is LineEdit and not input_ctrl.editable:
+	if input_ctrl is LineEdit and not (input_ctrl as LineEdit).editable:
 		return
-	if input_ctrl is TextEdit and not input_ctrl.editable:
+	if input_ctrl is TextEdit and not (input_ctrl as TextEdit).editable:
 		return
 
 	# Debounce within 200ms to prevent double-firing
@@ -212,91 +189,22 @@ static func open_keyboard(input_ctrl: Control, prompt_override: String = "", for
 
 	var current_text := ""
 	var max_len := -1
+	var keyboard_type := DisplayServer.KEYBOARD_TYPE_DEFAULT
+
 	if input_ctrl is LineEdit:
 		var le := input_ctrl as LineEdit
 		current_text = le.text
 		max_len = le.max_length
+		keyboard_type = int(le.virtual_keyboard_type) as DisplayServer.VirtualKeyboardType
 	elif input_ctrl is TextEdit:
 		var te := input_ctrl as TextEdit
 		current_text = te.text
+		keyboard_type = DisplayServer.KEYBOARD_TYPE_MULTILINE
 
-	# 1. Native Mobile (Android / iOS native app)
-	if not OS.has_feature("web") and DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD):
-		var keyboard_type := DisplayServer.KEYBOARD_TYPE_DEFAULT
-		if input_ctrl is LineEdit:
-			keyboard_type = input_ctrl.virtual_keyboard_type
-		DisplayServer.virtual_keyboard_show(current_text, input_ctrl.get_global_rect(), keyboard_type, max_len)
-		return
-
-	# 2. Web Mobile Browser Support (iOS Safari, Android Chrome, Samsung Internet)
-	if force_prompt or is_mobile_web() or (OS.has_feature("web") and is_mobile()):
-		_prompt_mobile_web(input_ctrl, prompt_override, current_text, max_len)
-
-
-## Uses a real browser field so mobile browsers can display their OS keyboard.
-static func _prompt_mobile_web(input_ctrl: Control, prompt_override: String, current_val: String, max_len: int = -1) -> void:
-	if not OS.has_feature("web"):
-		return
-
-	var prompt_title := prompt_override
-	if prompt_title.is_empty():
-		prompt_title = str(input_ctrl.get_meta("mobile_kb_prompt_title", ""))
-
-	if prompt_title.is_empty():
-		if input_ctrl is LineEdit:
-			var le := input_ctrl as LineEdit
-			if not le.placeholder_text.is_empty():
-				prompt_title = le.placeholder_text
-			elif le.name == "NameInput":
-				prompt_title = "What is your name?"
-			elif le.name == "ShareQuantityInput":
-				prompt_title = "Enter share quantity:"
-			else:
-				prompt_title = "Enter " + le.name.capitalize()
-		elif input_ctrl is TextEdit:
-			prompt_title = "Enter text:"
-
-	if prompt_title.is_empty():
-		prompt_title = "Enter text:"
-
-	var input_type := "textarea" if input_ctrl is TextEdit else "text"
-	if input_ctrl is LineEdit:
-		var le_typed := input_ctrl as LineEdit
-		if le_typed.secret:
-			input_type = "password"
-		elif le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_NUMBER:
-			input_type = "number"
-		elif le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_NUMBER_DECIMAL:
-			input_type = "decimal"
-		elif le_typed.virtual_keyboard_type == LineEdit.KEYBOARD_TYPE_EMAIL_ADDRESS:
-			input_type = "email"
-
-	var input_id := input_ctrl.get_instance_id()
-	var input_ref: WeakRef = weakref(input_ctrl)
-	var on_submit = func(args):
-		_active_callbacks.erase(input_id)
-		var target = input_ref.get_ref()
-		if not is_instance_valid(target) or not target.is_visible_in_tree():
-			return
-		if args.size() > 0 and args[0] != null:
-			var res_str := str(args[0])
-			if res_str != "__CANCELLED__" and res_str != "null":
-				_apply_input_text(target, res_str)
-
-	var cb = JavaScriptBridge.create_callback(on_submit)
-	_active_callbacks[input_id] = cb
-	var win = JavaScriptBridge.get_interface("window")
-	if win == null:
-		_active_callbacks.erase(input_id)
-		return
-
-	if bool(JavaScriptBridge.eval("typeof window.showCyberInputOverlay === 'function'")):
-		win.showCyberInputOverlay(prompt_title, current_val, max_len, input_type, cb)
-	else:
-		var result = win.prompt(prompt_title, current_val)
-		_active_callbacks.erase(input_id)
-		if result != null:
-			_apply_input_text(input_ctrl, str(result))
+	# Directly invoke DisplayServer.virtual_keyboard_show
+	# On mobile native (Android/iOS) and Web Mobile (GodotDisplayVK with experimentalVK),
+	# this directly opens the device's native virtual keyboard without opening any secondary panels.
+	DisplayServer.virtual_keyboard_show(current_text, input_ctrl.get_global_rect(), keyboard_type, max_len)
 
 
 static func _apply_input_text(input_ctrl: Control, res_str: String) -> void:

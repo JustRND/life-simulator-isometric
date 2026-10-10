@@ -4100,8 +4100,6 @@ func _show_loan_repayment() -> void:
 	modal.list.add_child(amount)
 	get_node("OptionsMenu")._style_input(amount)
 	MobileKeyboardManager.attach_to_input(amount, "How much would you like to repay? (Whole dollars)")
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount, "⌨️ Type Custom Repayment Amount", "How much would you like to repay? (Whole dollars)", Color("#22c55e"))
-	modal.list.add_child(kb_btn)
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#b91c1c") if LifeLibrary.data.theme == "light" else Color("#fca5a5"))
@@ -4207,8 +4205,6 @@ func _show_bank_transfer(deposit: bool) -> void:
 	amount.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	modal.list.add_child(amount)
 	MobileKeyboardManager.attach_to_input(amount, verb + " amount (whole dollars)")
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount, "⌨️ Type Custom %s Amount" % verb, verb + " amount (whole dollars)", Color("#10b981") if deposit else Color("#fbbf24"))
-	modal.list.add_child(kb_btn)
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#b91c1c") if LifeLibrary.data.theme == "light" else Color("#fca5a5"))
@@ -4503,8 +4499,6 @@ func _show_credit_card_custom_amount_modal(min_pay: int, total_usage: int) -> vo
 	amount_input.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	modal.list.add_child(amount_input)
 	MobileKeyboardManager.attach_to_input(amount_input, "Repayment amount (Min 10%%: $%d)" % min_pay)
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Repayment Amount", "Repayment amount (Min 10%%: $%d)" % min_pay, Color("#06b6d4"))
-	modal.list.add_child(kb_btn)
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -8376,11 +8370,6 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % b_name)
 		rename_box.add_child(rename_edit)
 
-		var rename_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(rename_edit, "⌨️ Type New Business Name", "Enter new name for %s:" % b_name, Color("#3b82f6"))
-		rename_kb_btn.custom_minimum_size.y = 44
-		rename_kb_btn.add_theme_font_size_override("font_size", 18)
-		rename_box.add_child(rename_kb_btn)
-
 		var rename_btn_row := HBoxContainer.new()
 		rename_btn_row.add_theme_constant_override("separation", 8)
 		var btn_save_name := _create_cyber_button("💾 Save", Color("#10b981"), func():
@@ -8640,11 +8629,6 @@ func _show_business_category_modal(category_id: String) -> void:
 			name_edit.add_theme_stylebox_override("focus", edit_sb)
 			MobileKeyboardManager.attach_to_input(name_edit, "Enter custom business name:")
 			name_box.add_child(name_edit)
-
-			var name_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(name_edit, "⌨️ Enter Custom Business Name", "Enter custom business name:", cat_color)
-			name_kb_btn.custom_minimum_size.y = 44
-			name_kb_btn.add_theme_font_size_override("font_size", 19)
-			name_box.add_child(name_kb_btn)
 			cv.add_child(name_box)
 
 			if has_license:
@@ -8987,11 +8971,6 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		MobileKeyboardManager.attach_to_input(repay_input, "Enter custom repayment amount:")
 		inline_repay_box.add_child(repay_input)
 
-		var repay_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(repay_input, "⌨️ Enter Repayment Amount", "Enter custom repayment amount:", Color("#10b981"))
-		repay_kb_btn.custom_minimum_size.y = 44
-		repay_kb_btn.add_theme_font_size_override("font_size", 18)
-		inline_repay_box.add_child(repay_kb_btn)
-
 		var repay_btn_row := HBoxContainer.new()
 		repay_btn_row.add_theme_constant_override("separation", 8)
 
@@ -9115,11 +9094,6 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	MobileKeyboardManager.attach_to_input(custom_input, "Enter custom transfer amount:")
 	inline_custom_box.add_child(custom_input)
 
-	var custom_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(custom_input, "⌨️ Enter Custom Amount", "Enter custom transfer amount:", Color("#10b981"))
-	custom_kb_btn.custom_minimum_size.y = 44
-	custom_kb_btn.add_theme_font_size_override("font_size", 18)
-	inline_custom_box.add_child(custom_kb_btn)
-
 	var custom_act_row := HBoxContainer.new()
 	custom_act_row.add_theme_constant_override("separation", 8)
 
@@ -9224,11 +9198,6 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	get_node("OptionsMenu")._style_input(branch_input)
 	MobileKeyboardManager.attach_to_input(branch_input, "Enter branch name for %s:" % b_name)
 	branch_box.add_child(branch_input)
-
-	var branch_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(branch_input, "⌨️ Enter Branch Name", "Enter branch name for %s:" % b_name, Color("#0284c7"))
-	branch_kb_btn.custom_minimum_size.y = 44
-	branch_kb_btn.add_theme_font_size_override("font_size", 18)
-	branch_box.add_child(branch_kb_btn)
 
 	var branch_btn_row := HBoxContainer.new()
 	branch_btn_row.add_theme_constant_override("separation", 8)
@@ -9353,9 +9322,6 @@ func _show_rename_business_modal(biz: Dictionary) -> void:
 	name_edit.add_theme_stylebox_override("focus", edit_sb)
 	MobileKeyboardManager.attach_to_input(name_edit, "Enter new name for %s:" % cur_name)
 	edit_box.add_child(name_edit)
-
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(name_edit, "⌨️ Type New Business Name", "Enter new name for %s:" % cur_name, Color("#f59e0b"))
-	edit_box.add_child(kb_btn)
 	list.add_child(edit_box)
 
 	var btn_save := _create_cyber_button("💾 Save Business Name", Color("#10b981"), func():
@@ -9414,9 +9380,6 @@ func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
 	get_node("OptionsMenu")._style_input(name_edit)
 	MobileKeyboardManager.attach_to_input(name_edit, "Enter branch name for %s:" % parent_name)
 	name_box.add_child(name_edit)
-
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(name_edit, "⌨️ Enter Custom Branch Name", "Enter branch name for %s:" % parent_name, Color("#0284c7"))
-	name_box.add_child(kb_btn)
 	modal.list.add_child(name_box)
 
 	var feedback := Label.new()
@@ -9481,8 +9444,6 @@ func _show_business_repay_custom_loan(biz: Dictionary, cur_uid: String) -> void:
 	get_node("OptionsMenu")._style_input(amount_input)
 
 	MobileKeyboardManager.attach_to_input(amount_input, "Enter loan repayment amount (whole dollars):")
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Repayment Amount", "Enter loan repayment amount (whole dollars):", Color("#10b981"))
-	modal.list.add_child(kb_btn)
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -9557,8 +9518,6 @@ func _show_business_custom_dividend(biz: Dictionary, cur_uid: String) -> void:
 	get_node("OptionsMenu")._style_input(amount_input)
 
 	MobileKeyboardManager.attach_to_input(amount_input, "Enter dividend withdrawal amount (whole dollars):")
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Dividend Amount", "Enter dividend withdrawal amount (whole dollars):", Color("#10b981"))
-	modal.list.add_child(kb_btn)
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -9625,8 +9584,6 @@ func _show_business_custom_capital(biz: Dictionary, cur_uid: String) -> void:
 	get_node("OptionsMenu")._style_input(amount_input)
 
 	MobileKeyboardManager.attach_to_input(amount_input, "Enter capital injection amount (whole dollars):")
-	var kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(amount_input, "⌨️ Type Custom Capital Amount", "Enter capital injection amount (whole dollars):", Color("#0284c7"))
-	modal.list.add_child(kb_btn)
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
@@ -15762,10 +15719,6 @@ func _configure_creation() -> void:
 		birthplace_input.add_icon_item(CreationOptions.flag_texture(country[1], country[2]), country[0])
 	birthplace_input.select(8)
 	var content := name_input.get_parent()
-	var name_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(name_input, "⌨️ Enter Custom Name", "What is your character's name?", Color("#00f0ff"))
-	name_kb_btn.name = "CustomNameKeyboardButton"
-	content.add_child(name_kb_btn)
-	content.move_child(name_kb_btn, name_input.get_index() + 1)
 
 	var gender_label := Label.new()
 	gender_label.name = "GenderLabel"
