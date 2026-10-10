@@ -119,13 +119,13 @@ func _build_ui() -> void:
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	words.add_theme_constant_override("separation", 4)
 	row.add_child(words)
-	heading = _label(26, true)
+	heading = _label(30, true)
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.add_child(heading)
-	description = _label(20)
+	description = _label(24)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	words.add_child(description)
-	arrow = _label(26)
+	arrow = _label(30)
 	arrow.custom_minimum_size = Vector2(24, 24)
 	arrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	arrow.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -326,7 +326,7 @@ func _sync() -> void:
 		var line_count := 1
 		if cur_w >= 150.0:
 			var avail_w := cur_w - 140.0
-			var chars_per_line := maxf(avail_w / 16.0, 10.0)
+			var chars_per_line := maxf(avail_w / 18.0, 10.0)
 			line_count = int(ceil(float(first.length()) / chars_per_line))
 			var real_lines: int = heading.get_line_count()
 			if real_lines in [1, 2, 3]:
@@ -335,9 +335,9 @@ func _sync() -> void:
 		if line_count <= 1:
 			target.custom_minimum_size.y = 96.0
 		elif line_count == 2:
-			target.custom_minimum_size.y = 136.0
+			target.custom_minimum_size.y = 156.0
 		else:
-			target.custom_minimum_size.y = 176.0
+			target.custom_minimum_size.y = 196.0
 	elif is_options:
 		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
 		if not has_desc:
@@ -347,19 +347,19 @@ func _sync() -> void:
 			var d_lines := 1
 			if cur_w >= 150.0:
 				var avail_w := cur_w - 140.0
-				var h_chars := maxf(avail_w / 16.0, 10.0)
+				var h_chars := maxf(avail_w / 18.0, 10.0)
 				h_lines = int(ceil(float(heading.text.length()) / h_chars))
 				var real_h := heading.get_line_count()
 				if real_h in [1, 2, 3]:
 					h_lines = maxi(h_lines, real_h)
-				var d_chars := maxf(avail_w / 12.0, 12.0)
+				var d_chars := maxf(avail_w / 14.0, 12.0)
 				d_lines = int(ceil(float(description.text.length()) / d_chars))
 				var real_d := description.get_line_count()
 				if real_d in [1, 2, 3]:
 					d_lines = maxi(d_lines, real_d)
 			h_lines = clampi(h_lines, 1, 3)
 			d_lines = clampi(d_lines, 1, 3)
-			target.custom_minimum_size.y = 138.0 + float(h_lines - 1) * 36.0 + float(d_lines - 1) * 28.0
+			target.custom_minimum_size.y = 152.0 + float(h_lines - 1) * 40.0 + float(d_lines - 1) * 32.0
 	elif target.has_meta("bank_standout"):
 		target.custom_minimum_size.y = 96.0
 	else:

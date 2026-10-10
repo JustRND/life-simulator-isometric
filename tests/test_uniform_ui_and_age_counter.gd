@@ -159,7 +159,7 @@ func _ready() -> void:
 			print("Child %s min_size: %s, size: %s, font_size: %s" % [ch.name, ch.get_combined_minimum_size(), ch.size, ch.get_theme_font_size("font_size")])
 		var combined_h = name_and_phase.get_combined_minimum_size().y
 		print("Combined height: %f, ProfileStrip size: %s" % [combined_h, main.profile_strip.size])
-		assert(combined_h <= 180.0, "NameAndPhase combined height (%f) valid" % combined_h)
+		assert(combined_h <= 220.0, "NameAndPhase combined height (%f) valid" % combined_h)
 	print("✔ CHECK 5: Verified no clipping across multiple mobile viewports.")
 	
 	print("\n⭐⭐⭐ ALL UNIFORM BUTTONS, AGE COUNTER & UI CHECKS PASSED! ⭐⭐⭐\n")

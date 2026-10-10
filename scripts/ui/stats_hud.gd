@@ -56,20 +56,20 @@ func apply(node: Control, light: bool) -> void:
 			icon_node.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 			icon_node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icon_node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			icon_node.size = Vector2(26, 26)
-			icon_node.custom_minimum_size = Vector2(26, 26)
+			icon_node.size = Vector2(32, 32)
+			icon_node.custom_minimum_size = Vector2(32, 32)
 			icon_node.position = Vector2(2, 1)
 			icon_node.modulate = Color.WHITE
-		node.custom_minimum_size = Vector2(195, 28)
+		node.custom_minimum_size = Vector2(220, 36)
 		node.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		node.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		node.add_theme_font_override("font", font)
-		node.add_theme_font_size_override("font_size", 20)
+		node.add_theme_font_size_override("font_size", 24)
 		node.add_theme_color_override("font_color", Color("#075b91") if light else Color("#a9dcff"))
 		var spacing := StyleBoxEmpty.new()
-		spacing.content_margin_left = 36
+		spacing.content_margin_left = 44
 		node.add_theme_stylebox_override("normal", spacing)
 	elif node is TextureRect:
 		var stat_kind := str(node.name).trim_suffix("Icon").to_lower()
@@ -79,15 +79,15 @@ func apply(node: Control, light: bool) -> void:
 		node.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		node.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		node.position = Vector2(2, 1)
-		node.size = Vector2(26, 26)
-		node.custom_minimum_size = Vector2(26, 26)
+		node.size = Vector2(32, 32)
+		node.custom_minimum_size = Vector2(32, 32)
 		node.modulate = Color.WHITE
 	elif node is ProgressBar:
-		node.custom_minimum_size = Vector2(80, 26)
+		node.custom_minimum_size = Vector2(96, 32)
 		node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		node.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		node.add_theme_font_override("font", font)
-		node.add_theme_font_size_override("font_size", 18)
+		node.add_theme_font_size_override("font_size", 22)
 		node.add_theme_color_override("font_color", Color.WHITE)
 		node.add_theme_color_override("font_outline_color", Color("#111827"))
 		node.add_theme_constant_override("outline_size", 4)
@@ -95,7 +95,7 @@ func apply(node: Control, light: bool) -> void:
 		track.bg_color = Color("#e2e8f0") if light else Color("#070e1b")
 		track.border_color = Color("#cbd5e1") if light else Color("#1e3a5f")
 		track.set_border_width_all(1)
-		track.set_corner_radius_all(8)
+		track.set_corner_radius_all(10)
 		node.add_theme_stylebox_override("background", track)
 
 		var stat_name := str(node.name).trim_suffix("Bar")

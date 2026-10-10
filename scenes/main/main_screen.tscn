@@ -9,7 +9,7 @@
 
 [sub_resource type="Theme" id="pixel_theme"]
 default_font = ExtResource("6_font")
-default_font_size = 28
+default_font_size = 32
 
 [sub_resource type="StyleBoxFlat" id="top"]
 bg_color = Color(0.0745, 0.0588, 0.1647, 1)
@@ -360,7 +360,7 @@ color = Color(0.043, 0.075, 0.165, 1)
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 112.0
+offset_bottom = 124.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("top")
 
@@ -369,17 +369,17 @@ layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="MenuButton" type="Button" parent="TopBar/Row" unique_id=1210645905]
-custom_minimum_size = Vector2(90, 90)
+custom_minimum_size = Vector2(104, 104)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 42
 text = "☰"
 flat = true
 
 [node name="Logo" type="TextureRect" parent="TopBar/Row" unique_id=1842749684]
 texture_filter = 1
-custom_minimum_size = Vector2(70, 70)
+custom_minimum_size = Vector2(84, 84)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("2_icon")
@@ -392,7 +392,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_colors/font_outline_color = Color(0.925, 0.247, 0.655, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 46
+theme_override_font_sizes/font_size = 50
 text = "LIFE.EXE"
 vertical_alignment = 1
 
@@ -418,7 +418,7 @@ theme_override_colors/font_color = Color(0.98, 0.75, 0.25, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 0.8)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("6_font")
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "ALPHA v0.2.0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -427,8 +427,8 @@ vertical_alignment = 1
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 112.0
-offset_bottom = 260.0
+offset_top = 124.0
+offset_bottom = 284.0
 grow_horizontal = 2
 theme_override_styles/panel = SubResource("profile")
 
@@ -444,7 +444,7 @@ layout_mode = 2
 theme_override_constants/separation = 16
 
 [node name="AvatarButton" type="Button" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=390668089]
-custom_minimum_size = Vector2(130, 120)
+custom_minimum_size = Vector2(150, 140)
 layout_mode = 2
 mouse_default_cursor_shape = 2
 flat = true
@@ -460,7 +460,7 @@ mouse_filter = 2
 
 [node name="NationalityFlag" type="TextureRect" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=576796149]
 texture_filter = 1
-custom_minimum_size = Vector2(56, 38)
+custom_minimum_size = Vector2(68, 46)
 layout_mode = 2
 size_flags_vertical = 4
 expand_mode = 1
@@ -475,26 +475,26 @@ theme_override_constants/separation = 2
 [node name="NameLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020282]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 40
 text = "Alex Morgan"
 
 [node name="AgeLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020283]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.84, 0.35, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Age: 0"
 
 [node name="PhaseLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=526626842]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "🍼 Infant"
 
 [node name="BalanceLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=1720170167]
-custom_minimum_size = Vector2(260, 96)
+custom_minimum_size = Vector2(290, 110)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.255, 0.839, 0.424, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "💵 $0 CASH
 🏦 $0 BANK BALANCE"
 horizontal_alignment = 1
@@ -570,7 +570,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "📜 LIFE TIMELINE"
 
 [node name="CloseTimelineButton" type="Button" parent="SafeArea/MainColumn/TimelinePanel/TimelineContent/TimelineHeaderRow" unique_id=242945689]
@@ -579,7 +579,7 @@ layout_mode = 2
 tooltip_text = "Close Timeline"
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -598,7 +598,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/normal_font_size = 32
 bbcode_enabled = true
 text = "[color=#07568f][b]Age: 0 years[/b][/color]
 You were born in Indonesia. Your story begins here."
@@ -633,101 +633,101 @@ theme_override_constants/h_separation = 14
 theme_override_constants/v_separation = 8
 
 [node name="HealthLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1148875418]
-custom_minimum_size = Vector2(195, 28)
+custom_minimum_size = Vector2(220, 36)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "HEALTH"
 
 [node name="HealthBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=159880371]
-custom_minimum_size = Vector2(80, 26)
+custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 80.0
 
 [node name="HappinessLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=517101803]
-custom_minimum_size = Vector2(195, 28)
+custom_minimum_size = Vector2(220, 36)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "HAPPINESS"
 
 [node name="HappinessBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=681471829]
-custom_minimum_size = Vector2(80, 26)
+custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 75.0
 
 [node name="SmartsLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1861500308]
-custom_minimum_size = Vector2(195, 28)
+custom_minimum_size = Vector2(220, 36)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "SMARTS"
 
 [node name="SmartsBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2141533477]
-custom_minimum_size = Vector2(80, 26)
+custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("red")
 value = 60.0
 
 [node name="LooksLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1120094663]
-custom_minimum_size = Vector2(195, 28)
+custom_minimum_size = Vector2(220, 36)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "LOOKS"
 
 [node name="LooksBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2119674293]
-custom_minimum_size = Vector2(80, 26)
+custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 65.0
 
 [node name="MentalStateLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1120094664]
-custom_minimum_size = Vector2(195, 28)
+custom_minimum_size = Vector2(220, 36)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "MENTAL STATE"
 
 [node name="MentalStateBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2119674294]
-custom_minimum_size = Vector2(80, 26)
+custom_minimum_size = Vector2(96, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 80.0
@@ -876,15 +876,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 46
 text = "CHARACTER PROFILE"
 
 [node name="CloseCharacterButton" type="Button" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterHeaderRow" unique_id=1817061845]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="CharacterScroll" type="ScrollContainer" parent="CharacterPanel/CharacterMargin/CharacterContent" unique_id=1757646919]
@@ -915,14 +915,14 @@ theme_override_constants/separation = 8
 [node name="CardTitle" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/IdentityCard/Margin/VBox" unique_id=1562139718]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "Personal Identity"
 
 [node name="CharacterName" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/IdentityCard/Margin/VBox" unique_id=1822725376]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 text = "Name: Alex Morgan"
 autowrap_mode = 3
 
@@ -930,7 +930,7 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 text = "Stage: Infant (Age 0)"
 autowrap_mode = 3
 
@@ -938,7 +938,7 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 text = "Born in: Indonesia"
 autowrap_mode = 3
 
@@ -946,7 +946,7 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 text = "Birthday: January 1 • Capricorn"
 autowrap_mode = 3
 
@@ -968,14 +968,14 @@ theme_override_constants/separation = 8
 [node name="CardTitle" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/FamilyCard/Margin/VBox" unique_id=659010178]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "Family & Conception"
 
 [node name="CharacterMother" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/FamilyCard/Margin/VBox" unique_id=325530611]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Mother: Ella Castro (grocer)"
 autowrap_mode = 3
 
@@ -983,14 +983,14 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Father: Unknown"
 autowrap_mode = 3
 
 [node name="CharacterStory" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/FamilyCard/Margin/VBox" unique_id=2071646810]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Birth circumstance story details..."
 autowrap_mode = 3
 
@@ -1012,20 +1012,20 @@ theme_override_constants/separation = 8
 [node name="CardTitle" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/FinancesCard/Margin/VBox" unique_id=679658351]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "Finances & Net Worth"
 
 [node name="CharacterMoney" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/FinancesCard/Margin/VBox" unique_id=2016775973]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 text = "Money: $0"
 
 [node name="CharacterKarma" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/FinancesCard/Margin/VBox" unique_id=384370197]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 26
+theme_override_font_sizes/font_size = 30
 
 [node name="MilestonesCard" type="PanelContainer" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards" unique_id=427497902]
 layout_mode = 2
@@ -1045,7 +1045,7 @@ theme_override_constants/separation = 10
 [node name="CardTitle" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/MilestonesCard/Margin/VBox" unique_id=1868718863]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "Life Milestones"
 
 [node name="MilestonesList" type="VBoxContainer" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterScroll/ProfileCards/MilestonesCard/Margin/VBox" unique_id=1730697666]
@@ -1080,16 +1080,16 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 40
 text = "TODDLER & LIFE OVERVIEW"
 autowrap_mode = 3
 
 [node name="CloseInfantButton" type="Button" parent="InfantPanel/InfantMargin/InfantContent/InfantHeaderRow" unique_id=1142441444]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="StatusCard" type="PanelContainer" parent="InfantPanel/InfantMargin/InfantContent" unique_id=853998808]
@@ -1111,7 +1111,7 @@ theme_override_constants/separation = 10
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "Life Stage: Alex Miller (Age 0)"
 autowrap_mode = 3
 
@@ -1119,7 +1119,7 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.83, 0.6, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Current Job: Unemployed"
 autowrap_mode = 3
 
@@ -1127,7 +1127,7 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.78, 0.82, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Current Education: None (Preschool)"
 autowrap_mode = 3
 
@@ -1139,7 +1139,7 @@ theme_override_constants/separation = 4
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.22, 0.77, 0.99, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Academic Grades: 75% (B)"
 autowrap_mode = 3
 
@@ -1158,28 +1158,28 @@ theme_override_constants/separation = 10
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "🌟 All Highlights"
 
 [node name="FilterMilestonesButton" type="Button" parent="InfantPanel/InfantMargin/InfantContent/HistoryFilterRow" unique_id=2119090337]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "🏆 Life Milestones"
 
 [node name="FilterUniqueButton" type="Button" parent="InfantPanel/InfantMargin/InfantContent/HistoryFilterRow" unique_id=2119090338]
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "✨ Unique Events"
 
 [node name="HistoryHeaderLabel" type="Label" parent="InfantPanel/InfantMargin/InfantContent" unique_id=1335347047]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "LIFE HISTORY & MILESTONES"
 autowrap_mode = 3
 
@@ -1222,21 +1222,21 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "ASSETS & FINANCES"
 
 [node name="CloseAssetsButton" type="Button" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsHeaderRow" unique_id=1558426471]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="AssetsCashLabel" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent" unique_id=476374275]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 36
 text = "Net Worth: $0"
 
 [node name="BankButton" type="Button" parent="AssetsPanel/AssetsMargin/AssetsContent" unique_id=356993415]
@@ -1246,7 +1246,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1279,13 +1279,13 @@ layout_mode = 2
 [node name="LabelTitle" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsScroll/AssetsList/RealEstatePlaceholder/Margin/VBox" unique_id=543813443]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "🏠 Real Estate"
 
 [node name="LabelDesc" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsScroll/AssetsList/RealEstatePlaceholder/Margin/VBox" unique_id=794698141]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "You do not own any real estate."
 
 [node name="VehiclesPlaceholder" type="PanelContainer" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsScroll/AssetsList" unique_id=844728138]
@@ -1305,13 +1305,13 @@ layout_mode = 2
 [node name="LabelTitle" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsScroll/AssetsList/VehiclesPlaceholder/Margin/VBox" unique_id=1958119897]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "🚗 Vehicles"
 
 [node name="LabelDesc" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsScroll/AssetsList/VehiclesPlaceholder/Margin/VBox" unique_id=734650126]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "You do not own any vehicles."
 
 [node name="BankPanel" type="PanelContainer" parent="." unique_id=28360382]
@@ -1339,7 +1339,7 @@ theme_override_constants/separation = 24
 layout_mode = 2
 
 [node name="BackToAssetsButton" type="Button" parent="BankPanel/BankMargin/BankContent/BankHeaderRow" unique_id=1336675291]
-custom_minimum_size = Vector2(180, 60)
+custom_minimum_size = Vector2(200, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
@@ -1354,16 +1354,16 @@ text = "← ASSETS"
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 38
+theme_override_font_sizes/font_size = 42
 text = "FIRST NATIONAL PIXEL BANK"
 horizontal_alignment = 1
 
 [node name="CloseBankButton" type="Button" parent="BankPanel/BankMargin/BankContent/BankHeaderRow" unique_id=1625863005]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="BankScroll" type="ScrollContainer" parent="BankPanel/BankMargin/BankContent" unique_id=128471928]
@@ -1404,14 +1404,14 @@ stretch_mode = 5
 [node name="CheckingBalanceLabel" type="Label" parent="BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox" unique_id=934543380]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 40
 text = "Cash: $0 • Bank Balance: $0"
 horizontal_alignment = 1
 
 [node name="BankStatusLabel" type="Label" parent="BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox" unique_id=76950939]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Account Status: Active & In Good Standing"
 horizontal_alignment = 1
 
@@ -1443,15 +1443,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "RELATIONSHIPS"
 
 [node name="CloseRelButton" type="Button" parent="RelationshipsPanel/RelMargin/RelContent/RelHeaderRow" unique_id=267045736]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="RelScroll" type="ScrollContainer" parent="RelationshipsPanel/RelMargin/RelContent" unique_id=158802062]
@@ -1495,28 +1495,28 @@ theme_override_constants/separation = 4
 [node name="MotherNameLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox" unique_id=931493689]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "Mother: Ella Castro"
 autowrap_mode = 3
 
 [node name="MotherJobLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox" unique_id=1660769666]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Occupation: Grocer"
 autowrap_mode = 3
 
 [node name="MotherEduLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox" unique_id=1418820301]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.84, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Education: High School"
 autowrap_mode = 3
 
 [node name="MotherStatusLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/MotherCard/Margin/HBox/MotherVBox" unique_id=691528122]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Relationship: Warm & Loving"
 autowrap_mode = 3
 
@@ -1551,28 +1551,28 @@ theme_override_constants/separation = 4
 [node name="FatherNameLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox" unique_id=838236404]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "Father: Carlos Castro"
 autowrap_mode = 3
 
 [node name="FatherJobLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox" unique_id=1275561853]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 text = "Occupation: Carpenter"
 autowrap_mode = 3
 
 [node name="FatherEduLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox" unique_id=1468820302]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.84, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Education: High School"
 autowrap_mode = 3
 
 [node name="FatherStatusLabel" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList/FatherCard/Margin/HBox/FatherVBox" unique_id=1608615251]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Relationship: Good"
 autowrap_mode = 3
 
@@ -1604,15 +1604,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "ACTIVITIES"
 
 [node name="CloseActButton" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActHeaderRow" unique_id=887305750]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="ActScroll" type="ScrollContainer" parent="ActivitiesPanel/ActMargin/ActContent" unique_id=181154892]
@@ -1632,7 +1632,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1646,7 +1646,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1660,7 +1660,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1674,7 +1674,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1688,7 +1688,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1702,7 +1702,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1716,7 +1716,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1730,7 +1730,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1744,7 +1744,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1758,7 +1758,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1772,7 +1772,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1786,7 +1786,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1800,7 +1800,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1814,7 +1814,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1828,7 +1828,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1842,7 +1842,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(1, 0.2, 0.6, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.2, 0.6, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1856,7 +1856,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0.18, 0.85, 0.55, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.18, 0.85, 0.55, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1870,7 +1870,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0.18, 0.85, 0.55, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.18, 0.85, 0.55, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1884,7 +1884,7 @@ theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_focus_color = Color(0.18, 0.85, 0.55, 1)
 theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.18, 0.85, 0.55, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
@@ -1934,15 +1934,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "SETTINGS"
 
 [node name="CloseSettingsHeaderButton" type="Button" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/SettingsHeader" unique_id=321787064]
-custom_minimum_size = Vector2(80, 60)
+custom_minimum_size = Vector2(90, 70)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 text = "✕"
 
 [node name="GameInfoCard" type="PanelContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent" unique_id=272032567]
@@ -1963,13 +1963,13 @@ theme_override_constants/separation = 4
 [node name="Title" type="Label" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/GameInfoCard/Margin/VBox" unique_id=2005627009]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "🎮 Life Simulator • 16-Bit Prototype"
 
 [node name="Subtitle" type="Label" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/GameInfoCard/Margin/VBox" unique_id=2132290357]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Version 1.0.0 • Mobile Life Sim"
 
 [node name="AudioCard" type="PanelContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent" unique_id=425029045]
@@ -1990,13 +1990,13 @@ theme_override_constants/separation = 4
 [node name="AudioTitle" type="Label" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/AudioCard/Margin/VBox" unique_id=1015069850]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "🔊 Sound & Haptics"
 
 [node name="AudioStatus" type="Label" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/AudioCard/Margin/VBox" unique_id=95847105]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Sound Effects & Background Audio: Active"
 
 [node name="DangerCard" type="PanelContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent" unique_id=1744479588]
@@ -2017,7 +2017,7 @@ theme_override_constants/separation = 12
 [node name="DangerLabel" type="Label" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/DangerCard/Margin/VBox" unique_id=338151327]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.827, 0.118, 0.145, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 text = "⚠️ Danger Zone"
 
 [node name="ResetProgressButton" type="Button" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/DangerCard/Margin/VBox" unique_id=1494465007]
@@ -2025,7 +2025,7 @@ custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.9, 0.9, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("danger")
 theme_override_styles/hover = SubResource("danger")
 text = "RESET LIFE PROGRESS"
@@ -2070,7 +2070,7 @@ theme_override_constants/separation = 22
 [node name="ConfirmTitle" type="Label" parent="ResetConfirmationOverlay/ConfirmCard/ConfirmMargin/ConfirmContent" unique_id=874055106]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.827, 0.118, 0.145, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 40
 text = "⚠️ RESET LIFE PROGRESS"
 horizontal_alignment = 1
 
@@ -2078,7 +2078,7 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 29
 text = "Are you sure you want to end this life?
 
 All life choices, career milestones, relationships, bank savings, and character memories will be permanently erased."
@@ -2094,7 +2094,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("confirm_keep")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
@@ -2106,7 +2106,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.9, 0.9, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 34
 theme_override_styles/normal = SubResource("danger")
 theme_override_styles/hover = SubResource("danger")
 text = "ERASE & RESTART"
@@ -2141,7 +2141,7 @@ alignment = 1
 [node name="NewGameTitle" type="Label" parent="NewGamePanel/CenterContainer/CreationCard/NewGameContent" unique_id=1598762386]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 48
 text = "CREATE YOUR LIFE"
 horizontal_alignment = 1
 
@@ -2214,7 +2214,7 @@ theme_override_constants/separation = 24
 [node name="EventTitle" type="Label" parent="EventOverlay/EventPanel/EventMargin/EventContent" unique_id=1611382857]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 48
 text = "NEW BIKE"
 horizontal_alignment = 1
 
@@ -2223,7 +2223,7 @@ custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/normal_font_size = 30
+theme_override_font_sizes/normal_font_size = 34
 bbcode_enabled = true
 text = "Your family gives you a bicycle as a surprise gift.
 
@@ -2238,7 +2238,7 @@ custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
@@ -2249,7 +2249,7 @@ custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
@@ -2260,7 +2260,7 @@ custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
@@ -2271,7 +2271,7 @@ custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 32
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
@@ -2322,7 +2322,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0.94, 1, 1)
 theme_override_constants/outline_size = 6
-theme_override_font_sizes/font_size = 46
+theme_override_font_sizes/font_size = 50
 text = "Life.exe"
 horizontal_alignment = 1
 
@@ -2331,7 +2331,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_colors/font_outline_color = Color(0.02, 0.1, 0.25, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 36
 text = "0 %"
 horizontal_alignment = 1
 
@@ -2344,7 +2344,7 @@ show_percentage = false
 [node name="LoadingDetailsLabel" type="Label" parent="LoadingScreen/CenterContainer/LoadingVBox" unique_id=2093625868]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.73, 0.9, 0.99, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Loading assets..."
 horizontal_alignment = 1
 
@@ -2404,21 +2404,21 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_outline_color = Color(0.02, 0.1, 0.25, 1)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 34
+theme_override_font_sizes/font_size = 38
 text = "⚠️  DISCLAIMER  ⚠️"
 horizontal_alignment = 1
 
 [node name="DisclaimerSubLabel" type="Label" parent="DisclaimerScreen/CenterContainer/DisclaimerCard/Margin/VBox" unique_id=778899120]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "FICTIONAL SIMULATION PROTOCOL"
 horizontal_alignment = 1
 
 [node name="DisclaimerMessage" type="Label" parent="DisclaimerScreen/CenterContainer/DisclaimerCard/Margin/VBox" unique_id=778899121]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.97, 0.98, 0.99, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 26
 text = "Life.exe is an interactive simulation of fiction.
 
 All characters, names, professions, financial events, medical conditions, relationships, and storylines portrayed within this simulation are entirely fictional.
@@ -2430,7 +2430,7 @@ autowrap_mode = 3
 [node name="DisclaimerFooter" type="Label" parent="DisclaimerScreen/CenterContainer/DisclaimerCard/Margin/VBox" unique_id=778899122]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.48, 0.6, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "•  Tap anywhere to continue  •"
 horizontal_alignment = 1
 

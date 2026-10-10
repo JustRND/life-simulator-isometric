@@ -26,12 +26,12 @@ func install(screen: Control) -> void:
 	FinanceMarket.ensure.call_deferred(PlayerData)
 
 
-func label(parent: Node, text: String, size: int = 24, color: Color = Color.TRANSPARENT) -> Label:
+func label(parent: Node, text: String, size: int = 28, color: Color = Color.TRANSPARENT) -> Label:
 	var node := Label.new()
 	node.set_meta("reference_part", true)
 	node.text = text
 	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	node.add_theme_font_size_override("font_size", size)
+	node.add_theme_font_size_override("font_size", maxi(26, size))
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	if color != Color.TRANSPARENT:
 		node.add_theme_color_override("font_color", color)
@@ -42,7 +42,7 @@ func label(parent: Node, text: String, size: int = 24, color: Color = Color.TRAN
 
 
 ## Creates a tactile, game-like button with a visible border, rounded corners, and shadow backdrop.
-func create_market_button(parent: Node, text: String, color: Color, action: Callable, disabled: bool = false, min_height: int = 56) -> Button:
+func create_market_button(parent: Node, text: String, color: Color, action: Callable, disabled: bool = false, min_height: int = 68) -> Button:
 	var btn := Button.new()
 	btn.set_meta("reference_part", true)
 	btn.set_meta("market_button", true)
@@ -51,7 +51,7 @@ func create_market_button(parent: Node, text: String, color: Color, action: Call
 	btn.custom_minimum_size.y = min_height
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	btn.add_theme_font_size_override("font_size", 22)
+	btn.add_theme_font_size_override("font_size", 26)
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	
 	var is_light: bool = LifeLibrary.data.theme == "light"
@@ -63,10 +63,10 @@ func create_market_button(parent: Node, text: String, color: Color, action: Call
 	normal_sb.shadow_color = Color(0, 0, 0, 0.28)
 	normal_sb.shadow_size = 4
 	normal_sb.shadow_offset = Vector2(0, 3)
-	normal_sb.content_margin_left = 18
-	normal_sb.content_margin_right = 18
-	normal_sb.content_margin_top = 10
-	normal_sb.content_margin_bottom = 10
+	normal_sb.content_margin_left = 22
+	normal_sb.content_margin_right = 22
+	normal_sb.content_margin_top = 12
+	normal_sb.content_margin_bottom = 12
 	btn.add_theme_stylebox_override("normal", normal_sb)
 	
 	var hover_sb := normal_sb.duplicate() as StyleBoxFlat
@@ -140,7 +140,7 @@ func open() -> void:
 	label(sc_vbox, "💵 Available Funds: %s   •   📊 Stock Portfolio: %s" % [_money(PlayerData.get_available_funds()), _money(port_val)], 24, Color("#0284c7") if is_light else Color("#38bdf8"))
 	
 	if PlayerData.age < 18 or PlayerData.is_in_prison or PlayerData.is_dead:
-		label(sc_vbox, "⚠️ Trading and acquisitions require age 18 and freedom from prison.", 20, Color("#ef4444"))
+		label(sc_vbox, "⚠️ Trading and acquisitions require age 18 and freedom from prison.", 24, Color("#ef4444"))
 	
 	# Navigation Tabs with tactile button styling
 	var tabs := HBoxContainer.new()
@@ -150,9 +150,9 @@ func open() -> void:
 	for tab in ["Exchange", "Portfolio", "My Businesses"]:
 		var is_active: bool = (tab == selected_tab)
 		var tab_color := Color("#0284c7") if is_active else Color("#475569" if is_light else "#1e293b")
-		var tab_btn := create_market_button(tabs, tab, tab_color, func(): selected_tab = tab; message = ""; open(), false, 52)
+		var tab_btn := create_market_button(tabs, tab, tab_color, func(): selected_tab = tab; message = ""; open(), false, 64)
 		tab_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tab_btn.add_theme_font_size_override("font_size", 22)
+		tab_btn.add_theme_font_size_override("font_size", 26)
 		if is_active:
 			tab_btn.add_theme_color_override("font_color", Color.WHITE)
 		else:
@@ -174,7 +174,7 @@ func open() -> void:
 		mm.add_theme_constant_override("margin_top", 10)
 		mm.add_theme_constant_override("margin_bottom", 10)
 		msg_p.add_child(mm)
-		label(mm, "🔔 " + message, 22, Color("#34d399"))
+		label(mm, "🔔 " + message, 26, Color("#34d399"))
 
 	match selected_tab:
 		"Exchange": _exchange(list)
@@ -246,7 +246,7 @@ func _exchange(list: VBoxContainer) -> void:
 		rv.add_child(ticker_box)
 
 		var news_txt := " • ".join(news_list)
-		label(ticker_box, "📰 Financial Wire: %s" % news_txt, 18, Color("#0284c7" if is_light else "#38bdf8"))
+		label(ticker_box, "📰 Financial Wire: %s" % news_txt, 22, Color("#0284c7" if is_light else "#38bdf8"))
 
 	# Live Quote Pulse action
 	var pulse_row := HBoxContainer.new()
@@ -255,13 +255,13 @@ func _exchange(list: VBoxContainer) -> void:
 	var pulse_btn := create_market_button(pulse_row, "🔄 Pulse Live Quotes", Color("#0284c7"), func():
 		FinanceMarket.tick_live_market(PlayerData)
 		open()
-	, false, 44)
+	, false, 54)
 	pulse_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	pulse_btn.add_theme_font_size_override("font_size", 18)
+	pulse_btn.add_theme_font_size_override("font_size", 26)
 
-	var listings_label := label(list, "8 active listings • 24 company archetypes • Dynamic market cycles with crashes & rallies.", 21)
+	var listings_label := label(list, "8 active listings • 24 company archetypes • Dynamic market cycles with crashes & rallies.", 25)
 	listings_label.name = "ActiveListings"
-	label(list, "Acquisitions need no license. Price includes a 25% control premium; shares you already own reduce the cost. Delisting returns 80% of share value; bankruptcy returns zero.", 19, Color("#64748b"))
+	label(list, "Acquisitions need no license. Price includes a 25% control premium; shares you already own reduce the cost. Delisting returns 80% of share value; bankruptcy returns zero.", 23, Color("#64748b"))
 
 	for c in FinanceMarket.active(PlayerData):
 		var card := PanelContainer.new()
@@ -293,7 +293,7 @@ func _exchange(list: VBoxContainer) -> void:
 		header_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cv.add_child(header_row)
 
-		var name_lbl := label(header_row, "🏛️ " + str(c.name), 28, Color("#0369a1") if is_light else Color("#38bdf8"))
+		var name_lbl := label(header_row, "🏛️ " + str(c.name), 32, Color("#0369a1") if is_light else Color("#38bdf8"))
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 		var change := (float(c.price) / maxf(0.01, float(c.previous)) - 1.0) * 100.0
@@ -335,7 +335,7 @@ func _exchange(list: VBoxContainer) -> void:
 
 		var trend_lbl := Label.new()
 		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
-		trend_lbl.add_theme_font_size_override("font_size", 21)
+		trend_lbl.add_theme_font_size_override("font_size", 25)
 		var text_col: Color
 		if is_crash:
 			text_col = Color("#ef4444" if not is_light else "#b91c1c")
@@ -362,12 +362,12 @@ func _exchange(list: VBoxContainer) -> void:
 		# 4. Catalyst Event Headline
 		var ev_note: String = str(c.get("event_note", ""))
 		if not ev_note.is_empty():
-			label(cv, "News: %s" % ev_note, 19, Color("#15803d" if is_up else "#dc2626"))
+			label(cv, "News: %s" % ev_note, 23, Color("#15803d" if is_up else "#dc2626"))
 
 		label(cv, "Market Activity: %d buys ---- %d sells" % [int(c.npc_buys), int(c.npc_sells)], 20, Color("#64748b"))
 
 		if not str(c.business_uid).is_empty():
-			label(cv, "👑 Your public company • 80% controlling stake", 22, Color("#eab308"))
+			label(cv, "👑 Your public company • 80% controlling stake", 26, Color("#eab308"))
 			continue
 
 		# 5. Holding Status (if player owns shares)
@@ -407,7 +407,7 @@ func _exchange(list: VBoxContainer) -> void:
 		acq_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	for news in PlayerData.finance_market.get("news", []):
-		label(list, "📰 " + str(news), 20, Color("#64748b"))
+		label(list, "📰 " + str(news), 24, Color("#64748b"))
 
 
 ## Custom Amount of Shares Trade Dialog (Prompt with Text Input, Quick Presets, and Live Cost Calculation)
@@ -455,16 +455,16 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	ipm.add_child(ipv)
 	
 	if is_buy:
-		label(ipv, "🏦 Bank Balance (Stock Buying Power): %s" % _money(player_bank), 24, Color("#0284c7") if is_light else Color("#38bdf8"))
-		label(ipv, "⚠️ Shares purchases require bank balance. Cash cannot be used.", 19, Color("#f59e0b"))
+		label(ipv, "🏦 Bank Balance (Stock Buying Power): %s" % _money(player_bank), 28, Color("#0284c7") if is_light else Color("#38bdf8"))
+		label(ipv, "⚠️ Shares purchases require bank balance. Cash cannot be used.", 23, Color("#f59e0b"))
 		label(ipv, "📊 Maximum Affordable: %d shares  •  Available on Market: %d" % [max_affordable, int(c.available)], 21, Color("#64748b"))
 	else:
 		var current_val := owned_qty * share_price
-		label(ipv, "💼 Portfolio Holding: %d shares" % owned_qty, 24, Color("#f43f5e"))
-		label(ipv, "💰 Total Value: %s" % _money(current_val), 21, Color("#64748b"))
+		label(ipv, "💼 Portfolio Holding: %d shares" % owned_qty, 28, Color("#f43f5e"))
+		label(ipv, "💰 Total Value: %s" % _money(current_val), 25, Color("#64748b"))
 	
 	# 2. Text Input Section
-	label(list, "ENTER DESIRED AMOUNT OF SHARES TO %s:" % action_word, 22, Color("#334155" if is_light else "#cbd5e1"))
+	label(list, "ENTER DESIRED AMOUNT OF SHARES TO %s:" % action_word, 26, Color("#334155" if is_light else "#cbd5e1"))
 	
 	var input_container := PanelContainer.new()
 	input_container.set_meta("reference_part", true)
@@ -481,8 +481,8 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	line_edit.set_meta("reference_part", true)
 	line_edit.text = "10" if is_buy else str(mini(owned_qty, 10))
 	line_edit.placeholder_text = "Type share quantity..."
-	line_edit.custom_minimum_size.y = 56
-	line_edit.add_theme_font_size_override("font_size", 28)
+	line_edit.custom_minimum_size.y = 68
+	line_edit.add_theme_font_size_override("font_size", 32)
 	line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var le_empty := StyleBoxEmpty.new()
 	le_empty.content_margin_left = 16
@@ -521,11 +521,11 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	cpv.add_theme_constant_override("separation", 6)
 	cpm.add_child(cpv)
 	
-	var calc_summary := label(cpv, "", 22)
+	var calc_summary := label(cpv, "", 26)
 	calc_summary.name = "CalcSummary"
-	var calc_total := label(cpv, "", 24)
+	var calc_total := label(cpv, "", 28)
 	calc_total.name = "CalcTotal"
-	var calc_warning := label(cpv, "", 20)
+	var calc_warning := label(cpv, "", 24)
 	calc_warning.name = "CalcWarning"
 	
 	# 5. Confirm and Cancel Buttons
@@ -536,10 +536,10 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	var cancel_btn := create_market_button(action_row, "Cancel", Color("#64748b"), func():
 		if is_instance_valid(trade_dialog_overlay):
 			trade_dialog_overlay.queue_free()
-	, false, 60)
+	, false, 72)
 	cancel_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
-	var confirm_btn := create_market_button(action_row, "Confirm %s" % ("Purchase" if is_buy else "Sale"), Color("#059669" if is_buy else "#e11d48"), Callable(), false, 60)
+	var confirm_btn := create_market_button(action_row, "Confirm %s" % ("Purchase" if is_buy else "Sale"), Color("#059669" if is_buy else "#e11d48"), Callable(), false, 72)
 	confirm_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	
 	# Update Calculation Logic
@@ -607,17 +607,17 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 				var current_qty := int(line_edit.text)
 				line_edit.text = str(current_qty + p_val)
 				update_calculation.call()
-			, false, 42)
+			, false, 52)
 			pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			pb.add_theme_font_size_override("font_size", 18)
+			pb.add_theme_font_size_override("font_size", 22)
 		
 		var max_b := create_market_button(preset_row, "MAX", Color("#0284c7"), func():
 			var limit_qty := mini(max_affordable, int(c.available))
 			line_edit.text = str(maxi(1, limit_qty))
 			update_calculation.call()
-		, max_affordable <= 0, 42)
+		, max_affordable <= 0, 52)
 		max_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		max_b.add_theme_font_size_override("font_size", 18)
+		max_b.add_theme_font_size_override("font_size", 22)
 	else:
 		for frac in [0.25, 0.50, 0.75]:
 			var pct_label := "%d%%" % int(frac * 100)
@@ -625,16 +625,16 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 				var q := maxi(1, int(owned_qty * frac))
 				line_edit.text = str(q)
 				update_calculation.call()
-			, owned_qty <= 0, 42)
+			, owned_qty <= 0, 52)
 			pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			pb.add_theme_font_size_override("font_size", 18)
+			pb.add_theme_font_size_override("font_size", 22)
 		
 		var all_b := create_market_button(preset_row, "ALL (100%)", Color("#e11d48"), func():
 			line_edit.text = str(owned_qty)
 			update_calculation.call()
-		, owned_qty <= 0, 42)
+		, owned_qty <= 0, 52)
 		all_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		all_b.add_theme_font_size_override("font_size", 18)
+		all_b.add_theme_font_size_override("font_size", 22)
 	
 	confirm_btn.pressed.connect(func():
 		var final_qty := int(line_edit.text)
@@ -675,14 +675,14 @@ func _portfolio(list: VBoxContainer) -> void:
 	chart_cv.add_theme_constant_override("separation", 10)
 	chart_cm.add_child(chart_cv)
 	
-	label(chart_cv, "📊 Blue: portfolio value • Gold: net cash invested", 21, Color("#0284c7" if is_light else "#38bdf8"))
+	label(chart_cv, "📊 Blue: portfolio value • Gold: net cash invested", 25, Color("#0284c7" if is_light else "#38bdf8"))
 	var chart := preload("res://scripts/ui/portfolio_chart.gd").new()
 	chart.history = PlayerData.finance_market.get("history", [])
 	chart_cv.add_child(chart)
 	
 	var realized: int = int(PlayerData.finance_market.get("realized", 0))
 	var pnl_color := Color("#15803d" if is_light else "#34d399") if realized >= 0 else Color("#b91c1c" if is_light else "#f87171")
-	label(list, "Cumulative Realized Profit / Loss: %s" % _money(realized), 24, pnl_color)
+	label(list, "Cumulative Realized Profit / Loss: %s" % _money(realized), 28, pnl_color)
 	
 	var holdings: Dictionary = PlayerData.finance_market.get("holdings", {})
 	if holdings.is_empty():
@@ -701,7 +701,7 @@ func _portfolio(list: VBoxContainer) -> void:
 		em.add_theme_constant_override("margin_top", 18)
 		em.add_theme_constant_override("margin_bottom", 18)
 		empty_card.add_child(em)
-		label(em, "No shares owned currently. Switch to the 'Exchange' tab to browse and purchase shares.", 22, Color("#64748b"))
+		label(em, "No shares owned currently. Switch to the 'Exchange' tab to browse and purchase shares.", 26, Color("#64748b"))
 		return
 	
 	for uid in holdings:
@@ -749,11 +749,11 @@ func _portfolio(list: VBoxContainer) -> void:
 		var title_row := HBoxContainer.new()
 		title_row.add_theme_constant_override("separation", 16)
 		cv.add_child(title_row)
-		var hname := label(title_row, "🏛️ %s" % company.name, 26, Color("#0369a1" if is_light else "#38bdf8"))
+		var hname := label(title_row, "🏛️ %s" % company.name, 30, Color("#0369a1" if is_light else "#38bdf8"))
 		hname.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		
 		if not is_active:
-			var off_badge := label(title_row, "[Off-Market]", 20, Color("#f59e0b" if is_light else "#fbbf24"))
+			var off_badge := label(title_row, "[Off-Market]", 24, Color("#f59e0b" if is_light else "#fbbf24"))
 			off_badge.size_flags_horizontal = Control.SIZE_SHRINK_END
 			off_badge.autowrap_mode = TextServer.AUTOWRAP_OFF
 		
@@ -768,7 +768,7 @@ func _portfolio(list: VBoxContainer) -> void:
 		label(cv, "Holding: %d shares  •  Current Value: %s  •  Cost Basis: %s" % [position.quantity, _money(value), _money(cost)], 21, Color("#64748b"))
 		
 		if not is_active:
-			label(cv, "📌 Off-Market: This company rotated off active listings. You can still liquidate your shares anytime.", 19, Color("#94a3b8" if is_light else "#64748b"))
+			label(cv, "📌 Off-Market: This company rotated off active listings. You can still liquidate your shares anytime.", 23, Color("#94a3b8" if is_light else "#64748b"))
 		
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
@@ -787,7 +787,7 @@ func _portfolio(list: VBoxContainer) -> void:
 
 
 func _businesses(list: VBoxContainer) -> void:
-	label(list, "IPO: exceed $1,000,000 cumulative after-tax net profit, pay outstanding business taxes, and maintain a non-negative treasury. Float 20%; retain 80%. Underwriting fee: 5%.", 20, Color("#64748b"))
+	label(list, "IPO: exceed $1,000,000 cumulative after-tax net profit, pay outstanding business taxes, and maintain a non-negative treasury. Float 20%; retain 80%. Underwriting fee: 5%.", 24, Color("#64748b"))
 	
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	if PlayerData.owned_businesses.is_empty():
@@ -806,7 +806,7 @@ func _businesses(list: VBoxContainer) -> void:
 		em.add_theme_constant_override("margin_top", 18)
 		em.add_theme_constant_override("margin_bottom", 18)
 		empty_card.add_child(em)
-		label(em, "No businesses owned. Acquire an active NPC business from the Exchange tab or incorporate one.", 22, Color("#64748b"))
+		label(em, "No businesses owned. Acquire an active NPC business from the Exchange tab or incorporate one.", 26, Color("#64748b"))
 		return
 	
 	for business in PlayerData.owned_businesses:
@@ -833,7 +833,7 @@ func _businesses(list: VBoxContainer) -> void:
 		cv.add_theme_constant_override("separation", 10)
 		cm.add_child(cv)
 		
-		label(cv, "🏢 " + str(business.name), 28, Color("#4f46e5" if is_light else "#818cf8"))
+		label(cv, "🏢 " + str(business.name), 32, Color("#4f46e5" if is_light else "#818cf8"))
 		label(cv, "Net profit to date: %s  •  Valuation: %s  •  Ownership: %d%%" % [
 			_money(int(business.get("cumulative_net_profit", 0))),
 			_money(int(business.get("valuation", 0))),
@@ -865,9 +865,9 @@ func _businesses(list: VBoxContainer) -> void:
 func open_learning(notice: String = "") -> void:
 	var view: Dictionary = main._refresh_cyber_modal(learning_overlay, "LEARNING & SMARTS", "Each activity is available once per year. Any activity protects smarts from annual decay. Gains taper above 85 smarts.", Color("#38bdf8"))
 	learning_overlay = view.overlay
-	label(view.list, "Smarts: %d • Funds: %s" % [PlayerData.smarts, _money(PlayerData.get_available_funds())], 24)
+	label(view.list, "Smarts: %d • Funds: %s" % [PlayerData.smarts, _money(PlayerData.get_available_funds())], 28)
 	if not notice.is_empty():
-		label(view.list, notice, 22, Color("#10b981"))
+		label(view.list, notice, 26, Color("#10b981"))
 	for activity in BalanceRules.LEARNING:
 		var used: bool = int(PlayerData.learning_activities.get(activity.id, -1)) == PlayerData.age
 		var title: String = "%s\nCost: %s • Age %d+" % [
@@ -881,4 +881,4 @@ func open_learning(notice: String = "") -> void:
 			main.update_ui()
 			SaveManager.save_game()
 			open_learning(result)
-		, used or PlayerData.age < int(activity.age) or PlayerData.get_available_funds() < int(activity.cost) or PlayerData.is_in_prison or PlayerData.is_dead, 64)
+		, used or PlayerData.age < int(activity.age) or PlayerData.get_available_funds() < int(activity.cost) or PlayerData.is_in_prison or PlayerData.is_dead, 76)

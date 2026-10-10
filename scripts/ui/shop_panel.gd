@@ -26,10 +26,10 @@ func install_button(row: HBoxContainer) -> void:
 	_shop_button.text = "SHOP"
 	_shop_button.icon = load("res://assets/ui/shop.svg")
 	_shop_button.expand_icon = true
-	_shop_button.add_theme_constant_override("icon_max_width", 64)
+	_shop_button.add_theme_constant_override("icon_max_width", 76)
 	_shop_button.add_theme_constant_override("h_separation", 14)
-	_shop_button.add_theme_font_size_override("font_size", 26)
-	_shop_button.custom_minimum_size = Vector2(210, 90)
+	_shop_button.add_theme_font_size_override("font_size", 30)
+	_shop_button.custom_minimum_size = Vector2(230, 104)
 	_shop_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_shop_button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	_style_button(_shop_button, Color("#64e6ff"))
@@ -66,12 +66,12 @@ func _build() -> void:
 	column.add_child(header)
 	var icon := TextureRect.new()
 	icon.texture = load("res://assets/ui/shop.svg")
-	icon.custom_minimum_size = Vector2(92, 92)
+	icon.custom_minimum_size = Vector2(108, 108)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	header.add_child(icon)
-	var title := _label("LIFE.EXE SHOP", 42, Color("#64e6ff"))
+	var title := _label("LIFE.EXE SHOP", 46, Color("#64e6ff"))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	header.add_child(title)
@@ -79,12 +79,12 @@ func _build() -> void:
 	_close.name = "CloseShopButton"
 	_close.text = "X"
 	_close.tooltip_text = "Return to game"
-	_close.custom_minimum_size = Vector2(88, 88)
+	_close.custom_minimum_size = Vector2(100, 100)
 	_style_button(_close, Color("#ff90aa"))
 	header.add_child(_close)
 	_close.pressed.connect(close_shop)
-	column.add_child(_label("YOUR LIFE. YOUR STYLE.", 28, Color("#f1f5ff")))
-	column.add_child(_label("Explore extras for your next story.", 25, Color("#a2b5cf")))
+	column.add_child(_label("YOUR LIFE. YOUR STYLE.", 32, Color("#f1f5ff")))
+	column.add_child(_label("Explore extras for your next story.", 29, Color("#a2b5cf")))
 	var scroll := ScrollContainer.new()
 	scroll.name = "OffersScroll"
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -105,17 +105,17 @@ func _build() -> void:
 		var content := VBoxContainer.new()
 		content.add_theme_constant_override("separation", 12)
 		card.add_child(content)
-		content.add_child(_label(offer[0], 32, accent))
-		content.add_child(_label(offer[1], 25, Color("#f1f5ff")))
-		content.add_child(_label(offer[2], 23, Color("#a2b5cf")))
+		content.add_child(_label(offer[0], 36, accent))
+		content.add_child(_label(offer[1], 29, Color("#f1f5ff")))
+		content.add_child(_label(offer[2], 27, Color("#a2b5cf")))
 		var price := Button.new()
 		price.text = "%s  •  PREVIEW" % offer[3]
-		price.custom_minimum_size.y = 72
+		price.custom_minimum_size.y = 86
 		_style_button(price, accent)
 		content.add_child(price)
 		price.pressed.connect(_preview_offer.bind(offer[0]))
-	_status = _label("Preview shop • Sample prices • No real purchases", 23, Color("#a2b5cf"))
-	_status.custom_minimum_size.y = 80
+	_status = _label("Preview shop • Sample prices • No real purchases", 27, Color("#a2b5cf"))
+	_status.custom_minimum_size.y = 96
 	column.add_child(_status)
 
 func _preview_offer(offer_name: String) -> void:
@@ -151,7 +151,7 @@ func _style(fill: Color, border: Color, padding: int) -> StyleBoxFlat:
 func _style_button(button: Button, accent: Color) -> void:
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var dark_accent: Color = accent.darkened(0.35) if (is_light and accent.get_luminance() > 0.40) else accent
-	button.add_theme_font_size_override("font_size", 26)
+	button.add_theme_font_size_override("font_size", 30)
 	button.add_theme_color_override("font_color", Color("#0f172a") if is_light else accent)
 	button.add_theme_color_override("font_hover_color", Color("#0284c7") if is_light else Color.WHITE)
 	button.add_theme_color_override("font_pressed_color", Color("#000000") if is_light else Color.WHITE)

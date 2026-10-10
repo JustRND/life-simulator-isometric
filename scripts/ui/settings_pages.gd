@@ -85,7 +85,7 @@ func install(overlay: Control) -> void:
 	content.move_child(terms, 3 if header != null else 4)
 	var privacy := _button("Privacy Policy", content, func(): _open_document("Privacy Policy", PRIVACY))
 	content.move_child(privacy, 4 if header != null else 5)
-	var uid_label := _label("UID: " + local_uid, 22)
+	var uid_label := _label("UID: " + local_uid, 26)
 	uid_label.name = "UIDLabel"
 	uid_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(uid_label)
@@ -123,12 +123,12 @@ func _build_page() -> void:
 	page.add_child(column)
 	var header := HBoxContainer.new()
 	column.add_child(header)
-	title = _label("ACCOUNT", 40)
+	title = _label("ACCOUNT", 44)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	header.add_child(title)
 	var close := _button("✕", header, _close_page)
-	close.custom_minimum_size = Vector2(80, 60)
-	close.add_theme_font_size_override("font_size", 28)
+	close.custom_minimum_size = Vector2(92, 70)
+	close.add_theme_font_size_override("font_size", 32)
 	close.tooltip_text = "Back to Settings"
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -172,13 +172,13 @@ func _input(event: InputEvent) -> void:
 
 func _open_document(heading: String, text: String) -> void:
 	_clear_body()
-	body.add_child(_label(text, 28))
+	body.add_child(_label(text, 32))
 	_show_page(heading)
 
 func _open_account() -> void:
 	_clear_body()
-	body.add_child(_label("YOUR LIFE. YOUR SAVE.", 34))
-	body.add_child(_label("Playing with a local profile. Online accounts are coming later; use sample details in this preview.", 26))
+	body.add_child(_label("YOUR LIFE. YOUR SAVE.", 38))
+	body.add_child(_label("Playing with a local profile. Online accounts are coming later; use sample details in this preview.", 30))
 	_button("Continue with Google", body, func(): status.text = "Google sign-in is a preview. No account was connected.")
 	var modes := HBoxContainer.new()
 	modes.add_theme_constant_override("separation", 18)
@@ -187,27 +187,27 @@ func _open_account() -> void:
 	login.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var create := _button("Sign up", modes, func(): signup = true; _open_account())
 	create.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.add_child(_label("CREATE A LIFE.EXE ACCOUNT" if signup else "EMAIL LOGIN", 28))
+	body.add_child(_label("CREATE A LIFE.EXE ACCOUNT" if signup else "EMAIL LOGIN", 32))
 	email = _field("Email", false)
 	password = _field("Password (8+ characters)", true)
 	if signup:
 		confirm_password = _field("Confirm password", true)
 	_button("Preview sign up" if signup else "Preview login", body, _submit_email)
 	_button("Save progress locally", body, _save_local)
-	body.add_child(_label("Local saves stay on this device. Cloud sync and recovery are not available yet.", 24))
-	status = _label("UID: " + local_uid, 24)
+	body.add_child(_label("Local saves stay on this device. Cloud sync and recovery are not available yet.", 28))
+	status = _label("UID: " + local_uid, 28)
 	status.name = "AccountStatus"
 	body.add_child(status)
 	_show_page("ACCOUNT")
 
 func _field(caption: String, secret: bool) -> LineEdit:
-	body.add_child(_label(caption, 24))
+	body.add_child(_label(caption, 28))
 	var input := LineEdit.new()
 	input.placeholder_text = caption
 	input.secret = secret
 	input.max_length = 254 if not secret else 128
-	input.custom_minimum_size.y = 78
-	input.add_theme_font_size_override("font_size", 28)
+	input.custom_minimum_size.y = 90
+	input.add_theme_font_size_override("font_size", 32)
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	input.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5ff"))
 	input.add_theme_color_override("placeholder_color", Color("#64748b"))
@@ -269,8 +269,8 @@ func _style(fill: Color, border: Color, padding: int) -> StyleBoxFlat:
 func _button(text: String, parent: Node, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size.y = 82
-	button.add_theme_font_size_override("font_size", 28)
+	button.custom_minimum_size.y = 96
+	button.add_theme_font_size_override("font_size", 32)
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var normal_sb := _style(Color("#edf3fa") if is_light else Color("#12213b"), Color("#0284c7") if is_light else Color("#40647e"), 16)
 	normal_sb.shadow_color = Color(0, 0, 0, 0.22)

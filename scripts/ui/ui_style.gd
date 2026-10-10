@@ -1,9 +1,9 @@
 class_name UIStyle
 extends RefCounted
 ## Shared tokens for custom controls that retain their own layouts and accents.
-const BODY_SIZE := 28
-const DETAIL_SIZE := 26
-const BUTTON_HEIGHT := 80
+const BODY_SIZE := 32
+const DETAIL_SIZE := 30
+const BUTTON_HEIGHT := 96
 const RADIUS := 10
 const OPEN_SECONDS := 0.34
 const CLOSE_SECONDS := 0.28
@@ -72,7 +72,7 @@ func apply_button(button: Button) -> void:
 		button.add_theme_font_size_override("font_size", DETAIL_SIZE if in_grid else BODY_SIZE)
 
 	if in_grid:
-		button.custom_minimum_size.y = clampf(button.custom_minimum_size.y, 48, 60)
+		button.custom_minimum_size.y = clampf(button.custom_minimum_size.y, 58, 68)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
