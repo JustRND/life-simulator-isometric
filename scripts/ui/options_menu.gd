@@ -151,10 +151,17 @@ func country_picker(parent: Node) -> OptionButton:
 	picker.add_theme_constant_override("icon_max_width", 48)
 	parent.add_child(picker)
 	_style_input(picker)
-	picker.get_popup().about_to_popup.connect(func():
-		var light: bool = LifeLibrary.data.theme == "light"
-		picker.get_popup().add_theme_stylebox_override("panel", pages._style(Color("#edf3fa") if light else Color("#12213b"), Color("#40647e"), 16))
-		picker.get_popup().add_theme_color_override("font_color", Color("#17394a") if light else Color("#aee4f5"))
+	var bp_popup := picker.get_popup()
+	if bp_popup != null:
+		bp_popup.max_size = Vector2i(1, 1)
+		bp_popup.transparent = true
+		bp_popup.about_to_popup.connect(func():
+			bp_popup.hide.call_deferred()
+		)
+	picker.pressed.connect(func():
+		var CountryPickerModalRef = load("res://scripts/ui/country_picker_modal.gd")
+		if CountryPickerModalRef != null:
+			CountryPickerModalRef.open(main if main != null else parent, picker, Callable(), "SELECT COUNTRY")
 	)
 	return picker
 

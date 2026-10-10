@@ -1993,7 +1993,15 @@ func show_new_game_screen() -> void:
 		name_input.text = ""
 
 	if birthplace_input != null:
-		birthplace_input.select(8)
+		var default_country_idx := -1
+		for i in range(birthplace_input.item_count):
+			if birthplace_input.get_item_text(i) == "Indonesia":
+				default_country_idx = i
+				break
+		if default_country_idx != -1:
+			birthplace_input.select(default_country_idx)
+			birthplace_input.text = "Indonesia"
+			birthplace_input.icon = birthplace_input.get_item_icon(default_country_idx)
 
 	if validation_label != null:
 		validation_label.text = ""
@@ -15711,13 +15719,28 @@ func _configure_creation() -> void:
 	birthplace_input.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	birthplace_input.add_theme_constant_override("icon_max_width", 64)
 	var popup := birthplace_input.get_popup()
-	popup.max_size = Vector2i(760, 700)
-	popup.add_theme_constant_override("icon_max_width", 64)
-	popup.add_theme_constant_override("v_separation", 16)
-	popup.add_theme_font_size_override("font_size", 28)
+	if popup != null:
+		popup.max_size = Vector2i(1, 1)
+		popup.transparent = true
+		popup.about_to_popup.connect(func():
+			popup.hide.call_deferred()
+		)
 	for country in CreationOptions.COUNTRIES:
 		birthplace_input.add_icon_item(CreationOptions.flag_texture(country[1], country[2]), country[0])
-	birthplace_input.select(8)
+	var default_country_idx := 0
+	for i in range(CreationOptions.COUNTRIES.size()):
+		if CreationOptions.COUNTRIES[i][0] == "Indonesia":
+			default_country_idx = i
+			break
+	birthplace_input.select(default_country_idx)
+	birthplace_input.text = "Indonesia"
+	birthplace_input.icon = CreationOptions.flag_texture(CreationOptions.COUNTRIES[default_country_idx][1], CreationOptions.COUNTRIES[default_country_idx][2])
+
+	birthplace_input.pressed.connect(func():
+		var CountryPickerModalRef = load("res://scripts/ui/country_picker_modal.gd")
+		if CountryPickerModalRef != null:
+			CountryPickerModalRef.open(self, birthplace_input)
+	)
 	var content := name_input.get_parent()
 
 	var gender_label := Label.new()
@@ -16070,6 +16093,8 @@ func _randomize_identity() -> void:
 	gender_input.select(randi_range(0, 1))
 	birthplace_input.select(randi_range(0, birthplace_input.item_count - 1))
 	var country := birthplace_input.get_item_text(birthplace_input.selected)
+	birthplace_input.text = country
+	birthplace_input.icon = birthplace_input.get_item_icon(birthplace_input.selected)
 	name_input.text = NameCatalog.random_name(country, gender_input.selected == 1)
 	creation_selected_ethnicity = PortraitCatalog.random_ethnicity_for_country(country)
 	creation_selected_track = randi_range(0, 3)

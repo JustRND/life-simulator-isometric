@@ -27,10 +27,26 @@ const POOLS = {
 	"Switzerland": [["Noah","Liam","Matteo","Luca","Leon","Elias"], ["Mia","Emma","Sofia","Lena","Lina","Emilia"], ["Müller","Meier","Schmid","Keller","Weber","Huber"]],
 	"United Kingdom": [["Oliver","George","Harry","Arthur","Charlie","Oscar"], ["Olivia","Amelia","Isla","Ava","Freya","Florence"], ["Smith","Jones","Taylor","Brown","Wilson","Davies"]],
 	"United States": [["Liam","Noah","James","Elijah","Henry","Benjamin"], ["Olivia","Emma","Charlotte","Amelia","Sophia","Isabella"], ["Smith","Johnson","Williams","Brown","Davis","Miller"]],
+	"Belgium": [["Lucas","Louis","Arthur","Noah","Jules","Victor"], ["Emma","Olivia","Louise","Alice","Camille","Mila"], ["Peeters","Janssens","Maes","Jacobs","Mertens","Willems"]],
+	"Chile": [["Mateo","Agustín","Santiago","Tomás","Lucas","Benjamín"], ["Sofía","Emilia","Florencia","Isidora","Martina","Catalina"], ["González","Muñoz","Rojas","Díaz","Pérez","Soto"]],
+	"Colombia": [["Santiago","Sebastián","Matías","Samuel","Jerónimo","Emiliano"], ["Luciana","Salomé","Isabella","Mariana","Gabriela","Valentina"], ["Rodríguez","Gómez","González","Martínez","García","López"]],
+	"Egypt": [["Ahmed","Mohamed","Mahmoud","Youssef","Aly","Mostafa"], ["Fatma","Mariam","Aya","Nour","Salma","Farida"], ["El-Sayed","Hassan","Ali","Ibrahim","Abdelrahman","Kamel"]],
+	"Finland": [["Eetu","Onni","Aleksi","Leo","Elias","Oliver"], ["Aino","Emma","Sofia","Helmi","Ella","Venla"], ["Korhonen","Virtanen","Mäkinen","Nieminen","Mäkelä","Hämäläinen"]],
+	"Greece": [["Dimitris","Nikolaos","Konstantinos","Giorgos","Ioannis","Alexandros"], ["Maria","Eleni","Aikaterini","Vasiliki","Sofia","Georgia"], ["Papadopoulos","Oikonomou","Georgiou","Nikolaou","Dimitriou","Papageorgiou"]],
+	"New Zealand": [["Oliver","Jack","Noah","Leo","Lucas","Liam"], ["Charlotte","Amelia","Isla","Olivia","Harper","Sophie"], ["Smith","Jones","Williams","Brown","Wilson","Taylor"]],
+	"Nigeria": [["Chinedu","Emeka","Oluwaseun","Babajide","Ifeanyi","Tunde"], ["Ngozi","Chioma","Amina","Zainab","Folake","Blessing"], ["Okafor","Adeyemi","Balogun","Eze","Ibrahim","Okeke"]],
+	"Philippines": [["Joshua","Daniel","John","Gabriel","Angelo","Mark"], ["Althea","Angel","Bea","Princess","Jasmine","Sophia"], ["Santos","Reyes","Cruz","Bautista","Ocampo","Garcia"]],
+	"Poland": [["Jakub","Jan","Antoni","Filip","Szymon","Aleksander"], ["Zuzanna","Julia","Maja","Hanna","Lena","Alicja"], ["Nowak","Kowalski","Wiśniewski","Wójcik","Kowalczyk","Kamiński"]],
+	"Saudi Arabia": [["Mohammed","Omar","Fahd","Abdullah","Saud","Khalid"], ["Fatima","Noura","Sara","Reem","Haya","Layan"], ["Al-Ghamdi","Al-Zahrani","Al-Shehri","Al-Otaibi","Al-Harbi","Al-Dossari"]],
+	"Taiwan": [["Yu-Ting","Chia-Hao","Kuan-Yu","Po-Chun","Chien-Hung","Chih-Wei"], ["Ting-Yu","Ya-Ting","Shu-Fen","Hsin-Yi","Pei-Shan","Li-Hua"], ["Chen","Lin","Huang","Chang","Li","Wang"]],
+	"Thailand": [["Somchai","Arthit","Kittisak","Nattawut","Thanawat","Chai"], ["Malee","Siriporn","Kanya","Apinya","Supaporn","Sunee"], ["Saetang","Sukprasert","Saelim","Rattanakosin","Wongsuwan","Suksawat"]],
+	"Turkey": [["Yusuf","Mustafa","Ahmet","Mehmet","Ali","Emir"], ["Zeynep","Elif","Defne","Asra","Azra","Ecrin"], ["Yılmaz","Kaya","Demir","Çelik","Şahin","Yıldız"]],
+	"Ukraine": [["Artem","Maksym","Oleksandr","Dmytro","Vladyslav","Ivan"], ["Anastasiya","Sofia","Anna","Maria","Viktoriya","Daryna"], ["Melnyk","Shevchenko","Boyko","Kovalenko","Bondarenko","Tkachenko"]],
+	"Vietnam": [["Minh","Duc","Anh","Huy","Nam","Tuan"], ["Linh","Mai","Huong","Trang","Lan","Ngoc"], ["Nguyen","Tran","Le","Pham","Hoang","Vu"]],
 }
 
 static func random_name(country: String, female: bool) -> String:
-	var pool: Array = POOLS[country]
+	var pool: Array = POOLS.get(country, POOLS["United States"])
 	var given: String = pool[1 if female else 0].pick_random()
 	var family: String = pool[2].pick_random()
 	if country == "Russia" and female:
