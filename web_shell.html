@@ -245,6 +245,29 @@ input, textarea {
 	if (!('ontouchstart' in window) && (navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches))) {
 		window.ontouchstart = null;
 	}
+
+	window.getSafeAreaInsets = function() {
+		try {
+			var div = document.createElement('div');
+			div.style.position = 'fixed';
+			div.style.top = '0';
+			div.style.left = '0';
+			div.style.width = '0';
+			div.style.height = '0';
+			div.style.paddingTop = 'env(safe-area-inset-top, 0px)';
+			div.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
+			div.style.visibility = 'hidden';
+			document.body.appendChild(div);
+			var cs = window.getComputedStyle(div);
+			var pt = parseFloat(cs.paddingTop) || 0;
+			var pb = parseFloat(cs.paddingBottom) || 0;
+			document.body.removeChild(div);
+			var winW = window.innerWidth || 390;
+			return JSON.stringify({ "top": pt, "bottom": pb, "win_w": winW });
+		} catch(e) {
+			return "";
+		}
+	};
 })();
 		</script>
 

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_safe_area_001"]
+
+[ext_resource type="Script" path="res://tests/test_bottom_safe_area_deadzone.gd" id="1_test"]
+
+[node name="TestBottomSafeAreaDeadzone" type="Node"]
+script = ExtResource("1_test")

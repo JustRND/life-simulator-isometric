@@ -64,6 +64,9 @@ var _timeline_drawer_tween: Tween = null
 @onready var safe_area: Control = $SafeArea
 @onready var top_bar: PanelContainer = $TopBar
 @onready var profile_strip: PanelContainer = $ProfileStrip
+var current_safe_top_m: float = 0.0
+var current_safe_bottom_m: float = 0.0
+var bottom_deadzone: ColorRect = null
 
 # Dialogs & Overlays
 @onready var settings_overlay: ColorRect = $SettingsOverlay
@@ -1470,21 +1473,97 @@ func _adjust_safe_area() -> void:
 	var top_m: float = 0.0
 	var bottom_m: float = 0.0
 
-	var screen_h: int = DisplayServer.screen_get_size().y
+	var screen_size := DisplayServer.screen_get_size()
+	var screen_w: int = screen_size.x
+	var screen_h: int = screen_size.y
+
+	# In Godot 4 portrait mode with viewport_width=1080 and aspect="expand":
+	# Width is locked to 1080 canvas units. The scale factor from screen pixels to canvas coordinates is 1080.0 / screen_w.
+	var canvas_scale: float = 1080.0 / float(maxi(screen_w, 1))
+
 	var safe: Rect2i = DisplayServer.get_display_safe_area()
 	if screen_h > 0 and safe.size.y > 0 and safe.size.y < screen_h:
-		var scale: float = 1920.0 / float(screen_h)
-		top_m = float(safe.position.y) * scale
-		bottom_m = float(screen_h - (safe.position.y + safe.size.y)) * scale
+		top_m = float(safe.position.y) * canvas_scale
+		bottom_m = float(screen_h - (safe.position.y + safe.size.y)) * canvas_scale
 
-	# Extra padding on mobile web to clear dynamic browser address/tab bars
-	if OS.has_feature("web") and MobileKeyboardManager.is_mobile():
-		bottom_m = maxf(bottom_m, 32.0)
-		top_m = maxf(top_m, 16.0)
+	# On Web (iOS Safari, Chrome, mobile browsers), query CSS safe-area-inset-* via JavaScriptBridge
+	if OS.has_feature("web"):
+		var js_insets_raw = JavaScriptBridge.eval("""
+			(function() {
+				try {
+					if (typeof window.getSafeAreaInsets === 'function') {
+						return window.getSafeAreaInsets();
+					}
+					var div = document.createElement('div');
+					div.style.position = 'fixed';
+					div.style.top = '0';
+					div.style.left = '0';
+					div.style.width = '0';
+					div.style.height = '0';
+					div.style.paddingTop = 'env(safe-area-inset-top, 0px)';
+					div.style.paddingBottom = 'env(safe-area-inset-bottom, 0px)';
+					div.style.visibility = 'hidden';
+					document.body.appendChild(div);
+					var cs = window.getComputedStyle(div);
+					var pt = parseFloat(cs.paddingTop) || 0;
+					var pb = parseFloat(cs.paddingBottom) || 0;
+					document.body.removeChild(div);
+					var winW = window.innerWidth || 390;
+					return JSON.stringify({ "top": pt, "bottom": pb, "win_w": winW });
+				} catch(e) {
+					return "";
+				}
+			})()
+		""")
+		if js_insets_raw != null and str(js_insets_raw) != "":
+			var parsed = JSON.parse_string(str(js_insets_raw))
+			if parsed is Dictionary:
+				var win_w: float = float(parsed.get("win_w", 390))
+				if win_w > 0:
+					var web_scale: float = 1080.0 / win_w
+					var css_top: float = float(parsed.get("top", 0))
+					var css_bottom: float = float(parsed.get("bottom", 0))
+					if css_top > 0:
+						top_m = maxf(top_m, css_top * web_scale)
+					if css_bottom > 0:
+						bottom_m = maxf(bottom_m, css_bottom * web_scale)
+
+	# Detect mobile / touch environment
+	var is_mobile_env: bool = MobileKeyboardManager.is_mobile() or OS.has_feature("mobile") or OS.has_feature("ios") or OS.has_feature("android") or DisplayServer.is_touchscreen_available()
+
+	# Detect iPhone / iOS specifically
+	var is_ios_device: bool = false
+	if OS.has_feature("ios"):
+		is_ios_device = true
+	elif OS.has_feature("web"):
+		var is_ios_eval = JavaScriptBridge.eval("""
+			(function() {
+				try {
+					var ua = navigator.userAgent || '';
+					return Boolean(/iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+				} catch(e) {
+					return false;
+				}
+			})()
+		""")
+		is_ios_device = bool(is_ios_eval)
+
+	# Ensure a clean, comfortable bottom margin / deadzone on mobile & iPhone
+	# Modern iPhone home indicator is 34pt (~94 canvas px).
+	# Lifting by 80px ensures buttons are comfortably above the home swipe line without wasting screen space.
+	if is_ios_device:
+		bottom_m = maxf(bottom_m, 80.0)
+		top_m = maxf(top_m, 40.0)
+	elif is_mobile_env:
+		bottom_m = maxf(bottom_m, 64.0)
+		top_m = maxf(top_m, 24.0)
+
+	current_safe_top_m = top_m
+	current_safe_bottom_m = bottom_m
 
 	if is_instance_valid(safe_area):
 		safe_area.offset_top = top_m
-		safe_area.offset_bottom = 0.0
+		safe_area.offset_bottom = -bottom_m
 	if is_instance_valid(action_bar):
 		action_bar.offset_bottom = 0.0
 	if is_instance_valid(age_button):
@@ -1500,6 +1579,58 @@ func _adjust_safe_area() -> void:
 		profile_strip.offset_bottom = profile_strip.offset_top + strip_h
 		if is_instance_valid(life_feed_panel):
 			life_feed_panel.offset_top = profile_strip.offset_bottom + 4.0
+
+	# Bottom deadzone background for home timeline screen
+	if bottom_deadzone == null:
+		bottom_deadzone = ColorRect.new()
+		bottom_deadzone.name = "BottomSafeDeadzone"
+		bottom_deadzone.anchors_preset = Control.PRESET_BOTTOM_WIDE
+		bottom_deadzone.anchor_top = 1.0
+		bottom_deadzone.anchor_bottom = 1.0
+		bottom_deadzone.anchor_left = 0.0
+		bottom_deadzone.anchor_right = 1.0
+		bottom_deadzone.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bottom_deadzone.z_index = 12
+		add_child(bottom_deadzone)
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	bottom_deadzone.color = Color("#f1f5f9") if is_light else Color(0.06, 0.08, 0.16, 1.0)
+	bottom_deadzone.offset_top = -bottom_m
+	bottom_deadzone.offset_bottom = 0.0
+	var is_home: bool = timeline_panel != null and timeline_panel.visible
+	bottom_deadzone.visible = (bottom_m > 0.0 and is_home)
+
+	# Update panel margins dynamically to guarantee bottom buttons/cards are lifted safely
+	var panels_to_adjust := [
+		{"panel": activities_panel, "margin_name": "ActMargin", "base_bottom": 64, "base_top": 36},
+		{"panel": relationships_panel, "margin_name": "RelMargin", "base_bottom": 64, "base_top": 36},
+		{"panel": assets_panel, "margin_name": "AssetsMargin", "base_bottom": 64, "base_top": 36},
+		{"panel": bank_panel, "margin_name": "BankMargin", "base_bottom": 64, "base_top": 36},
+		{"panel": infant_panel, "margin_name": "InfantMargin", "base_bottom": 64, "base_top": 36},
+		{"panel": character_panel, "margin_name": "CharacterMargin", "base_bottom": 64, "base_top": 36},
+	]
+	for p_info in panels_to_adjust:
+		var p_node: Control = p_info["panel"]
+		if is_instance_valid(p_node):
+			var m_node = p_node.get_node_or_null(p_info["margin_name"]) as MarginContainer
+			if is_instance_valid(m_node):
+				m_node.add_theme_constant_override("margin_bottom", int(p_info["base_bottom"] + bottom_m))
+				if top_m > 0.0:
+					m_node.add_theme_constant_override("margin_top", int(maxf(p_info["base_top"], top_m + 8.0)))
+
+	if is_instance_valid(settings_overlay):
+		var sm = settings_overlay.get_node_or_null("SettingsCard/SettingsMargin") as MarginContainer
+		if is_instance_valid(sm):
+			sm.add_theme_constant_override("margin_bottom", int(64 + bottom_m))
+			if top_m > 0.0:
+				sm.add_theme_constant_override("margin_top", int(maxf(36, top_m + 8.0)))
+
+	if is_instance_valid(event_overlay):
+		var em = event_overlay.get_node_or_null("EventPanel/EventMargin") as MarginContainer
+		if is_instance_valid(em):
+			em.add_theme_constant_override("margin_bottom", int(64 + bottom_m))
+			if top_m > 0.0:
+				em.add_theme_constant_override("margin_top", int(maxf(36, top_m + 8.0)))
 
 
 func trigger_event() -> void:
@@ -2223,6 +2354,10 @@ func show_tab(tab_name: String) -> void:
 		age_button.visible = is_home
 	if timeline_pull_up_btn != null:
 		timeline_pull_up_btn.visible = is_home
+	if bottom_deadzone != null:
+		var is_light: bool = LifeLibrary.data.theme == "light"
+		bottom_deadzone.color = Color("#f1f5f9") if is_light else Color(0.06, 0.08, 0.16, 1.0)
+		bottom_deadzone.visible = (current_safe_bottom_m > 0.0 and is_home)
 	if not is_home and _is_timeline_open:
 		_close_timeline_drawer()
 
@@ -13650,11 +13785,11 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
 	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var top_m: int = 16
-	var bottom_m: int = 16
+	var top_m: int = int(maxf(16.0, current_safe_top_m))
+	var bottom_m: int = int(maxf(16.0, current_safe_bottom_m))
 	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) or OS.has_feature("mobile") or (OS.has_feature("web") and MobileKeyboardManager.is_mobile()):
-		top_m = 48
-		bottom_m = 40
+		top_m = int(maxf(48.0, current_safe_top_m))
+		bottom_m = int(maxf(68.0, current_safe_bottom_m))
 	margin_outer.add_theme_constant_override("margin_left", 16)
 	margin_outer.add_theme_constant_override("margin_right", 16)
 	margin_outer.add_theme_constant_override("margin_top", top_m)
