@@ -47,17 +47,40 @@ func _ready() -> void:
 	assert(PlayerData.get_partner_name() == "Emma Rivera", "Partner's surname must change to Rivera upon marriage! Actual: %s" % PlayerData.get_partner_name())
 	print("✔ Test 2 passed: Partner surname changed upon marriage -> %s" % PlayerData.get_partner_name())
 
-	# Test 2b: Partner with single name before marriage gets family name appended
+	# Test 2b: Multi-token partner name (Mary Jane Watson -> Mary Jane Rivera)
+	PlayerData.partner["name"] = "Mary Jane Watson"
+	PlayerData.update_partner_family_name_on_marriage()
+	assert(PlayerData.get_partner_name() == "Mary Jane Rivera", "Multi-token partner back name should change to Rivera! Actual: %s" % PlayerData.get_partner_name())
+	print("✔ Test 2b passed: Multi-token partner name changed -> %s" % PlayerData.get_partner_name())
+
+	# Test 2c: Single name partner before marriage gets family name appended
 	PlayerData.partner["name"] = "Chloe"
 	PlayerData.update_partner_family_name_on_marriage()
 	assert(PlayerData.get_partner_name() == "Chloe Rivera", "Single name partner should get family name appended")
-	print("✔ Test 2b passed: Single name partner updated -> %s" % PlayerData.get_partner_name())
+	print("✔ Test 2c passed: Single name partner updated -> %s" % PlayerData.get_partner_name())
+
+	# Test 2d: Partner already having character family name doesn't duplicate
+	PlayerData.partner["name"] = "Chloe Rivera"
+	PlayerData.update_partner_family_name_on_marriage()
+	assert(PlayerData.get_partner_name() == "Chloe Rivera", "Existing surname must not duplicate")
+	print("✔ Test 2d passed: Existing surname verified -> %s" % PlayerData.get_partner_name())
 
 	# Test 3: Kids Born While Married Generate With Character's Family Name
+	# Case 3a: Single name passed
 	var child1: Dictionary = PlayerData.add_player_child("Liam", "MALE", 0)
 	assert(child1["name"] == "Liam Rivera", "Married child name must include family name Rivera! Actual: %s" % child1["name"])
 	assert(" " in child1["name"], "Child name must never be a single name when married!")
-	print("✔ Test 3 passed: Child added while married has family name -> %s" % child1["name"])
+	print("✔ Test 3a passed: Single name child input receives family name -> %s" % child1["name"])
+
+	# Case 3b: Random catalog name with other surname passed (e.g. "Lucas Smith" -> "Lucas Rivera")
+	var child2: Dictionary = PlayerData.add_player_child("Lucas Smith", "MALE", 0)
+	assert(child2["name"] == "Lucas Rivera", "Child with random surname must have family name replaced! Actual: %s" % child2["name"])
+	print("✔ Test 3b passed: Random catalog surname replaced with character family name -> %s" % child2["name"])
+
+	# Case 3c: Existing character family name passed ("Mary Rivera" -> stays "Mary Rivera")
+	var child3: Dictionary = PlayerData.add_player_child("Mary Rivera", "FEMALE", 0)
+	assert(child3["name"] == "Mary Rivera", "Child with existing family name should stay Mary Rivera! Actual: %s" % child3["name"])
+	print("✔ Test 3c passed: Existing character family name preserved -> %s" % child3["name"])
 
 	# Test 4: Pregnancy Delivery while Married Gives Newborn Character's Family Name
 	PlayerData.pregnancy = {

@@ -1273,8 +1273,18 @@ func update_partner_family_name_on_marriage() -> String:
 		return get_partner_name()
 	var cur_name := get_partner_name().strip_edges()
 	var tokens := cur_name.split(" ", false)
-	var given_name := tokens[0] if tokens.size() > 0 else "Partner"
-	var new_name := "%s %s" % [given_name, fam_name]
+	if tokens.is_empty():
+		var fallback_name := "Partner %s" % fam_name
+		partner["name"] = fallback_name
+		return fallback_name
+	if tokens.size() == 1:
+		var new_name := "%s %s" % [tokens[0], fam_name]
+		partner["name"] = new_name
+		return new_name
+	if tokens[tokens.size() - 1] == fam_name:
+		return cur_name
+	tokens[tokens.size() - 1] = fam_name
+	var new_name := " ".join(tokens)
 	partner["name"] = new_name
 	return new_name
 
@@ -1332,8 +1342,13 @@ func add_player_child(c_name: String, c_gender: String, c_age: int = 0) -> Dicti
 		var fam_name := get_family_name()
 		if not fam_name.is_empty():
 			var tokens := final_name.split(" ", false)
-			var given_name := tokens[0] if tokens.size() > 0 else "Child"
-			final_name = "%s %s" % [given_name, fam_name]
+			if tokens.is_empty():
+				final_name = "Baby %s" % fam_name
+			elif tokens.size() == 1:
+				final_name = "%s %s" % [tokens[0], fam_name]
+			elif tokens[tokens.size() - 1] != fam_name:
+				tokens[tokens.size() - 1] = fam_name
+				final_name = " ".join(tokens)
 	var child_data := {
 		"name": final_name,
 		"gender": c_gender,
