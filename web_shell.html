@@ -4,6 +4,9 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=overlays-content">
 		<title>$GODOT_PROJECT_NAME</title>
+		<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+		<meta http-equiv="Pragma" content="no-cache">
+		<meta http-equiv="Expires" content="0">
 		<style>
 html, body {
 	position: fixed;
@@ -183,14 +186,49 @@ input, textarea {
 					<div id="status-progress-fill"></div>
 				</div>
 				<div id="status-details">Loading assets...</div>
+				<div id="status-version" style="font-size: 13px; font-weight: 700; color: #38bdf8; letter-spacing: 1px; margin-top: 4px;">ALPHA v0.1.4 • FINANCE & CRYPTO UPDATE</div>
 			</div>
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
 
 		<script>
-// Ensure touch detection is present so Godot's web virtual keyboard (GodotDisplayVK) initializes
+// Cache Buster & Automatic Fresh Version Fetcher
 (function() {
+	const BUILD_VERSION = "0.1.4_" + Date.now();
+
+	// Unregister any stale service workers from prior sessions to prevent serving stale offline cache
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker.getRegistrations().then(function(registrations) {
+			for (var i = 0; i < registrations.length; i++) {
+				registrations[i].unregister();
+			}
+		}).catch(function() {});
+	}
+	if ('caches' in window) {
+		caches.keys().then(function(names) {
+			for (var i = 0; i < names.length; i++) {
+				caches.delete(names[i]);
+			}
+		}).catch(function() {});
+	}
+
+	// Intercept fetch requests for engine binaries (.pck, .wasm, .js) to bypass stale browser cache
+	var _origFetch = window.fetch;
+	window.fetch = function(resource, init) {
+		init = init || {};
+		if (typeof resource === 'string') {
+			var isEngineAsset = resource.indexOf('.pck') !== -1 || resource.indexOf('.wasm') !== -1 || resource.indexOf('.js') !== -1;
+			if (isEngineAsset) {
+				init.cache = 'no-cache';
+				var sep = resource.indexOf('?') !== -1 ? '&' : '?';
+				resource = resource + sep + 'v=' + BUILD_VERSION;
+			}
+		}
+		return _origFetch.call(this, resource, init);
+	};
+
+	// Ensure touch detection is present so Godot's web virtual keyboard (GodotDisplayVK) initializes
 	window.isMobileBrowser = function() {
 		try {
 			var ua = navigator.userAgent || '';
