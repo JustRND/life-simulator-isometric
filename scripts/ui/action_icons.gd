@@ -2,7 +2,7 @@ extends RefCounted
 ## Ordered phrases precede broad actions. Match words, not fragments such as
 ## "car" inside "carefully". Canonical English keeps icons stable across locales.
 const RULES = [
-	["banking|bank", "🏦"], ["micro advance", "🪙"], ["personal loan", "💳"], ["major commercial", "🏢"], ["executive capital", "🏦"],
+	["finance", "🏛️"], ["banking|bank", "🏦"], ["micro advance", "🪙"], ["personal loan", "💳"], ["major commercial", "🏢"], ["executive capital", "🏦"],
 	["repay full debt", "✅"], ["repay", "💸"], ["borrow", "🏦"], ["tax", "🧾"],
 	["deposit", "📥"], ["withdraw", "📤"], ["transfer", "💱"], ["donate|charity", "🤲"],
 	["flashcards|vocabulary", "📇"], ["compete|competition", "🏆"], ["stomach ache|sick", "🤒"],

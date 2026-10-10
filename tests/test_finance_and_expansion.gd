@@ -122,6 +122,12 @@ func _ready() -> void:
 	assert(finance_act_item != null, "FinanceActItem not found in ActList!")
 	print("FinanceActItem text: '%s'" % finance_act_item.text)
 	assert(finance_act_item.text == "🏛️  Finance", "FinanceActItem text mismatch!")
+	var freelance_item = act_list.get_node_or_null("FreelanceActItem")
+	var licensing_item = act_list.get_node_or_null("LicensingActItem")
+	assert(freelance_item != null and licensing_item != null, "Freelance or Licensing item missing!")
+	assert(finance_act_item.get_index() > freelance_item.get_index(), "FinanceActItem must be after FreelanceActItem!")
+	assert(finance_act_item.get_index() < licensing_item.get_index(), "FinanceActItem must be before LicensingActItem!")
+	print("FinanceActItem position verified: between Freelance and Licensing in CAREER & EDUCATION section.")
 	
 	var old_bank_item = act_list.get_node_or_null("BankActItem")
 	assert(old_bank_item == null, "Old loose BankActItem still exists in ActList!")

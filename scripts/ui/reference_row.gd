@@ -16,6 +16,7 @@ const DETAILS = {
 	"Education & School": ["🎓", "Study and develop your potential"],
 	"Careers & Jobs": ["💼", "Find work and build your career"],
 	"Finance Market": ["📈", "Trade stocks and manage businesses"],
+	"Finance": ["🏛️", "Stock market, cryptocurrency & banking loans"],
 	"Learning & Smarts": ["📚", "Keep your mind active"],
 	"Freelance Marketplace": ["💻", "Earn money with flexible work"],
 	"Licensing & Certifications": ["📜", "Train and earn new qualifications"],

@@ -1687,6 +1687,20 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "💻  Freelance Marketplace"
 alignment = 0
 
+[node name="FinanceActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213456]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
+theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("card_button_normal")
+theme_override_styles/pressed = SubResource("card_button_pressed")
+theme_override_styles/hover = SubResource("card_button_hover")
+text = "🏛️  Finance"
+alignment = 0
+
 [node name="LicensingActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=1870605996]
 custom_minimum_size = Vector2(0, 96)
 layout_mode = 2
@@ -1839,20 +1853,6 @@ theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
 text = "🕶️  Underground Street Hustle"
-alignment = 0
-
-[node name="FinanceActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213456]
-custom_minimum_size = Vector2(0, 96)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
-theme_override_font_sizes/font_size = 30
-theme_override_styles/normal = SubResource("card_button_normal")
-theme_override_styles/pressed = SubResource("card_button_pressed")
-theme_override_styles/hover = SubResource("card_button_hover")
-text = "🏛️  Finance"
 alignment = 0
 
 [node name="DatingAppItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213457]
