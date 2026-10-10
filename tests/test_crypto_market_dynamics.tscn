@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_crypto_001"]
+
+[ext_resource type="Script" path="res://tests/test_crypto_market_dynamics.gd" id="1_crypto_test"]
+
+[node name="TestCryptoMarketDynamics" type="Node"]
+script = ExtResource("1_crypto_test")

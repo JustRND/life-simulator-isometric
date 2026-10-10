@@ -16254,16 +16254,97 @@ func _show_crypto_exchange_modal() -> void:
 	var list: VBoxContainer = modal.list
 	list.add_theme_constant_override("separation", 20)
 
-	# 1. Back to Finance Hub Button
+	# 1. Action bar row (Back + Live Pulse)
+	var top_action_row := HBoxContainer.new()
+	top_action_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top_action_row.add_theme_constant_override("separation", 12)
+	list.add_child(top_action_row)
+
 	var back_btn := _create_cyber_button("← Back to Finance Hub", Color("#64748b"), func():
 		preload("res://scripts/ui/panel_close.gd").dismiss(crypto_modal_overlay, false)
 		crypto_modal_overlay = null
 		_show_finance_hub_modal()
 	)
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	back_btn.custom_minimum_size.y = 46
-	list.add_child(back_btn)
+	top_action_row.add_child(back_btn)
 
-	# 2. Status Banner (if a recent trade or notice exists)
+	var pulse_btn := _create_cyber_button("🔄 Pulse Live Ticker", Color("#f59e0b"), func():
+		CryptoMarket.tick_live_market(PlayerData)
+		_show_crypto_exchange_modal()
+	)
+	pulse_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	pulse_btn.custom_minimum_size = Vector2(210, 46)
+	pulse_btn.add_theme_font_size_override("font_size", 18)
+	top_action_row.add_child(pulse_btn)
+
+	# 2. Breaking Crypto Wire / Market News
+	var crypto_news: Array = CryptoMarket.get_news(PlayerData)
+	if not crypto_news.is_empty():
+		var news_box := PanelContainer.new()
+		var nb_style := StyleBoxFlat.new()
+		nb_style.bg_color = Color("#fef3c7") if is_light else Color("#3d1a04")
+		nb_style.border_color = Color("#f59e0b")
+		nb_style.set_border_width_all(1)
+		nb_style.set_corner_radius_all(8)
+		nb_style.content_margin_left = 14
+		nb_style.content_margin_right = 14
+		nb_style.content_margin_top = 8
+		nb_style.content_margin_bottom = 8
+		news_box.add_theme_stylebox_override("panel", nb_style)
+
+		var news_lbl := Label.new()
+		news_lbl.text = "📰 Crypto Wire: " + " • ".join(crypto_news)
+		news_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		news_lbl.add_theme_font_size_override("font_size", 17)
+		news_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fde68a"))
+		news_box.add_child(news_lbl)
+		list.add_child(news_box)
+
+	# 3. Live Order Flow / Whale Trading Activity Feed
+	var recent_trades: Array = CryptoMarket.get_recent_trades(PlayerData)
+	if not recent_trades.is_empty():
+		var order_box := PanelContainer.new()
+		var ob_style := StyleBoxFlat.new()
+		ob_style.bg_color = Color("#f1f5f9") if is_light else Color("#0b1320")
+		ob_style.border_color = Color("#94a3b8") if is_light else Color("#334155")
+		ob_style.set_border_width_all(1)
+		ob_style.set_corner_radius_all(8)
+		ob_style.content_margin_left = 14
+		ob_style.content_margin_right = 14
+		ob_style.content_margin_top = 8
+		ob_style.content_margin_bottom = 8
+		order_box.add_theme_stylebox_override("panel", ob_style)
+
+		var ob_vbox := VBoxContainer.new()
+		ob_vbox.add_theme_constant_override("separation", 4)
+		order_box.add_child(ob_vbox)
+
+		var ob_title := Label.new()
+		ob_title.text = "🐋 LIVE WHALE & NPC ORDER FLOW (REAL-TIME)"
+		ob_title.add_theme_font_size_override("font_size", 16)
+		ob_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+		ob_vbox.add_child(ob_title)
+
+		var trade_strings: Array[String] = []
+		for t in recent_trades.slice(0, 4):
+			var act_emoji := "🟢" if str(t.get("action", "")) == "BUY" else "🔴"
+			trade_strings.append("%s %s %s %s (%s)" % [
+				act_emoji,
+				str(t.get("trader", "Trader")),
+				str(t.get("action", "")),
+				str(t.get("amount_str", "")),
+				str(t.get("usd_str", ""))
+			])
+		var ob_lbl := Label.new()
+		ob_lbl.text = " • ".join(trade_strings)
+		ob_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ob_lbl.add_theme_font_size_override("font_size", 15)
+		ob_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+		ob_vbox.add_child(ob_lbl)
+		list.add_child(order_box)
+
+	# 4. Status Banner (if a recent trade or notice exists)
 	if not crypto_status_notice.is_empty():
 		var notice_card := PanelContainer.new()
 		var n_style := StyleBoxFlat.new()
@@ -16285,7 +16366,7 @@ func _show_crypto_exchange_modal() -> void:
 		list.add_child(notice_card)
 		crypto_status_notice = ""
 
-	# 3. Portfolio & Sentiment Summary Card
+	# 5. Portfolio & Sentiment Summary Card
 	var summary_card := PanelContainer.new()
 	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
 	var sm := MarginContainer.new()
@@ -16303,7 +16384,7 @@ func _show_crypto_exchange_modal() -> void:
 	var current_val: float = float(pnl_data.get("current", 0.0))
 	var pnl_val: float = float(pnl_data.get("pnl", 0.0))
 	var pnl_pct: float = float(pnl_data.get("pnl_pct", 0.0))
-	var sentiment: Dictionary = CryptoMarket.get_sentiment_info()
+	var sentiment: Dictionary = CryptoMarket.get_sentiment_info(PlayerData)
 
 	var port_row := HBoxContainer.new()
 	port_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -16361,15 +16442,15 @@ func _show_crypto_exchange_modal() -> void:
 
 	list.add_child(summary_card)
 
-	# 4. Spot Market Assets Heading
+	# 6. Spot Market Assets Heading
 	var assets_head := Label.new()
 	assets_head.text = "SPOT DIGITAL ASSETS"
 	assets_head.add_theme_font_size_override("font_size", 20)
 	assets_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	list.add_child(assets_head)
 
-	# 5. Coins List
-	var coins: Array = CryptoMarket.get_coins()
+	# 7. Coins List
+	var coins: Array = CryptoMarket.get_coins(PlayerData)
 	for c in coins:
 		var coin_id: String = str(c.get("id", ""))
 		var price: float = float(c.get("price", 0.0))
@@ -16436,6 +16517,41 @@ func _show_crypto_exchange_modal() -> void:
 		desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		cv.add_child(desc)
 
+		# Catalyst Note
+		var cat_text: String = str(c.get("catalyst_note", ""))
+		if not cat_text.is_empty():
+			var cat_lbl := Label.new()
+			cat_lbl.text = "⚡ %s" % cat_text
+			cat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			cat_lbl.add_theme_font_size_override("font_size", 15)
+			cat_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+			cv.add_child(cat_lbl)
+
+		# Market Flow Stats Row (NPC Activity, 24h Volume, ATH & ATL)
+		var flow_row := HBoxContainer.new()
+		flow_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cv.add_child(flow_row)
+
+		var vol_val: float = float(c.get("volume_usd", 0.0))
+		var npc_b: int = int(c.get("npc_buys", 0))
+		var npc_s: int = int(c.get("npc_sells", 0))
+		var ath_val: float = float(c.get("all_time_high", price))
+		var atl_val: float = float(c.get("all_time_low", price))
+
+		var ath_str := "$%s" % _format_number(int(round(ath_val))) if ath_val >= 1.0 else "$%.4f" % ath_val
+		var atl_str := "$%s" % _format_number(int(round(atl_val))) if atl_val >= 1.0 else "$%.4f" % atl_val
+		var vol_str := "$%s" % _format_number(int(round(vol_val))) if vol_val >= 1000.0 else "$%.0f" % vol_val
+
+		var flow_lbl := Label.new()
+		flow_lbl.text = "24h Vol: %s • 🟢 Buys: %s • 🔴 Sells: %s • ATH: %s • ATL: %s" % [
+			vol_str, _format_number(npc_b), _format_number(npc_s), ath_str, atl_str
+		]
+		flow_lbl.add_theme_font_size_override("font_size", 14)
+		flow_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		flow_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		flow_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		flow_row.add_child(flow_lbl)
+
 		# Holding summary row
 		var h_box := PanelContainer.new()
 		var hb_style := StyleBoxFlat.new()
@@ -16495,7 +16611,7 @@ func _show_crypto_exchange_modal() -> void:
 
 func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 	var coin: Dictionary = {}
-	for c in CryptoMarket.get_coins():
+	for c in CryptoMarket.get_coins(PlayerData):
 		if str(c.get("id", "")) == coin_id:
 			coin = c
 			break
