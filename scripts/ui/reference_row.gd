@@ -24,6 +24,8 @@ const DETAILS = {
 	"BANKING": ["🏦", "Checking, savings and loans"],
 	"First National Pixel Bank": ["🏦", "Checking, savings and loans"],
 	"Bank & Loans": ["🏦", "Checking, savings and loans"],
+	"RENT A HOUSE": ["🏠", "Lease apartments, lofts and family homes"],
+	"Rent a House": ["🏠", "Lease apartments, lofts and family homes"],
 }
 var target: Button
 var heading: Label

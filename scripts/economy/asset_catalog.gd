@@ -379,8 +379,8 @@ const ITEMS := {
 		"id": "prop_capsule",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Cozy Starter Home",
-		"price": 104000,
-		"upkeep": 2600,
+		"price": 220000,
+		"upkeep": 4400,
 		"happiness_bonus": 6,
 		"desc": "A charming single-story starter house with a welcoming front porch, neat lawn, and warm glowing windows—perfect for humble beginnings.",
 		"image_path": "res://assets/items/properties/prop_starter_home.jpg",
@@ -390,8 +390,8 @@ const ITEMS := {
 		"id": "prop_tenement",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Old District Tenement Flat",
-		"price": 232000,
-		"upkeep": 4500,
+		"price": 380000,
+		"upkeep": 7600,
 		"happiness_bonus": 8,
 		"desc": "A historic red brick apartment above a bustling noodle shop with classic exterior iron fire escapes.",
 		"image_path": "res://assets/items/properties/prop_tenement.jpg",
@@ -401,8 +401,8 @@ const ITEMS := {
 		"id": "prop_studio",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Downtown Studio Loft",
-		"price": 416000,
-		"upkeep": 7700,
+		"price": 650000,
+		"upkeep": 13000,
 		"happiness_bonus": 12,
 		"desc": "A vibrant modern loft situated above late-night ramen spots and illuminated cyber storefronts.",
 		"image_path": "res://assets/items/properties/prop_studio.jpg",
@@ -412,8 +412,8 @@ const ITEMS := {
 		"id": "prop_condo",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Neon Heights 1-Bedroom Condo",
-		"price": 672000,
-		"upkeep": 11500,
+		"price": 980000,
+		"upkeep": 19600,
 		"happiness_bonus": 15,
 		"desc": "A sleek high-rise condo featuring a private glass balcony overlooking the sparkling metropolis night skyline.",
 		"image_path": "res://assets/items/properties/prop_condo.jpg",
@@ -423,8 +423,8 @@ const ITEMS := {
 		"id": "prop_cottage",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Sunnyvale Starter Cottage",
-		"price": 928000,
-		"upkeep": 15200,
+		"price": 1450000,
+		"upkeep": 29000,
 		"happiness_bonus": 18,
 		"desc": "A storybook suburban cottage with stone chimney, white picket fence, flower garden, and peaceful surroundings.",
 		"image_path": "res://assets/items/properties/prop_cottage.jpg",
@@ -434,8 +434,8 @@ const ITEMS := {
 		"id": "prop_suburban_split",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Contemporary Split-Level House",
-		"price": 1040000,
-		"upkeep": 16800,
+		"price": 1850000,
+		"upkeep": 37000,
 		"happiness_bonus": 19,
 		"desc": "A stylish contemporary split-level family residence with wide picture windows, stone accents, and manicured lawn.",
 		"image_path": "res://assets/items/properties/prop_suburban_split.jpg",
@@ -445,8 +445,8 @@ const ITEMS := {
 		"id": "prop_townhouse",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Cobblestone Row Townhouse",
-		"price": 1200000,
-		"upkeep": 20000,
+		"price": 2200000,
+		"upkeep": 44000,
 		"happiness_bonus": 21,
 		"desc": "A charming three-story brick Victorian townhouse with grand bay windows, wrought iron gates, and warm glowing lamps.",
 		"image_path": "res://assets/items/properties/prop_townhouse.jpg",
@@ -456,8 +456,8 @@ const ITEMS := {
 		"id": "prop_eco_timber",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Eco-Timber Sustainable Home",
-		"price": 1360000,
-		"upkeep": 21600,
+		"price": 2650000,
+		"upkeep": 53000,
 		"happiness_bonus": 22,
 		"desc": "A modern eco-designed cedar timber residence featuring rooftop solar panels, smart thermal glass, and serene gardens.",
 		"image_path": "res://assets/items/properties/prop_eco_timber.jpg",
@@ -467,8 +467,8 @@ const ITEMS := {
 		"id": "prop_house",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Suburban Family Residence",
-		"price": 1570000,
-		"upkeep": 25600,
+		"price": 3200000,
+		"upkeep": 64000,
 		"happiness_bonus": 24,
 		"desc": "A picturesque two-story home with a manicured front lawn, driveway, garage, and leafy tree in a peaceful suburb.",
 		"image_path": "res://assets/items/properties/prop_house.jpg",
@@ -478,8 +478,8 @@ const ITEMS := {
 		"id": "prop_cabin",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Pine Crest Lakeside Cabin",
-		"price": 2000000,
-		"upkeep": 29600,
+		"price": 3900000,
+		"upkeep": 78000,
 		"happiness_bonus": 27,
 		"desc": "A peaceful timber log cabin nestled among dense evergreens on the edge of a serene mountain lake.",
 		"image_path": "res://assets/items/properties/prop_cabin.jpg",
@@ -489,8 +489,8 @@ const ITEMS := {
 		"id": "prop_historic_brownstone",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Heritage Brownstone Mansion",
-		"price": 2400000,
-		"upkeep": 35200,
+		"price": 5500000,
+		"upkeep": 110000,
 		"happiness_bonus": 28,
 		"desc": "An opulent 4-story historic Victorian brownstone mansion with grand exterior stone stoop and ornate architectural relief.",
 		"image_path": "res://assets/items/properties/prop_historic_brownstone.jpg",
@@ -500,8 +500,8 @@ const ITEMS := {
 		"id": "prop_modern_villa",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Zenith Modern Minimalist Villa",
-		"price": 2960000,
-		"upkeep": 41600,
+		"price": 7200000,
+		"upkeep": 144000,
 		"happiness_bonus": 30,
 		"desc": "An architectural marvel with floor-to-ceiling glass walls, warm timber soffits, and a luminous infinity pool.",
 		"image_path": "res://assets/items/properties/prop_modern_villa.jpg",
@@ -511,8 +511,8 @@ const ITEMS := {
 		"id": "prop_alpine_chalet",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Alpine Ski Chalet",
-		"price": 3360000,
-		"upkeep": 46400,
+		"price": 8500000,
+		"upkeep": 170000,
 		"happiness_bonus": 31,
 		"desc": "A luxury heavy-timber ski lodge in the snowy alpine peaks with stone hearth fireplace and heated outdoor sauna.",
 		"image_path": "res://assets/items/properties/prop_alpine_chalet.jpg",
@@ -522,8 +522,8 @@ const ITEMS := {
 		"id": "prop_ranch",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Rolling Hills Country Ranch",
-		"price": 3840000,
-		"upkeep": 51200,
+		"price": 10500000,
+		"upkeep": 210000,
 		"happiness_bonus": 33,
 		"desc": "An expansive rural sanctuary with wooden red barn, pastures, grazing animals, and endless golden sunset vistas.",
 		"image_path": "res://assets/items/properties/prop_ranch.jpg",
@@ -533,8 +533,8 @@ const ITEMS := {
 		"id": "prop_desert_estate",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Palm Springs Desert Oasis",
-		"price": 4480000,
-		"upkeep": 60800,
+		"price": 12800000,
+		"upkeep": 256000,
 		"happiness_bonus": 34,
 		"desc": "A private mid-century modern architectural desert compound with illuminated turquoise pool and palm trees under sunset skies.",
 		"image_path": "res://assets/items/properties/prop_desert_estate.jpg",
@@ -544,8 +544,8 @@ const ITEMS := {
 		"id": "prop_beachfront",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Pacific Crest Beach House",
-		"price": 5120000,
-		"upkeep": 67200,
+		"price": 16500000,
+		"upkeep": 330000,
 		"happiness_bonus": 36,
 		"desc": "A modern oceanfront villa directly on soft golden sand with a sundeck, swimming pool, and swaying palms.",
 		"image_path": "res://assets/items/properties/prop_beachfront.jpg",
@@ -555,8 +555,8 @@ const ITEMS := {
 		"id": "prop_harbor_duplex",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Waterfront Marina Duplex",
-		"price": 6240000,
-		"upkeep": 83200,
+		"price": 21000000,
+		"upkeep": 420000,
 		"happiness_bonus": 38,
 		"desc": "A sleek modern waterfront glass duplex with private deep-water yacht mooring dock and teak dining deck.",
 		"image_path": "res://assets/items/properties/prop_harbor_duplex.jpg",
@@ -566,8 +566,8 @@ const ITEMS := {
 		"id": "prop_penthouse",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Skyline Sky-Villa Penthouse",
-		"price": 7680000,
-		"upkeep": 104000,
+		"price": 28000000,
+		"upkeep": 560000,
 		"happiness_bonus": 40,
 		"desc": "The pinnacle of cosmopolitan prestige. Rooftop panoramic views, private heated infinity spa, and 24/7 concierge.",
 		"image_path": "res://assets/items/properties/prop_penthouse.jpg",
@@ -577,8 +577,8 @@ const ITEMS := {
 		"id": "prop_cyber_mansion",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Neo-Tech Smart Manor",
-		"price": 12000000,
-		"upkeep": 152000,
+		"price": 45000000,
+		"upkeep": 900000,
 		"happiness_bonus": 44,
 		"desc": "A fortified architectural estate featuring drone landing pads, quantum-encrypted security gates, and indoor atrium.",
 		"image_path": "res://assets/items/properties/prop_cyber_mansion.jpg",
@@ -588,8 +588,8 @@ const ITEMS := {
 		"id": "prop_chateau",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Grand Chateau & Vineyard",
-		"price": 19000000,
-		"upkeep": 224000,
+		"price": 68000000,
+		"upkeep": 1360000,
 		"happiness_bonus": 48,
 		"desc": "A historic French stone castle with stone towers, sprawling vineyard terraces, hedge mazes, and marble fountains.",
 		"image_path": "res://assets/items/properties/prop_chateau.jpg",
@@ -599,8 +599,8 @@ const ITEMS := {
 		"id": "prop_cliffside_compound",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Cliffside Architectural Compound",
-		"price": 26000000,
-		"upkeep": 304000,
+		"price": 95000000,
+		"upkeep": 1900000,
 		"happiness_bonus": 50,
 		"desc": "A dramatic cliffside masterpiece hanging above the ocean with private helipad, cantilevered pool, and glass elevator.",
 		"image_path": "res://assets/items/properties/prop_cliffside_compound.jpg",
@@ -610,8 +610,8 @@ const ITEMS := {
 		"id": "prop_private_island",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Emerald Atoll Private Island",
-		"price": 38000000,
-		"upkeep": 448000,
+		"price": 140000000,
+		"upkeep": 2800000,
 		"happiness_bonus": 55,
 		"desc": "A private tropical island surrounded by turquoise waters, with overwater thatch bungalows, private pier, and beach firepit.",
 		"image_path": "res://assets/items/properties/prop_private_island.jpg",
@@ -621,8 +621,8 @@ const ITEMS := {
 		"id": "prop_megatower_apex",
 		"category": CATEGORY_PROPERTIES,
 		"name": "Apex Triplex Megatower Sanctuary",
-		"price": 61000000,
-		"upkeep": 672000,
+		"price": 220000000,
+		"upkeep": 4400000,
 		"happiness_bonus": 60,
 		"desc": "A sovereign three-story penthouse crown atop a futuristic megatower skyscraper with an indoor botanical garden atrium.",
 		"image_path": "res://assets/items/properties/prop_megatower_apex.jpg",
@@ -632,8 +632,8 @@ const ITEMS := {
 		"id": "prop_orbital",
 		"category": CATEGORY_PROPERTIES,
 		"name": "High-Orbit Luxury Satellite Suite",
-		"price": 104000000,
-		"upkeep": 1040000,
+		"price": 380000000,
+		"upkeep": 7600000,
 		"happiness_bonus": 65,
 		"desc": "The ultimate expression of planetary wealth. A private orbital space station suite with panoramic glass observation lounge.",
 		"image_path": "res://assets/items/properties/prop_orbital.jpg",
@@ -1146,7 +1146,10 @@ static func create_asset_instance(item_id: String, purchase_age: int = 0) -> Dic
 		return {}
 	var item: Dictionary = ITEMS[actual_id]
 	var price: int = int(item.get("price", 0))
-	var instance_id: String = "%s_%d_%d" % [actual_id, purchase_age, randi() % 10000]
+	var instance_id: String = actual_id + "_" + str(Time.get_unix_time_from_system()).replace(".", "") + "_" + str(randi() % 10000)
+	var inst_upkeep: int = int(item.get("upkeep", 0))
+	if str(item.get("category", "")) == CATEGORY_PROPERTIES:
+		inst_upkeep = maxi(500, int(round(float(price) * 0.02)))
 	return {
 		"instance_id": instance_id,
 		"item_id": actual_id,
@@ -1157,7 +1160,7 @@ static func create_asset_instance(item_id: String, purchase_age: int = 0) -> Dic
 		"purchase_age": purchase_age,
 		"condition": 100,
 		"image_path": str(item.get("image_path", "")),
-		"upkeep": int(item.get("upkeep", 0)),
+		"upkeep": inst_upkeep,
 		"happiness_bonus": int(item.get("happiness_bonus", 5)),
 		"last_used_age": -1,
 		"purchased_with_credit": false
@@ -1220,22 +1223,45 @@ static func sell_asset(player_data: Node, instance_id: String) -> Dictionary:
 				}
 
 			var total_value: int = int(asset.get("current_value", asset.get("purchase_price", 0)))
+
+			# Settle any active mortgage on this real estate property first
+			var mortgage_settled: int = 0
+			if "mortgages" in player_data and player_data.mortgages is Array:
+				for m_i in range(player_data.mortgages.size() - 1, -1, -1):
+					var m = player_data.mortgages[m_i]
+					if m is Dictionary and str(m.get("instance_id", "")) == instance_id:
+						var m_rem: int = int(m.get("remaining_principal", 0))
+						mortgage_settled = mini(total_value, m_rem)
+						m["remaining_principal"] = maxi(0, m_rem - mortgage_settled)
+						if int(m["remaining_principal"]) <= 0:
+							player_data.mortgages.remove_at(m_i)
+						break
+
+			var value_after_mortgage: int = total_value - mortgage_settled
 			var was_credit: bool = bool(asset.get("purchased_with_credit", false))
 			var pay_to_card: int = 0
 
-			# Anti-loophole: if purchased with credit card or card balance exists, refund card first
+			# Anti-loophole: if purchased with credit card or card balance exists, refund card
 			if (was_credit or player_data.credit_card_balance > 0) and player_data.has_credit_card:
-				pay_to_card = mini(total_value, player_data.credit_card_balance)
+				pay_to_card = mini(value_after_mortgage, player_data.credit_card_balance)
 				player_data.credit_card_balance -= pay_to_card
 
-			var cash_proceeds: int = total_value - pay_to_card
+			var cash_proceeds: int = value_after_mortgage - pay_to_card
 			if cash_proceeds > 0:
 				player_data.money += cash_proceeds
 
 			player_data.owned_assets.remove_at(i)
 
 			var msg: String = ""
-			if pay_to_card > 0 and cash_proceeds > 0:
+			if mortgage_settled > 0 and cash_proceeds > 0:
+				msg = "Sold %s for $%d ($%d settled remaining mortgage principal, $%d cash proceeds received)." % [
+					asset.get("name", "Asset"), total_value, mortgage_settled, cash_proceeds
+				]
+			elif mortgage_settled > 0:
+				msg = "Sold %s for $%d ($%d settled remaining mortgage principal)." % [
+					asset.get("name", "Asset"), total_value, mortgage_settled
+				]
+			elif pay_to_card > 0 and cash_proceeds > 0:
 				msg = "Sold %s for $%d ($%d directly paid off credit card balance, $%d cash received)." % [
 					asset.get("name", "Asset"), total_value, pay_to_card, cash_proceeds
 				]
@@ -1250,6 +1276,7 @@ static func sell_asset(player_data: Node, instance_id: String) -> Dictionary:
 				"success": true,
 				"message": msg,
 				"sale_price": total_value,
+				"mortgage_settled": mortgage_settled,
 				"credit_settled": pay_to_card,
 				"cash_proceeds": cash_proceeds
 			}
@@ -1301,9 +1328,16 @@ static func process_yearly_assets(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []
 	for asset in player_data.owned_assets:
 		var cat: String = str(asset.get("category", ""))
+		var cur_val: int = int(asset.get("current_value", 0))
+		var orig_price: int = int(asset.get("purchase_price", cur_val))
 		var upkeep: int = int(asset.get("upkeep", 0))
 
 		# 1. Maintenance / Upkeep auto-debit
+		if cat == CATEGORY_PROPERTIES:
+			# Maintenance cost is calculated as a percentage of the house value (2.0% of current asset value)
+			upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
+			asset["upkeep"] = upkeep
+
 		if upkeep > 0:
 			# If player is a minor (< 18), parents / guardians cover family residence and asset upkeep
 			if player_data.age < 18:
@@ -1315,11 +1349,12 @@ static func process_yearly_assets(player_data: Node) -> Array[String]:
 			else:
 				# Cannot pay upkeep -> condition drops
 				asset["condition"] = maxi(10, int(asset.get("condition", 100)) - 15)
-				logs.append("⚠️ Maintenance Neglect: You lacked sufficient funds to service your %s ($%d upkeep). Its condition deteriorated." % [asset.get("name", "asset"), upkeep])
+				if cat == CATEGORY_PROPERTIES:
+					logs.append("⚠️ Maintenance Neglect: You lacked sufficient funds to maintain your %s ($%d maintenance, 2%% of house value). Its condition deteriorated." % [asset.get("name", "asset"), upkeep])
+				else:
+					logs.append("⚠️ Maintenance Neglect: You lacked sufficient funds to service your %s ($%d upkeep). Its condition deteriorated." % [asset.get("name", "asset"), upkeep])
 
-		# 2. Value adjustments (Vehicles depreciate, real estate/fine art/jewelry appreciate, firearms hold strong value)
-		var cur_val: int = int(asset.get("current_value", asset.get("purchase_price", 0)))
-		var orig_price: int = int(asset.get("purchase_price", cur_val))
+		# 2. Value adjustments (Vehicles and Real Estate depreciate over years, fine art/jewelry appreciate, firearms hold strong value)
 		if cat in [CATEGORY_CARS, CATEGORY_MOTORCYCLES]:
 			var floor_val: int = int(orig_price * 0.20)
 			var dep: int = int(cur_val * 0.06)
@@ -1336,8 +1371,11 @@ static func process_yearly_assets(player_data: Node) -> Array[String]:
 			var app: int = int(cur_val * 0.01)
 			asset["current_value"] = cur_val + app
 		elif cat == CATEGORY_PROPERTIES:
-			var app: int = int(cur_val * 0.02)
-			asset["current_value"] = cur_val + app
+			# Real estate depreciation: assets lose value over years, making assets cheaper to sell after X number of years
+			var floor_val: int = int(orig_price * 0.30)
+			var dep: int = int(round(float(cur_val) * 0.025))
+			asset["current_value"] = maxi(floor_val, cur_val - dep)
+			asset["total_depreciation"] = int(asset.get("total_depreciation", 0)) + dep
 		elif cat == CATEGORY_FIREARMS:
 			var floor_val: int = int(orig_price * 0.75)
 			var dep: int = int(cur_val * 0.02)

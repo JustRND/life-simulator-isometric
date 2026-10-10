@@ -22,7 +22,7 @@ func test_starting_asset() -> void:
 	assert(starter.get("category") == "properties", "Starter category should be properties")
 	assert(starter.get("image_path") == "res://assets/items/properties/prop_starter_home.jpg", "Starter image path should point to prop_starter_home.jpg")
 	assert(starter.get("condition") == 100, "Starter condition should be 100")
-	assert(int(starter.get("current_value")) == 104000, "Starter value should be 104000")
+	assert(int(starter.get("current_value")) == 220000, "Starter value should be 220000")
 	print("  PASS: Starter asset correctly granted on reset_player()")
 
 	# 2. Check catalog definition
@@ -76,9 +76,9 @@ func test_starting_asset() -> void:
 	# 7. Check net worth includes starting property
 	player_data.money = 500
 	player_data.bank_savings = 1000
-	starter["current_value"] = 104000
+	starter["current_value"] = 220000
 	var nw = player_data.get_net_worth()
-	assert(nw >= 104000 + 1500, "Net worth should include starter home value")
+	assert(nw >= 220000 + 1500, "Net worth should include starter home value")
 	print("  PASS: Net worth calculation verified: $", nw)
 
 	print("--- ALL STARTING ASSET TESTS PASSED! ---")

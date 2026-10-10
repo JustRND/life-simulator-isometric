@@ -35,7 +35,7 @@ func _ready() -> void:
 	
 	print("Found version label text: '%s'" % label.text)
 	assert(label.text.begins_with("ALPHA "), "1. Label text must begin with 'ALPHA '")
-	assert("0.1.1" in label.text, "1. Label text must include version number (0.1.1)")
+	assert("0.1.2" in label.text, "1. Label text must include version number (0.1.2)")
 	print("✔ CHECK 1: Alpha version label verified with text '%s'" % label.text)
 	
 	# 2. Verify badge is located on the top right section

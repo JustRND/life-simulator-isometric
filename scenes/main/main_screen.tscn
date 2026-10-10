@@ -419,7 +419,7 @@ theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 0.8)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 22
-text = "ALPHA v0.1.1"
+text = "ALPHA v0.1.2"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1883,6 +1883,20 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "🤝  Charity"
 alignment = 0
 
+[node name="RentHouseActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213460]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
+theme_override_colors/font_focus_color = Color(0.18, 0.85, 0.55, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0.18, 0.85, 0.55, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/normal = SubResource("card_button_normal")
+theme_override_styles/pressed = SubResource("card_button_pressed")
+theme_override_styles/hover = SubResource("card_button_hover")
+text = "🏠  RENT A HOUSE"
+alignment = 0
+
 [node name="SettingsOverlay" type="ColorRect" parent="." unique_id=289620972]
 visible = false
 z_index = 35
@@ -2456,6 +2470,7 @@ horizontal_alignment = 1
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/BankActItem" to="." method="_on_bank_button_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/DatingAppItem" to="." method="_on_dating_app_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/CharityActItem" to="." method="_on_charity_item_pressed"]
+[connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/RentHouseActItem" to="." method="_on_rent_house_item_pressed"]
 [connection signal="pressed" from="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/SettingsHeader/CloseSettingsHeaderButton" to="." method="_on_close_settings_button_pressed"]
 [connection signal="pressed" from="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/DangerCard/Margin/VBox/ResetProgressButton" to="." method="_on_reset_progress_button_pressed"]
 [connection signal="pressed" from="ResetConfirmationOverlay/ConfirmCard/ConfirmMargin/ConfirmContent/ButtonsRow/CancelResetButton" to="." method="_on_cancel_reset_pressed"]

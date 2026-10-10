@@ -61,7 +61,9 @@ func capture_data() -> Dictionary:
 		"credit_card_balance": PlayerData.credit_card_balance,
 		"credit_card_apr": PlayerData.credit_card_apr,
 		"credit_card_paid_this_year": PlayerData.credit_card_paid_this_year,
-		"owned_assets": PlayerData.owned_assets,
+		"owned_assets": PlayerData.owned_assets.duplicate(true),
+		"mortgages": PlayerData.mortgages.duplicate(true),
+		"rented_property": PlayerData.rented_property.duplicate(true),
 		"health_insurance": PlayerData.health_insurance,
 		"asset_insurance": PlayerData.asset_insurance,
 		"education_level": PlayerData.education_level,
@@ -352,6 +354,8 @@ func apply_data(data: Dictionary) -> bool:
 	for b_id in ["buff_philanthropist_heart", "buff_animal_guardian", "buff_youth_mentor", "buff_lifesavers_blessing", "buff_eco_guardian", "buff_grand_benefactor"]:
 		PlayerData.active_buffs.erase(b_id)
 	PlayerData.owned_assets.clear()
+	PlayerData.mortgages = Array(data.get("mortgages", [])).duplicate(true)
+	PlayerData.rented_property = Dictionary(data.get("rented_property", {})).duplicate(true)
 	PlayerData.health_insurance = str(data.get("health_insurance", "none"))
 	PlayerData.asset_insurance = Dictionary(data.get("asset_insurance", { "vehicle": false, "property": false }))
 	var saved_assets = data.get("owned_assets", [])

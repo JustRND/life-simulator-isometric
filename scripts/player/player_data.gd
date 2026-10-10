@@ -134,6 +134,8 @@ var credit_card_balance: int = 0
 var credit_card_apr: float = 0.18
 var credit_card_paid_this_year: int = 0
 var owned_assets: Array[Dictionary] = []
+var mortgages: Array = []
+var rented_property: Dictionary = {}
 var health_insurance: String = "none"
 var asset_insurance: Dictionary = {
 	"vehicle": false,
@@ -301,6 +303,8 @@ func reset_player() -> void:
 	credit_card_apr = 0.18
 	credit_card_paid_this_year = 0
 	owned_assets.clear()
+	mortgages.clear()
+	rented_property.clear()
 	grant_starting_assets()
 	health_insurance = "none"
 	asset_insurance = { "vehicle": false, "property": false }
@@ -799,7 +803,26 @@ func cure_illness(illness_id: String) -> bool:
 
 
 func get_total_debt() -> int:
-	return debt + tax_debt + loan_balance + credit_card_balance
+	var mortgage_debt := 0
+	for m in mortgages:
+		if m is Dictionary:
+			mortgage_debt += int(m.get("remaining_principal", 0))
+	return debt + tax_debt + loan_balance + credit_card_balance + mortgage_debt
+
+
+func has_active_mortgage() -> bool:
+	return mortgages.size() > 0
+
+
+func get_mortgage_for_asset(instance_id: String) -> Dictionary:
+	for m in mortgages:
+		if m is Dictionary and str(m.get("instance_id", "")) == instance_id:
+			return m
+	return {}
+
+
+func has_rented_property() -> bool:
+	return not rented_property.is_empty() and str(rented_property.get("id", "")) != ""
 
 
 func take_bank_loan(amount: int, interest_rate: float) -> bool:
@@ -1545,6 +1568,8 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	asset_insurance = { "vehicle": false, "property": false }
 
 	owned_assets.clear()
+	mortgages.clear()
+	rented_property.clear()
 	for a in assets_copy:
 		if a is Dictionary:
 			owned_assets.append(a.duplicate(true))

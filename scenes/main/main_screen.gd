@@ -10,6 +10,8 @@ const UndergroundProgression = preload("res://scripts/economy/underground_progre
 const UIStyle = preload("res://scripts/ui/ui_style.gd")
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
 const RoomManager = preload("res://scripts/isometric/room_manager.gd")
+const MortgageManager = preload("res://scripts/economy/mortgage_manager.gd")
+const RentalManager = preload("res://scripts/economy/rental_manager.gd")
 
 
 var portrait: TextureRect
@@ -334,6 +336,10 @@ func _connect_runtime_signals() -> void:
 	var charity_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/CharityActItem") as Button
 	if charity_btn != null and not charity_btn.pressed.is_connected(_on_charity_item_pressed):
 		charity_btn.pressed.connect(_on_charity_item_pressed)
+
+	var rent_house_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/RentHouseActItem") as Button
+	if rent_house_btn != null and not rent_house_btn.pressed.is_connected(_on_rent_house_item_pressed):
+		rent_house_btn.pressed.connect(_on_rent_house_item_pressed)
 
 	if timeline_pull_up_btn != null and not timeline_pull_up_btn.pressed.is_connected(_on_timeline_pull_up_button_pressed):
 		timeline_pull_up_btn.pressed.connect(_on_timeline_pull_up_button_pressed)
@@ -909,6 +915,16 @@ func age_up() -> void:
 	var asset_logs := AssetCatalog.process_yearly_assets(PlayerData)
 	for log_msg in asset_logs:
 		add_life_event(log_msg, "finance")
+
+	# 7b2. Mortgages Annual Principal & Interest Expenses
+	var mortgage_logs := MortgageManager.process_yearly_mortgages(PlayerData)
+	for m_msg in mortgage_logs:
+		add_life_event(m_msg, "finance")
+
+	# 7b3. Residential Rental Annual Lease Payment
+	var rent_logs := RentalManager.process_yearly_rent(PlayerData)
+	for r_msg in rent_logs:
+		add_life_event(r_msg, "lifestyle")
 
 	# 7c. Asset Insurance Annual Premium Auto-Debit & Policy Lapses
 	var ins_logs := AssetInsuranceManager.process_yearly_insurance(PlayerData)
@@ -2850,12 +2866,67 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 
 			var cur_val: int = int(item.get("current_value", item.get("purchase_price", 0)))
 			var upkeep: int = int(item.get("upkeep", 0))
+			var item_cat: String = str(item.get("category", ""))
 			var val_lbl := Label.new()
-			val_lbl.text = "Resale Value: $%s   •   Upkeep: $%s/yr" % [_format_number(cur_val), _format_number(upkeep)]
+			if item_cat == AssetCatalog.CATEGORY_PROPERTIES:
+				upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
+				val_lbl.text = "Resale Value: $%s (Depreciated)   •   Maintenance: $%s/yr (2%% of value)" % [
+					_format_number(cur_val), _format_number(upkeep)
+				]
+			else:
+				val_lbl.text = "Resale Value: $%s   •   Upkeep: $%s/yr" % [_format_number(cur_val), _format_number(upkeep)]
 			val_lbl.add_theme_font_size_override("font_size", 18)
 			val_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 			val_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			iv.add_child(val_lbl)
+
+			# If this property has an active mortgage, display financing card
+			var prop_instance_id: String = str(item.get("instance_id", ""))
+			var m_dict: Dictionary = PlayerData.get_mortgage_for_asset(prop_instance_id)
+			if not m_dict.is_empty():
+				var m_box := PanelContainer.new()
+				var m_box_style := StyleBoxFlat.new()
+				m_box_style.bg_color = Color("#022c22") if not is_light else Color("#ecfdf5")
+				m_box_style.border_color = Color("#10b981")
+				m_box_style.set_border_width_all(1)
+				m_box_style.set_corner_radius_all(8)
+				m_box.add_theme_stylebox_override("panel", m_box_style)
+				var mm := MarginContainer.new()
+				mm.add_theme_constant_override("margin_left", 12)
+				mm.add_theme_constant_override("margin_right", 12)
+				mm.add_theme_constant_override("margin_top", 10)
+				mm.add_theme_constant_override("margin_bottom", 10)
+				m_box.add_child(mm)
+				var mv := VBoxContainer.new()
+				mv.add_theme_constant_override("separation", 6)
+				mm.add_child(mv)
+
+				var rem_p: int = int(m_dict.get("remaining_principal", 0))
+				var y_left: int = int(m_dict.get("years_left", 0))
+				var apr_pct: float = float(m_dict.get("interest_rate", 0.05)) * 100.0
+				var ann_prin: int = int(m_dict.get("annual_principal", 0))
+				var ann_int: int = int(m_dict.get("annual_interest", 0))
+				var m_info := Label.new()
+				m_info.text = "🏦 Active Mortgage: $%s balance remaining (%d years left)\n• Annual Expense: $%s/yr ($%s principal + $%s interest at %.1f%% APR)" % [
+					_format_number(rem_p), y_left, _format_number(ann_prin + ann_int), _format_number(ann_prin), _format_number(ann_int), apr_pct
+				]
+				m_info.add_theme_font_size_override("font_size", 16)
+				m_info.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
+				m_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				mv.add_child(m_info)
+
+				var m_id: String = str(m_dict.get("id", ""))
+				var m_pay_btn := _create_cyber_button("💳 Pay Off Mortgage Early ($%s)" % _format_number(rem_p), Color("#10b981"), func():
+					var p_res = MortgageManager.pay_off_mortgage(PlayerData, m_id)
+					add_life_event(str(p_res.get("message", "")), "finance")
+					update_ui()
+					update_assets_panel()
+				, true)
+				m_pay_btn.custom_minimum_size.y = 38
+				m_pay_btn.add_theme_font_size_override("font_size", 16)
+				m_pay_btn.disabled = (PlayerData.money + PlayerData.bank_savings) < rem_p
+				mv.add_child(m_pay_btn)
+				iv.add_child(m_box)
 
 			# Action Row: Joyride / Relax and Sell
 			var act_row := HBoxContainer.new()
@@ -3406,6 +3477,21 @@ func _open_asset_marketplace_modal(category: String) -> void:
 
 			cv.add_child(btn_buy)
 
+		# 7. MORTGAGE FINANCING BUTTON (for Properties)
+		if category == AssetCatalog.CATEGORY_PROPERTIES:
+			var btn_mortgage := _create_cyber_button("🏦 Apply for Mortgage", Color("#10b981"), func():
+				_open_mortgage_panel(item, overlay)
+			, true)
+			btn_mortgage.custom_minimum_size.y = 56
+			btn_mortgage.add_theme_font_size_override("font_size", 22)
+			btn_mortgage.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			btn_mortgage.alignment = HORIZONTAL_ALIGNMENT_CENTER
+			btn_mortgage.set_meta("center_text", true)
+			if not is_of_age:
+				btn_mortgage.disabled = true
+				btn_mortgage.text = "Age Restricted (Requires Age %d+)" % min_age
+			cv.add_child(btn_mortgage)
+
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(content_list)
 
@@ -3420,6 +3506,293 @@ func load_style_box_cyber_card(border_col: Color = Color("#22d3ee")) -> StyleBox
 	style.shadow_color = Color(0, 0, 0, 0.15 if is_light else 0.6)
 	style.shadow_size = 10
 	return style
+
+
+func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control = null) -> void:
+	if previous_overlay != null and is_instance_valid(previous_overlay):
+		previous_overlay.visible = false
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var border_color := Color("#10b981")
+
+	# Fullscreen overlay
+	var overlay := ColorRect.new()
+	overlay.anchors_preset = Control.PRESET_FULL_RECT
+	overlay.anchor_right = 1.0
+	overlay.anchor_bottom = 1.0
+	overlay.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	overlay.grow_vertical = Control.GROW_DIRECTION_BOTH
+	overlay.color = Color(0, 0, 0, 0.45 if is_light else 0.75)
+	overlay.z_index = 40
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	overlay.set_meta("is_mortgage_panel", true)
+	add_child(overlay)
+
+	# Responsive outer margin
+	var margin_outer := MarginContainer.new()
+	margin_outer.anchors_preset = Control.PRESET_FULL_RECT
+	margin_outer.anchor_right = 1.0
+	margin_outer.anchor_bottom = 1.0
+	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
+	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var top_m: int = 16
+	var bottom_m: int = 16
+	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) or OS.has_feature("mobile") or (OS.has_feature("web") and MobileKeyboardManager.is_mobile()):
+		top_m = 48
+		bottom_m = 40
+	margin_outer.add_theme_constant_override("margin_left", 16)
+	margin_outer.add_theme_constant_override("margin_right", 16)
+	margin_outer.add_theme_constant_override("margin_top", top_m)
+	margin_outer.add_theme_constant_override("margin_bottom", bottom_m)
+	overlay.add_child(margin_outer)
+
+	# Smooth pull-up entrance animation!
+	preload("res://scripts/ui/panel_pull_up.gd").watch(margin_outer, overlay)
+
+	var card := PanelContainer.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	card.clip_contents = true
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = Color("#edf3fa") if is_light else Color("#090f1d")
+	card_style.border_color = border_color.darkened(0.35) if (is_light and border_color.get_luminance() > 0.45) else border_color
+	card_style.set_border_width_all(3)
+	card_style.set_corner_radius_all(14)
+	card_style.shadow_color = Color(0, 0, 0, 0.15 if is_light else 0.85)
+	card_style.shadow_size = 24
+	card.add_theme_stylebox_override("panel", card_style)
+	margin_outer.add_child(card)
+
+	var margin := MarginContainer.new()
+	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.add_theme_constant_override("margin_left", 20)
+	margin.add_theme_constant_override("margin_right", 20)
+	margin.add_theme_constant_override("margin_top", 16)
+	margin.add_theme_constant_override("margin_bottom", 16)
+	card.add_child(margin)
+
+	var main_vbox := VBoxContainer.new()
+	main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main_vbox.add_theme_constant_override("separation", 14)
+	margin.add_child(main_vbox)
+
+	# TOP HEADER ROW with BACK TO PROPERTIES on the TOP LEFT CORNER
+	var header_row := HBoxContainer.new()
+	header_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header_row.add_theme_constant_override("separation", 12)
+	main_vbox.add_child(header_row)
+
+	var btn_back := Button.new()
+	btn_back.text = "← BACK TO PROPERTIES"
+	btn_back.custom_minimum_size = Vector2(230, 48)
+	btn_back.add_theme_font_size_override("font_size", 20)
+	btn_back.add_theme_color_override("font_color", Color("#ffffff") if not is_light else Color("#064e3b"))
+	btn_back.add_theme_color_override("font_hover_color", Color("#10b981"))
+	var back_style := StyleBoxFlat.new()
+	back_style.bg_color = Color("#064e3b") if not is_light else Color("#d1fae5")
+	back_style.border_color = border_color
+	back_style.set_border_width_all(2)
+	back_style.set_corner_radius_all(10)
+	btn_back.add_theme_stylebox_override("normal", back_style)
+	btn_back.add_theme_stylebox_override("hover", back_style)
+	btn_back.add_theme_stylebox_override("pressed", back_style)
+	btn_back.pressed.connect(func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(overlay, true, func():
+			if previous_overlay != null and is_instance_valid(previous_overlay):
+				previous_overlay.visible = true
+			else:
+				_open_asset_marketplace_modal(AssetCatalog.CATEGORY_PROPERTIES)
+		, card)
+	)
+	header_row.add_child(btn_back)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "🏠 MORTGAGE PANEL"
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	header_row.add_child(title_lbl)
+
+	var close_btn := Button.new()
+	close_btn.text = "✕"
+	close_btn.custom_minimum_size = Vector2(56, 48)
+	close_btn.add_theme_font_size_override("font_size", 22)
+	close_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+	close_btn.add_theme_color_override("font_hover_color", Color("#f43f5e"))
+	var close_style := StyleBoxFlat.new()
+	close_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+	close_style.border_color = border_color
+	close_style.set_border_width_all(2)
+	close_style.set_corner_radius_all(10)
+	close_btn.add_theme_stylebox_override("normal", close_style)
+	close_btn.add_theme_stylebox_override("hover", close_style)
+	close_btn.add_theme_stylebox_override("pressed", close_style)
+	close_btn.pressed.connect(func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(overlay, true, Callable(), card)
+		if previous_overlay != null and is_instance_valid(previous_overlay):
+			previous_overlay.queue_free()
+	)
+	header_row.add_child(close_btn)
+
+	# Subtitle
+	var sub_lbl := Label.new()
+	sub_lbl.text = "Fixed-Rate Residential Financing Plans with Annual Principal, Interest & Years Left Breakdown"
+	sub_lbl.add_theme_font_size_override("font_size", 18)
+	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	main_vbox.add_child(sub_lbl)
+
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	main_vbox.add_child(scroll)
+
+	var scroll_m := MarginContainer.new()
+	scroll_m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll_m.add_theme_constant_override("margin_right", 16)
+	scroll_m.add_theme_constant_override("margin_bottom", 20)
+	scroll.add_child(scroll_m)
+
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 16)
+	scroll_m.add_child(list)
+
+	# 1. PROPERTY PREVIEW CARD
+	var item_id: String = str(property_item.get("id", ""))
+	var item_name: String = str(property_item.get("name", "Residential Property"))
+	var price: int = int(property_item.get("price", 0))
+	var down_payment: int = int(round(float(price) * MortgageManager.DOWN_PAYMENT_RATE))
+	var principal: int = price - down_payment
+	var maintenance_cost: int = maxi(500, int(round(float(price) * MortgageManager.PROPERTY_MAINTENANCE_RATE)))
+	var total_avail: int = PlayerData.money + PlayerData.bank_savings
+
+	var p_card := PanelContainer.new()
+	p_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var pm := MarginContainer.new()
+	pm.add_theme_constant_override("margin_left", 20)
+	pm.add_theme_constant_override("margin_right", 20)
+	pm.add_theme_constant_override("margin_top", 16)
+	pm.add_theme_constant_override("margin_bottom", 16)
+	p_card.add_child(pm)
+
+	var pv := VBoxContainer.new()
+	pv.add_theme_constant_override("separation", 8)
+	pm.add_child(pv)
+
+	var p_title := Label.new()
+	p_title.text = "🏡 %s" % item_name
+	p_title.add_theme_font_size_override("font_size", 24)
+	p_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	pv.add_child(p_title)
+
+	var p_desc := Label.new()
+	p_desc.text = "• Property Purchase Price: $%s\n• Required Down Payment (10%%): $%s\n• Mortgage Principal Financed (90%%): $%s\n• Annual Maintenance Cost: $%s/yr (2%% of house value)\n• Your Available Funds: $%s (Cash $%s + Bank $%s) • Credit Score: %d (%s)" % [
+		_format_number(price),
+		_format_number(down_payment),
+		_format_number(principal),
+		_format_number(maintenance_cost),
+		_format_number(total_avail),
+		_format_number(PlayerData.money),
+		_format_number(PlayerData.bank_savings),
+		PlayerData.credit_score,
+		PlayerData.get_credit_rating()
+	]
+	p_desc.add_theme_font_size_override("font_size", 18)
+	p_desc.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	p_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pv.add_child(p_desc)
+	list.add_child(p_card)
+
+	# 2. MORTGAGE OPTION PLANS
+	for term_def in MortgageManager.MORTGAGE_TERMS:
+		var term_years: int = int(term_def.get("years", 15))
+		var apr: float = float(term_def.get("apr", 0.05))
+		var plan: Dictionary = MortgageManager.calculate_mortgage_plan(price, term_years, apr)
+		var check: Dictionary = MortgageManager.can_apply_mortgage(PlayerData, price, term_years, apr)
+		var is_allowed: bool = bool(check.get("allowed", false))
+
+		var o_card := PanelContainer.new()
+		o_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+		var om := MarginContainer.new()
+		om.add_theme_constant_override("margin_left", 20)
+		om.add_theme_constant_override("margin_right", 20)
+		om.add_theme_constant_override("margin_top", 16)
+		om.add_theme_constant_override("margin_bottom", 16)
+		o_card.add_child(om)
+
+		var ov := VBoxContainer.new()
+		ov.add_theme_constant_override("separation", 10)
+		om.add_child(ov)
+
+		var o_header := HBoxContainer.new()
+		o_header.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		ov.add_child(o_header)
+
+		var o_name := Label.new()
+		o_name.text = "📑 %d-YEAR FIXED MORTGAGE (%.1f%% APR)" % [term_years, apr * 100.0]
+		o_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		o_name.add_theme_font_size_override("font_size", 22)
+		o_name.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		o_header.add_child(o_name)
+
+		var o_ann_total := Label.new()
+		o_ann_total.text = "$%s/yr" % _format_number(int(plan.get("annual_payment", 0)))
+		o_ann_total.add_theme_font_size_override("font_size", 24)
+		o_ann_total.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
+		o_header.add_child(o_ann_total)
+
+		var o_breakdown := Label.new()
+		o_breakdown.text = "• Annual Principal Expense: $%s/year\n• Annual Interest Expense (Year 1): $%s/year\n• Counter: %d Years Left (%d Annual Payments)\n• Total Interest Over %d Years: $%s   •   Total Financed Cost: $%s" % [
+			_format_number(int(plan.get("annual_principal", 0))),
+			_format_number(int(plan.get("annual_interest", 0))),
+			term_years,
+			term_years,
+			term_years,
+			_format_number(int(plan.get("total_interest", 0))),
+			_format_number(int(plan.get("total_cost", 0)))
+		]
+		o_breakdown.add_theme_font_size_override("font_size", 18)
+		o_breakdown.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+		o_breakdown.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ov.add_child(o_breakdown)
+
+		var btn_apply := _create_cyber_button("Apply for %d-Year Mortgage (Down Payment: $%s)" % [term_years, _format_number(down_payment)], border_color, func():
+			var m_res = MortgageManager.apply_for_mortgage(PlayerData, item_id, term_years, apr)
+			if bool(m_res.get("success", false)):
+				add_life_event(str(m_res.get("message", "")), "finance")
+				overlay.queue_free()
+				if previous_overlay != null and is_instance_valid(previous_overlay):
+					previous_overlay.queue_free()
+				update_ui()
+				update_assets_panel()
+				SaveManager.save_game()
+				show_tab("timeline")
+			else:
+				add_life_event(str(m_res.get("message", "Application declined.")), "finance")
+		, true)
+		btn_apply.custom_minimum_size.y = 52
+		btn_apply.add_theme_font_size_override("font_size", 20)
+		btn_apply.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_apply.set_meta("center_text", true)
+
+		if not is_allowed:
+			btn_apply.disabled = true
+			btn_apply.text = str(check.get("reason", "Declined"))
+			btn_apply.modulate = Color(0.6, 0.6, 0.6, 0.75)
+
+		ov.add_child(btn_apply)
+		list.add_child(o_card)
+
+	if has_node("ThemeController"):
+		get_node("ThemeController").apply_subtree(main_vbox)
 
 
 func update_bank_panel() -> void:
@@ -6695,6 +7068,189 @@ func _on_shopping_item_pressed() -> void:
 		show_tab("timeline")
 		return
 	_show_shopping_modal()
+
+
+func _on_rent_house_item_pressed() -> void:
+	if PlayerData.age < 18:
+		add_life_event("🧸 You live with your family! Residential rental leases unlock at adulthood (Age 18+).", "lifestyle")
+		show_tab("timeline")
+		return
+	_show_rent_house_modal()
+
+
+func _show_rent_house_modal() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var border_color := Color("#10b981")
+	var modal_dict: Dictionary = _create_cyber_modal("🏠 RESIDENTIAL RENTALS", "Lease Apartments, Lofts & Homes (Renting Does Not Equal Owning)", border_color)
+	var content_list: VBoxContainer = modal_dict["list"]
+	var overlay: Control = modal_dict["overlay"]
+
+	# Balance overview banner
+	var bal_card := PanelContainer.new()
+	bal_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var bm := MarginContainer.new()
+	bm.add_theme_constant_override("margin_left", 18)
+	bm.add_theme_constant_override("margin_right", 18)
+	bm.add_theme_constant_override("margin_top", 12)
+	bm.add_theme_constant_override("margin_bottom", 12)
+	bal_card.add_child(bm)
+
+	var bal_lbl := Label.new()
+	bal_lbl.text = "💳 Available Funds: Cash $%s   •   Bank Savings: $%s   (Total: $%s)" % [
+		_format_number(PlayerData.money),
+		_format_number(PlayerData.bank_savings),
+		_format_number(PlayerData.money + PlayerData.bank_savings)
+	]
+	bal_lbl.add_theme_font_size_override("font_size", 22)
+	bal_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
+	bal_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bm.add_child(bal_lbl)
+	content_list.add_child(bal_card)
+
+	# Current Lease Status Card
+	var status_card := PanelContainer.new()
+	status_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 18)
+	sm.add_theme_constant_override("margin_right", 18)
+	sm.add_theme_constant_override("margin_top", 14)
+	sm.add_theme_constant_override("margin_bottom", 14)
+	status_card.add_child(sm)
+
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 8)
+	sm.add_child(sv)
+
+	var status_title := Label.new()
+	status_title.text = "CURRENT LIVING ARRANGEMENT"
+	status_title.add_theme_font_size_override("font_size", 22)
+	status_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
+	sv.add_child(status_title)
+
+	if RentalManager.has_active_lease(PlayerData):
+		var rent_dict: Dictionary = PlayerData.rented_property
+		var active_lbl := Label.new()
+		active_lbl.text = "🏠 Active Lease: %s\n• Monthly Rent: $%s/mo   •   Annual Rent: $%s/yr\n• Years Leased: %d   •   Living Perk: +%d Happiness/yr\n(Note: Leased residences are NOT owned assets and do not appear in the Assets tab)" % [
+			str(rent_dict.get("name", "Home")),
+			_format_number(int(rent_dict.get("monthly_rent", 0))),
+			_format_number(int(rent_dict.get("annual_rent", 0))),
+			int(rent_dict.get("years_leased", 1)),
+			int(rent_dict.get("happiness_bonus", 8))
+		]
+		active_lbl.add_theme_font_size_override("font_size", 19)
+		active_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		active_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(active_lbl)
+
+		var btn_terminate := _create_cyber_button("🚪 Terminate Lease & Move Out", Color("#f43f5e"), func():
+			var term_res = RentalManager.terminate_lease(PlayerData)
+			add_life_event(str(term_res.get("message", "Lease terminated.")), "lifestyle")
+			overlay.queue_free()
+			update_ui()
+			SaveManager.save_game()
+			show_tab("timeline")
+		, true)
+		btn_terminate.custom_minimum_size.y = 48
+		btn_terminate.add_theme_font_size_override("font_size", 20)
+		btn_terminate.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_terminate.set_meta("center_text", true)
+		sv.add_child(btn_terminate)
+	else:
+		var no_lease_lbl := Label.new()
+		no_lease_lbl.text = "You do not currently hold an active rental lease.\n(Living with family or in your owned real estate. Rented homes do NOT equal ownership and will not appear in the Owned Assets tab.)"
+		no_lease_lbl.add_theme_font_size_override("font_size", 18)
+		no_lease_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		no_lease_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(no_lease_lbl)
+
+	content_list.add_child(status_card)
+
+	# Available Rental Listings
+	for r_item in RentalManager.RENTAL_CATALOG:
+		var r_id: String = str(r_item.get("id", ""))
+		var r_name: String = str(r_item.get("name", ""))
+		var m_rent: int = int(r_item.get("monthly_rent", 0))
+		var a_rent: int = int(r_item.get("annual_rent", 0))
+		var r_desc: String = str(r_item.get("desc", ""))
+		var r_glyph: String = str(r_item.get("image_glyph", "🏠"))
+		var h_bonus: int = int(r_item.get("happiness_bonus", 5))
+
+		var r_card := PanelContainer.new()
+		r_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+		var rm := MarginContainer.new()
+		rm.add_theme_constant_override("margin_left", 20)
+		rm.add_theme_constant_override("margin_right", 20)
+		rm.add_theme_constant_override("margin_top", 18)
+		rm.add_theme_constant_override("margin_bottom", 18)
+		r_card.add_child(rm)
+
+		var rv := VBoxContainer.new()
+		rv.add_theme_constant_override("separation", 10)
+		rm.add_child(rv)
+
+		var header_h := HBoxContainer.new()
+		header_h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		rv.add_child(header_h)
+
+		var r_title := Label.new()
+		r_title.text = "%s %s" % [r_glyph, r_name]
+		r_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		r_title.add_theme_font_size_override("font_size", 24)
+		r_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		r_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		header_h.add_child(r_title)
+
+		var r_price := Label.new()
+		r_price.text = "$%s/mo" % _format_number(m_rent)
+		r_price.add_theme_font_size_override("font_size", 26)
+		r_price.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
+		header_h.add_child(r_price)
+
+		var ann_lbl := Label.new()
+		ann_lbl.text = "Annual Rent: $%s/yr   •   +%d Happiness Living Perk" % [_format_number(a_rent), h_bonus]
+		ann_lbl.add_theme_font_size_override("font_size", 18)
+		ann_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+		rv.add_child(ann_lbl)
+
+		var desc_lbl := Label.new()
+		desc_lbl.text = r_desc
+		desc_lbl.add_theme_font_size_override("font_size", 18)
+		desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rv.add_child(desc_lbl)
+
+		var is_current: bool = RentalManager.has_active_lease(PlayerData) and str(PlayerData.rented_property.get("id", "")) == r_id
+		var can_rent_check := RentalManager.can_rent(PlayerData, r_id)
+		var btn_lease := _create_cyber_button("🔑 Sign 1-Year Lease ($%s/yr)" % _format_number(a_rent), border_color, func():
+			var lease_res = RentalManager.sign_lease(PlayerData, r_id)
+			if bool(lease_res.get("success", false)):
+				add_life_event(str(lease_res.get("message", "")), "lifestyle")
+				overlay.queue_free()
+				update_ui()
+				SaveManager.save_game()
+				show_tab("timeline")
+			else:
+				add_life_event(str(lease_res.get("message", "Cannot sign lease.")), "finance")
+		, true)
+		btn_lease.custom_minimum_size.y = 52
+		btn_lease.add_theme_font_size_override("font_size", 20)
+		btn_lease.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_lease.set_meta("center_text", true)
+
+		if is_current:
+			btn_lease.disabled = true
+			btn_lease.text = "✅ Current Residence"
+			btn_lease.modulate = Color(0.7, 0.7, 0.7, 0.8)
+		elif not bool(can_rent_check.get("allowed", false)):
+			btn_lease.disabled = true
+			btn_lease.text = str(can_rent_check.get("reason", "Cannot Rent"))
+			btn_lease.modulate = Color(0.6, 0.6, 0.6, 0.7)
+
+		rv.add_child(btn_lease)
+		content_list.add_child(r_card)
+
+	if has_node("ThemeController"):
+		get_node("ThemeController").apply_subtree(content_list)
 
 
 func _on_social_media_item_pressed() -> void:
