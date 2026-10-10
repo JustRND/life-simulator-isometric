@@ -9,61 +9,61 @@ const SOURCE_PET_STORE := "pet_store"
 const SOURCE_RANCH := "ranch"
 
 const DOG_BREEDS: Array[Dictionary] = [
-	{"breed": "Golden Retriever", "price": 1600, "upkeep": 320, "icon": "🐕"},
-	{"breed": "German Shepherd", "price": 1800, "upkeep": 350, "icon": "🐕"},
-	{"breed": "French Bulldog", "price": 2400, "upkeep": 280, "icon": "🐶"},
-	{"breed": "Siberian Husky", "price": 1700, "upkeep": 360, "icon": "🐺"},
-	{"breed": "Cavalier King Charles", "price": 2100, "upkeep": 260, "icon": "🐶"},
-	{"breed": "Standard Poodle", "price": 1900, "upkeep": 300, "icon": "🐩"},
-	{"breed": "Rottweiler", "price": 1750, "upkeep": 380, "icon": "🐕"},
-	{"breed": "Labrador Retriever", "price": 1500, "upkeep": 310, "icon": "🐕"},
-	{"breed": "Pembroke Welsh Corgi", "price": 2200, "upkeep": 270, "icon": "🦊"},
-	{"breed": "Shiba Inu", "price": 2000, "upkeep": 290, "icon": "🐕"},
-	{"breed": "Australian Shepherd", "price": 1850, "upkeep": 340, "icon": "🐕"},
-	{"breed": "Boxer", "price": 1650, "upkeep": 330, "icon": "🐕"},
-	{"breed": "Doberman Pinscher", "price": 1950, "upkeep": 370, "icon": "🐕"},
-	{"breed": "Great Dane", "price": 2300, "upkeep": 450, "icon": "🐕"},
-	{"breed": "Beagle", "price": 1350, "upkeep": 250, "icon": "🐕"},
-	{"breed": "Border Collie", "price": 1800, "upkeep": 330, "icon": "🐕"},
-	{"breed": "Dachshund (Sausage Dog)", "price": 1450, "upkeep": 230, "icon": "🐕"},
-	{"breed": "Yorkshire Terrier", "price": 1600, "upkeep": 210, "icon": "🐶"},
-	{"breed": "Samoyed", "price": 2600, "upkeep": 380, "icon": "🐕"},
-	{"breed": "Bernese Mountain Dog", "price": 2500, "upkeep": 420, "icon": "🐕"},
-	{"breed": "Akita Inu", "price": 2250, "upkeep": 360, "icon": "🐕"},
-	{"breed": "Pomeranian", "price": 1750, "upkeep": 220, "icon": "🐶"},
-	{"breed": "Dalmatian", "price": 1900, "upkeep": 340, "icon": "🐕"},
-	{"breed": "Cane Corso", "price": 2400, "upkeep": 400, "icon": "🐕"},
-	{"breed": "Pug", "price": 1550, "upkeep": 240, "icon": "🐶"},
-	{"breed": "Boston Terrier", "price": 1650, "upkeep": 250, "icon": "🐶"}
+	{"breed": "Golden Retriever", "price": 1600, "upkeep": 320, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_golden_retriever.jpg"},
+	{"breed": "German Shepherd", "price": 1800, "upkeep": 350, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_german_shepherd.jpg"},
+	{"breed": "French Bulldog", "price": 2400, "upkeep": 280, "icon": "🐶", "image_path": "res://assets/items/pets/dogs/dog_french_bulldog.jpg"},
+	{"breed": "Siberian Husky", "price": 1700, "upkeep": 360, "icon": "🐺", "image_path": "res://assets/items/pets/dogs/dog_siberian_husky.jpg"},
+	{"breed": "Cavalier King Charles", "price": 2100, "upkeep": 260, "icon": "🐶", "image_path": "res://assets/items/pets/dogs/dog_cavalier_king_charles.jpg"},
+	{"breed": "Standard Poodle", "price": 1900, "upkeep": 300, "icon": "🐩", "image_path": "res://assets/items/pets/dogs/dog_standard_poodle.jpg"},
+	{"breed": "Rottweiler", "price": 1750, "upkeep": 380, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_rottweiler.jpg"},
+	{"breed": "Labrador Retriever", "price": 1500, "upkeep": 310, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_labrador_retriever.jpg"},
+	{"breed": "Pembroke Welsh Corgi", "price": 2200, "upkeep": 270, "icon": "🦊", "image_path": "res://assets/items/pets/dogs/dog_pembroke_welsh_corgi.jpg"},
+	{"breed": "Shiba Inu", "price": 2000, "upkeep": 290, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_shiba_inu.jpg"},
+	{"breed": "Australian Shepherd", "price": 1850, "upkeep": 340, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_australian_shepherd.jpg"},
+	{"breed": "Boxer", "price": 1650, "upkeep": 330, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_boxer.jpg"},
+	{"breed": "Doberman Pinscher", "price": 1950, "upkeep": 370, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_doberman_pinscher.jpg"},
+	{"breed": "Great Dane", "price": 2300, "upkeep": 450, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_great_dane.jpg"},
+	{"breed": "Beagle", "price": 1350, "upkeep": 250, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_beagle.jpg"},
+	{"breed": "Border Collie", "price": 1800, "upkeep": 330, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_border_collie.jpg"},
+	{"breed": "Dachshund (Sausage Dog)", "price": 1450, "upkeep": 230, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_dachshund.jpg"},
+	{"breed": "Yorkshire Terrier", "price": 1600, "upkeep": 210, "icon": "🐶", "image_path": "res://assets/items/pets/dogs/dog_yorkshire_terrier.jpg"},
+	{"breed": "Samoyed", "price": 2600, "upkeep": 380, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_samoyed.jpg"},
+	{"breed": "Bernese Mountain Dog", "price": 2500, "upkeep": 420, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_bernese_mountain_dog.jpg"},
+	{"breed": "Akita Inu", "price": 2250, "upkeep": 360, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_akita_inu.jpg"},
+	{"breed": "Pomeranian", "price": 1750, "upkeep": 220, "icon": "🐶", "image_path": "res://assets/items/pets/dogs/dog_pomeranian.jpg"},
+	{"breed": "Dalmatian", "price": 1900, "upkeep": 340, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_dalmatian.jpg"},
+	{"breed": "Cane Corso", "price": 2400, "upkeep": 400, "icon": "🐕", "image_path": "res://assets/items/pets/dogs/dog_cane_corso.jpg"},
+	{"breed": "Pug", "price": 1550, "upkeep": 240, "icon": "🐶", "image_path": "res://assets/items/pets/dogs/dog_pug.jpg"},
+	{"breed": "Boston Terrier", "price": 1650, "upkeep": 250, "icon": "🐶", "image_path": "res://assets/items/pets/dogs/dog_boston_terrier.jpg"}
 ]
 
 const CAT_BREEDS: Array[Dictionary] = [
-	{"breed": "Persian", "price": 1300, "upkeep": 220, "icon": "🐈"},
-	{"breed": "Maine Coon", "price": 1900, "upkeep": 260, "icon": "🐈"},
-	{"breed": "British Shorthair", "price": 1500, "upkeep": 200, "icon": "🐱"},
-	{"breed": "Siamese", "price": 1200, "upkeep": 190, "icon": "🐈"},
-	{"breed": "Bengal Leopard Cat", "price": 2300, "upkeep": 280, "icon": "🐆"},
-	{"breed": "Ragdoll", "price": 1650, "upkeep": 220, "icon": "🐱"},
-	{"breed": "Sphynx Hairless", "price": 2200, "upkeep": 240, "icon": "🐈"},
-	{"breed": "Scottish Fold", "price": 1800, "upkeep": 210, "icon": "🐱"},
-	{"breed": "Russian Blue", "price": 1600, "upkeep": 195, "icon": "🐈"},
-	{"breed": "Abyssinian", "price": 1450, "upkeep": 205, "icon": "🐈"},
-	{"breed": "Norwegian Forest Cat", "price": 1850, "upkeep": 250, "icon": "🐈"},
-	{"breed": "Birman Sacred Cat", "price": 1550, "upkeep": 215, "icon": "🐱"},
-	{"breed": "Devon Rex", "price": 1750, "upkeep": 210, "icon": "🐱"},
-	{"breed": "Oriental Shorthair", "price": 1400, "upkeep": 190, "icon": "🐈"},
-	{"breed": "Turkish Angora", "price": 1650, "upkeep": 225, "icon": "🐈"},
-	{"breed": "American Shorthair", "price": 1100, "upkeep": 180, "icon": "🐱"},
-	{"breed": "Burmese", "price": 1350, "upkeep": 195, "icon": "🐈"},
-	{"breed": "Chartreux", "price": 1700, "upkeep": 210, "icon": "🐈"},
-	{"breed": "Siberian Forest Cat", "price": 1950, "upkeep": 260, "icon": "🐈"},
-	{"breed": "Manx Tailless Cat", "price": 1500, "upkeep": 200, "icon": "🐱"},
-	{"breed": "Somali Fox Cat", "price": 1600, "upkeep": 220, "icon": "🐈"},
-	{"breed": "Japanese Bobtail", "price": 1550, "upkeep": 200, "icon": "🐱"},
-	{"breed": "Savannah Exotic Cat", "price": 3200, "upkeep": 340, "icon": "🐆"},
-	{"breed": "Bombay Panther Cat", "price": 1450, "upkeep": 205, "icon": "🐈"},
-	{"breed": "Egyptian Mau", "price": 1800, "upkeep": 230, "icon": "🐆"},
-	{"breed": "Selkirk Rex Curly Cat", "price": 1700, "upkeep": 215, "icon": "🐱"}
+	{"breed": "Persian", "price": 1300, "upkeep": 220, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_persian.jpg"},
+	{"breed": "Maine Coon", "price": 1900, "upkeep": 260, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_maine_coon.jpg"},
+	{"breed": "British Shorthair", "price": 1500, "upkeep": 200, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_british_shorthair.jpg"},
+	{"breed": "Siamese", "price": 1200, "upkeep": 190, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_siamese.jpg"},
+	{"breed": "Bengal Leopard Cat", "price": 2300, "upkeep": 280, "icon": "🐆", "image_path": "res://assets/items/pets/cats/cat_bengal.jpg"},
+	{"breed": "Ragdoll", "price": 1650, "upkeep": 220, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_ragdoll.jpg"},
+	{"breed": "Sphynx Hairless", "price": 2200, "upkeep": 240, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_sphynx.jpg"},
+	{"breed": "Scottish Fold", "price": 1800, "upkeep": 210, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_scottish_fold.jpg"},
+	{"breed": "Russian Blue", "price": 1600, "upkeep": 195, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_russian_blue.jpg"},
+	{"breed": "Abyssinian", "price": 1450, "upkeep": 205, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_abyssinian.jpg"},
+	{"breed": "Norwegian Forest Cat", "price": 1850, "upkeep": 250, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_norwegian_forest.jpg"},
+	{"breed": "Birman Sacred Cat", "price": 1550, "upkeep": 215, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_birman.jpg"},
+	{"breed": "Devon Rex", "price": 1750, "upkeep": 210, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_devon_rex.jpg"},
+	{"breed": "Oriental Shorthair", "price": 1400, "upkeep": 190, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_oriental_shorthair.jpg"},
+	{"breed": "Turkish Angora", "price": 1650, "upkeep": 225, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_turkish_angora.jpg"},
+	{"breed": "American Shorthair", "price": 1100, "upkeep": 180, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_american_shorthair.jpg"},
+	{"breed": "Burmese", "price": 1350, "upkeep": 195, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_burmese.jpg"},
+	{"breed": "Chartreux", "price": 1700, "upkeep": 210, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_chartreux.jpg"},
+	{"breed": "Siberian Forest Cat", "price": 1950, "upkeep": 260, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_siberian_forest.jpg"},
+	{"breed": "Manx Tailless Cat", "price": 1500, "upkeep": 200, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_manx.jpg"},
+	{"breed": "Somali Fox Cat", "price": 1600, "upkeep": 220, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_somali.jpg"},
+	{"breed": "Japanese Bobtail", "price": 1550, "upkeep": 200, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_japanese_bobtail.jpg"},
+	{"breed": "Savannah Exotic Cat", "price": 3200, "upkeep": 340, "icon": "🐆", "image_path": "res://assets/items/pets/cats/cat_savannah.jpg"},
+	{"breed": "Bombay Panther Cat", "price": 1450, "upkeep": 205, "icon": "🐈", "image_path": "res://assets/items/pets/cats/cat_bombay.jpg"},
+	{"breed": "Egyptian Mau", "price": 1800, "upkeep": 230, "icon": "🐆", "image_path": "res://assets/items/pets/cats/cat_egyptian_mau.jpg"},
+	{"breed": "Selkirk Rex Curly Cat", "price": 1700, "upkeep": 215, "icon": "🐱", "image_path": "res://assets/items/pets/cats/cat_selkirk_rex.jpg"}
 ]
 
 const PET_STORE_ANIMALS: Array[Dictionary] = [
@@ -83,6 +83,111 @@ const HORSE_BREEDS: Array[Dictionary] = [
 	{"breed": "Clydesdale Heavy Draft Horse", "price": 11000, "upkeep": 1600, "icon": "🐎"},
 	{"breed": "Wild Mustang Gelding", "price": 4800, "upkeep": 1100, "icon": "🐎"}
 ]
+
+
+static func get_breed_image(breed_name: String, pet_type: String = "") -> String:
+	var b_lower := breed_name.to_lower()
+	var t_lower := pet_type.to_lower()
+
+	# 1. Exact match in DOG_BREEDS
+	for b in DOG_BREEDS:
+		if b.breed.to_lower() == b_lower:
+			return str(b.get("image_path", ""))
+
+	# 2. Exact match in CAT_BREEDS
+	for b in CAT_BREEDS:
+		if b.breed.to_lower() == b_lower:
+			return str(b.get("image_path", ""))
+
+	# 3. Fuzzy match for dog mixes / substrings
+	if t_lower == "dog" or "dog" in b_lower or "hound" in b_lower or "shepherd" in b_lower or "retriever" in b_lower or "terrier" in b_lower or "collie" in b_lower or "corgi" in b_lower or "husky" in b_lower or "boxer" in b_lower or "poodle" in b_lower or "spaniel" in b_lower or "pitbull" in b_lower or "bulldog" in b_lower or "beagle" in b_lower or "dane" in b_lower or "doberman" in b_lower or "dachshund" in b_lower or "pug" in b_lower or "dalmatian" in b_lower or "samoyed" in b_lower or "akita" in b_lower or "pomeranian" in b_lower:
+		if "golden" in b_lower:
+			return "res://assets/items/pets/dogs/dog_golden_retriever.jpg"
+		elif "labrador" in b_lower or "lab" in b_lower or "retriever" in b_lower:
+			return "res://assets/items/pets/dogs/dog_labrador_retriever.jpg"
+		elif "shepherd" in b_lower:
+			return "res://assets/items/pets/dogs/dog_german_shepherd.jpg"
+		elif "bulldog" in b_lower or "french" in b_lower:
+			return "res://assets/items/pets/dogs/dog_french_bulldog.jpg"
+		elif "husky" in b_lower:
+			return "res://assets/items/pets/dogs/dog_siberian_husky.jpg"
+		elif "corgi" in b_lower:
+			return "res://assets/items/pets/dogs/dog_pembroke_welsh_corgi.jpg"
+		elif "shiba" in b_lower:
+			return "res://assets/items/pets/dogs/dog_shiba_inu.jpg"
+		elif "boxer" in b_lower:
+			return "res://assets/items/pets/dogs/dog_boxer.jpg"
+		elif "poodle" in b_lower:
+			return "res://assets/items/pets/dogs/dog_standard_poodle.jpg"
+		elif "rottweiler" in b_lower:
+			return "res://assets/items/pets/dogs/dog_rottweiler.jpg"
+		elif "beagle" in b_lower or "hound" in b_lower:
+			return "res://assets/items/pets/dogs/dog_beagle.jpg"
+		elif "collie" in b_lower or "aussie" in b_lower:
+			return "res://assets/items/pets/dogs/dog_border_collie.jpg"
+		elif "terrier" in b_lower or "yorkshire" in b_lower:
+			return "res://assets/items/pets/dogs/dog_yorkshire_terrier.jpg"
+		elif "spaniel" in b_lower or "cavalier" in b_lower:
+			return "res://assets/items/pets/dogs/dog_cavalier_king_charles.jpg"
+		elif "pitbull" in b_lower or "corso" in b_lower:
+			return "res://assets/items/pets/dogs/dog_cane_corso.jpg"
+		elif "pug" in b_lower:
+			return "res://assets/items/pets/dogs/dog_pug.jpg"
+		elif "dalmatian" in b_lower:
+			return "res://assets/items/pets/dogs/dog_dalmatian.jpg"
+		elif "samoyed" in b_lower:
+			return "res://assets/items/pets/dogs/dog_samoyed.jpg"
+		elif "dane" in b_lower:
+			return "res://assets/items/pets/dogs/dog_great_dane.jpg"
+		elif "doberman" in b_lower:
+			return "res://assets/items/pets/dogs/dog_doberman_pinscher.jpg"
+		elif "dachshund" in b_lower or "sausage" in b_lower:
+			return "res://assets/items/pets/dogs/dog_dachshund.jpg"
+		elif "pomeranian" in b_lower:
+			return "res://assets/items/pets/dogs/dog_pomeranian.jpg"
+		elif "akita" in b_lower:
+			return "res://assets/items/pets/dogs/dog_akita_inu.jpg"
+		return "res://assets/items/pets/dogs/dog_golden_retriever.jpg"
+
+	# 4. Fuzzy match for cat mixes / substrings
+	if t_lower == "cat" or "cat" in b_lower or "tabby" in b_lower or "shorthair" in b_lower or "calico" in b_lower or "tuxedo" in b_lower or "tortoiseshell" in b_lower or "mau" in b_lower:
+		if "persian" in b_lower or "tortoiseshell" in b_lower:
+			return "res://assets/items/pets/cats/cat_persian.jpg"
+		elif "maine" in b_lower or "coon" in b_lower:
+			return "res://assets/items/pets/cats/cat_maine_coon.jpg"
+		elif "siamese" in b_lower or "point" in b_lower:
+			return "res://assets/items/pets/cats/cat_siamese.jpg"
+		elif "bengal" in b_lower or "leopard" in b_lower:
+			return "res://assets/items/pets/cats/cat_bengal.jpg"
+		elif "ragdoll" in b_lower:
+			return "res://assets/items/pets/cats/cat_ragdoll.jpg"
+		elif "sphynx" in b_lower or "hairless" in b_lower:
+			return "res://assets/items/pets/cats/cat_sphynx.jpg"
+		elif "fold" in b_lower:
+			return "res://assets/items/pets/cats/cat_scottish_fold.jpg"
+		elif "russian" in b_lower or "blue" in b_lower:
+			return "res://assets/items/pets/cats/cat_russian_blue.jpg"
+		elif "forest" in b_lower or "norwegian" in b_lower or "longhair" in b_lower:
+			return "res://assets/items/pets/cats/cat_norwegian_forest.jpg"
+		elif "tuxedo" in b_lower or "british" in b_lower or "bicolor" in b_lower:
+			return "res://assets/items/pets/cats/cat_british_shorthair.jpg"
+		elif "calico" in b_lower or "bobtail" in b_lower:
+			return "res://assets/items/pets/cats/cat_japanese_bobtail.jpg"
+		elif "ginger" in b_lower or "orange" in b_lower or "manx" in b_lower:
+			return "res://assets/items/pets/cats/cat_manx.jpg"
+		elif "tabby" in b_lower or "shorthair" in b_lower or "mackerel" in b_lower:
+			return "res://assets/items/pets/cats/cat_american_shorthair.jpg"
+		elif "smoke" in b_lower or "chartreux" in b_lower:
+			return "res://assets/items/pets/cats/cat_chartreux.jpg"
+		elif "black" in b_lower or "bombay" in b_lower:
+			return "res://assets/items/pets/cats/cat_bombay.jpg"
+		elif "angora" in b_lower:
+			return "res://assets/items/pets/cats/cat_turkish_angora.jpg"
+		elif "savannah" in b_lower:
+			return "res://assets/items/pets/cats/cat_savannah.jpg"
+		return "res://assets/items/pets/cats/cat_british_shorthair.jpg"
+
+	return ""
 
 
 static func get_shelter_animals(shelter_type: String) -> Array[Dictionary]:
@@ -109,6 +214,7 @@ static func get_shelter_animals(shelter_type: String) -> Array[Dictionary]:
 				"price": 0,
 				"upkeep": 220,
 				"icon": "🐕",
+				"image_path": get_breed_image(breed_name, "dog"),
 				"health": randi_range(65, 90),
 				"happiness": randi_range(50, 75),
 				"lifespan": 14
@@ -133,6 +239,7 @@ static func get_shelter_animals(shelter_type: String) -> Array[Dictionary]:
 				"price": 0,
 				"upkeep": 160,
 				"icon": "🐈",
+				"image_path": get_breed_image(breed_name, "cat"),
 				"health": randi_range(70, 95),
 				"happiness": randi_range(55, 80),
 				"lifespan": 16
@@ -159,6 +266,7 @@ static func get_breeder_animals(breeder_type: String) -> Array[Dictionary]:
 				"price": int(b.price),
 				"upkeep": int(b.upkeep),
 				"icon": b.icon,
+				"image_path": str(b.get("image_path", "")),
 				"health": randi_range(90, 100),
 				"happiness": randi_range(85, 100),
 				"lifespan": 15
@@ -179,6 +287,7 @@ static func get_breeder_animals(breeder_type: String) -> Array[Dictionary]:
 				"price": int(b.price),
 				"upkeep": int(b.upkeep),
 				"icon": b.icon,
+				"image_path": str(b.get("image_path", "")),
 				"health": randi_range(90, 100),
 				"happiness": randi_range(85, 100),
 				"lifespan": 17
@@ -270,6 +379,10 @@ static func adopt_pet(
 	if not player_data.get("pets") is Array:
 		player_data.set("pets", [])
 
+	var img_p: String = str(pet_spec.get("image_path", ""))
+	if img_p == "":
+		img_p = get_breed_image(str(pet_spec.get("breed", "")), str(pet_spec.get("type", "")))
+
 	var new_pet := {
 		"id": "pet_%d_%d" % [player_data.age, randi() % 10000],
 		"name": final_name,
@@ -279,6 +392,7 @@ static func adopt_pet(
 		"source": str(pet_spec.get("source", "Adoption")),
 		"age": int(pet_spec.get("age", 1)),
 		"icon": str(pet_spec.get("icon", "🐾")),
+		"image_path": img_p,
 		"health": int(pet_spec.get("health", 90)),
 		"happiness": int(pet_spec.get("happiness", 85)),
 		"upkeep": int(pet_spec.get("upkeep", 150)),

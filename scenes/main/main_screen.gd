@@ -3224,10 +3224,6 @@ func _render_owned_pets_section() -> void:
 			pm.add_theme_constant_override("margin_bottom", 14)
 			pet_card.add_child(pm)
 
-			var pv := VBoxContainer.new()
-			pv.add_theme_constant_override("separation", 8)
-			pm.add_child(pv)
-
 			var p_icon: String = str(pet.get("icon", "🐾"))
 			var p_name: String = str(pet.get("name", "Companion"))
 			var p_breed: String = str(pet.get("breed", pet.get("species", "Animal")))
@@ -3235,6 +3231,44 @@ func _render_owned_pets_section() -> void:
 			var p_upkeep: int = int(pet.get("upkeep", 100))
 			var p_health: int = int(pet.get("health", 100))
 			var p_hap: int = int(pet.get("happiness", 100))
+
+			var ph := HBoxContainer.new()
+			ph.add_theme_constant_override("separation", 18)
+			pm.add_child(ph)
+
+			var pet_img: String = str(pet.get("image_path", ""))
+			if pet_img == "":
+				pet_img = PetManager.get_breed_image(p_breed, str(pet.get("type", "dog")))
+
+			if pet_img != "" and ResourceLoader.exists(pet_img):
+				var img_rect := TextureRect.new()
+				img_rect.custom_minimum_size = Vector2(130, 130)
+				img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				img_rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+				img_rect.texture = load(pet_img)
+				ph.add_child(img_rect)
+			else:
+				var icon_box := PanelContainer.new()
+				var ib_style := StyleBoxFlat.new()
+				ib_style.bg_color = Color("#e2edf8") if is_light else Color("#030712")
+				ib_style.border_color = Color("#10b981").darkened(0.35) if is_light else Color("#10b981").darkened(0.2)
+				ib_style.set_border_width_all(2)
+				ib_style.set_corner_radius_all(10)
+				icon_box.add_theme_stylebox_override("panel", ib_style)
+				icon_box.custom_minimum_size = Vector2(130, 130)
+				var ic_lbl := Label.new()
+				ic_lbl.text = p_icon
+				ic_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				ic_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				ic_lbl.add_theme_font_size_override("font_size", 54)
+				icon_box.add_child(ic_lbl)
+				ph.add_child(icon_box)
+
+			var pv := VBoxContainer.new()
+			pv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			pv.add_theme_constant_override("separation", 8)
+			ph.add_child(pv)
 
 			var header_lbl := Label.new()
 			header_lbl.text = "%s %s • %s (%d yrs old)" % [p_icon, p_name, p_breed, p_age]
@@ -3406,6 +3440,48 @@ func _open_asset_marketplace_modal(category: String) -> void:
 	var modal_dict: Dictionary = _create_cyber_modal(title_text, subtitle_text, border_color)
 	var content_list: VBoxContainer = modal_dict["list"]
 	var overlay: Control = modal_dict["overlay"]
+
+	var header_row: HBoxContainer = modal_dict["vbox"].get_child(0) as HBoxContainer
+	if header_row:
+		var back_hub_btn := Button.new()
+		back_hub_btn.name = "MarketplaceBackBtn"
+		back_hub_btn.set_meta("reference_part", true)
+		back_hub_btn.text = "← Hub"
+		back_hub_btn.custom_minimum_size = Vector2(88, 48)
+		back_hub_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		back_hub_btn.add_theme_font_size_override("font_size", 18)
+		back_hub_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		back_hub_btn.add_theme_color_override("font_hover_color", border_color)
+
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+		back_style.border_color = border_color.darkened(0.35) if is_light else border_color
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		back_style.content_margin_left = 12
+		back_style.content_margin_right = 12
+		back_style.shadow_color = Color(0, 0, 0, 0.22)
+		back_style.shadow_size = 4
+		back_style.shadow_offset = Vector2(0, 2)
+
+		var back_hover := back_style.duplicate() as StyleBoxFlat
+		back_hover.border_color = border_color
+		back_hover.shadow_size = 6
+
+		var back_pressed := back_style.duplicate() as StyleBoxFlat
+		back_pressed.shadow_size = 1
+		back_pressed.shadow_offset = Vector2(0, 1)
+
+		back_hub_btn.add_theme_stylebox_override("normal", back_style)
+		back_hub_btn.add_theme_stylebox_override("hover", back_hover)
+		back_hub_btn.add_theme_stylebox_override("pressed", back_pressed)
+
+		back_hub_btn.pressed.connect(func():
+			preload("res://scripts/ui/panel_close.gd").dismiss(overlay, true, Callable(), modal_dict.card)
+			_show_shopping_modal()
+		)
+		header_row.add_child(back_hub_btn)
+		header_row.move_child(back_hub_btn, 0)
 
 	# Balance overview banner
 	var bal_card := PanelContainer.new()
@@ -15132,6 +15208,54 @@ func _show_shopping_modal() -> void:
 	var modal := _refresh_cyber_modal(shopping_modal_overlay, "🛍️ COMMERCIAL SHOPPING & DEALERSHIPS", "Vehicles, Properties, Fine Art, Antiques, Aircraft, Yachts & Luxury Valuables", Color("#38bdf8"))
 	shopping_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	var header_row: HBoxContainer = modal.vbox.get_child(0) as HBoxContainer
+	if header_row:
+		var existing_back := header_row.get_node_or_null("ShoppingBackBtn")
+		if existing_back:
+			existing_back.queue_free()
+
+		var back_btn := Button.new()
+		back_btn.name = "ShoppingBackBtn"
+		back_btn.set_meta("reference_part", true)
+		back_btn.text = "← Back"
+		back_btn.custom_minimum_size = Vector2(96, 48)
+		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		back_btn.add_theme_font_size_override("font_size", 18)
+		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		back_btn.add_theme_color_override("font_hover_color", Color("#38bdf8"))
+
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+		back_style.border_color = Color("#0284c7") if is_light else Color("#38bdf8")
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		back_style.content_margin_left = 14
+		back_style.content_margin_right = 14
+		back_style.shadow_color = Color(0, 0, 0, 0.22)
+		back_style.shadow_size = 4
+		back_style.shadow_offset = Vector2(0, 2)
+
+		var back_hover := back_style.duplicate() as StyleBoxFlat
+		back_hover.border_color = Color("#38bdf8")
+		back_hover.shadow_size = 6
+
+		var back_pressed := back_style.duplicate() as StyleBoxFlat
+		back_pressed.shadow_size = 1
+		back_pressed.shadow_offset = Vector2(0, 1)
+
+		back_btn.add_theme_stylebox_override("normal", back_style)
+		back_btn.add_theme_stylebox_override("hover", back_hover)
+		back_btn.add_theme_stylebox_override("pressed", back_pressed)
+
+		back_btn.pressed.connect(func():
+			preload("res://scripts/ui/panel_close.gd").dismiss(shopping_modal_overlay, true, Callable(), modal.card)
+			shopping_modal_overlay = null
+			show_tab("activities")
+		)
+		header_row.add_child(back_btn)
+		header_row.move_child(back_btn, 0)
 
 	var summary_card := PanelContainer.new()
 	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
@@ -15155,7 +15279,7 @@ func _show_shopping_modal() -> void:
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	funds_lbl.add_theme_font_size_override("font_size", 24)
-	funds_lbl.add_theme_color_override("font_color", Color("#f0f9ff"))
+	funds_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#f0f9ff"))
 	sv.add_child(funds_lbl)
 	list.add_child(summary_card)
 
@@ -15476,6 +15600,7 @@ func _show_pet_adoption_modal() -> void:
 	sv.add_theme_constant_override("separation", 10)
 	sm.add_child(sv)
 
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var funds_lbl := Label.new()
 	var total_funds: int = PlayerData.money + PlayerData.bank_savings
 	var pets_count: int = PlayerData.pets.size() if PlayerData.get("pets") is Array else 0
@@ -15485,7 +15610,7 @@ func _show_pet_adoption_modal() -> void:
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	funds_lbl.add_theme_font_size_override("font_size", 24)
-	funds_lbl.add_theme_color_override("font_color", Color("#f0fdf4"))
+	funds_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#f0fdf4"))
 	sv.add_child(funds_lbl)
 	list.add_child(summary_card)
 
@@ -15582,10 +15707,52 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 	var title: String = "🐕 CANINE RESCUE SHELTER" if is_dog else "🐈 FELINE HAVEN RESCUE SHELTER"
 	var subtitle: String = "Free Adoptions • Give Rescued Animals a Loving Forever Home"
 	var border_color: Color = Color("#10b981") if is_dog else Color("#06b6d4")
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, title, subtitle, border_color)
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+
+	var header_row: HBoxContainer = modal.vbox.get_child(0) as HBoxContainer
+	if header_row:
+		var back_btn := Button.new()
+		back_btn.name = "PetShelterBackBtn"
+		back_btn.set_meta("reference_part", true)
+		back_btn.text = "← Centers"
+		back_btn.custom_minimum_size = Vector2(96, 48)
+		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		back_btn.add_theme_font_size_override("font_size", 18)
+		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		back_btn.add_theme_color_override("font_hover_color", border_color)
+
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+		back_style.border_color = border_color.darkened(0.35) if is_light else border_color
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		back_style.content_margin_left = 12
+		back_style.content_margin_right = 12
+		back_style.shadow_color = Color(0, 0, 0, 0.22)
+		back_style.shadow_size = 4
+		back_style.shadow_offset = Vector2(0, 2)
+
+		var back_hover := back_style.duplicate() as StyleBoxFlat
+		back_hover.border_color = border_color
+		back_hover.shadow_size = 6
+
+		var back_pressed := back_style.duplicate() as StyleBoxFlat
+		back_pressed.shadow_size = 1
+		back_pressed.shadow_offset = Vector2(0, 1)
+
+		back_btn.add_theme_stylebox_override("normal", back_style)
+		back_btn.add_theme_stylebox_override("hover", back_hover)
+		back_btn.add_theme_stylebox_override("pressed", back_pressed)
+
+		back_btn.pressed.connect(func():
+			_show_pet_adoption_modal()
+		)
+		header_row.add_child(back_btn)
+		header_row.move_child(back_btn, 0)
 
 	var animals := PetManager.get_shelter_animals(shelter_type)
 	for a in animals:
@@ -15605,8 +15772,34 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [a["icon"], a["breed"], a["age_str"]]
 		head_lbl.add_theme_font_size_override("font_size", 24)
-		head_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
+
+		var img_path: String = str(a.get("image_path", ""))
+		if img_path == "":
+			img_path = PetManager.get_breed_image(str(a.get("breed", "")), "dog" if is_dog else "cat")
+
+		if img_path != "" and ResourceLoader.exists(img_path):
+			var img_center := CenterContainer.new()
+			img_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cv.add_child(img_center)
+
+			var img_frame := PanelContainer.new()
+			var img_frame_style := StyleBoxFlat.new()
+			img_frame_style.bg_color = Color("#e2edf8") if is_light else Color("#030712")
+			img_frame_style.border_color = border_color.darkened(0.35) if is_light else border_color.darkened(0.2)
+			img_frame_style.set_border_width_all(2)
+			img_frame_style.set_corner_radius_all(14)
+			img_frame.add_theme_stylebox_override("panel", img_frame_style)
+			img_center.add_child(img_frame)
+
+			var p_img := TextureRect.new()
+			p_img.custom_minimum_size = Vector2(280, 240)
+			p_img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			p_img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			p_img.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			p_img.texture = load(img_path)
+			img_frame.add_child(p_img)
 
 		var stats_lbl := Label.new()
 		stats_lbl.text = "❤️ Health: %d%%   •   😊 Happiness: %d%%   •   🥩 Upkeep: $%d/yr   •   Fee: FREE" % [
@@ -15615,7 +15808,7 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 			a["upkeep"]
 		]
 		stats_lbl.add_theme_font_size_override("font_size", 20)
-		stats_lbl.add_theme_color_override("font_color", Color("#4ade80"))
+		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
 		var pet_spec: Dictionary = a
@@ -15650,10 +15843,52 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 	var title: String = "🐶 CERTIFIED CANINE BREEDER" if is_dog else "🐱 CERTIFIED FELINE BREEDER"
 	var subtitle: String = "Registered Purebred Puppies & Kittens (Kitten/Puppy -> 1 y.o. Max)"
 	var border_color: Color = Color("#f59e0b") if is_dog else Color("#ec4899")
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, title, subtitle, border_color)
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+
+	var header_row: HBoxContainer = modal.vbox.get_child(0) as HBoxContainer
+	if header_row:
+		var back_btn := Button.new()
+		back_btn.name = "PetBreederBackBtn"
+		back_btn.set_meta("reference_part", true)
+		back_btn.text = "← Centers"
+		back_btn.custom_minimum_size = Vector2(96, 48)
+		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		back_btn.add_theme_font_size_override("font_size", 18)
+		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		back_btn.add_theme_color_override("font_hover_color", border_color)
+
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+		back_style.border_color = border_color.darkened(0.35) if is_light else border_color
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		back_style.content_margin_left = 12
+		back_style.content_margin_right = 12
+		back_style.shadow_color = Color(0, 0, 0, 0.22)
+		back_style.shadow_size = 4
+		back_style.shadow_offset = Vector2(0, 2)
+
+		var back_hover := back_style.duplicate() as StyleBoxFlat
+		back_hover.border_color = border_color
+		back_hover.shadow_size = 6
+
+		var back_pressed := back_style.duplicate() as StyleBoxFlat
+		back_pressed.shadow_size = 1
+		back_pressed.shadow_offset = Vector2(0, 1)
+
+		back_btn.add_theme_stylebox_override("normal", back_style)
+		back_btn.add_theme_stylebox_override("hover", back_hover)
+		back_btn.add_theme_stylebox_override("pressed", back_pressed)
+
+		back_btn.pressed.connect(func():
+			_show_pet_adoption_modal()
+		)
+		header_row.add_child(back_btn)
+		header_row.move_child(back_btn, 0)
 
 	var animals := PetManager.get_breeder_animals(breeder_type)
 	for a in animals:
@@ -15673,8 +15908,34 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 		var head_lbl := Label.new()
 		head_lbl.text = "%s Purebred %s • %s" % [a["icon"], a["breed"], a["age_str"]]
 		head_lbl.add_theme_font_size_override("font_size", 24)
-		head_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
+
+		var img_path: String = str(a.get("image_path", ""))
+		if img_path == "":
+			img_path = PetManager.get_breed_image(str(a.get("breed", "")), "dog" if is_dog else "cat")
+
+		if img_path != "" and ResourceLoader.exists(img_path):
+			var img_center := CenterContainer.new()
+			img_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			cv.add_child(img_center)
+
+			var img_frame := PanelContainer.new()
+			var img_frame_style := StyleBoxFlat.new()
+			img_frame_style.bg_color = Color("#e2edf8") if is_light else Color("#030712")
+			img_frame_style.border_color = border_color.darkened(0.35) if is_light else border_color.darkened(0.2)
+			img_frame_style.set_border_width_all(2)
+			img_frame_style.set_corner_radius_all(14)
+			img_frame.add_theme_stylebox_override("panel", img_frame_style)
+			img_center.add_child(img_frame)
+
+			var p_img := TextureRect.new()
+			p_img.custom_minimum_size = Vector2(280, 240)
+			p_img.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			p_img.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			p_img.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+			p_img.texture = load(img_path)
+			img_frame.add_child(p_img)
 
 		var price: int = int(a["price"])
 		var upkeep: int = int(a["upkeep"])
@@ -15685,7 +15946,7 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 			a["health"]
 		]
 		stats_lbl.add_theme_font_size_override("font_size", 20)
-		stats_lbl.add_theme_color_override("font_color", Color("#4ade80"))
+		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
 		var pet_spec: Dictionary = a
@@ -15724,6 +15985,48 @@ func _show_pet_store_modal() -> void:
 	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, "🐢 CRITTER CORNER EXOTIC PET STORE", "Turtles, Rats, Snakes, Rabbits, Birds & Ornamental Fish", Color("#8b5cf6"))
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	var header_row: HBoxContainer = modal.vbox.get_child(0) as HBoxContainer
+	if header_row:
+		var back_btn := Button.new()
+		back_btn.name = "PetStoreBackBtn"
+		back_btn.set_meta("reference_part", true)
+		back_btn.text = "← Centers"
+		back_btn.custom_minimum_size = Vector2(96, 48)
+		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		back_btn.add_theme_font_size_override("font_size", 18)
+		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		back_btn.add_theme_color_override("font_hover_color", Color("#8b5cf6"))
+
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+		back_style.border_color = Color("#8b5cf6").darkened(0.35) if is_light else Color("#8b5cf6")
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		back_style.content_margin_left = 12
+		back_style.content_margin_right = 12
+		back_style.shadow_color = Color(0, 0, 0, 0.22)
+		back_style.shadow_size = 4
+		back_style.shadow_offset = Vector2(0, 2)
+
+		var back_hover := back_style.duplicate() as StyleBoxFlat
+		back_hover.border_color = Color("#8b5cf6")
+		back_hover.shadow_size = 6
+
+		var back_pressed := back_style.duplicate() as StyleBoxFlat
+		back_pressed.shadow_size = 1
+		back_pressed.shadow_offset = Vector2(0, 1)
+
+		back_btn.add_theme_stylebox_override("normal", back_style)
+		back_btn.add_theme_stylebox_override("hover", back_hover)
+		back_btn.add_theme_stylebox_override("pressed", back_pressed)
+
+		back_btn.pressed.connect(func():
+			_show_pet_adoption_modal()
+		)
+		header_row.add_child(back_btn)
+		header_row.move_child(back_btn, 0)
 
 	var animals := PetManager.get_pet_store_animals()
 	for a in animals:
@@ -15743,7 +16046,7 @@ func _show_pet_store_modal() -> void:
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [a["icon"], a["species"], a["age_str"]]
 		head_lbl.add_theme_font_size_override("font_size", 24)
-		head_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
 
 		var price: int = int(a["price"])
@@ -15755,7 +16058,7 @@ func _show_pet_store_modal() -> void:
 			a["lifespan"]
 		]
 		stats_lbl.add_theme_font_size_override("font_size", 20)
-		stats_lbl.add_theme_color_override("font_color", Color("#4ade80"))
+		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
 		var pet_spec: Dictionary = a
@@ -15794,6 +16097,48 @@ func _show_pet_ranch_modal() -> void:
 	var modal := _refresh_cyber_modal(pet_adoption_modal_overlay, "🐎 HERITAGE EQUESTRIAN RANCH & STABLES", "Equestrian Purchases: Purebred Horses, Desert Arabians & Thoroughbreds", Color("#38bdf8"))
 	pet_adoption_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	var header_row: HBoxContainer = modal.vbox.get_child(0) as HBoxContainer
+	if header_row:
+		var back_btn := Button.new()
+		back_btn.name = "PetRanchBackBtn"
+		back_btn.set_meta("reference_part", true)
+		back_btn.text = "← Centers"
+		back_btn.custom_minimum_size = Vector2(96, 48)
+		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		back_btn.add_theme_font_size_override("font_size", 18)
+		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+		back_btn.add_theme_color_override("font_hover_color", Color("#38bdf8"))
+
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
+		back_style.border_color = Color("#38bdf8").darkened(0.35) if is_light else Color("#38bdf8")
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		back_style.content_margin_left = 12
+		back_style.content_margin_right = 12
+		back_style.shadow_color = Color(0, 0, 0, 0.22)
+		back_style.shadow_size = 4
+		back_style.shadow_offset = Vector2(0, 2)
+
+		var back_hover := back_style.duplicate() as StyleBoxFlat
+		back_hover.border_color = Color("#38bdf8")
+		back_hover.shadow_size = 6
+
+		var back_pressed := back_style.duplicate() as StyleBoxFlat
+		back_pressed.shadow_size = 1
+		back_pressed.shadow_offset = Vector2(0, 1)
+
+		back_btn.add_theme_stylebox_override("normal", back_style)
+		back_btn.add_theme_stylebox_override("hover", back_hover)
+		back_btn.add_theme_stylebox_override("pressed", back_pressed)
+
+		back_btn.pressed.connect(func():
+			_show_pet_adoption_modal()
+		)
+		header_row.add_child(back_btn)
+		header_row.move_child(back_btn, 0)
 
 	var horses := PetManager.get_ranch_horses()
 	for h in horses:
@@ -15813,7 +16158,7 @@ func _show_pet_ranch_modal() -> void:
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [h["icon"], h["breed"], h["age_str"]]
 		head_lbl.add_theme_font_size_override("font_size", 24)
-		head_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
 
 		var price: int = int(h["price"])
@@ -15825,7 +16170,7 @@ func _show_pet_ranch_modal() -> void:
 			h["health"]
 		]
 		stats_lbl.add_theme_font_size_override("font_size", 20)
-		stats_lbl.add_theme_color_override("font_color", Color("#4ade80"))
+		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
 		var pet_spec: Dictionary = h
