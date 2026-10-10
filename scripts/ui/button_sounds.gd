@@ -8,8 +8,7 @@ extends Node
 # 5. Activities (activities_button)
 
 const SAMPLE_RATE := 44100
-const VOLUME_DB := -10.0
-const DEBOUNCE_MS := 35
+const VOLUME_DB := -6.0
 
 var _player_overview: AudioStreamPlayer
 var _player_assets: AudioStreamPlayer
@@ -25,7 +24,8 @@ var _stream_relationships: AudioStreamWAV
 var _stream_activities: AudioStreamWAV
 var _stream_core: AudioStreamWAV
 
-var _last_press_ms: int = -1000
+var _last_press_usec: Dictionary = {}
+var _pending_release: Dictionary = {}
 
 
 func _ready() -> void:
@@ -56,7 +56,7 @@ func _make_player(player_name: String, sound: AudioStreamWAV) -> AudioStreamPlay
 	player.name = player_name
 	player.stream = sound
 	player.volume_db = VOLUME_DB
-	player.max_polyphony = 3
+	player.max_polyphony = 8
 	player.bus = "Master"
 	add_child(player)
 	return player
@@ -65,34 +65,69 @@ func _make_player(player_name: String, sound: AudioStreamWAV) -> AudioStreamPlay
 # -----------------------------------------------------------------------------
 # AUDIO PLAYBACK HANDLERS
 # -----------------------------------------------------------------------------
+func handle_button_down(button_type: String) -> void:
+	var norm_type: String = button_type.to_lower().strip_edges()
+	_pending_release[norm_type] = true
+	_play_sound_by_type(norm_type)
+
+
+func handle_button_press(button_type: String) -> void:
+	var norm_type: String = button_type.to_lower().strip_edges()
+	# If already played on button_down for this click, consume pending state and skip
+	if bool(_pending_release.get(norm_type, false)):
+		_pending_release[norm_type] = false
+		return
+	_play_sound_by_type(norm_type)
+
+
 func play_core_sound(button_type: String = "core") -> void:
+	var norm_type: String = button_type.to_lower().strip_edges()
+	# If button_down already played sound for this exact click, skip duplicate
+	if bool(_pending_release.get(norm_type, false)):
+		_pending_release[norm_type] = false
+		return
+	_play_sound_by_type(norm_type)
+
+
+func _play_sound_by_type(norm_type: String) -> void:
 	if AudioServer.is_bus_mute(0) or bool(LifeLibrary.data.get("muted", false)):
 		return
 
-	var now := Time.get_ticks_msec()
-	if now - _last_press_ms < DEBOUNCE_MS:
-		return
-	_last_press_ms = now
+	_ensure_web_audio_unlocked()
+	_last_press_usec[norm_type] = Time.get_ticks_usec()
 
-	match button_type.to_lower():
+	match norm_type:
 		"overview", "infant", "life":
-			if is_instance_valid(_player_overview):
-				_player_overview.play()
+			_play_player(_player_overview)
 		"assets", "asset":
-			if is_instance_valid(_player_assets):
-				_player_assets.play()
+			_play_player(_player_assets)
 		"age", "age_up", "ageup":
-			if is_instance_valid(_player_age):
-				_player_age.play()
+			_play_player(_player_age)
 		"relationships", "rel", "relationship":
-			if is_instance_valid(_player_relationships):
-				_player_relationships.play()
+			_play_player(_player_relationships)
 		"activities", "act", "activity":
-			if is_instance_valid(_player_activities):
-				_player_activities.play()
+			_play_player(_player_activities)
 		_:
-			if is_instance_valid(_player_core):
-				_player_core.play()
+			_play_player(_player_core)
+
+
+func _play_player(player: AudioStreamPlayer) -> void:
+	if not is_instance_valid(player) or not player.is_inside_tree():
+		return
+	player.play()
+
+
+func _ensure_web_audio_unlocked() -> void:
+	if OS.has_feature("web") and OS.has_feature("JavaScript"):
+		JavaScriptBridge.eval("""
+			try {
+				if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+					if (window.__godot_audio_ctx && window.__godot_audio_ctx.state === 'suspended') {
+						window.__godot_audio_ctx.resume();
+					}
+				}
+			} catch(e) {}
+		""")
 
 
 func play_overview() -> void:
@@ -120,7 +155,7 @@ func play_core_click() -> void:
 
 
 # -----------------------------------------------------------------------------
-# WIRING HELPER FOR THE 5 CORE BUTTONS
+# WIRING HELPER FOR THE 5 CORE BUTTONS (Dual down + press for 100% trigger rate)
 # -----------------------------------------------------------------------------
 func wire_core_buttons(
 	infant_btn: Button,
@@ -129,30 +164,30 @@ func wire_core_buttons(
 	rel_btn: Button,
 	act_btn: Button
 ) -> void:
-	if is_instance_valid(infant_btn):
-		var cb := func(): play_core_sound("overview")
-		if not infant_btn.pressed.is_connected(cb):
-			infant_btn.pressed.connect(cb)
+	_wire_btn(infant_btn, "overview")
+	_wire_btn(assets_btn, "assets")
+	_wire_btn(age_btn, "age")
+	_wire_btn(rel_btn, "relationships")
+	_wire_btn(act_btn, "activities")
 
-	if is_instance_valid(assets_btn):
-		var cb := func(): play_core_sound("assets")
-		if not assets_btn.pressed.is_connected(cb):
-			assets_btn.pressed.connect(cb)
 
-	if is_instance_valid(age_btn):
-		var cb := func(): play_core_sound("age")
-		if not age_btn.pressed.is_connected(cb):
-			age_btn.pressed.connect(cb)
+func _wire_btn(btn: Button, sound_type: String) -> void:
+	if not is_instance_valid(btn):
+		return
+	var down_cb := Callable(self, "_on_btn_down").bind(sound_type)
+	if not btn.button_down.is_connected(down_cb):
+		btn.button_down.connect(down_cb)
+	var press_cb := Callable(self, "_on_btn_press").bind(sound_type)
+	if not btn.pressed.is_connected(press_cb):
+		btn.pressed.connect(press_cb)
 
-	if is_instance_valid(rel_btn):
-		var cb := func(): play_core_sound("relationships")
-		if not rel_btn.pressed.is_connected(cb):
-			rel_btn.pressed.connect(cb)
 
-	if is_instance_valid(act_btn):
-		var cb := func(): play_core_sound("activities")
-		if not act_btn.pressed.is_connected(cb):
-			act_btn.pressed.connect(cb)
+func _on_btn_down(sound_type: String) -> void:
+	handle_button_down(sound_type)
+
+
+func _on_btn_press(sound_type: String) -> void:
+	handle_button_press(sound_type)
 
 
 # -----------------------------------------------------------------------------

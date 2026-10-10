@@ -60,7 +60,7 @@ func _ready() -> void:
 		assert(p != null, "AudioStreamPlayer '%s' must exist in ButtonSounds" % p_name)
 		assert(p.stream != null, "AudioStreamPlayer '%s' must have an assigned AudioStream" % p_name)
 		assert(p.stream is AudioStreamWAV, "Stream must be AudioStreamWAV")
-		assert(p.max_polyphony >= 2, "Player must have polyphony >= 2")
+		assert(p.max_polyphony >= 4, "Player must have polyphony >= 4 for rapid clicks (got %d)" % p.max_polyphony)
 		assert(p.bus == "Master", "Player bus must be Master")
 		print("  ✔ Player '%s': volume=%.1fdB, polyphony=%d, bus=%s, data_size=%d bytes" % [
 			p_name, p.volume_db, p.max_polyphony, p.bus, p.stream.data.size()
@@ -86,7 +86,7 @@ func _ready() -> void:
 	print("✅ CHECK 3 PASSED: In-memory procedural synthesis verified for zero-dependency execution.")
 	
 	# -------------------------------------------------------------
-	# 4. AUDIT 5 CORE BUTTONS IN MAIN SCREEN SCENE
+	# 4. AUDIT 5 CORE BUTTONS IN MAIN_SCREEN SCENE
 	# -------------------------------------------------------------
 	print("\n--- 4. AUDITING 5 CORE BUTTONS IN MAIN_SCREEN SCENE ---")
 	var main_scene_res = load("res://scenes/main/main_screen.tscn")
@@ -127,68 +127,96 @@ func _ready() -> void:
 	print("\n--- 5. AUDITING SOUND PLAYBACK ON CLICK ---")
 	
 	# Test 5.1: Life Overview Button
+	main_scene.infant_button.button_down.emit()
 	main_scene._on_infant_button_pressed()
 	await get_tree().process_frame
-	assert(ms_sounds._player_overview.playing or ms_sounds._last_press_ms > 0, "Overview sound must trigger")
+	assert(ms_sounds._last_press_usec.get("overview", 0) > 0, "Overview sound must trigger")
 	print("  ✔ Life Overview button click triggered Overview sound")
 	
-	# Small delay to clear debounce
-	OS.delay_msec(45)
-	
 	# Test 5.2: Assets Button
+	main_scene.assets_button.button_down.emit()
 	main_scene._on_assets_button_pressed()
 	await get_tree().process_frame
-	assert(ms_sounds._player_assets.playing or ms_sounds._last_press_ms > 0, "Assets sound must trigger")
+	assert(ms_sounds._last_press_usec.get("assets", 0) > 0, "Assets sound must trigger")
 	print("  ✔ Assets button click triggered Assets sound")
-	
-	OS.delay_msec(45)
 	
 	# Test 5.3: Age Up Button
 	var cur_age = PlayerData.age
+	main_scene.age_button.button_down.emit()
 	main_scene._on_age_button_pressed()
 	await get_tree().process_frame
-	assert(ms_sounds._player_age.playing or ms_sounds._last_press_ms > 0, "Age Up sound must trigger")
+	assert(ms_sounds._last_press_usec.get("age", 0) > 0, "Age Up sound must trigger")
 	assert(PlayerData.age == cur_age + 1, "Age up must advance age")
 	print("  ✔ Age Up button click triggered Age Up sound and aged player to %d" % PlayerData.age)
 	
-	OS.delay_msec(45)
-	
 	# Test 5.4: Relationships Button
+	main_scene.relationships_button.button_down.emit()
 	main_scene._on_relationships_button_pressed()
 	await get_tree().process_frame
-	assert(ms_sounds._player_relationships.playing or ms_sounds._last_press_ms > 0, "Relationships sound must trigger")
+	assert(ms_sounds._last_press_usec.get("relationships", 0) > 0, "Relationships sound must trigger")
 	print("  ✔ Relationships button click triggered Relationships sound")
 	
-	OS.delay_msec(45)
-	
 	# Test 5.5: Activities Button
+	main_scene.activities_button.button_down.emit()
 	main_scene._on_activities_button_pressed()
 	await get_tree().process_frame
-	assert(ms_sounds._player_activities.playing or ms_sounds._last_press_ms > 0, "Activities sound must trigger")
+	assert(ms_sounds._last_press_usec.get("activities", 0) > 0, "Activities sound must trigger")
 	print("  ✔ Activities button click triggered Activities sound")
 	
 	print("✅ CHECK 5 PASSED: Sound playback successfully verified for all 5 core buttons when clicked.")
 	
 	# -------------------------------------------------------------
-	# 6. AUDIT SETTINGS MUTE COMPLIANCE
+	# 6. AUDIT RAPID REPEATED CLICKING (NO DROPPED SOUNDS)
 	# -------------------------------------------------------------
-	print("\n--- 6. AUDITING MUTE SETTINGS INTEGRATION ---")
-	OS.delay_msec(45)
-	var time_before = ms_sounds._last_press_ms
+	print("\n--- 6. AUDITING RAPID REPEATED CLICKS (EVERY CLICK MUST TRIGGER) ---")
+	var prev_trigger_time = 0
+	for tap_idx in range(5):
+		await get_tree().process_frame
+		if main_scene.event_overlay != null and main_scene.event_overlay.visible:
+			main_scene.event_overlay.visible = false
+			main_scene.age_button.disabled = false
+			main_scene.current_event = null
+		main_scene.age_button.button_down.emit()
+		main_scene._on_age_button_pressed()
+		var trigger_time = ms_sounds._last_press_usec.get("age", 0)
+		assert(trigger_time > prev_trigger_time, "Rapid Age tap #%d must trigger sound effect!" % (tap_idx + 1))
+		prev_trigger_time = trigger_time
+		print("  ✔ Rapid Age tap #%d successfully triggered sound (timestamp: %d)" % [tap_idx + 1, trigger_time])
+		
+	# Rapid switching between buttons
+	var button_keys := ["overview", "assets", "relationships", "activities", "age"]
+	for b_name in button_keys:
+		await get_tree().process_frame
+		var btn: Button = core_buttons[b_name]
+		var before_time = ms_sounds._last_press_usec.get(b_name, 0)
+		btn.button_down.emit()
+		btn.pressed.emit()
+		var after_time = ms_sounds._last_press_usec.get(b_name, 0)
+		assert(after_time > before_time, "Switch tap on '%s' must trigger sound effect!" % b_name)
+		print("  ✔ Switch tap on '%s' successfully triggered sound" % b_name)
+		
+	print("✅ CHECK 6 PASSED: Verified sound triggers EVERY TIME for rapid clicks and tab switches.")
+	
+	# -------------------------------------------------------------
+	# 7. AUDIT SETTINGS MUTE COMPLIANCE
+	# -------------------------------------------------------------
+	print("\n--- 7. AUDITING MUTE SETTINGS INTEGRATION ---")
+	await get_tree().process_frame
+	var time_before = ms_sounds._last_press_usec.get("overview", 0)
 	LifeLibrary.data.muted = true
 	main_scene._play_core_button_sound("overview")
-	assert(ms_sounds._last_press_ms == time_before, "Sound must NOT play when muted in LifeLibrary!")
+	assert(ms_sounds._last_press_usec.get("overview", 0) == time_before, "Sound must NOT play when muted in LifeLibrary!")
 	
 	LifeLibrary.data.muted = false
 	AudioServer.set_bus_mute(0, true)
 	main_scene._play_core_button_sound("overview")
-	assert(ms_sounds._last_press_ms == time_before, "Sound must NOT play when Master bus is muted!")
+	assert(ms_sounds._last_press_usec.get("overview", 0) == time_before, "Sound must NOT play when Master bus is muted!")
 	
 	AudioServer.set_bus_mute(0, false)
-	OS.delay_msec(45)
+	await get_tree().process_frame
 	main_scene._play_core_button_sound("overview")
-	assert(ms_sounds._last_press_ms > time_before, "Sound plays normally when unmuted.")
-	print("✅ CHECK 6 PASSED: Mute settings compliance verified.")
+	assert(ms_sounds._last_press_usec.get("overview", 0) > time_before, "Sound plays normally when unmuted.")
+	print("✅ CHECK 7 PASSED: Mute settings compliance verified.")
 	
 	print("\n⭐⭐⭐ ALL 5 CORE BUTTON SOUND EFFECT AUDITS PASSED PERFECTLY! ⭐⭐⭐")
 	get_tree().quit(0)

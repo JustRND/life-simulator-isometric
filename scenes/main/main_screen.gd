@@ -16142,6 +16142,7 @@ func _on_age_btn_exit() -> void:
 
 
 func _on_age_btn_down() -> void:
+	_play_core_button_sound("age")
 	var art := age_button.get_node_or_null("AgeArtwork") as TextureRect
 	if art != null:
 		var tween := create_tween()
