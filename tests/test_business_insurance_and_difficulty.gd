@@ -304,29 +304,19 @@ func _ready() -> void:
 	check(int(profit_biz["treasury"]) > prev_treasury, "Corporate treasury received retained earnings after tax and owner payout")
 
 	# -------------------------------------------------------------
-	# 8. TEST FUNDS PANEL UI (NET WORTH, VALUATION, TREASURY CONDITIONAL VISIBILITY)
+	# 8. TEST FUNDS PANEL UI (REVERTED: CASH & BANK BALANCE ONLY)
 	# -------------------------------------------------------------
-	print("\n--- 8. Testing Funds Panel HUD (Net Worth & Conditional Biz Display) ---")
-	# Scenario A: Player owns businesses -> Valuation and Treasury MUST be shown
+	print("\n--- 8. Testing Funds Panel HUD (Cash & Bank Balance Display) ---")
+	PlayerData.money = 2500
+	PlayerData.bank_savings = 80000
 	main_scene.update_ui()
-	var bal_text_with_biz: String = main_scene.balance_label.text
-	print("BalanceLabel text with business:\n%s" % bal_text_with_biz)
-	check("CASH" in bal_text_with_biz, "Funds panel displays CASH")
-	check("BANK" in bal_text_with_biz, "Funds panel displays BANK")
-	check("NET WORTH" in bal_text_with_biz, "Funds panel displays NET WORTH")
-	check("VALUATION" in bal_text_with_biz, "Funds panel displays VALUATION when owning business")
-	check("TREASURY" in bal_text_with_biz, "Funds panel displays TREASURY when owning business")
-
-	# Scenario B: Player does NOT own any business -> Valuation and Treasury MUST be HIDDEN
-	PlayerData.owned_businesses.clear()
-	main_scene.update_ui()
-	var bal_text_no_biz: String = main_scene.balance_label.text
-	print("BalanceLabel text without business:\n%s" % bal_text_no_biz)
-	check("CASH" in bal_text_no_biz, "Funds panel displays CASH without business")
-	check("BANK" in bal_text_no_biz, "Funds panel displays BANK without business")
-	check("NET WORTH" in bal_text_no_biz, "Funds panel displays NET WORTH without business")
-	check(not ("VALUATION" in bal_text_no_biz), "Funds panel HIDES VALUATION when player has no business")
-	check(not ("TREASURY" in bal_text_no_biz), "Funds panel HIDES TREASURY when player has no business")
+	var bal_text: String = main_scene.balance_label.text
+	print("BalanceLabel text:\n%s" % bal_text)
+	check("CASH" in bal_text, "Funds panel displays CASH")
+	check("BANK" in bal_text, "Funds panel displays BANK")
+	check(not ("NET WORTH" in bal_text), "Funds panel does NOT display NET WORTH (reverted to original)")
+	check(not ("VALUATION" in bal_text), "Funds panel does NOT display VALUATION")
+	check(not ("TREASURY" in bal_text), "Funds panel does NOT display TREASURY")
 
 	# Clean up
 	main_scene.queue_free()
