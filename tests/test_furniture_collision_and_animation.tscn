@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bfurniture_anim_test_001"]
+
+[ext_resource type="Script" path="res://tests/test_furniture_collision_and_animation.gd" id="1_test"]
+
+[node name="TestFurnitureCollisionAndAnimation" type="Node"]
+script = ExtResource("1_test")

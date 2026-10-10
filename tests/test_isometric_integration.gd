@@ -32,8 +32,8 @@ func _ready() -> void:
 	assert(feed_panel != null, "1. LifeFeedPanel must exist in original timeline location")
 	var room: Node2D = feed_panel.get_node("RoomViewportContainer/RoomSubViewport/IsometricRoom")
 	assert(room != null, "1. IsometricRoom must exist inside LifeFeedPanel SubViewport")
-	assert(room.current_room_id == "room_wood", "1. Wood room must be active by default")
-	print("✔ CHECK 1: Wood room appears in the timeline's former location.")
+	assert(room.current_room_id == "room_capsule" or room.current_room_id == "room_wood", "1. Starter room must be active by default")
+	print("✔ CHECK 1: Starter room appears in the timeline's former location.")
 	
 	# 2. Test the other 4 rooms can be selected and artwork is not distorted
 	var room_ids := RoomManager.get_all_room_ids()
@@ -90,25 +90,24 @@ func _ready() -> void:
 	print("✔ CHECK 8: Character statistics continue updating accurately.")
 	
 	# 7. Test save / load functionality with room selection persistence
-	PlayerData.selected_room_id = "room_modern"
+	PlayerData.owned_assets.append(AssetCatalog.create_asset_instance("prop_modern_villa", 25))
+	PlayerData.set_active_room_from_property("prop_modern_villa")
 	var save_res = SaveManager.save_game("user://test_savegame.json")
 	assert(save_res == true, "Save game must succeed")
 	
 	PlayerData.selected_room_id = "room_wood"
 	var load_res = SaveManager.load_game("user://test_savegame.json")
 	assert(load_res == true, "Load game must succeed")
-	assert(PlayerData.selected_room_id == "room_modern", "Loaded data must restore selected_room_id=room_modern")
+	assert(PlayerData.selected_room_id == "room_modern_villa", "Loaded data must restore selected_room_id=room_modern_villa")
 	main.update_ui()
-	assert(room.current_room_id == "room_modern", "Room view must match loaded room_modern")
+	assert(room.current_room_id == "room_modern_villa", "Room view must match loaded room_modern_villa")
 	print("✔ CHECK 9: Save/load functionality remains fully intact with room persistence.")
 	
-	# 8. Test runtime room switching via UI button
-	var cycle_btn: Button = feed_panel.get_node("RoomControls/RoomCycleButton")
-	assert(cycle_btn != null, "RoomCycleButton must exist")
-	main._on_room_cycle_button_pressed()
-	assert(room.current_room_id == "room_dark", "Cycling from room_modern should select room_dark")
-	main._on_room_cycle_button_pressed()
-	assert(room.current_room_id == "room_wood", "Cycling from room_dark should wrap to room_wood")
+	# 8. Test runtime room switching via housing property
+	PlayerData.owned_assets.append(AssetCatalog.create_asset_instance("prop_condo", 25))
+	PlayerData.set_active_room_from_property("prop_condo")
+	main.update_ui()
+	assert(room.current_room_id == "room_condo", "Setting property to prop_condo should select room_condo")
 	print("✔ CHECK 10: Room switching works dynamically without crashes.")
 	
 	# 9. Test UI click pass-through

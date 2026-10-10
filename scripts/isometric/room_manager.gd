@@ -266,3 +266,187 @@ static func get_all_room_ids() -> Array[String]:
 
 static func clear_cache() -> void:
 	_texture_cache.clear()
+
+# -----------------------------------------------------------------------------
+# FURNITURE COLLISION & INTERACTION CATALOG
+# -----------------------------------------------------------------------------
+
+const ARCHETYPE_MAP: Dictionary = {
+	"room_capsule": "capsule",
+	"room_tenement": "tenement",
+	"room_brick": "tenement",
+	"room_studio": "studio",
+	"room_dark": "studio",
+	"room_condo": "condo",
+	"room_modern_villa": "condo",
+	"room_modern": "condo",
+	"room_harbor_duplex": "condo",
+	"room_penthouse": "condo",
+	"room_cyber_mansion": "condo",
+	"room_megatower_apex": "condo",
+	"room_orbital": "condo",
+	"room_cottage": "cottage",
+	"room_suburban_split": "suburban_split",
+	"room_carpet": "suburban_split",
+	"room_desert_estate": "suburban_split",
+	"room_cliffside_compound": "suburban_split",
+	"room_townhouse": "townhouse",
+	"room_historic_brownstone": "townhouse",
+	"room_chateau": "townhouse",
+	"room_eco_timber": "eco_timber",
+	"room_beachfront": "eco_timber",
+	"room_private_island": "eco_timber",
+	"room_house": "house",
+	"room_cabin": "cabin",
+	"room_alpine_chalet": "cabin",
+	"room_ranch": "cabin",
+	"room_wood": "cabin"
+}
+
+const ARCHETYPE_OBSTACLES: Dictionary = {
+	"capsule": [
+		Rect2(-420, 20, 240, 240),   # Bed
+		Rect2(-130, -120, 220, 85),  # Study desk
+		Rect2(210, -30, 190, 140),   # Bookcase
+		Rect2(320, 90, 180, 170)     # Armchair
+	],
+	"tenement": [
+		Rect2(90, 50, 340, 200),     # Leather sofa
+		Rect2(-320, 10, 180, 160),   # Turntable & vinyl table
+		Rect2(-460, 110, 160, 150)   # Cast-iron radiator
+	],
+	"studio": [
+		Rect2(-430, 30, 260, 240),   # Loft bed
+		Rect2(130, 30, 280, 190)     # Work desk
+	],
+	"condo": [
+		Rect2(-240, -40, 380, 230),  # Platform king bed
+		Rect2(-40, 260, 280, 140),   # Modern sofa
+		Rect2(-460, 60, 170, 170)    # Media console & TV
+	],
+	"cottage": [
+		Rect2(-160, 60, 210, 190),   # Floral armchair
+		Rect2(160, 20, 290, 200),    # Stone fireplace
+		Rect2(-360, 100, 140, 140)   # Tea table
+	],
+	"suburban_split": [
+		Rect2(80, 80, 330, 250),     # L-shaped sectional couch
+		Rect2(-440, -10, 190, 150)   # TV console
+	],
+	"townhouse": [
+		Rect2(20, 60, 180, 180),     # Wingback chair
+		Rect2(240, 0, 210, 250)      # Mahogany bookcase
+	],
+	"eco_timber": [
+		Rect2(-380, 40, 230, 180),   # Timber desk
+		Rect2(10, 60, 170, 170)      # Lounge chair
+	],
+	"house": [
+		Rect2(-140, -20, 350, 210),  # Master bed
+		Rect2(260, 40, 230, 190),    # Vanity dresser
+		Rect2(-420, 80, 170, 170)    # Reading armchair
+	],
+	"cabin": [
+		Rect2(150, 30, 280, 210),    # Stone fireplace
+		Rect2(-140, 60, 190, 180)    # Leather armchair
+	]
+}
+
+const ARCHETYPE_INTERACTIONS: Dictionary = {
+	"capsule": [
+		{"id": "armchair", "pos": Vector2(380, 170), "facing": -1, "action": "sit", "label": "Armchair", "pose_y_offset": 8.0, "duration": 10.0},
+		{"id": "desk", "pos": Vector2(-20, 30), "facing": -1, "action": "sit", "label": "Study Desk", "pose_y_offset": 6.0, "duration": 9.0},
+		{"id": "bed", "pos": Vector2(-290, 130), "facing": 1, "action": "rest", "label": "Bed", "pose_y_offset": 10.0, "duration": 12.0},
+		{"id": "window", "pos": Vector2(240, 60), "facing": 1, "action": "look", "label": "Window", "pose_y_offset": 0.0, "duration": 7.0},
+		{"id": "rug", "pos": Vector2(60, 250), "facing": 0, "action": "relax", "label": "Rug", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"tenement": [
+		{"id": "sofa_left", "pos": Vector2(180, 140), "facing": -1, "action": "sit", "label": "Leather Sofa", "pose_y_offset": 8.0, "duration": 11.0},
+		{"id": "sofa_right", "pos": Vector2(300, 190), "facing": -1, "action": "sit", "label": "Leather Sofa", "pose_y_offset": 8.0, "duration": 11.0},
+		{"id": "records", "pos": Vector2(-210, 110), "facing": -1, "action": "listen", "label": "Record Player", "pose_y_offset": 0.0, "duration": 8.0},
+		{"id": "radiator", "pos": Vector2(-320, 190), "facing": -1, "action": "warm", "label": "Radiator", "pose_y_offset": 0.0, "duration": 7.0},
+		{"id": "rug", "pos": Vector2(-30, 280), "facing": 1, "action": "relax", "label": "Persian Rug", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"studio": [
+		{"id": "desk", "pos": Vector2(210, 120), "facing": -1, "action": "sit", "label": "Workstation", "pose_y_offset": 6.0, "duration": 9.0},
+		{"id": "bed", "pos": Vector2(-270, 130), "facing": 1, "action": "rest", "label": "Loft Bed", "pose_y_offset": 10.0, "duration": 12.0},
+		{"id": "window", "pos": Vector2(-100, 10), "facing": -1, "action": "look", "label": "Loft Window", "pose_y_offset": 0.0, "duration": 7.0},
+		{"id": "mat", "pos": Vector2(10, 260), "facing": 0, "action": "relax", "label": "Floor Mat", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"condo": [
+		{"id": "sofa", "pos": Vector2(90, 310), "facing": -1, "action": "sit", "label": "Modern Sofa", "pose_y_offset": 8.0, "duration": 10.0},
+		{"id": "bed", "pos": Vector2(-40, 50), "facing": 1, "action": "rest", "label": "Platform Bed", "pose_y_offset": 10.0, "duration": 12.0},
+		{"id": "balcony", "pos": Vector2(370, 180), "facing": 1, "action": "look", "label": "City Skyline", "pose_y_offset": 0.0, "duration": 8.0},
+		{"id": "tv", "pos": Vector2(-260, 170), "facing": -1, "action": "look", "label": "TV Screen", "pose_y_offset": 0.0, "duration": 8.0}
+	],
+	"cottage": [
+		{"id": "armchair", "pos": Vector2(-60, 140), "facing": 1, "action": "sit", "label": "Floral Armchair", "pose_y_offset": 8.0, "duration": 12.0},
+		{"id": "hearth", "pos": Vector2(160, 150), "facing": 1, "action": "warm", "label": "Fireplace", "pose_y_offset": 0.0, "duration": 8.0},
+		{"id": "tea_table", "pos": Vector2(-230, 170), "facing": -1, "action": "sit", "label": "Tea Table", "pose_y_offset": 6.0, "duration": 8.0},
+		{"id": "rug", "pos": Vector2(0, 300), "facing": 0, "action": "relax", "label": "Braided Rug", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"suburban_split": [
+		{"id": "sectional_left", "pos": Vector2(160, 190), "facing": -1, "action": "sit", "label": "Sectional Sofa", "pose_y_offset": 8.0, "duration": 10.0},
+		{"id": "sectional_right", "pos": Vector2(270, 240), "facing": -1, "action": "sit", "label": "Sectional Sofa", "pose_y_offset": 8.0, "duration": 10.0},
+		{"id": "tv", "pos": Vector2(-220, 120), "facing": -1, "action": "look", "label": "OLED TV", "pose_y_offset": 0.0, "duration": 8.0},
+		{"id": "rug", "pos": Vector2(-20, 240), "facing": 0, "action": "relax", "label": "Modern Rug", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"townhouse": [
+		{"id": "wingback", "pos": Vector2(110, 140), "facing": -1, "action": "sit", "label": "Wingback Chair", "pose_y_offset": 8.0, "duration": 11.0},
+		{"id": "books", "pos": Vector2(250, 180), "facing": 1, "action": "read", "label": "Bookcase", "pose_y_offset": 0.0, "duration": 9.0},
+		{"id": "bay_window", "pos": Vector2(-210, 150), "facing": -1, "action": "look", "label": "Bay Window", "pose_y_offset": 0.0, "duration": 7.0},
+		{"id": "parquet", "pos": Vector2(-30, 290), "facing": 0, "action": "relax", "label": "Parquet Floor", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"eco_timber": [
+		{"id": "desk", "pos": Vector2(-210, 130), "facing": -1, "action": "sit", "label": "Timber Desk", "pose_y_offset": 6.0, "duration": 9.0},
+		{"id": "lounge", "pos": Vector2(90, 140), "facing": -1, "action": "sit", "label": "Lounge Chair", "pose_y_offset": 8.0, "duration": 10.0},
+		{"id": "balcony", "pos": Vector2(320, 180), "facing": 1, "action": "look", "label": "Ocean Vista", "pose_y_offset": 0.0, "duration": 8.0},
+		{"id": "deck", "pos": Vector2(20, 290), "facing": 0, "action": "relax", "label": "Bamboo Deck", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"house": [
+		{"id": "bed", "pos": Vector2(30, 70), "facing": -1, "action": "rest", "label": "King Bed", "pose_y_offset": 10.0, "duration": 12.0},
+		{"id": "armchair", "pos": Vector2(-300, 160), "facing": 1, "action": "sit", "label": "Armchair", "pose_y_offset": 8.0, "duration": 9.0},
+		{"id": "vanity", "pos": Vector2(320, 160), "facing": 1, "action": "groom", "label": "Vanity", "pose_y_offset": 0.0, "duration": 7.0},
+		{"id": "carpet", "pos": Vector2(-30, 300), "facing": 0, "action": "relax", "label": "Plush Carpet", "pose_y_offset": 4.0, "duration": 8.0}
+	],
+	"cabin": [
+		{"id": "armchair", "pos": Vector2(-40, 130), "facing": 1, "action": "sit", "label": "Hearth Chair", "pose_y_offset": 8.0, "duration": 11.0},
+		{"id": "hearth", "pos": Vector2(170, 150), "facing": 1, "action": "warm", "label": "Stone Fireplace", "pose_y_offset": 0.0, "duration": 8.0},
+		{"id": "window", "pos": Vector2(-260, 170), "facing": -1, "action": "look", "label": "Alpine Window", "pose_y_offset": 0.0, "duration": 7.0},
+		{"id": "rug", "pos": Vector2(20, 280), "facing": 0, "action": "relax", "label": "Woven Rug", "pose_y_offset": 4.0, "duration": 8.0}
+	]
+}
+
+static func get_room_archetype(room_id: String) -> String:
+	var key := room_id
+	if key.begins_with("prop_"):
+		key = get_room_id_for_property(key)
+	if ARCHETYPE_MAP.has(key):
+		return ARCHETYPE_MAP[key]
+	return "capsule"
+
+static func get_obstacles_for_room(room_id: String) -> Array[Rect2]:
+	var arch := get_room_archetype(room_id)
+	if ARCHETYPE_OBSTACLES.has(arch):
+		var res: Array[Rect2] = []
+		for item in ARCHETYPE_OBSTACLES[arch]:
+			res.append(item)
+		return res
+	return []
+
+static func get_interaction_spots_for_room(room_id: String) -> Array[Dictionary]:
+	var arch := get_room_archetype(room_id)
+	if ARCHETYPE_INTERACTIONS.has(arch):
+		var res: Array[Dictionary] = []
+		for item in ARCHETYPE_INTERACTIONS[arch]:
+			res.append(item.duplicate())
+		return res
+	return []
+
+static func is_point_obstructed(room_id: String, pt: Vector2, margin: float = 12.0) -> bool:
+	var obstacles := get_obstacles_for_room(room_id)
+	for rect in obstacles:
+		if rect.grow(margin).has_point(pt):
+			return true
+	return false
+

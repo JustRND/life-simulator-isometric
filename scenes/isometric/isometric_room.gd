@@ -76,6 +76,14 @@ func set_room(room_id: String) -> void:
 		walkable_area.polygon = data["walkable_polygon"]
 		
 	_rebuild_triangulation()
+	_spot_occupants.clear()
+	
+	if characters:
+		for ch in characters.get_children():
+			if ch.has_method("on_room_changed"):
+				ch.call("on_room_changed")
+			elif not is_point_walkable(ch.position):
+				ch.position = get_random_walkable_point()
 
 func _ensure_character() -> void:
 	if not characters:
@@ -365,7 +373,45 @@ func update_character() -> void:
 	_ensure_partner()
 	_ensure_siblings()
 
+var _spot_occupants: Dictionary = {}
+
+func get_available_interaction_spots() -> Array[Dictionary]:
+	var all_spots := RoomManager.get_interaction_spots_for_room(current_room_id)
+	var available: Array[Dictionary] = []
+	for spot in all_spots:
+		var s_id: String = str(spot.get("id", ""))
+		if not _spot_occupants.has(s_id):
+			available.append(spot)
+	return available
+
+func reserve_interaction_spot(spot_id: String, character: Node2D) -> bool:
+	if not _spot_occupants.has(spot_id) or _spot_occupants[spot_id] == character:
+		_spot_occupants[spot_id] = character
+		return true
+	return false
+
+func release_interaction_spot(spot_id: String, character: Node2D) -> void:
+	if _spot_occupants.get(spot_id) == character:
+		_spot_occupants.erase(spot_id)
+
+func get_all_characters() -> Array[Node2D]:
+	var result: Array[Node2D] = []
+	if characters:
+		for ch in characters.get_children():
+			if ch is Node2D:
+				result.append(ch)
+	return result
+
 func is_point_walkable(pt: Vector2) -> bool:
+	if not walkable_area or walkable_area.polygon.size() < 3:
+		return false
+	if not Geometry2D.is_point_in_polygon(pt, walkable_area.polygon):
+		return false
+	if RoomManager.is_point_obstructed(current_room_id, pt, 6.0):
+		return false
+	return true
+
+func is_point_in_floor_bounds(pt: Vector2) -> bool:
 	if not walkable_area or walkable_area.polygon.size() < 3:
 		return false
 	return Geometry2D.is_point_in_polygon(pt, walkable_area.polygon)
@@ -397,25 +443,30 @@ func get_random_walkable_point() -> Vector2:
 	if _cached_triangles.is_empty():
 		_rebuild_triangulation()
 	if _cached_triangles.is_empty():
-		return Vector2(0, 200)
+		return Vector2(0, 240)
 		
-	var r: float = randf() * _total_polygon_area
-	var accumulated: float = 0.0
-	var chosen_tri = _cached_triangles[0]
-	for idx in range(_cached_triangles.size()):
-		accumulated += _triangle_areas[idx]
-		if r <= accumulated:
-			chosen_tri = _cached_triangles[idx]
-			break
+	for attempt in range(35):
+		var r: float = randf() * _total_polygon_area
+		var accumulated: float = 0.0
+		var chosen_tri = _cached_triangles[0]
+		for idx in range(_cached_triangles.size()):
+			accumulated += _triangle_areas[idx]
+			if r <= accumulated:
+				chosen_tri = _cached_triangles[idx]
+				break
+				
+		var a: Vector2 = chosen_tri[0]
+		var b: Vector2 = chosen_tri[1]
+		var c: Vector2 = chosen_tri[2]
+		
+		var r1 := randf()
+		var r2 := randf()
+		if r1 + r2 > 1.0:
+			r1 = 1.0 - r1
+			r2 = 1.0 - r2
 			
-	var a: Vector2 = chosen_tri[0]
-	var b: Vector2 = chosen_tri[1]
-	var c: Vector2 = chosen_tri[2]
-	
-	var r1 := randf()
-	var r2 := randf()
-	if r1 + r2 > 1.0:
-		r1 = 1.0 - r1
-		r2 = 1.0 - r2
-		
-	return a + r1 * (b - a) + r2 * (c - a)
+		var cand: Vector2 = a + r1 * (b - a) + r2 * (c - a)
+		if is_point_walkable(cand):
+			return cand
+			
+	return Vector2(0, 240)
