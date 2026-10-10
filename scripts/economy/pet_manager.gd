@@ -230,7 +230,14 @@ static func get_ranch_horses() -> Array[Dictionary]:
 	return list
 
 
-static func adopt_pet(player_data: Node, pet_spec: Dictionary, custom_name: String = "", enforce_annual_limit: bool = false) -> Dictionary:
+static func adopt_pet(
+	player_data: Node,
+	pet_spec: Dictionary,
+	custom_name: String = "",
+	enforce_annual_limit: bool = false,
+	apply_default_buffs: bool = true,
+	set_annual_cooldown: bool = true
+) -> Dictionary:
 	if enforce_annual_limit:
 		var last_adopt_age = player_data.get("last_pet_adoption_age")
 		if last_adopt_age != null and int(last_adopt_age) == player_data.age:
@@ -246,8 +253,19 @@ static func adopt_pet(player_data: Node, pet_spec: Dictionary, custom_name: Stri
 
 	var final_name := custom_name.strip_edges()
 	if final_name == "":
-		var default_names := ["Barnaby", "Luna", "Milo", "Bella", "Charlie", "Daisy", "Oliver", "Simba", "Coco", "Shadow", "Penny", "Thor"]
-		final_name = default_names[randi() % default_names.size()]
+		if pet_spec.has("name") and str(pet_spec["name"]).strip_edges() != "":
+			final_name = str(pet_spec["name"]).strip_edges()
+		else:
+			var p_type: String = str(pet_spec.get("type", "pet")).to_lower()
+			if p_type == "dog":
+				var dog_names := ["Barnaby", "Buddy", "Lucky", "Milo", "Bella", "Charlie", "Daisy", "Coco", "Shadow", "Penny", "Thor", "Scruffy", "Rusty", "Buster", "Max", "Rocky"]
+				final_name = dog_names[randi() % dog_names.size()]
+			elif p_type == "cat":
+				var cat_names := ["Luna", "Milo", "Oliver", "Simba", "Coco", "Shadow", "Cleo", "Mochi", "Felix", "Whiskers", "Smokey", "Jasper", "Pepper", "Mittens"]
+				final_name = cat_names[randi() % cat_names.size()]
+			else:
+				var default_names := ["Barnaby", "Luna", "Milo", "Bella", "Charlie", "Daisy", "Oliver", "Simba", "Coco", "Shadow", "Penny", "Thor"]
+				final_name = default_names[randi() % default_names.size()]
 
 	if not player_data.get("pets") is Array:
 		player_data.set("pets", [])
@@ -274,32 +292,47 @@ static func adopt_pet(player_data: Node, pet_spec: Dictionary, custom_name: Stri
 	}
 
 	player_data.pets.append(new_pet)
-	player_data.last_pet_adoption_age = player_data.age
-	player_data.happiness = mini(100, player_data.happiness + 15)
+	if set_annual_cooldown:
+		player_data.last_pet_adoption_age = player_data.age
 
-	var log_desc := ""
-	if price == 0:
-		player_data.karma = mini(100, player_data.karma + 6)
-		log_desc = "🐾 RESCUE ADOPTION: You adopted a loving %s (%s) from the %s for free! (+15 Happiness)." % [
-			new_pet.breed,
-			final_name,
-			new_pet.source
-		]
-	else:
-		log_desc = "🐾 PET PURCHASE: You welcomed your new %s (%s) from the %s for $%d! (+15 Happiness)." % [
-			new_pet.breed,
-			final_name,
-			new_pet.source,
-			price
-		]
-
-	player_data.add_life_log_entry(log_desc, "milestone")
+	if apply_default_buffs:
+		player_data.happiness = mini(100, player_data.happiness + 15)
+		var log_desc := ""
+		if price == 0:
+			player_data.karma = mini(100, player_data.karma + 6)
+			log_desc = "🐾 RESCUE ADOPTION: You adopted a loving %s (%s) from the %s for free! (+15 Happiness)." % [
+				new_pet.breed,
+				final_name,
+				new_pet.source
+			]
+		else:
+			log_desc = "🐾 PET PURCHASE: You welcomed your new %s (%s) from the %s for $%d! (+15 Happiness)." % [
+				new_pet.breed,
+				final_name,
+				new_pet.source,
+				price
+			]
+		player_data.add_life_log_entry(log_desc, "milestone")
 
 	return {
 		"success": true,
 		"message": "Welcome home, %s! %s is thrilled to be part of your family." % [final_name, final_name],
 		"pet": new_pet
 	}
+
+
+static func rename_pet(player_data: Node, pet_id: String, new_name: String) -> Dictionary:
+	var clean := new_name.strip_edges()
+	if clean == "":
+		return {"success": false, "message": "Name cannot be empty."}
+	if not player_data.get("pets") is Array:
+		return {"success": false, "message": "No pets found."}
+	for pet in player_data.pets:
+		if str(pet.get("id", "")) == pet_id:
+			var old_name: String = str(pet.get("name", "Companion"))
+			pet["name"] = clean
+			return {"success": true, "message": "You renamed %s to %s." % [old_name, clean]}
+	return {"success": false, "message": "Pet not found."}
 
 
 static func interact_pet(player_data: Node, pet_id: String, action: String) -> Dictionary:

@@ -307,6 +307,19 @@
           "happiness": 6,
           "money": -80
         },
+        "adopt_pet": {
+          "type": "dog",
+          "species": "Rescued Stray Puppy",
+          "breed": "Rescued Puppy",
+          "source": "Street Rescue",
+          "age": 1,
+          "price": 0,
+          "upkeep": 140,
+          "icon": "🐶",
+          "health": 85,
+          "happiness": 90,
+          "lifespan": 14
+        },
         "result": "You nursed the puppy back to health! Your family adopted him, and he became your loyal companion."
       },
       {
@@ -2181,6 +2194,19 @@
           "money": -120,
           "happiness": 14,
           "karma": 10
+        },
+        "adopt_pet": {
+          "type": "cat",
+          "species": "Rescued Stray Kitten",
+          "breed": "Rescued Kitten",
+          "source": "Storm Rescue",
+          "age": 1,
+          "price": 0,
+          "upkeep": 110,
+          "icon": "🐱",
+          "health": 85,
+          "happiness": 90,
+          "lifespan": 16
         },
         "result": "You dried the purring kitten with a fluffy towel, bought food and bowls, and gained a devoted, affectionate lifelong companion."
       },

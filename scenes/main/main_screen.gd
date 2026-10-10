@@ -1761,6 +1761,50 @@ func choose_event_option(choice_index: int) -> void:
 	if current_event.has("candidate"):
 		result_text = RomanceRules.date_result(PlayerData, current_event.candidate, bool(choice.get("accept_date", false)), randf())
 
+	# Pet adoption check from event choice
+	var pet_spec_to_adopt: Dictionary = {}
+	if choice.has("adopt_pet") and choice["adopt_pet"] is Dictionary:
+		pet_spec_to_adopt = Dictionary(choice["adopt_pet"]).duplicate(true)
+	elif event_id == "stray_dog_rescue" and (choice.get("text", "").to_lower().contains("adopt") or choice.get("text", "").to_lower().contains("bandage")):
+		pet_spec_to_adopt = {
+			"type": "dog",
+			"species": "Rescued Stray Puppy",
+			"breed": "Rescued Puppy",
+			"source": "Street Rescue",
+			"age": 1,
+			"price": 0,
+			"upkeep": 140,
+			"icon": "🐶",
+			"health": 85,
+			"happiness": 90,
+			"lifespan": 14
+		}
+	elif event_id == "stray_kitten_in_storm" and choice.get("text", "").to_lower().contains("adopt"):
+		pet_spec_to_adopt = {
+			"type": "cat",
+			"species": "Rescued Stray Kitten",
+			"breed": "Rescued Kitten",
+			"source": "Storm Rescue",
+			"age": 1,
+			"price": 0,
+			"upkeep": 110,
+			"icon": "🐱",
+			"health": 85,
+			"happiness": 90,
+			"lifespan": 16
+		}
+
+	if not pet_spec_to_adopt.is_empty():
+		var adopt_res := PetManager.adopt_pet(PlayerData, pet_spec_to_adopt, "", false, false, false)
+		if bool(adopt_res.get("success", false)) and adopt_res.has("pet"):
+			var adopted_pet: Dictionary = adopt_res["pet"]
+			var p_name: String = str(adopted_pet.get("name", "Companion"))
+			var p_breed: String = str(adopted_pet.get("breed", "Pet"))
+			var p_icon: String = str(adopted_pet.get("icon", "🐾"))
+			result_text += "\n\n%s COMPANION ADOPTED: %s the %s joined your home! You can now care for, play with, and bond with %s in the Assets tab." % [
+				p_icon, p_name, p_breed, p_name
+			]
+
 	# Asset insurance claim / loss checks for relevant events
 	if event_id == "event_intersection_carjacking" and choice_index == 1:
 		var cars := PlayerData.get_owned_assets_by_category("cars")
@@ -1790,7 +1834,12 @@ func choose_event_option(choice_index: int) -> void:
 			result_text += "\n\n🛡️ INSURANCE CLAIM: First National Pixel Bank Property Insurance reimbursed the $3,200 in stolen household possessions!"
 
 	if result_text != "":
-		add_life_event(result_text, "family" if current_event.has("unplanned_pregnancy") else ("relationship" if current_event.has("candidate") else "event"))
+		var event_kind: String = "event"
+		if current_event.has("unplanned_pregnancy"):
+			event_kind = "family"
+		elif current_event.has("candidate") or not pet_spec_to_adopt.is_empty():
+			event_kind = "relationship"
+		add_life_event(result_text, event_kind)
 
 	PlayerData.record_event(event_id)
 
@@ -1798,6 +1847,7 @@ func choose_event_option(choice_index: int) -> void:
 	current_event_choices.clear()
 	hide_event_popup()
 	update_ui()
+	update_assets_panel()
 	SaveManager.save_game()
 
 	# Unpredictable fatality / accident death check
@@ -3135,6 +3185,58 @@ func _render_owned_pets_section() -> void:
 				btn_vet.modulate = Color(0.6, 0.6, 0.6, 0.7)
 				btn_vet.tooltip_text = "Completed for Age %d (Wait until next year)" % PlayerData.age
 			act_h.add_child(btn_vet)
+
+			var rename_box := VBoxContainer.new()
+			rename_box.visible = false
+			rename_box.add_theme_constant_override("separation", 6)
+
+			var rename_edit := LineEdit.new()
+			rename_edit.text = p_name
+			rename_edit.placeholder_text = "Enter new pet name..."
+			rename_edit.custom_minimum_size.y = 44
+			rename_edit.add_theme_font_size_override("font_size", 19)
+			if has_node("OptionsMenu"):
+				get_node("OptionsMenu")._style_input(rename_edit)
+			MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % p_name)
+			rename_box.add_child(rename_edit)
+
+			var rename_btn_row := HBoxContainer.new()
+			rename_btn_row.add_theme_constant_override("separation", 8)
+			var btn_save_name := _create_cyber_button("💾 Save Name", Color("#10b981"), func():
+				var new_n := rename_edit.text.strip_edges()
+				if new_n != "":
+					var r := PetManager.rename_pet(PlayerData, pet_id, new_n)
+					if bool(r.get("success", false)):
+						add_life_event(str(r.get("message", "Pet renamed.")), "relationship")
+						update_ui()
+						SaveManager.save_game()
+						update_assets_panel()
+			)
+			btn_save_name.custom_minimum_size.y = 40
+			btn_save_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_save_name.add_theme_font_size_override("font_size", 17)
+			rename_btn_row.add_child(btn_save_name)
+
+			var btn_cancel_name := _create_cyber_button("✖ Cancel", Color("#64748b"), func():
+				rename_box.visible = false
+			)
+			btn_cancel_name.custom_minimum_size.y = 40
+			btn_cancel_name.add_theme_font_size_override("font_size", 17)
+			rename_btn_row.add_child(btn_cancel_name)
+			rename_box.add_child(rename_btn_row)
+			pv.add_child(rename_box)
+
+			var sec_h := HBoxContainer.new()
+			sec_h.add_theme_constant_override("separation", 10)
+			pv.add_child(sec_h)
+
+			var btn_rename := _create_cyber_button("✏️ Rename Pet", Color("#8b5cf6"), func():
+				rename_box.visible = not rename_box.visible
+			)
+			btn_rename.custom_minimum_size.y = 40
+			btn_rename.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_rename.add_theme_font_size_override("font_size", 17)
+			sec_h.add_child(btn_rename)
 
 	assets_list.add_child(section_card)
 
