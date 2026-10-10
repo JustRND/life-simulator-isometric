@@ -8074,53 +8074,91 @@ func _show_freelance_modal() -> void:
 # -----------------------------------------------------------------------------
 # COMMERCIAL BUSINESSES & ENTERPRISE SYSTEM
 # -----------------------------------------------------------------------------
-func _show_business_modal(initial_tab: String = "", selected_uid: String = "") -> void:
-	if business_category_modal_overlay != null and is_instance_valid(business_category_modal_overlay):
+func _show_business_modal(initial_tab: String = "", selected_uid: String = "", preserve_scroll: bool = false) -> void:
+	if business_category_modal_overlay != null and is_instance_valid(business_category_modal_overlay) and business_category_modal_overlay != business_modal_overlay:
 		business_category_modal_overlay.queue_free()
+		business_category_modal_overlay = null
 
-	var modal := _refresh_cyber_modal(business_modal_overlay, "🏢 ENTERPRISES & COMMERCIAL VENTURES", "Found Companies, Manage Corporate Financials, Pay Taxes & Scale Ventures", Color("#f59e0b"))
+	var tab: String = initial_tab
+	if tab == "" or tab == "financials":
+		if selected_uid != "":
+			tab = "treasury"
+		else:
+			tab = "enterprises" if PlayerData.owned_businesses.size() > 0 else "incorporate"
+
+	var prev_scroll: int = 0
+	if preserve_scroll and is_instance_valid(business_modal_overlay) and business_modal_overlay.has_meta("modal_view"):
+		var prev_view: Dictionary = business_modal_overlay.get_meta("modal_view")
+		if is_instance_valid(prev_view.get("scroll")):
+			prev_scroll = prev_view.scroll.scroll_vertical
+
+	var target_biz: Dictionary = {}
+	if tab == "treasury":
+		if selected_uid != "":
+			for b in PlayerData.owned_businesses:
+				if str(b.get("uid", "")) == selected_uid:
+					target_biz = b
+					break
+		if target_biz.is_empty() and not PlayerData.owned_businesses.is_empty():
+			target_biz = PlayerData.owned_businesses[0]
+		if target_biz.is_empty():
+			tab = "enterprises"
+
+	var modal_title := "🏢 ENTERPRISES & COMMERCIAL VENTURES"
+	var modal_subtitle := "Found Companies, Manage Corporate Financials, Pay Taxes & Scale Ventures"
+	if tab == "treasury" and not target_biz.is_empty():
+		var b_name: String = str(target_biz.get("name", "Enterprise"))
+		var b_icon: String = str(target_biz.get("icon", "🏢"))
+		modal_title = "%s %s • TREASURY" % [b_icon, b_name.to_upper()]
+		modal_subtitle = "Dedicated Corporate Treasury, Balance Sheet, Loans & Dividends"
+
+	var modal := _refresh_cyber_modal(business_modal_overlay, modal_title, modal_subtitle, Color("#f59e0b"))
 	business_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
-	var tab: String = initial_tab
-	if tab == "":
-		tab = "enterprises" if PlayerData.owned_businesses.size() > 0 else "incorporate"
-
-	# Top Tab Bar (Pinned above scroll container)
-	var tab_bar := HBoxContainer.new()
-	tab_bar.add_theme_constant_override("separation", 10)
-	tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-	var btn_tab_ent := _create_cyber_button("📊 My Enterprises (%d)" % PlayerData.owned_businesses.size(), Color("#f59e0b") if tab == "enterprises" else Color("#475569"), func():
-		_show_business_modal("enterprises", selected_uid)
-	)
-	btn_tab_ent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_tab_ent.custom_minimum_size.y = 50
-	btn_tab_ent.add_theme_font_size_override("font_size", 18)
-	btn_tab_ent.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tab_bar.add_child(btn_tab_ent)
-
-	var btn_tab_inc := _create_cyber_button("🚀 Incorporate (7 Sectors)", Color("#f59e0b") if tab == "incorporate" else Color("#475569"), func():
-		_show_business_modal("incorporate", selected_uid)
-	)
-	btn_tab_inc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_tab_inc.custom_minimum_size.y = 50
-	btn_tab_inc.add_theme_font_size_override("font_size", 18)
-	btn_tab_inc.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tab_bar.add_child(btn_tab_inc)
-
-	if not PlayerData.owned_businesses.is_empty():
-		var btn_tab_fin := _create_cyber_button("💰 Financials & Loans", Color("#f59e0b") if tab == "financials" else Color("#475569"), func():
-			_show_business_modal("financials", selected_uid)
+	if tab == "treasury" and not target_biz.is_empty():
+		# Pinned Navigation Header above scroll container
+		var nav_bar := HBoxContainer.new()
+		nav_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var back_btn := _create_cyber_button("← Back to My Enterprises", Color("#f59e0b"), func():
+			_show_business_modal("enterprises")
 		)
-		btn_tab_fin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_tab_fin.custom_minimum_size.y = 50
-		btn_tab_fin.add_theme_font_size_override("font_size", 18)
-		btn_tab_fin.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		tab_bar.add_child(btn_tab_fin)
+		back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		back_btn.custom_minimum_size.y = 48
+		back_btn.add_theme_font_size_override("font_size", 19)
+		back_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		back_btn.set_meta("center_text", true)
+		nav_bar.add_child(back_btn)
 
-	modal.vbox.add_child(tab_bar)
-	modal.vbox.move_child(tab_bar, 2)
+		modal.vbox.add_child(nav_bar)
+		modal.vbox.move_child(nav_bar, 2)
+	else:
+		# Top Tab Bar (Pinned above scroll container) - STRICTLY 2 TABS
+		var tab_bar := HBoxContainer.new()
+		tab_bar.add_theme_constant_override("separation", 10)
+		tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+		var btn_tab_ent := _create_cyber_button("📊 My Enterprises (%d)" % PlayerData.owned_businesses.size(), Color("#f59e0b") if tab == "enterprises" else Color("#475569"), func():
+			_show_business_modal("enterprises")
+		)
+		btn_tab_ent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_tab_ent.custom_minimum_size.y = 50
+		btn_tab_ent.add_theme_font_size_override("font_size", 19)
+		btn_tab_ent.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tab_bar.add_child(btn_tab_ent)
+
+		var cat_count: int = BusinessManager.get_categories().size()
+		var btn_tab_inc := _create_cyber_button("🚀 Incorporate (%d Sectors)" % cat_count, Color("#f59e0b") if tab == "incorporate" else Color("#475569"), func():
+			_show_business_modal("incorporate")
+		)
+		btn_tab_inc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_tab_inc.custom_minimum_size.y = 50
+		btn_tab_inc.add_theme_font_size_override("font_size", 19)
+		btn_tab_inc.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tab_bar.add_child(btn_tab_inc)
+
+		modal.vbox.add_child(tab_bar)
+		modal.vbox.move_child(tab_bar, 2)
 
 	# Content based on tab
 	match tab:
@@ -8128,12 +8166,18 @@ func _show_business_modal(initial_tab: String = "", selected_uid: String = "") -
 			_render_business_tab_enterprises(list)
 		"incorporate":
 			_render_business_tab_incorporate(list)
-		"financials":
-			_render_business_tab_financials(list, selected_uid)
+		"treasury":
+			_render_business_dedicated_treasury(list, target_biz)
 
 	business_modal_overlay.visible = true
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(business_modal_overlay)
+
+	if prev_scroll > 0 and is_instance_valid(modal.scroll):
+		get_tree().process_frame.connect(func():
+			if is_instance_valid(modal.scroll):
+				modal.scroll.scroll_vertical = prev_scroll
+		, CONNECT_ONE_SHOT)
 
 
 func _render_business_tab_enterprises(list: VBoxContainer) -> void:
@@ -8262,7 +8306,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		cv.add_child(stats_lbl)
 
 		var btn_fin := _create_cyber_button("💰 Treasury & Financials", Color("#f59e0b"), func():
-			_show_business_modal("financials", uid)
+			_show_business_modal("treasury", uid)
 		)
 		btn_fin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_fin.custom_minimum_size.y = 50
@@ -8274,8 +8318,58 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		var actions_row := HBoxContainer.new()
 		actions_row.add_theme_constant_override("separation", 8)
 
+		var rename_box := VBoxContainer.new()
+		rename_box.visible = false
+		rename_box.add_theme_constant_override("separation", 6)
+
+		var rename_edit := LineEdit.new()
+		rename_edit.text = b_name
+		rename_edit.placeholder_text = "Enter new enterprise name..."
+		rename_edit.custom_minimum_size.y = 48
+		rename_edit.add_theme_font_size_override("font_size", 20)
+		get_node("OptionsMenu")._style_input(rename_edit)
+		MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % b_name)
+		rename_box.add_child(rename_edit)
+
+		var rename_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(rename_edit, "⌨️ Type New Business Name", "Enter new name for %s:" % b_name, Color("#3b82f6"))
+		rename_kb_btn.custom_minimum_size.y = 44
+		rename_kb_btn.add_theme_font_size_override("font_size", 18)
+		rename_box.add_child(rename_kb_btn)
+
+		var rename_btn_row := HBoxContainer.new()
+		rename_btn_row.add_theme_constant_override("separation", 8)
+		var btn_save_name := _create_cyber_button("💾 Save", Color("#10b981"), func():
+			var new_n := rename_edit.text.strip_edges()
+			if new_n != "":
+				var r := BusinessManager.rename_business(uid, new_n)
+				if bool(r.get("success", false)):
+					add_life_event(str(r.get("message", "Enterprise name updated.")), "activity")
+					update_ui()
+					SaveManager.save_game()
+					_show_business_modal("enterprises", uid, true)
+		)
+		btn_save_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_save_name.custom_minimum_size.y = 44
+		btn_save_name.add_theme_font_size_override("font_size", 18)
+		btn_save_name.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_save_name.set_meta("center_text", true)
+		rename_btn_row.add_child(btn_save_name)
+
+		var btn_cancel_name := _create_cyber_button("Cancel", Color("#64748b"), func():
+			rename_box.visible = false
+		)
+		btn_cancel_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_cancel_name.custom_minimum_size.y = 44
+		btn_cancel_name.add_theme_font_size_override("font_size", 18)
+		btn_cancel_name.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_cancel_name.set_meta("center_text", true)
+		rename_btn_row.add_child(btn_cancel_name)
+		rename_box.add_child(rename_btn_row)
+
 		var btn_rename := _create_cyber_button("✏️ Rename", Color("#3b82f6"), func():
-			_show_rename_business_modal(b)
+			rename_box.visible = not rename_box.visible
+			if rename_box.visible:
+				rename_edit.grab_focus()
 		)
 		btn_rename.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rename.custom_minimum_size.y = 48
@@ -8289,7 +8383,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 			add_life_event(str(r.get("message", "Staff hired.")), "activity")
 			update_ui()
 			SaveManager.save_game()
-			_show_business_modal("enterprises", uid)
+			_show_business_modal("enterprises", uid, true)
 		)
 		btn_hire.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_hire.custom_minimum_size.y = 48
@@ -8303,7 +8397,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 			add_life_event(str(r.get("message", "Business sold.")), "finance")
 			update_ui()
 			SaveManager.save_game()
-			_show_business_modal("enterprises")
+			_show_business_modal("enterprises", "", true)
 		)
 		btn_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_sell.custom_minimum_size.y = 48
@@ -8313,6 +8407,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		actions_row.add_child(btn_sell)
 
 		cv.add_child(actions_row)
+		cv.add_child(rename_box)
 		list.add_child(card)
 
 
@@ -8370,36 +8465,30 @@ func _render_business_tab_incorporate(list: VBoxContainer) -> void:
 
 
 func _show_business_category_modal(category_id: String) -> void:
-	if business_modal_overlay != null and is_instance_valid(business_modal_overlay):
-		business_modal_overlay.queue_free()
-
 	var cat: Dictionary = BusinessManager.get_category_by_id(category_id)
 	var cat_name: String = str(cat.get("name", "Commercial Sector"))
 	var cat_icon: String = str(cat.get("icon", "🏢"))
 	var cat_desc_text: String = str(cat.get("description", "Enterprise incorporation and commercial ventures."))
 	var cat_color: Color = Color(cat.get("color", "#f59e0b"))
 
-	var modal := _refresh_cyber_modal(business_category_modal_overlay, "%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
-	business_category_modal_overlay = modal.overlay
+	var modal := _refresh_cyber_modal(business_modal_overlay, "%s %s" % [cat_icon, cat_name.to_upper()], cat_desc_text, cat_color)
+	business_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 
-	var close_btn: Button = modal.get("close_btn")
-	if close_btn != null:
-		close_btn.pressed.connect(func():
-			if is_instance_valid(business_category_modal_overlay):
-				business_category_modal_overlay.queue_free()
-			_show_business_modal("incorporate")
-		)
-
-	# Back to Enterprise Sectors Button
+	# Pinned Back to Enterprise Sectors Button
+	var nav_bar := HBoxContainer.new()
+	nav_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var back_btn := _create_cyber_button("← Back to Enterprise Sectors", cat_color, func():
-		if is_instance_valid(business_category_modal_overlay):
-			business_category_modal_overlay.queue_free()
 		_show_business_modal("incorporate")
 	)
-	back_btn.custom_minimum_size.y = 70
-	back_btn.add_theme_font_size_override("font_size", 24)
-	list.add_child(back_btn)
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back_btn.custom_minimum_size.y = 48
+	back_btn.add_theme_font_size_override("font_size", 19)
+	back_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	back_btn.set_meta("center_text", true)
+	nav_bar.add_child(back_btn)
+	modal.vbox.add_child(nav_bar)
+	modal.vbox.move_child(nav_bar, 2)
 
 	# Businesses in this category
 	var category_businesses: Array = BusinessManager.get_businesses_in_category(category_id)
@@ -8525,9 +8614,7 @@ func _show_business_category_modal(category_id: String) -> void:
 						add_life_event("🚀 ENTERPRISE INCORPORATED: Congratulations! '%s' has been officially incorporated under state charter. Business treasury seeded with $10,000 working capital." % registered_name, "milestone")
 						update_ui()
 						SaveManager.save_game()
-						if is_instance_valid(business_category_modal_overlay):
-							business_category_modal_overlay.queue_free()
-						_show_business_modal("financials", str(b_data.get("uid", "")))
+						_show_business_modal("treasury", str(b_data.get("uid", "")))
 					else:
 						add_life_event(str(res.get("reason", "Could not incorporate.")), "activity")
 				)
@@ -8547,9 +8634,7 @@ func _show_business_category_modal(category_id: String) -> void:
 					add_life_event("⚠️ UNLICENSED ENTERPRISE OPENED: You launched '%s' WITHOUT a commercial license! Operating without a license is a crime and risks audits, lawsuits, closures, and prison sentences!" % registered_name, "crime")
 					update_ui()
 					SaveManager.save_game()
-					if is_instance_valid(business_category_modal_overlay):
-						business_category_modal_overlay.queue_free()
-					_show_business_modal("financials", str(b_data.get("uid", "")))
+					_show_business_modal("treasury", str(b_data.get("uid", "")))
 				else:
 					add_life_event(str(res.get("reason", "Could not operate.")), "activity")
 			)
@@ -8571,54 +8656,42 @@ func _show_business_category_modal(category_id: String) -> void:
 
 		list.add_child(card)
 
-	business_category_modal_overlay.visible = true
+	business_modal_overlay.visible = true
 	if has_node("ThemeController"):
-		get_node("ThemeController").apply_subtree(business_category_modal_overlay)
+		get_node("ThemeController").apply_subtree(business_modal_overlay)
 
 
 func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) -> void:
-	if PlayerData.owned_businesses.is_empty():
-		_render_business_tab_enterprises(list)
-		return
-
-	# Find targeted enterprise
 	var target_biz: Dictionary = {}
 	if selected_uid != "":
 		for b in PlayerData.owned_businesses:
 			if str(b.get("uid", "")) == selected_uid:
 				target_biz = b
 				break
-	if target_biz.is_empty():
+	if target_biz.is_empty() and not PlayerData.owned_businesses.is_empty():
 		target_biz = PlayerData.owned_businesses[0]
+	if target_biz.is_empty():
+		_render_business_tab_enterprises(list)
+		return
+	_render_business_dedicated_treasury(list, target_biz)
 
+
+func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictionary) -> void:
 	var cur_uid: String = str(target_biz.get("uid", ""))
 	var b_name: String = str(target_biz.get("name", "Enterprise"))
 	var b_icon: String = str(target_biz.get("icon", "🏢"))
+	var treasury: int = int(target_biz.get("treasury", 0))
+	var val: int = int(target_biz.get("valuation", 0))
+	var rev: int = int(target_biz.get("annual_revenue", 0))
+	var opex: int = int(target_biz.get("annual_opex", 0))
+	var net_p: int = int(target_biz.get("net_profit", 0))
+	var unpaid_tax: int = int(target_biz.get("unpaid_taxes", 0))
+	var cur_loan: int = int(target_biz.get("loan_balance", 0))
+	var branches: int = int(target_biz.get("branches", 1))
+	var fac_tier: int = int(target_biz.get("facility_tier", 1))
+	var employees: int = int(target_biz.get("employees", 4))
 
-	# Multi-business selector (horizontal scrollable tab bar so it never forces wide cards)
-	if PlayerData.owned_businesses.size() > 1:
-		var sel_scroll := ScrollContainer.new()
-		sel_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-		sel_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		sel_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		sel_scroll.custom_minimum_size.y = 52
-		_apply_translucent_scrollbar_to_node(sel_scroll)
-		var sel_row := HBoxContainer.new()
-		sel_row.add_theme_constant_override("separation", 8)
-		for ob in PlayerData.owned_businesses:
-			var ob_uid: String = str(ob.get("uid", ""))
-			var ob_name: String = str(ob.get("name", "Business"))
-			var is_curr: bool = (ob_uid == cur_uid)
-			var b_btn := _create_cyber_button(ob_name, Color("#f59e0b") if is_curr else Color("#334155"), func():
-				_show_business_modal("financials", ob_uid)
-			)
-			b_btn.custom_minimum_size.y = 44
-			b_btn.add_theme_font_size_override("font_size", 18)
-			sel_row.add_child(b_btn)
-		sel_scroll.add_child(sel_row)
-		list.add_child(sel_scroll)
-
-	# Entity Separation Banner
+	# 1. Entity Separation Banner
 	var sep_card := PanelContainer.new()
 	sep_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0284c7")))
 	var sm := MarginContainer.new()
@@ -8651,7 +8724,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	sv.add_child(sdesc)
 	list.add_child(sep_card)
 
-	# 1. Financial Statement Card
+	# 2. Corporate Balance Sheet Card
 	var fin_card := PanelContainer.new()
 	fin_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
 	var fm := MarginContainer.new()
@@ -8672,20 +8745,17 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	f_title.add_theme_color_override("font_color", Color("#ffffff"))
 	fv.add_child(f_title)
 
-	var treasury: int = int(target_biz.get("treasury", 0))
-	var val: int = int(target_biz.get("valuation", 0))
-	var rev: int = int(target_biz.get("annual_revenue", 0))
-	var opex: int = int(target_biz.get("annual_opex", 0))
-	var net_p: int = int(target_biz.get("net_profit", 0))
 	var p_str := ("+$%s" % _format_number(net_p)) if net_p >= 0 else ("-$%s" % _format_number(abs(net_p)))
-
 	var f_body := Label.new()
-	f_body.text = "• Corporate Treasury (Business Cash): $%s\n• Enterprise Market Valuation: $%s\n• Annual Gross Revenue: $%s\n• Annual Operating Expenses (OpEx): $%s\n• Net Operating Profit / Loss: %s" % [
+	f_body.text = "• Corporate Treasury (Business Cash): $%s\n• Enterprise Market Valuation: $%s\n• Annual Gross Revenue: $%s\n• Annual Operating Expenses (OpEx): $%s\n• Net Operating Profit / Loss: %s\n• Operational Branches: %d  •  Automation: Grade %d  •  Staff: %d" % [
 		_format_number(treasury),
 		_format_number(val),
 		_format_number(rev),
 		_format_number(opex),
-		p_str
+		p_str,
+		branches,
+		fac_tier,
+		employees
 	]
 	f_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	f_body.add_theme_font_size_override("font_size", 22)
@@ -8693,9 +8763,8 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	fv.add_child(f_body)
 	list.add_child(fin_card)
 
-	# 2. Corporate Tax Payment Section
+	# 3. Corporate Tax Compliance Section
 	var tax_card := PanelContainer.new()
-	var unpaid_tax: int = int(target_biz.get("unpaid_taxes", 0))
 	tax_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#ef4444") if unpaid_tax > 0 else Color("#10b981")))
 	var tm := MarginContainer.new()
 	tm.add_theme_constant_override("margin_left", 20)
@@ -8716,7 +8785,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	tv.add_child(t_title)
 
 	var total_biz_count := PlayerData.owned_businesses.size()
-	var cur_tax_rate := BusinessManager.get_corporate_tax_rate(total_biz_count, int(target_biz.get("net_profit", 0)))
+	var cur_tax_rate := BusinessManager.get_corporate_tax_rate(total_biz_count, net_p)
 	var t_desc := Label.new()
 	t_desc.text = "Corporate Tax Rate: %d%% (Scaling with %d owned enterprises)\nUnpaid Corporate Taxes: $%s (Last Filing: Age %d)" % [
 		int(cur_tax_rate * 100),
@@ -8736,12 +8805,13 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 				add_life_event(str(r.get("message", "Corporate taxes paid.")), "finance")
 				update_ui()
 				SaveManager.save_game()
-				_show_business_modal("financials", cur_uid)
+				_show_business_modal("treasury", cur_uid, true)
 			else:
 				add_life_event(str(r.get("message", "Could not pay taxes.")), "finance")
 		)
 		btn_pay_tax.custom_minimum_size.y = 52
 		btn_pay_tax.add_theme_font_size_override("font_size", 21)
+		btn_pay_tax.disabled = treasury < unpaid_tax
 		tv.add_child(btn_pay_tax)
 	else:
 		var paid_lbl := Label.new()
@@ -8753,7 +8823,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 
 	list.add_child(tax_card)
 
-	# 3. Commercial Loans & Bank Credit Section
+	# 4. Commercial Loans & Credit Facility Section with Inline Custom Repayment
 	var loan_card := PanelContainer.new()
 	loan_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
 	var lm := MarginContainer.new()
@@ -8774,9 +8844,8 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	l_title.add_theme_color_override("font_color", Color("#ffffff"))
 	lv.add_child(l_title)
 
-	var cur_loan: int = int(target_biz.get("loan_balance", 0))
 	var l_desc := Label.new()
-	l_desc.text = "Active Commercial Loan Balance: $%s  •  Interest Rate: 7.5%% APR\nDisbursed loans are directly deposited into the business corporate treasury." % _format_number(cur_loan)
+	l_desc.text = "Active Commercial Loan Balance: $%s  •  Interest Rate: 7.5%% APR\nDisbursed loans are directly deposited into %s corporate treasury." % [_format_number(cur_loan), b_name]
 	l_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	l_desc.add_theme_font_size_override("font_size", 21)
 	l_desc.add_theme_color_override("font_color", Color("#ddd6fe"))
@@ -8787,57 +8856,27 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	borrow_row.add_theme_constant_override("separation", 8)
 	borrow_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	var btn_b25 := _create_cyber_button("🏦 Borrow $25k", Color("#8b5cf6"), func():
-		var r: Dictionary = BusinessManager.take_business_loan(target_biz, 25000)
-		if bool(r.get("success", false)):
-			add_life_event(str(r.get("message", "Commercial loan of $25,000 disbursed into corporate treasury.")), "finance")
-			update_ui()
-			SaveManager.save_game()
-			_show_business_modal("financials", cur_uid)
-		else:
-			add_life_event(str(r.get("message", "Loan declined.")), "finance")
-	)
-	btn_b25.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_b25.custom_minimum_size.y = 52
-	btn_b25.add_theme_font_size_override("font_size", 18)
-	btn_b25.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	borrow_row.add_child(btn_b25)
-
-	var btn_b100 := _create_cyber_button("🏦 Borrow $100k", Color("#8b5cf6"), func():
-		var r: Dictionary = BusinessManager.take_business_loan(target_biz, 100000)
-		if bool(r.get("success", false)):
-			add_life_event(str(r.get("message", "Commercial loan of $100,000 disbursed into corporate treasury.")), "finance")
-			update_ui()
-			SaveManager.save_game()
-			_show_business_modal("financials", cur_uid)
-		else:
-			add_life_event(str(r.get("message", "Loan declined.")), "finance")
-	)
-	btn_b100.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_b100.custom_minimum_size.y = 52
-	btn_b100.add_theme_font_size_override("font_size", 18)
-	btn_b100.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	borrow_row.add_child(btn_b100)
-
-	var btn_b500 := _create_cyber_button("🏦 Borrow $500k", Color("#8b5cf6"), func():
-		var r: Dictionary = BusinessManager.take_business_loan(target_biz, 500000)
-		if bool(r.get("success", false)):
-			add_life_event(str(r.get("message", "Commercial loan of $500,000 disbursed into corporate treasury.")), "finance")
-			update_ui()
-			SaveManager.save_game()
-			_show_business_modal("financials", cur_uid)
-		else:
-			add_life_event(str(r.get("message", "Loan declined.")), "finance")
-	)
-	btn_b500.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_b500.custom_minimum_size.y = 52
-	btn_b500.add_theme_font_size_override("font_size", 18)
-	btn_b500.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	borrow_row.add_child(btn_b500)
+	for b_amt in [25000, 100000, 500000]:
+		var b_str: String = "25k" if b_amt == 25000 else ("100k" if b_amt == 100000 else "500k")
+		var btn_b := _create_cyber_button("🏦 Borrow $%s" % b_str, Color("#8b5cf6"), func():
+			var r: Dictionary = BusinessManager.take_business_loan(target_biz, b_amt)
+			if bool(r.get("success", false)):
+				add_life_event(str(r.get("message", "Commercial loan disbursed into corporate treasury.")), "finance")
+				update_ui()
+				SaveManager.save_game()
+				_show_business_modal("treasury", cur_uid, true)
+			else:
+				add_life_event(str(r.get("message", "Loan declined.")), "finance")
+		)
+		btn_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_b.custom_minimum_size.y = 52
+		btn_b.add_theme_font_size_override("font_size", 18)
+		btn_b.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		borrow_row.add_child(btn_b)
 
 	lv.add_child(borrow_row)
 
-	# Repay Row
+	# Repay Row & Inline Repayment Box
 	if cur_loan > 0:
 		var repay_row := HBoxContainer.new()
 		repay_row.add_theme_constant_override("separation", 8)
@@ -8849,7 +8888,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 				add_life_event(str(r.get("message", "Repaid $10,000 commercial loan principal from treasury.")), "finance")
 				update_ui()
 				SaveManager.save_game()
-				_show_business_modal("financials", cur_uid)
+				_show_business_modal("treasury", cur_uid, true)
 			else:
 				add_life_event(str(r.get("message", "Repayment failed.")), "finance")
 		)
@@ -8857,6 +8896,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 		btn_rep10.custom_minimum_size.y = 52
 		btn_rep10.add_theme_font_size_override("font_size", 18)
 		btn_rep10.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_rep10.disabled = treasury < 10000
 		repay_row.add_child(btn_rep10)
 
 		var btn_rep_all := _create_cyber_button("💳 Repay All ($%s)" % _format_number(cur_loan), Color("#10b981"), func():
@@ -8865,7 +8905,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 				add_life_event(str(r.get("message", "Repaid entire commercial loan balance from treasury.")), "finance")
 				update_ui()
 				SaveManager.save_game()
-				_show_business_modal("financials", cur_uid)
+				_show_business_modal("treasury", cur_uid, true)
 			else:
 				add_life_event(str(r.get("message", "Repayment failed.")), "finance")
 		)
@@ -8873,10 +8913,15 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 		btn_rep_all.custom_minimum_size.y = 52
 		btn_rep_all.add_theme_font_size_override("font_size", 18)
 		btn_rep_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_rep_all.disabled = treasury < cur_loan
 		repay_row.add_child(btn_rep_all)
 
+		var inline_repay_box := VBoxContainer.new()
+		inline_repay_box.visible = false
+		inline_repay_box.add_theme_constant_override("separation", 8)
+
 		var btn_rep_custom := _create_cyber_button("💳 Repay Custom", Color("#10b981"), func():
-			_show_business_repay_custom_loan(target_biz, cur_uid)
+			inline_repay_box.visible = not inline_repay_box.visible
 		, true)
 		btn_rep_custom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rep_custom.custom_minimum_size.y = 52
@@ -8887,9 +8932,56 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 
 		lv.add_child(repay_row)
 
+		# Custom Repay Inline Controls
+		var repay_input := LineEdit.new()
+		repay_input.placeholder_text = "Enter whole dollars (Max: $%s)" % _format_number(mini(cur_loan, treasury))
+		repay_input.custom_minimum_size.y = 48
+		repay_input.add_theme_font_size_override("font_size", 20)
+		get_node("OptionsMenu")._style_input(repay_input)
+		MobileKeyboardManager.attach_to_input(repay_input, "Enter custom repayment amount:")
+		inline_repay_box.add_child(repay_input)
+
+		var repay_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(repay_input, "⌨️ Enter Repayment Amount", "Enter custom repayment amount:", Color("#10b981"))
+		repay_kb_btn.custom_minimum_size.y = 44
+		repay_kb_btn.add_theme_font_size_override("font_size", 18)
+		inline_repay_box.add_child(repay_kb_btn)
+
+		var repay_btn_row := HBoxContainer.new()
+		repay_btn_row.add_theme_constant_override("separation", 8)
+
+		var btn_sub_repay := _create_cyber_button("💳 Submit Repayment", Color("#10b981"), func():
+			var req := _parse_loan_payment(repay_input.text)
+			if req > 0 and req <= cur_loan and req <= treasury:
+				var r := BusinessManager.repay_business_loan(target_biz, req)
+				if bool(r.get("success", false)):
+					add_life_event(str(r.get("message", "Repaid $%s commercial loan." % _format_number(req))), "finance")
+					update_ui()
+					SaveManager.save_game()
+					_show_business_modal("treasury", cur_uid, true)
+		, true)
+		btn_sub_repay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_sub_repay.custom_minimum_size.y = 46
+		btn_sub_repay.add_theme_font_size_override("font_size", 18)
+		btn_sub_repay.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_sub_repay.set_meta("center_text", true)
+		repay_btn_row.add_child(btn_sub_repay)
+
+		var btn_can_repay := _create_cyber_button("Cancel", Color("#64748b"), func():
+			inline_repay_box.visible = false
+		, true)
+		btn_can_repay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_can_repay.custom_minimum_size.y = 46
+		btn_can_repay.add_theme_font_size_override("font_size", 18)
+		btn_can_repay.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_can_repay.set_meta("center_text", true)
+		repay_btn_row.add_child(btn_can_repay)
+
+		inline_repay_box.add_child(repay_btn_row)
+		lv.add_child(inline_repay_box)
+
 	list.add_child(loan_card)
 
-	# 4. Owner Capital Transfers & Dividends Section
+	# 5. Capital Transfers & Owner Dividends Section with Inline Custom Controls
 	var equity_card := PanelContainer.new()
 	equity_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#059669")))
 	var em := MarginContainer.new()
@@ -8911,14 +9003,13 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	ev.add_child(e_title)
 
 	var e_desc := Label.new()
-	e_desc.text = "Transfer liquidity between your personal funds and corporate treasury."
+	e_desc.text = "Transfer liquidity between your personal funds and %s corporate treasury." % b_name
 	e_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	e_desc.add_theme_font_size_override("font_size", 21)
 	e_desc.add_theme_color_override("font_color", Color("#a7f3d0"))
 	ev.add_child(e_desc)
 
-	var transfer_amounts: Array[int] = [10000, 50000, 100000]
-	for amt in transfer_amounts:
+	for amt in [10000, 50000, 100000]:
 		var eq_row := HBoxContainer.new()
 		eq_row.add_theme_constant_override("separation", 8)
 		eq_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -8929,7 +9020,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 				add_life_event(str(r.get("message", "Withdrew $%s owner dividend." % _format_number(amt))), "finance")
 				update_ui()
 				SaveManager.save_game()
-				_show_business_modal("financials", cur_uid)
+				_show_business_modal("treasury", cur_uid, true)
 			else:
 				add_life_event(str(r.get("message", "Withdrawal failed.")), "finance")
 		, true)
@@ -8938,6 +9029,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 		btn_div.add_theme_font_size_override("font_size", 18)
 		btn_div.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_div.set_meta("center_text", true)
+		btn_div.disabled = treasury < amt
 		eq_row.add_child(btn_div)
 
 		var btn_inj := _create_cyber_button("💵 Inject $%s\n(Cash ➔ Treasury)" % _format_number(amt), Color("#0284c7"), func():
@@ -8946,7 +9038,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 				add_life_event(str(r.get("message", "Injected $%s capital into corporate treasury." % _format_number(amt))), "finance")
 				update_ui()
 				SaveManager.save_game()
-				_show_business_modal("financials", cur_uid)
+				_show_business_modal("treasury", cur_uid, true)
 			else:
 				add_life_event(str(r.get("message", "Injection failed.")), "finance")
 		, true)
@@ -8955,6 +9047,7 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 		btn_inj.add_theme_font_size_override("font_size", 18)
 		btn_inj.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_inj.set_meta("center_text", true)
+		btn_inj.disabled = PlayerData.get_available_funds() < amt
 		eq_row.add_child(btn_inj)
 
 		ev.add_child(eq_row)
@@ -8963,30 +9056,86 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	custom_eq_row.add_theme_constant_override("separation", 8)
 	custom_eq_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	var btn_custom_div := _create_cyber_button("💰 Custom Dividend", Color("#10b981"), func():
-		_show_business_custom_dividend(target_biz, cur_uid)
-	, true)
-	btn_custom_div.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_custom_div.custom_minimum_size.y = 52
-	btn_custom_div.add_theme_font_size_override("font_size", 18)
-	btn_custom_div.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_custom_div.set_meta("center_text", true)
-	custom_eq_row.add_child(btn_custom_div)
+	var inline_custom_box := VBoxContainer.new()
+	inline_custom_box.visible = false
+	inline_custom_box.add_theme_constant_override("separation", 8)
 
-	var btn_custom_inj := _create_cyber_button("💵 Custom Capital", Color("#0284c7"), func():
-		_show_business_custom_capital(target_biz, cur_uid)
+	var custom_input := LineEdit.new()
+	custom_input.placeholder_text = "Enter amount in whole dollars..."
+	custom_input.custom_minimum_size.y = 48
+	custom_input.add_theme_font_size_override("font_size", 20)
+	get_node("OptionsMenu")._style_input(custom_input)
+	MobileKeyboardManager.attach_to_input(custom_input, "Enter custom transfer amount:")
+	inline_custom_box.add_child(custom_input)
+
+	var custom_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(custom_input, "⌨️ Enter Custom Amount", "Enter custom transfer amount:", Color("#10b981"))
+	custom_kb_btn.custom_minimum_size.y = 44
+	custom_kb_btn.add_theme_font_size_override("font_size", 18)
+	inline_custom_box.add_child(custom_kb_btn)
+
+	var custom_act_row := HBoxContainer.new()
+	custom_act_row.add_theme_constant_override("separation", 8)
+
+	var btn_do_custom_div := _create_cyber_button("💰 Withdraw Dividend", Color("#10b981"), func():
+		var req := _parse_loan_payment(custom_input.text)
+		if req > 0 and req <= treasury:
+			var r := BusinessManager.withdraw_owner_dividend(target_biz, req)
+			if bool(r.get("success", false)):
+				add_life_event(str(r.get("message", "Withdrew $%s dividend." % _format_number(req))), "finance")
+				update_ui()
+				SaveManager.save_game()
+				_show_business_modal("treasury", cur_uid, true)
 	, true)
-	btn_custom_inj.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_custom_inj.custom_minimum_size.y = 52
-	btn_custom_inj.add_theme_font_size_override("font_size", 18)
-	btn_custom_inj.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_custom_inj.set_meta("center_text", true)
-	custom_eq_row.add_child(btn_custom_inj)
+	btn_do_custom_div.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_do_custom_div.custom_minimum_size.y = 46
+	btn_do_custom_div.add_theme_font_size_override("font_size", 18)
+	btn_do_custom_div.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_do_custom_div.set_meta("center_text", true)
+	custom_act_row.add_child(btn_do_custom_div)
+
+	var btn_do_custom_inj := _create_cyber_button("💵 Inject Capital", Color("#0284c7"), func():
+		var req := _parse_loan_payment(custom_input.text)
+		if req > 0 and req <= PlayerData.get_available_funds():
+			var r := BusinessManager.deposit_owner_capital(target_biz, req)
+			if bool(r.get("success", false)):
+				add_life_event(str(r.get("message", "Injected $%s capital." % _format_number(req))), "finance")
+				update_ui()
+				SaveManager.save_game()
+				_show_business_modal("treasury", cur_uid, true)
+	, true)
+	btn_do_custom_inj.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_do_custom_inj.custom_minimum_size.y = 46
+	btn_do_custom_inj.add_theme_font_size_override("font_size", 18)
+	btn_do_custom_inj.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_do_custom_inj.set_meta("center_text", true)
+	custom_act_row.add_child(btn_do_custom_inj)
+
+	var btn_can_custom := _create_cyber_button("Cancel", Color("#64748b"), func():
+		inline_custom_box.visible = false
+	, true)
+	btn_can_custom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_can_custom.custom_minimum_size.y = 46
+	btn_can_custom.add_theme_font_size_override("font_size", 18)
+	btn_can_custom.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_can_custom.set_meta("center_text", true)
+	custom_act_row.add_child(btn_can_custom)
+	inline_custom_box.add_child(custom_act_row)
+
+	var btn_custom_toggle := _create_cyber_button("⚙️ Custom Dividend / Capital Transfer", Color("#10b981"), func():
+		inline_custom_box.visible = not inline_custom_box.visible
+	, true)
+	btn_custom_toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_custom_toggle.custom_minimum_size.y = 50
+	btn_custom_toggle.add_theme_font_size_override("font_size", 18)
+	btn_custom_toggle.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_custom_toggle.set_meta("center_text", true)
+	custom_eq_row.add_child(btn_custom_toggle)
 
 	ev.add_child(custom_eq_row)
+	ev.add_child(inline_custom_box)
 	list.add_child(equity_card)
 
-	# 5. Corporate Treasury Expansion & Growth Operations (Item 3)
+	# 6. Corporate Treasury Expansion & Growth Operations with Inline Branch Creation
 	var exp_card := PanelContainer.new()
 	exp_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0284c7")))
 	var exp_m := MarginContainer.new()
@@ -9008,26 +9157,74 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 	exp_v.add_child(exp_title)
 
 	var exp_desc := Label.new()
-	var cur_treasury: int = int(target_biz.get("treasury", 0))
-	var branches: int = int(target_biz.get("branches", 1))
-	var fac_tier: int = int(target_biz.get("facility_tier", 1))
-	exp_desc.text = "Available Corporate Treasury: $%s\nDeploy corporate treasury funds to expand business branches, automate facilities, or fund advertising campaigns." % _format_number(cur_treasury)
+	exp_desc.text = "Available Corporate Treasury: $%s\nDeploy corporate treasury funds to expand business branches, automate facilities, or fund advertising campaigns." % _format_number(treasury)
 	exp_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	exp_desc.add_theme_font_size_override("font_size", 21)
 	exp_desc.add_theme_color_override("font_color", Color("#bae6fd"))
 	exp_v.add_child(exp_desc)
 
-	# Branch Expansion Button
+	# Branch Expansion Button & Inline Box
 	var next_branch_cost := BusinessManager.get_branch_expansion_cost(target_biz)
+	var branch_box := VBoxContainer.new()
+	branch_box.visible = false
+	branch_box.add_theme_constant_override("separation", 8)
+
+	var branch_input := LineEdit.new()
+	branch_input.text = "%s - Branch %d" % [b_name, branches + 1]
+	branch_input.placeholder_text = "Enter branch name..."
+	branch_input.custom_minimum_size.y = 48
+	branch_input.add_theme_font_size_override("font_size", 20)
+	get_node("OptionsMenu")._style_input(branch_input)
+	MobileKeyboardManager.attach_to_input(branch_input, "Enter branch name for %s:" % b_name)
+	branch_box.add_child(branch_input)
+
+	var branch_kb_btn := MobileKeyboardManager.create_keyboard_trigger_button(branch_input, "⌨️ Enter Branch Name", "Enter branch name for %s:" % b_name, Color("#0284c7"))
+	branch_kb_btn.custom_minimum_size.y = 44
+	branch_kb_btn.add_theme_font_size_override("font_size", 18)
+	branch_box.add_child(branch_kb_btn)
+
+	var branch_btn_row := HBoxContainer.new()
+	branch_btn_row.add_theme_constant_override("separation", 8)
+
+	var btn_sub_branch := _create_cyber_button("🏢 Deploy $%s & Establish Branch" % _format_number(next_branch_cost), Color("#0284c7"), func():
+		var br_name := branch_input.text.strip_edges()
+		if br_name != "" and treasury >= next_branch_cost:
+			var r := BusinessManager.open_business_branch(target_biz, br_name)
+			if bool(r.get("success", false)):
+				add_life_event(str(r.get("message", "Branch established!")), "milestone")
+				update_ui()
+				SaveManager.save_game()
+				var new_uid: String = str(r.get("branch", {}).get("uid", cur_uid))
+				_show_business_modal("treasury", new_uid, true)
+	, true)
+	btn_sub_branch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_sub_branch.custom_minimum_size.y = 48
+	btn_sub_branch.add_theme_font_size_override("font_size", 18)
+	btn_sub_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_sub_branch.set_meta("center_text", true)
+	branch_btn_row.add_child(btn_sub_branch)
+
+	var btn_can_branch := _create_cyber_button("Cancel", Color("#64748b"), func():
+		branch_box.visible = false
+	, true)
+	btn_can_branch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_can_branch.custom_minimum_size.y = 48
+	btn_can_branch.add_theme_font_size_override("font_size", 18)
+	btn_can_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_can_branch.set_meta("center_text", true)
+	branch_btn_row.add_child(btn_can_branch)
+	branch_box.add_child(branch_btn_row)
+
 	var btn_branch := _create_cyber_button("🏢 Open Branch #%d (Deploy $%s Treasury Funds)" % [branches + 1, _format_number(next_branch_cost)], Color("#0284c7"), func():
-		_show_expand_branch_modal(target_biz, cur_uid)
+		branch_box.visible = not branch_box.visible
 	, true)
 	btn_branch.custom_minimum_size.y = 52
 	btn_branch.add_theme_font_size_override("font_size", 20)
-	btn_branch.disabled = cur_treasury < next_branch_cost
+	btn_branch.disabled = treasury < next_branch_cost
 	btn_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_branch.set_meta("center_text", true)
 	exp_v.add_child(btn_branch)
+	exp_v.add_child(branch_box)
 
 	# Facility Upgrade Button
 	var fac_cost := 25000 * fac_tier
@@ -9037,13 +9234,13 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 			add_life_event(str(r.get("message", "Facility upgraded!")), "finance")
 			update_ui()
 			SaveManager.save_game()
-			_show_business_modal("financials", cur_uid)
+			_show_business_modal("treasury", cur_uid, true)
 		else:
 			add_life_event(str(r.get("message", "Could not upgrade.")), "finance")
 	, true)
 	btn_fac.custom_minimum_size.y = 52
 	btn_fac.add_theme_font_size_override("font_size", 20)
-	btn_fac.disabled = cur_treasury < fac_cost or fac_tier >= 5
+	btn_fac.disabled = treasury < fac_cost or fac_tier >= 5
 	btn_fac.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_fac.set_meta("center_text", true)
 	exp_v.add_child(btn_fac)
@@ -9055,13 +9252,13 @@ func _render_business_tab_financials(list: VBoxContainer, selected_uid: String) 
 			add_life_event(str(r.get("message", "Campaign launched!")), "finance")
 			update_ui()
 			SaveManager.save_game()
-			_show_business_modal("financials", cur_uid)
+			_show_business_modal("treasury", cur_uid, true)
 		else:
 			add_life_event(str(r.get("message", "Could not fund ad blitz.")), "finance")
 	, true)
 	btn_ad.custom_minimum_size.y = 52
 	btn_ad.add_theme_font_size_override("font_size", 20)
-	btn_ad.disabled = cur_treasury < 25000
+	btn_ad.disabled = treasury < 25000
 	btn_ad.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_ad.set_meta("center_text", true)
 	exp_v.add_child(btn_ad)
@@ -9505,8 +9702,8 @@ func _render_owned_businesses_section() -> void:
 			val_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#fde68a"))
 			cv.add_child(val_lbl)
 
-			var btn_manage := _create_cyber_button("💰 Open Financials & Operations", Color("#f59e0b"), func():
-				_show_business_modal("financials", str(b.get("uid", "")))
+			var btn_manage := _create_cyber_button("💰 Open Treasury & Financials", Color("#f59e0b"), func():
+				_show_business_modal("treasury", str(b.get("uid", "")))
 			)
 			btn_manage.custom_minimum_size.y = 48
 			btn_manage.add_theme_font_size_override("font_size", 20)
