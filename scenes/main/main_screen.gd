@@ -76,6 +76,7 @@ var _timeline_drawer_tween: Tween = null
 @onready var assets_button: Button = $SafeArea/MainColumn/ActionBar/ActionRow/AssetsButton
 @onready var relationships_button: Button = $SafeArea/MainColumn/ActionBar/ActionRow/RelationshipsButton
 @onready var activities_button: Button = $SafeArea/MainColumn/ActionBar/ActionRow/ActivitiesButton
+var button_sounds: Node = null
 
 # Navigation panels
 @onready var timeline_panel: Control = $SafeArea
@@ -208,6 +209,17 @@ func _ready() -> void:
 
 	# Smooth high-refresh UI rendering
 	Engine.max_fps = 120
+
+	# Modern style sound effects for the 5 core buttons (Overview, Assets, Age Up, Relationships, Activities)
+	if get_node_or_null("ButtonSounds") == null:
+		var sounds := preload("res://scripts/ui/button_sounds.gd").new()
+		sounds.name = "ButtonSounds"
+		add_child(sounds)
+		button_sounds = sounds
+	else:
+		button_sounds = get_node("ButtonSounds")
+	if button_sounds != null and button_sounds.has_method("wire_core_buttons"):
+		button_sounds.wire_core_buttons(infant_button, assets_button, age_button, relationships_button, activities_button)
 
 	# Configure translucent, sleek scroll indicators on every page and scroll container
 	_setup_all_translucent_scrollbars()
@@ -1382,8 +1394,14 @@ func update_ui() -> void:
 
 
 func _on_age_button_pressed() -> void:
+	_play_core_button_sound("age")
 	_trigger_haptic(45)
 	age_up()
+
+
+func _play_core_button_sound(button_type: String = "core") -> void:
+	if button_sounds != null and is_instance_valid(button_sounds) and button_sounds.has_method("play_core_sound"):
+		button_sounds.play_core_sound(button_type)
 
 
 func _trigger_haptic(duration_ms: int = 40) -> void:
@@ -2152,10 +2170,12 @@ func _on_settings_nav_button_pressed() -> void:
 
 # 4 Action button signal handlers
 func _on_infant_button_pressed() -> void:
+	_play_core_button_sound("overview")
 	show_tab("infant")
 
 
 func _on_assets_button_pressed() -> void:
+	_play_core_button_sound("assets")
 	if PlayerData.is_in_mental_institution:
 		add_life_event("🔒 RESTRICTED: Inpatient psychiatric ward rules forbid managing personal assets or property (%d year remaining)." % PlayerData.mental_institution_years_left, "health")
 		return
@@ -2169,6 +2189,7 @@ func _on_assets_button_pressed() -> void:
 
 
 func _on_relationships_button_pressed() -> void:
+	_play_core_button_sound("relationships")
 	if PlayerData.is_in_mental_institution:
 		add_life_event("🔒 RESTRICTED: Psychiatric quarantine protocols restrict outside social visitation (%d year remaining)." % PlayerData.mental_institution_years_left, "health")
 		return
@@ -2176,6 +2197,7 @@ func _on_relationships_button_pressed() -> void:
 
 
 func _on_activities_button_pressed() -> void:
+	_play_core_button_sound("activities")
 	if PlayerData.is_in_mental_institution:
 		add_life_event("🔒 RESTRICTED: You are currently an inpatient at the Mental Institution (%d year remaining). Outside activities are strictly prohibited." % PlayerData.mental_institution_years_left, "health")
 		return
