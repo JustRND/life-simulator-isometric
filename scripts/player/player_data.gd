@@ -2,6 +2,7 @@ extends Node
 
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
 const BirthStoryGeneratorRef = preload("res://scripts/core/birth_story_generator.gd")
+const NameCatalog = preload("res://scripts/core/name_catalog.gd")
 
 const KARMIC_MODIFIERS := {
 	# Cosmic Buffs
@@ -136,6 +137,7 @@ var credit_card_paid_this_year: int = 0
 var owned_assets: Array[Dictionary] = []
 var mortgages: Array = []
 var rented_property: Dictionary = {}
+var siblings: Array = []
 var health_insurance: String = "none"
 var asset_insurance: Dictionary = {
 	"vehicle": false,
@@ -305,6 +307,7 @@ func reset_player() -> void:
 	owned_assets.clear()
 	mortgages.clear()
 	rented_property.clear()
+	siblings.clear()
 	grant_starting_assets()
 	health_insurance = "none"
 	asset_insurance = { "vehicle": false, "property": false }
@@ -1401,6 +1404,99 @@ func add_player_child(c_name: String, c_gender: String, c_age: int = 0) -> Dicti
 	return child_data
 
 
+func has_siblings() -> bool:
+	return siblings.size() > 0
+
+
+func has_living_siblings() -> bool:
+	for s in siblings:
+		if s is Dictionary and bool(s.get("is_alive", true)):
+			return true
+	return false
+
+
+func get_living_siblings() -> Array:
+	var living: Array = []
+	for s in siblings:
+		if s is Dictionary and bool(s.get("is_alive", true)):
+			living.append(s)
+	return living
+
+
+func add_sibling_entry(sib_data: Dictionary) -> Dictionary:
+	if not sib_data.is_empty():
+		NpcLifeProgress.ensure(sib_data)
+		siblings.append(sib_data)
+	return sib_data
+
+
+func generate_initial_siblings(force_count: int = -1) -> void:
+	siblings.clear()
+	var count: int = 0
+	if force_count >= 0:
+		count = force_count
+	else:
+		var roll := randf()
+		if roll < 0.35:
+			count = 0
+		elif roll < 0.75:
+			count = 1
+		elif roll < 0.93:
+			count = 2
+		else:
+			count = 3
+
+	if count <= 0:
+		return
+
+	var fam_name := get_family_name()
+	var country := birthplace if not birthplace.is_empty() else "United States"
+
+	for i in range(count):
+		var is_female := randf() < 0.50
+		var s_gender := "FEMALE" if is_female else "MALE"
+		var s_first := NameCatalog.random_first_name(country, is_female)
+		var s_name := s_first + " " + fam_name
+
+		var age_diff := randi_range(1, 5)
+		if randf() < 0.10 and i == 0:
+			age_diff = 0
+		var s_age := age + age_diff
+
+		var s_relation := ""
+		if age_diff == 0:
+			s_relation = "Twin Sister" if is_female else "Twin Brother"
+		elif age_diff > 0:
+			s_relation = "Older Sister" if is_female else "Older Brother"
+		else:
+			s_relation = "Younger Sister" if is_female else "Younger Brother"
+
+		var sibling := {
+			"id": "sib_%d_%d_%d" % [age, i, randi() % 10000],
+			"name": s_name,
+			"first_name": s_first,
+			"family_name": fam_name,
+			"gender": s_gender,
+			"relation": s_relation,
+			"age": s_age,
+			"base_age_diff": age_diff,
+			"smarts": randi_range(45, 95),
+			"looks": randi_range(40, 95),
+			"health": randi_range(80, 98),
+			"happiness": randi_range(70, 90),
+			"relationship": randi_range(70, 90),
+			"portrait_track": randi() % 4,
+			"portrait_variant": randi() % 4,
+			"ethnicity": ethnicity,
+			"is_alive": true,
+			"last_spend_time_age": -1,
+			"last_compliment_age": -1,
+			"last_gift_age": -1
+		}
+		NpcLifeProgress.ensure(sibling)
+		siblings.append(sibling)
+
+
 func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array) -> void:
 	reset_player()
 	active_debuffs = debuffs.duplicate()
@@ -1512,6 +1608,7 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 	if birth_story != "":
 		add_life_log_entry(birth_story, "milestone")
 	add_milestone("Reborn in %s." % birthplace, 0, "🍼")
+	generate_initial_siblings()
 
 
 func takeover_as_child(child: Dictionary, inherited_money: int, inherited_assets: Array = []) -> void:
@@ -1528,11 +1625,67 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	var assets_copy: Array = inherited_assets.duplicate(true)
 	var preserved_children: Array = children.duplicate(true) if relation_type == "partner" else []
 
+	var preserved_siblings: Array = []
+	var prev_mother_data := {
+		"name": mother_name,
+		"job": mother_job,
+		"base_age": mother_base_age,
+		"education": mother_education,
+		"condition": mother_condition,
+		"health": mother_health,
+		"portrait_track": mother_portrait_track,
+		"alive": mother_alive
+	}
+	var prev_father_data := {
+		"name": father_name,
+		"job": father_job,
+		"base_age": father_base_age,
+		"education": father_education,
+		"condition": father_condition,
+		"health": father_health,
+		"portrait_track": father_portrait_track,
+		"alive": father_alive
+	}
+
+	if relation_type == "sibling":
+		var heir_id: String = str(heir.get("id", ""))
+		for s in siblings:
+			if s is Dictionary and str(s.get("id", "")) != heir_id:
+				preserved_siblings.append(s.duplicate(true))
+	elif relation_type == "child":
+		var heir_name: String = str(heir.get("name", ""))
+		for c in children:
+			if c is Dictionary and str(c.get("name", "")) != heir_name and bool(c.get("is_alive", true)):
+				var c_copy: Dictionary = c.duplicate(true)
+				var c_gender: String = str(c_copy.get("gender", "MALE"))
+				c_copy["relation"] = "Sister" if c_gender == "FEMALE" else "Brother"
+				preserved_siblings.append(c_copy)
+
 	reset_player()
 	owned_businesses = inherited_businesses
 	finance_market = inherited_market
 	if relation_type == "partner":
 		children = preserved_children
+	elif relation_type == "sibling":
+		siblings = preserved_siblings
+		mother_name = str(prev_mother_data["name"])
+		mother_job = str(prev_mother_data["job"])
+		mother_base_age = int(prev_mother_data["base_age"])
+		mother_education = str(prev_mother_data["education"])
+		mother_condition = str(prev_mother_data["condition"])
+		mother_health = int(prev_mother_data["health"])
+		mother_portrait_track = int(prev_mother_data["portrait_track"])
+		mother_alive = bool(prev_mother_data["alive"])
+		father_name = str(prev_father_data["name"])
+		father_job = str(prev_father_data["job"])
+		father_base_age = int(prev_father_data["base_age"])
+		father_education = str(prev_father_data["education"])
+		father_condition = str(prev_father_data["condition"])
+		father_health = int(prev_father_data["health"])
+		father_portrait_track = int(prev_father_data["portrait_track"])
+		father_alive = bool(prev_father_data["alive"])
+	elif relation_type == "child":
+		siblings = preserved_siblings
 
 	first_name = str(heir.get("name", "Heir"))
 	gender = str(heir.get("gender", "MALE"))
@@ -1578,6 +1731,8 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 
 	if relation_type == "partner":
 		partner = {}
+	elif relation_type == "sibling":
+		pass
 	else:
 		if prev_gender == "FEMALE":
 			mother_name = prev_parent_name
@@ -1599,5 +1754,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	var asset_text := " and %d property/vehicle assets" % owned_assets.size() if owned_assets.size() > 0 else ""
 	if relation_type == "partner":
 		add_life_log_entry("📜 LEGACY: You inherited your late partner %s's estate ($%d deposited into your Bank Balance%s) and continue their legacy at age %d." % [prev_parent_name, inherited_money, asset_text, age], "event")
+	elif relation_type == "sibling":
+		add_life_log_entry("📜 LEGACY: You inherited your late sibling %s's estate ($%d deposited into your Bank Balance%s) and carry forward the %s family legacy at age %d." % [prev_parent_name, inherited_money, asset_text, get_family_name(), age], "event")
 	else:
 		add_life_log_entry("📜 LEGACY: You inherited your late parent %s's estate ($%d deposited into your Bank Balance%s) and continue the family bloodline at age %d." % [prev_parent_name, inherited_money, asset_text, age], "event")

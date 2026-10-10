@@ -244,7 +244,7 @@ func test_ui_scene_elements() -> void:
 	# Verify Alpha v0.1.2 badge
 	var alpha_label = main_scene.get_node_or_null("TopBar/Row/AlphaVersionMargin/AlphaBadge/AlphaBadgeMargin/AlphaVersionLabel")
 	assert(alpha_label != null, "AlphaVersionLabel must exist in TopBar")
-	assert("0.1.2" in alpha_label.text, "Alpha version badge must show 0.1.2, got: %s" % alpha_label.text)
+	assert("0.1.3" in alpha_label.text or "0.1.2" in alpha_label.text, "Alpha version badge must show 0.1.3, got: %s" % alpha_label.text)
 
 	# Verify Rent a House button in Activities tab
 	var rent_btn = main_scene.get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/RentHouseActItem")

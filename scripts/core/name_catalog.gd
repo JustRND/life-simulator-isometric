@@ -53,3 +53,8 @@ static func random_name(country: String, female: bool) -> String:
 		family += "a"
 	return given + " " + family
 
+
+static func random_first_name(country: String, female: bool) -> String:
+	var pool: Array = POOLS.get(country, POOLS["United States"])
+	return str(pool[1 if female else 0].pick_random())
+

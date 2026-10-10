@@ -2095,6 +2095,7 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.father_portrait_track = int(profile.get("father_portrait_track", randi() % 4))
 	PlayerData.family_wealth = str(profile.get("family_wealth", "middle_class"))
 	PlayerData.grant_starting_assets()
+	PlayerData.generate_initial_siblings()
 	PlayerData.add_milestone("Born in %s." % PlayerData.birthplace, 0, "🍼")
 
 	hide_new_game_screen()
@@ -2108,6 +2109,13 @@ func _on_start_game_button_pressed() -> void:
 
 	# Add newborn character description to feed
 	add_life_event(PlayerData.birth_story, "milestone")
+	if PlayerData.has_siblings():
+		var sib_tokens: Array[String] = []
+		for s in PlayerData.siblings:
+			sib_tokens.append("%s (%s)" % [s.get("name", ""), s.get("relation", "")])
+		add_life_event("👥 FAMILY: You grew up alongside your siblings: %s." % ", ".join(sib_tokens), "family")
+	else:
+		add_life_event("👤 FAMILY: You were born as an only child without any siblings.", "family")
 
 	update_ui()
 	update_history_panel()
@@ -5506,6 +5514,9 @@ func update_relationships_panel() -> void:
 	else:
 		father_card.visible = false
 
+	# Siblings Cards
+	_setup_siblings_cards_ui()
+
 	# Partner / Romantic Relationship Card
 	_setup_partner_card_ui()
 	_setup_children_cards_ui()
@@ -6038,6 +6049,448 @@ func _setup_children_cards_ui() -> void:
 
 		cv.add_child(act_row)
 		rel_list.add_child(card)
+
+
+func _setup_siblings_cards_ui() -> void:
+	var rel_list := get_node_or_null("RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList") as VBoxContainer
+	if rel_list == null:
+		return
+
+	# Detach and free ANY existing Siblings cards or OnlyChild cards
+	for child in rel_list.get_children():
+		if child.name.begins_with("SiblingsHeaderCard") or child.name.begins_with("SiblingCard_") or child.name.begins_with("OnlyChildCard"):
+			rel_list.remove_child(child)
+			child.queue_free()
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	if PlayerData.siblings.is_empty():
+		var only_child_card := PanelContainer.new()
+		only_child_card.name = "OnlyChildCard"
+		only_child_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#475569") if is_light else Color("#334155")))
+		var om := MarginContainer.new()
+		om.add_theme_constant_override("margin_left", 24)
+		om.add_theme_constant_override("margin_top", 14)
+		om.add_theme_constant_override("margin_right", 24)
+		om.add_theme_constant_override("margin_bottom", 14)
+		only_child_card.add_child(om)
+		var ov := VBoxContainer.new()
+		ov.add_theme_constant_override("separation", 4)
+		om.add_child(ov)
+		var ot := Label.new()
+		ot.text = "👥 SIBLINGS: Only Child"
+		ot.add_theme_font_size_override("font_size", 22)
+		ot.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color(0.396, 0.902, 1, 1))
+		ov.add_child(ot)
+		var od := Label.new()
+		od.text = "You do not have any brothers or sisters. You are an only child in the family."
+		od.add_theme_font_size_override("font_size", 18)
+		od.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		od.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ov.add_child(od)
+		rel_list.add_child(only_child_card)
+		return
+
+	# Header Card
+	var header := PanelContainer.new()
+	header.name = "SiblingsHeaderCard"
+	header.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#7c3aed") if is_light else Color("#a855f7")))
+	var hm := MarginContainer.new()
+	hm.add_theme_constant_override("margin_left", 20)
+	hm.add_theme_constant_override("margin_top", 12)
+	hm.add_theme_constant_override("margin_right", 20)
+	hm.add_theme_constant_override("margin_bottom", 12)
+	header.add_child(hm)
+	var hlbl := Label.new()
+	hlbl.text = "👥 SIBLINGS & FAMILY (%d)" % PlayerData.siblings.size()
+	hlbl.add_theme_font_size_override("font_size", 24)
+	hlbl.add_theme_color_override("font_color", Color("#6d28d9") if is_light else Color("#c084fc"))
+	hm.add_child(hlbl)
+	rel_list.add_child(header)
+
+	for i in range(PlayerData.siblings.size()):
+		var s: Dictionary = PlayerData.siblings[i]
+		NpcLifeProgress.ensure(s)
+		var s_name: String = str(s.get("name", "Sibling"))
+		var s_age: int = int(s.get("age", 0))
+		var s_gender: String = str(s.get("gender", "MALE"))
+		var s_rel: String = str(s.get("relation", "Sister" if s_gender == "FEMALE" else "Brother"))
+		var s_relationship: int = int(s.get("relationship", 80))
+		var s_variant: int = int(s.get("portrait_track", s.get("portrait_variant", 0)))
+		var s_eth: String = str(s.get("ethnicity", PlayerData.ethnicity))
+		var s_health: int = int(s.get("health", 85))
+		var is_alive: bool = bool(s.get("is_alive", true))
+
+		var card := PanelContainer.new()
+		card.name = "SiblingCard_%d" % i
+		card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#7c3aed") if is_light else Color("#a855f7")))
+
+		var cm := MarginContainer.new()
+		cm.add_theme_constant_override("margin_left", 32)
+		cm.add_theme_constant_override("margin_top", 18)
+		cm.add_theme_constant_override("margin_right", 32)
+		cm.add_theme_constant_override("margin_bottom", 18)
+		card.add_child(cm)
+
+		var ch := HBoxContainer.new()
+		ch.add_theme_constant_override("separation", 20)
+		cm.add_child(ch)
+
+		# Avatar icon
+		var icon := TextureRect.new()
+		icon.custom_minimum_size = Vector2(96, 96)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture = PortraitCatalog.texture(s_age, s_gender, s_variant, s_eth)
+		icon.material = PortraitCatalog.cutout_material()
+		ch.add_child(icon)
+
+		var cv := VBoxContainer.new()
+		cv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cv.add_theme_constant_override("separation", 6)
+		ch.add_child(cv)
+
+		var title := Label.new()
+		if is_alive:
+			title.text = "%s (%s, Age %d)" % [s_name, s_rel, s_age]
+			title.add_theme_color_override("font_color", Color("#6d28d9") if is_light else Color("#c084fc"))
+		else:
+			title.text = "%s (%s, Deceased)" % [s_name, s_rel]
+			title.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		title.add_theme_font_size_override("font_size", 24)
+		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		cv.add_child(title)
+
+		var occ_lbl := Label.new()
+		occ_lbl.text = "Occupation: " + NpcLifeProgress.get_occupation_display(s) if is_alive else "Status: In Memoriam"
+		occ_lbl.add_theme_font_size_override("font_size", 20)
+		occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		cv.add_child(occ_lbl)
+
+		var edu_lbl := Label.new()
+		edu_lbl.text = NpcLifeProgress.get_education_display(s)
+		edu_lbl.add_theme_font_size_override("font_size", 20)
+		edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+		edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		cv.add_child(edu_lbl)
+
+		var biz_str := NpcLifeProgress.get_business_display(s)
+		if not biz_str.is_empty() and is_alive:
+			var biz_lbl := Label.new()
+			biz_lbl.text = biz_str
+			biz_lbl.add_theme_font_size_override("font_size", 20)
+			biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+			biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			cv.add_child(biz_lbl)
+
+		if s_age >= 18 and is_alive:
+			var wealth_lbl := Label.new()
+			wealth_lbl.text = NpcLifeProgress.get_finances_display(s)
+			wealth_lbl.add_theme_font_size_override("font_size", 20)
+			wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+			wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			cv.add_child(wealth_lbl)
+
+		var stat_lbl := Label.new()
+		if is_alive:
+			stat_lbl.text = "Health: %d%%  •  Relationship: %d%% (%s)" % [s_health, s_relationship, _relationship_status_text(s_relationship)]
+			var h_col: Color = (Color("#15803d") if is_light else Color("#22c55e")) if s_health > 35 else (Color("#b45309") if is_light else Color("#f59e0b"))
+			stat_lbl.add_theme_color_override("font_color", h_col)
+		else:
+			stat_lbl.text = "Status: Passed Away • Rest in Peace"
+			stat_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		stat_lbl.add_theme_font_size_override("font_size", 19)
+		cv.add_child(stat_lbl)
+
+		if is_alive:
+			_setup_relationship_bar(cv, "SiblingRelBar_" + str(i), s_relationship)
+
+			var act_row := HBoxContainer.new()
+			act_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			act_row.add_theme_constant_override("separation", 12)
+
+			var sib_spent: bool = int(s.get("last_spend_time_age", -1)) == PlayerData.age
+			var sib_complimented: bool = int(s.get("last_compliment_age", -1)) == PlayerData.age
+			var sib_gifted: bool = int(s.get("last_gift_age", -1)) == PlayerData.age
+
+			# 1. Spend Time button
+			var spend_text := "Spend Time (Used)" if sib_spent else "Spend Time"
+			var btn_spend := _create_cyber_button(spend_text, Color("#0284c7"), func():
+				var idx = i
+				var cur_s: Dictionary = PlayerData.siblings[idx]
+				if int(cur_s.get("last_spend_time_age", -1)) == PlayerData.age:
+					return
+				cur_s["last_spend_time_age"] = PlayerData.age
+				cur_s["relationship"] = mini(100, int(cur_s.get("relationship", 80)) + randi_range(8, 14))
+				PlayerData.happiness = mini(100, PlayerData.happiness + randi_range(4, 8))
+				add_life_event("You spent joyful quality bonding time with your %s, %s!" % [cur_s.get("relation", "sibling").to_lower(), cur_s.get("name", "")], "family")
+				update_relationships_panel()
+				update_ui()
+			)
+			btn_spend.custom_minimum_size = Vector2(100, 52)
+			btn_spend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_spend.add_theme_font_size_override("font_size", 20)
+			if sib_spent:
+				btn_spend.disabled = true
+				btn_spend.modulate = Color(0.6, 0.6, 0.6, 0.65)
+				btn_spend.tooltip_text = "Already spent time with %s this year. Available again next year." % s_name
+			act_row.add_child(btn_spend)
+
+			# 2. Compliment button
+			var comp_text := "Compliment (Used)" if sib_complimented else "Compliment"
+			var btn_comp := _create_cyber_button(comp_text, Color("#ec4899"), func():
+				var idx = i
+				var cur_s: Dictionary = PlayerData.siblings[idx]
+				if int(cur_s.get("last_compliment_age", -1)) == PlayerData.age:
+					return
+				cur_s["last_compliment_age"] = PlayerData.age
+				cur_s["relationship"] = mini(100, int(cur_s.get("relationship", 80)) + randi_range(6, 10))
+				PlayerData.happiness = mini(100, PlayerData.happiness + randi_range(2, 5))
+				add_life_event("You gave your %s, %s, a heartfelt compliment. They smiled with gratitude!" % [cur_s.get("relation", "sibling").to_lower(), cur_s.get("name", "")], "family")
+				update_relationships_panel()
+				update_ui()
+			)
+			btn_comp.custom_minimum_size = Vector2(100, 52)
+			btn_comp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_comp.add_theme_font_size_override("font_size", 20)
+			if sib_complimented:
+				btn_comp.disabled = true
+				btn_comp.modulate = Color(0.6, 0.6, 0.6, 0.65)
+				btn_comp.tooltip_text = "Already complimented %s this year. Available again next year." % s_name
+			act_row.add_child(btn_comp)
+
+			# 3. Gift button
+			var is_too_young: bool = s_age < 5
+			var gift_text := "🎁 Gift (Used)" if sib_gifted else "🎁 Choose Gift"
+			if is_too_young:
+				gift_text = "🎁 Gift (Age 5+)"
+			var btn_gift := _create_cyber_button(gift_text, Color("#10b981"), func():
+				var idx = i
+				_show_sibling_gift_modal(idx)
+			)
+			btn_gift.custom_minimum_size = Vector2(100, 52)
+			btn_gift.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_gift.add_theme_font_size_override("font_size", 20)
+			if is_too_young:
+				btn_gift.disabled = true
+				btn_gift.modulate = Color(0.5, 0.5, 0.5, 0.6)
+				btn_gift.tooltip_text = "%s is an infant/toddler. Gifts unlock at Age 5." % s_name
+			elif sib_gifted:
+				btn_gift.disabled = true
+				btn_gift.modulate = Color(0.6, 0.6, 0.6, 0.65)
+				btn_gift.tooltip_text = "Already gave a gift to %s this year. Available again next year." % s_name
+			act_row.add_child(btn_gift)
+
+			# 4. Details button
+			var btn_details := _create_cyber_button("📜 Details", Color("#8b5cf6"), func():
+				var idx = i
+				_show_sibling_progression_modal(idx)
+			)
+			btn_details.custom_minimum_size = Vector2(100, 52)
+			btn_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_details.add_theme_font_size_override("font_size", 20)
+			act_row.add_child(btn_details)
+
+			cv.add_child(act_row)
+
+		rel_list.add_child(card)
+
+
+func _show_sibling_gift_modal(sibling_index: int) -> void:
+	if sibling_index < 0 or sibling_index >= PlayerData.siblings.size():
+		return
+	var s: Dictionary = PlayerData.siblings[sibling_index]
+	var s_name: String = str(s.get("name", "Sibling"))
+	var s_age: int = int(s.get("age", 0))
+
+	if s_age < 5:
+		add_life_event("%s is too young for gifts. Gifts unlock at Age 5." % s_name, "family")
+		return
+	if int(s.get("last_gift_age", -1)) == PlayerData.age:
+		add_life_event("You already gave %s a gift this year. Available again next year." % s_name, "family")
+		return
+
+	var modal := _create_cyber_modal("🎁 GIFTS FOR %s" % s_name.to_upper(), "Choose a thoughtful gift for your %s, %s (Age %d)." % [s.get("relation", "sibling").to_lower(), s_name, s_age], Color("#10b981"))
+	romance_action_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+
+	var gift_list: Array = RelationshipExtras.CHILD_GIFTS if s_age < 18 else RelationshipExtras.GIFTS
+	for id in range(gift_list.size()):
+		var gift: Dictionary = gift_list[id]
+		var emoji: String = str(gift.get("emoji", "🎁"))
+		var cost: int = int(gift.get("cost", 50))
+		var min_age: int = int(gift.get("min_age", 0))
+		var age_ok: bool = s_age >= min_age
+		var can_afford: bool = PlayerData.can_afford(cost)
+
+		var label_str: String
+		if not age_ok:
+			label_str = "%s %s • $%s (Unlocks Age %d)" % [emoji, gift.get("name", "Gift"), _format_number(cost), min_age]
+		else:
+			label_str = "%s %s • $%s" % [emoji, gift.get("name", "Gift"), _format_number(cost)]
+
+		var btn := _create_cyber_button(label_str, Color("#10b981"), func():
+			if not PlayerData.can_afford(cost):
+				return
+			PlayerData.debit_funds(cost)
+			s["last_gift_age"] = PlayerData.age
+			s["relationship"] = mini(100, int(s.get("relationship", 80)) + randi_range(10, 16))
+			PlayerData.happiness = mini(100, PlayerData.happiness + randi_range(5, 10))
+			add_life_event("You gifted %s a %s! They were overjoyed and gave you a big hug." % [s_name, gift.get("name", "gift")], "family")
+			update_relationships_panel()
+			update_ui()
+			SaveManager.save_game()
+			if is_instance_valid(modal.overlay):
+				modal.overlay.queue_free()
+		)
+		btn.disabled = (not age_ok) or (not can_afford)
+		if not age_ok:
+			btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			btn.tooltip_text = "%s must be at least age %d to receive this gift." % [s_name, min_age]
+		elif not can_afford:
+			btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			btn.tooltip_text = "Insufficient funds (Total available: $%s)." % _format_number(PlayerData.money + PlayerData.bank_savings)
+		list.add_child(btn)
+
+
+func _show_sibling_progression_modal(sibling_index: int) -> void:
+	if sibling_index < 0 or sibling_index >= PlayerData.siblings.size():
+		return
+	var s: Dictionary = PlayerData.siblings[sibling_index]
+	NpcLifeProgress.ensure(s)
+	var s_name: String = str(s.get("name", "Sibling"))
+	var s_age: int = int(s.get("age", 0))
+	var s_rel: String = str(s.get("relation", "Sibling"))
+	var life: Dictionary = s.get("life_progress", {})
+
+	var modal := _create_cyber_modal("👥 %s'S PROGRESSION & JOURNEY" % s_name.to_upper(), "Complete life journey, education history, career milestones, and background progression for your %s, %s (Age %d)." % [s_rel.to_lower(), s_name, s_age], Color("#8b5cf6"))
+	romance_action_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	# 1. Summary Card
+	var summ_card := PanelContainer.new()
+	summ_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 24)
+	sm.add_theme_constant_override("margin_right", 24)
+	sm.add_theme_constant_override("margin_top", 16)
+	sm.add_theme_constant_override("margin_bottom", 16)
+	summ_card.add_child(sm)
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 8)
+	sm.add_child(sv)
+
+	var s_title := Label.new()
+	s_title.text = "📊 Current Life Status"
+	s_title.add_theme_font_size_override("font_size", 22)
+	s_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+	sv.add_child(s_title)
+
+	var occ_lbl := Label.new()
+	occ_lbl.text = NpcLifeProgress.get_occupation_display(s)
+	occ_lbl.add_theme_font_size_override("font_size", 20)
+	occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sv.add_child(occ_lbl)
+
+	var edu_lbl := Label.new()
+	edu_lbl.text = NpcLifeProgress.get_education_display(s)
+	edu_lbl.add_theme_font_size_override("font_size", 20)
+	edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+	edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sv.add_child(edu_lbl)
+
+	var biz_str := NpcLifeProgress.get_business_display(s)
+	if not biz_str.is_empty():
+		var biz_lbl := Label.new()
+		biz_lbl.text = biz_str
+		biz_lbl.add_theme_font_size_override("font_size", 20)
+		biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+		biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(biz_lbl)
+
+	if s_age >= 18:
+		var wealth_lbl := Label.new()
+		wealth_lbl.text = NpcLifeProgress.get_finances_display(s)
+		wealth_lbl.add_theme_font_size_override("font_size", 20)
+		wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sv.add_child(wealth_lbl)
+
+	list.add_child(summ_card)
+
+	# 2. Degrees & Academic Credentials
+	var degrees: Array = life.get("degrees", [])
+	if not degrees.is_empty():
+		var deg_header := Label.new()
+		deg_header.text = "🎓 Earned Degrees & Credentials"
+		deg_header.add_theme_font_size_override("font_size", 22)
+		deg_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+		list.add_child(deg_header)
+
+		for d in degrees:
+			if d is Dictionary:
+				var d_card := PanelContainer.new()
+				d_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#3b82f6")))
+				var dm := MarginContainer.new()
+				dm.add_theme_constant_override("margin_left", 20)
+				dm.add_theme_constant_override("margin_right", 20)
+				dm.add_theme_constant_override("margin_top", 12)
+				dm.add_theme_constant_override("margin_bottom", 12)
+				d_card.add_child(dm)
+				var d_lbl := Label.new()
+				var honors_str := (" • " + str(d.honors)) if not str(d.get("honors", "")).is_empty() else ""
+				d_lbl.text = "🏛 %s\n%s (GPA %.2f)%s" % [
+					str(d.get("university", "State University")),
+					str(d.get("degree", "Bachelor's Degree")),
+					float(d.get("gpa", 3.0)),
+					honors_str
+				]
+				d_lbl.add_theme_font_size_override("font_size", 19)
+				d_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
+				d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				dm.add_child(d_lbl)
+				list.add_child(d_card)
+
+	# 3. Milestones & Life History
+	var history: Array = life.get("history", [])
+	var hist_header := Label.new()
+	hist_header.text = "📜 Milestones & Background Progression (%d Events)" % history.size()
+	hist_header.add_theme_font_size_override("font_size", 22)
+	hist_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+	list.add_child(hist_header)
+
+	if history.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "No recorded background milestones yet. Milestones are recorded as %s grows up and ages!" % s_name
+		empty_lbl.add_theme_font_size_override("font_size", 18)
+		empty_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		list.add_child(empty_lbl)
+	else:
+		for k in range(history.size() - 1, -1, -1):
+			var entry = history[k]
+			if entry is Dictionary:
+				var h_age: int = int(entry.get("age", 0))
+				var h_text: String = str(entry.get("text", ""))
+				var item_card := PanelContainer.new()
+				item_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#6366f1")))
+				var im := MarginContainer.new()
+				im.add_theme_constant_override("margin_left", 20)
+				im.add_theme_constant_override("margin_right", 20)
+				im.add_theme_constant_override("margin_top", 10)
+				im.add_theme_constant_override("margin_bottom", 10)
+				item_card.add_child(im)
+				var il := Label.new()
+				il.text = "Age %d • %s" % [h_age, h_text]
+				il.add_theme_font_size_override("font_size", 18)
+				il.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
+				il.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				im.add_child(il)
+				list.add_child(item_card)
 
 
 func _interact_partner(action: String) -> void:
@@ -6987,6 +7440,56 @@ func _process_relationships_aging() -> void:
 
 			if maxi(int(child.get("last_spend_time_age", -1)), int(child.get("last_gift_age", -1))) < PlayerData.age - 1:
 				child["relationship"] = clampi(int(child.get("relationship", 80)) - randi_range(1, 2), 0, 100)
+
+	# Siblings aging, background life progression & relationship decay
+	for sibling in PlayerData.siblings:
+		if sibling is Dictionary and bool(sibling.get("is_alive", true)):
+			sibling["age"] = int(sibling.get("age", 0)) + 1
+			NpcLifeProgress.ensure(sibling)
+			var s_age: int = int(sibling["age"])
+			var s_name: String = str(sibling.get("name", "Sibling"))
+			var s_rel_title: String = str(sibling.get("relation", "Sibling"))
+
+			# Elderly health decay & natural mortality
+			if s_age >= 60:
+				var decay: int = randi_range(3, 7) + int((s_age - 60) / 4.0)
+				sibling["health"] = maxi(0, int(sibling.get("health", 85)) - decay)
+
+			var s_dead: bool = int(sibling.get("health", 85)) <= 0 or (s_age >= 75 and randf() < (float(s_age - 70) * 0.038))
+			if s_dead:
+				sibling["is_alive"] = false
+				sibling["health"] = 0
+				PlayerData.happiness = maxi(5, PlayerData.happiness - 25)
+				add_life_event("💔 TRAGEDY: Your %s %s passed away at the age of %d. You miss them dearly." % [s_rel_title.to_lower(), s_name, s_age], "relationship")
+				continue
+
+			# Milestones
+			if s_age == 18:
+				add_life_event("🎂 MILESTONE: Your %s %s turned 18 and entered adulthood!" % [s_rel_title.to_lower(), s_name], "family")
+			elif s_age == 22 and str(sibling.get("life_progress", {}).get("education_level", "")) == "University Graduate":
+				var d_title: String = str(sibling.get("life_progress", {}).get("university_degree", "degree"))
+				add_life_event("🎓 PROUD MOMENT: Your %s %s graduated from university with a %s!" % [s_rel_title.to_lower(), s_name, d_title], "family")
+			var biz_list: Array = sibling.get("life_progress", {}).get("owned_businesses", [])
+			if not biz_list.is_empty() and int(biz_list[0].get("founded_age", -1)) == s_age:
+				var b_title: String = str(biz_list[0].get("name", "an enterprise"))
+				add_life_event("🚀 FAMILY ENTERPRISE: Your %s %s founded their own business '%s'!" % [s_rel_title.to_lower(), s_name, b_title], "family")
+
+			# Relationship decay if neglected
+			if maxi(int(sibling.get("last_spend_time_age", -1)), int(sibling.get("last_gift_age", -1))) < PlayerData.age - 1:
+				sibling["relationship"] = clampi(int(sibling.get("relationship", 80)) - randi_range(1, 2), 0, 100)
+
+			# Warm interaction or cash birthday gift if strong relationship
+			var s_rel: int = int(sibling.get("relationship", 80))
+			if s_rel >= 80 and randf() < 0.18:
+				var sib_savings: int = int(sibling.get("life_progress", {}).get("bank_savings", 0))
+				if PlayerData.age >= 10 and sib_savings > 1000 and randf() < 0.35:
+					var gift_amt: int = randi_range(40, 120)
+					PlayerData.money += gift_amt
+					PlayerData.happiness = mini(100, PlayerData.happiness + 4)
+					add_life_event("🎁 Your %s %s sent you a supportive birthday card and a $%d gift!" % [s_rel_title.to_lower(), s_name, gift_amt], "relationship")
+				elif randf() < 0.25:
+					PlayerData.happiness = mini(100, PlayerData.happiness + 2)
+					add_life_event("📱 Your %s %s called to check in and chat about life. You felt connected and happy." % [s_rel_title.to_lower(), s_name], "relationship")
 
 	# Enforce buffs & debuffs constraints on active stats
 	PlayerData.enforce_buffs_and_debuffs()
@@ -14431,6 +14934,7 @@ func _show_will_modal() -> void:
 		"CHARITY": cur_name = "Philanthropic Charities"
 		"SPOUSE": cur_name = "Surviving Spouse / Partner"
 		"SPLIT": cur_name = "Equal Split Across Family"
+		"SIBLINGS": cur_name = "Surviving Siblings"
 		_: cur_name = "Surviving Children"
 
 	var cur_lbl := Label.new()
@@ -14446,6 +14950,12 @@ func _show_will_modal() -> void:
 			"title": "👶 All to Surviving Children",
 			"desc": "Bequeath 100% of all cash (converted to bank balance), bank savings, vehicles, and real property equally among your surviving children.",
 			"color": Color("#38bdf8")
+		},
+		{
+			"id": "SIBLINGS",
+			"title": "👥 All to Surviving Siblings",
+			"desc": "Bequeath 100% of all cash (converted to bank balance), bank savings, vehicles, and real property equally among your surviving brothers and sisters.",
+			"color": Color("#818cf8")
 		},
 		{
 			"id": "SPOUSE",
@@ -15828,6 +16338,8 @@ func _show_death_screen(cause: String) -> void:
 			will_recip_str = "Your Surviving Spouse & Partner"
 		"SPLIT":
 			will_recip_str = "Your Surviving Spouse and Children (Divided Equally)"
+		"SIBLINGS":
+			will_recip_str = "Your Surviving Siblings (Divided Equally)"
 		_:
 			will_recip_str = "Your Surviving Children"
 
@@ -16080,14 +16592,28 @@ func _show_inheritance_selection_modal() -> void:
 	# 1. Living Partner/Spouse
 	if PlayerData.has_partner():
 		var p_candidate: Dictionary = PlayerData.partner.duplicate(true)
-		p_candidate["_is_partner_heir"] = true
+		p_candidate["_heir_type"] = "partner"
 		heirs.append(p_candidate)
 
 	# 2. Living Children
 	for child in PlayerData.get_living_children():
 		var c_candidate: Dictionary = (child as Dictionary).duplicate(true) if child is Dictionary else {}
-		c_candidate["_is_partner_heir"] = false
+		c_candidate["_heir_type"] = "child"
 		heirs.append(c_candidate)
+
+	# 3. Living Siblings
+	for sibling in PlayerData.get_living_siblings():
+		var s_candidate: Dictionary = (sibling as Dictionary).duplicate(true) if sibling is Dictionary else {}
+		s_candidate["_heir_type"] = "sibling"
+		heirs.append(s_candidate)
+
+	if heirs.is_empty():
+		var empty_lbl := Label.new()
+		empty_lbl.text = "You have no surviving partner, children, or siblings to bequeath your estate to."
+		empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty_lbl.add_theme_font_size_override("font_size", 22)
+		empty_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+		list.add_child(empty_lbl)
 
 	for heir in heirs:
 		NpcLifeProgress.ensure(heir)
@@ -16095,10 +16621,12 @@ func _show_inheritance_selection_modal() -> void:
 		var h_age: int = int(heir.get("age", 0))
 		var h_gender: String = str(heir.get("gender", "MALE"))
 		var h_rel: int = int(heir.get("relationship", 80))
-		var is_partner: bool = bool(heir.get("_is_partner_heir", false))
+		var heir_type: String = str(heir.get("_heir_type", "child"))
+		var is_partner: bool = (heir_type == "partner")
+		var is_sibling: bool = (heir_type == "sibling")
 
 		var p_card := PanelContainer.new()
-		var card_color := Color("#f43f5e") if is_partner else Color("#eab308")
+		var card_color := Color("#f43f5e") if is_partner else (Color("#818cf8") if is_sibling else Color("#eab308"))
 		p_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(card_color))
 		var cm := MarginContainer.new()
 		cm.add_theme_constant_override("margin_left", 20)
@@ -16130,6 +16658,10 @@ func _show_inheritance_selection_modal() -> void:
 		if is_partner:
 			name_lbl.text = "%s (%s, Age %d)" % [h_name, PlayerData.get_partner_status(), h_age]
 			name_lbl.add_theme_color_override("font_color", Color("#f43f5e"))
+		elif is_sibling:
+			var s_rel: String = str(heir.get("relation", "Sibling"))
+			name_lbl.text = "%s (%s, Age %d)" % [h_name, s_rel, h_age]
+			name_lbl.add_theme_color_override("font_color", Color("#818cf8"))
 		else:
 			name_lbl.text = "%s (%s, Age %d)" % [h_name, "Daughter" if h_gender == "FEMALE" else "Son", h_age]
 			name_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
@@ -16168,7 +16700,7 @@ func _show_inheritance_selection_modal() -> void:
 		info_v.add_child(wealth_lbl)
 
 		var rel_lbl := Label.new()
-		var rel_target := "partner" if is_partner else "parent"
+		var rel_target := "partner" if is_partner else ("sibling" if is_sibling else "parent")
 		rel_lbl.text = "Relationship with late %s: %d%%" % [rel_target, h_rel]
 		rel_lbl.add_theme_font_size_override("font_size", 18)
 		rel_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
@@ -16179,8 +16711,15 @@ func _show_inheritance_selection_modal() -> void:
 		pick_btn.custom_minimum_size.y = 56
 		pick_btn.add_theme_font_size_override("font_size", 22)
 		var bs := StyleBoxFlat.new()
-		bs.bg_color = Color("#854d0e") if not is_partner else Color("#9f1239")
-		bs.border_color = Color("#facc15") if not is_partner else Color("#f43f5e")
+		if is_partner:
+			bs.bg_color = Color("#9f1239")
+			bs.border_color = Color("#f43f5e")
+		elif is_sibling:
+			bs.bg_color = Color("#3730a3")
+			bs.border_color = Color("#818cf8")
+		else:
+			bs.bg_color = Color("#854d0e")
+			bs.border_color = Color("#facc15")
 		bs.set_border_width_all(2)
 		bs.set_corner_radius_all(8)
 		pick_btn.add_theme_stylebox_override("normal", bs)
@@ -16189,18 +16728,24 @@ func _show_inheritance_selection_modal() -> void:
 		pick_btn.add_theme_stylebox_override("hover", bsh)
 
 		var target_heir = heir
-		var target_is_partner = is_partner
+		var target_heir_type = heir_type
 		pick_btn.pressed.connect(func():
-			_execute_inheritance_takeover(target_heir, modal.overlay, target_is_partner)
+			_execute_inheritance_takeover(target_heir, modal.overlay, target_heir_type)
 		)
 		info_v.add_child(pick_btn)
 
 		list.add_child(p_card)
 
 
-func _execute_inheritance_takeover(heir: Dictionary, overlay_to_free: Control, is_partner: bool = false) -> void:
+func _execute_inheritance_takeover(heir: Dictionary, overlay_to_free: Control, relation_param: Variant = "child") -> void:
 	if overlay_to_free != null and is_instance_valid(overlay_to_free):
 		overlay_to_free.queue_free()
+
+	var relation_type: String = "child"
+	if relation_param is bool:
+		relation_type = "partner" if relation_param else "child"
+	elif relation_param is String:
+		relation_type = relation_param
 
 	var net_worth: int = maxi(500, PlayerData.get_net_worth())
 	var roll := randf()
@@ -16222,7 +16767,7 @@ func _execute_inheritance_takeover(heir: Dictionary, overlay_to_free: Control, i
 	var liquid_estate := PlayerData.money + PlayerData.bank_savings - PlayerData.get_total_debt()
 	var bank_inheritance := maxi(0, liquid_estate - estate_fees)
 	var remaining_liability := maxi(0, estate_fees - liquid_estate)
-	PlayerData.takeover_as_heir(heir, bank_inheritance, PlayerData.owned_assets, "partner" if is_partner else "child")
+	PlayerData.takeover_as_heir(heir, bank_inheritance, PlayerData.owned_assets, relation_type)
 	PlayerData.debt = remaining_liability
 	PlayerData.add_life_log_entry(inheritance_msg, "finance")
 

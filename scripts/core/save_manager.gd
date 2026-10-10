@@ -64,6 +64,7 @@ func capture_data() -> Dictionary:
 		"owned_assets": PlayerData.owned_assets.duplicate(true),
 		"mortgages": PlayerData.mortgages.duplicate(true),
 		"rented_property": PlayerData.rented_property.duplicate(true),
+		"siblings": PlayerData.siblings.duplicate(true),
 		"health_insurance": PlayerData.health_insurance,
 		"asset_insurance": PlayerData.asset_insurance,
 		"education_level": PlayerData.education_level,
@@ -356,6 +357,10 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.owned_assets.clear()
 	PlayerData.mortgages = Array(data.get("mortgages", [])).duplicate(true)
 	PlayerData.rented_property = Dictionary(data.get("rented_property", {})).duplicate(true)
+	PlayerData.siblings = Array(data.get("siblings", [])).duplicate(true)
+	for s in PlayerData.siblings:
+		if s is Dictionary:
+			NpcLifeProgress.ensure(s)
 	PlayerData.health_insurance = str(data.get("health_insurance", "none"))
 	PlayerData.asset_insurance = Dictionary(data.get("asset_insurance", { "vehicle": false, "property": false }))
 	var saved_assets = data.get("owned_assets", [])

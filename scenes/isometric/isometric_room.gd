@@ -42,6 +42,7 @@ func _ready() -> void:
 	_ensure_parents()
 	_ensure_children()
 	_ensure_partner()
+	_ensure_siblings()
 
 func _on_viewport_size_changed() -> void:
 	_update_camera_zoom()
@@ -285,12 +286,67 @@ func _ensure_partner() -> void:
 		var role_str: String = "%s: %s" % [p_status, p_name] if p_name != "" else p_status
 		partner_node.call("setup_npc", p_tex, role_str)
 
+
+func _ensure_siblings() -> void:
+	if not characters:
+		return
+
+	var living_sibs: Array = []
+	if Engine.has_singleton("PlayerData") or typeof(PlayerData) != TYPE_NIL:
+		if PlayerData.has_method("get_living_siblings"):
+			living_sibs = PlayerData.get_living_siblings()
+		elif "siblings" in PlayerData and PlayerData.siblings is Array:
+			for s in PlayerData.siblings:
+				if s is Dictionary and bool(s.get("is_alive", true)):
+					living_sibs.append(s)
+
+	var char_scene := load("res://scenes/isometric/isometric_character.tscn") as PackedScene
+	if not char_scene:
+		return
+
+	var active_sib_names: Array[String] = []
+	var player_eth: String = PlayerData.ethnicity if "ethnicity" in PlayerData else "white"
+
+	for i in range(living_sibs.size()):
+		var sib_data: Dictionary = living_sibs[i]
+		var sib_name: String = str(sib_data.get("name", "Sibling %d" % (i + 1)))
+		var node_name := "SiblingCharacter_%d" % i
+		active_sib_names.append(node_name)
+
+		var sib_age: int = int(sib_data.get("age", 0))
+		var sib_gender: String = str(sib_data.get("gender", "MALE"))
+		var sib_track: int = int(sib_data.get("portrait_track", sib_data.get("portrait_variant", i)))
+		var sib_eth: String = str(sib_data.get("ethnicity", player_eth))
+		var sib_relation: String = str(sib_data.get("relation", "Sibling"))
+
+		var sib_tex: Texture2D = PortraitCatalog.get_portrait(sib_age, sib_gender, sib_track, sib_eth)
+
+		var sib_node = characters.get_node_or_null(node_name)
+		if sib_node == null:
+			sib_node = char_scene.instantiate()
+			sib_node.name = node_name
+			characters.add_child(sib_node)
+			sib_node.call("set_room", self)
+			sib_node.position = get_random_walkable_point()
+			sib_node.idle_timer = randf_range(1.0, 3.0)
+
+		if sib_node.has_method("setup_npc"):
+			sib_node.call("setup_npc", sib_tex, sib_relation + ": " + sib_name)
+
+	# Clean up any sibling nodes for siblings that no longer exist/are not alive
+	for child in characters.get_children():
+		if child.name.begins_with("SiblingCharacter_"):
+			if not active_sib_names.has(child.name):
+				child.queue_free()
+
+
 func update_character() -> void:
 	if _character_instance and _character_instance.has_method("update_appearance"):
 		_character_instance.call("update_appearance")
 	_ensure_parents()
 	_ensure_children()
 	_ensure_partner()
+	_ensure_siblings()
 
 func is_point_walkable(pt: Vector2) -> bool:
 	if not walkable_area or walkable_area.polygon.size() < 3:
