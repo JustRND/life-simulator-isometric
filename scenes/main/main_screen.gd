@@ -66,7 +66,6 @@ var _timeline_drawer_tween: Tween = null
 @onready var profile_strip: PanelContainer = $ProfileStrip
 var current_safe_top_m: float = 0.0
 var current_safe_bottom_m: float = 0.0
-var bottom_deadzone: ColorRect = null
 
 # Dialogs & Overlays
 @onready var settings_overlay: ColorRect = $SettingsOverlay
@@ -1561,9 +1560,10 @@ func _adjust_safe_area() -> void:
 	current_safe_top_m = top_m
 	current_safe_bottom_m = bottom_m
 
+	# Restore original position for the FIVE CORE BUTTONS (ActionBar)
 	if is_instance_valid(safe_area):
 		safe_area.offset_top = top_m
-		safe_area.offset_bottom = -bottom_m
+		safe_area.offset_bottom = 0.0
 	if is_instance_valid(action_bar):
 		action_bar.offset_bottom = 0.0
 	if is_instance_valid(age_button):
@@ -1580,57 +1580,14 @@ func _adjust_safe_area() -> void:
 		if is_instance_valid(life_feed_panel):
 			life_feed_panel.offset_top = profile_strip.offset_bottom + 4.0
 
-	# Bottom deadzone background for home timeline screen
-	if bottom_deadzone == null:
-		bottom_deadzone = ColorRect.new()
-		bottom_deadzone.name = "BottomSafeDeadzone"
-		bottom_deadzone.anchors_preset = Control.PRESET_BOTTOM_WIDE
-		bottom_deadzone.anchor_top = 1.0
-		bottom_deadzone.anchor_bottom = 1.0
-		bottom_deadzone.anchor_left = 0.0
-		bottom_deadzone.anchor_right = 1.0
-		bottom_deadzone.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		bottom_deadzone.z_index = 12
-		add_child(bottom_deadzone)
-
-	var is_light: bool = LifeLibrary.data.theme == "light"
-	bottom_deadzone.color = Color("#f1f5f9") if is_light else Color(0.06, 0.08, 0.16, 1.0)
-	bottom_deadzone.offset_top = -bottom_m
-	bottom_deadzone.offset_bottom = 0.0
-	var is_home: bool = timeline_panel != null and timeline_panel.visible
-	bottom_deadzone.visible = (bottom_m > 0.0 and is_home)
-
-	# Update panel margins dynamically to guarantee bottom buttons/cards are lifted safely
-	var panels_to_adjust := [
-		{"panel": activities_panel, "margin_name": "ActMargin", "base_bottom": 64, "base_top": 36},
-		{"panel": relationships_panel, "margin_name": "RelMargin", "base_bottom": 64, "base_top": 36},
-		{"panel": assets_panel, "margin_name": "AssetsMargin", "base_bottom": 64, "base_top": 36},
-		{"panel": bank_panel, "margin_name": "BankMargin", "base_bottom": 64, "base_top": 36},
-		{"panel": infant_panel, "margin_name": "InfantMargin", "base_bottom": 64, "base_top": 36},
-		{"panel": character_panel, "margin_name": "CharacterMargin", "base_bottom": 64, "base_top": 36},
-	]
-	for p_info in panels_to_adjust:
-		var p_node: Control = p_info["panel"]
-		if is_instance_valid(p_node):
-			var m_node = p_node.get_node_or_null(p_info["margin_name"]) as MarginContainer
-			if is_instance_valid(m_node):
-				m_node.add_theme_constant_override("margin_bottom", int(p_info["base_bottom"] + bottom_m))
-				if top_m > 0.0:
-					m_node.add_theme_constant_override("margin_top", int(maxf(p_info["base_top"], top_m + 8.0)))
-
-	if is_instance_valid(settings_overlay):
-		var sm = settings_overlay.get_node_or_null("SettingsCard/SettingsMargin") as MarginContainer
-		if is_instance_valid(sm):
-			sm.add_theme_constant_override("margin_bottom", int(64 + bottom_m))
+	# ONLY create a bottom margin for the ACTIVITIES PANEL as specifically requested.
+	# The five core buttons and other panels stay in their original layout.
+	if is_instance_valid(activities_panel):
+		var act_m = activities_panel.get_node_or_null("ActMargin") as MarginContainer
+		if is_instance_valid(act_m):
+			act_m.add_theme_constant_override("margin_bottom", int(maxf(64.0, 36.0 + bottom_m)))
 			if top_m > 0.0:
-				sm.add_theme_constant_override("margin_top", int(maxf(36, top_m + 8.0)))
-
-	if is_instance_valid(event_overlay):
-		var em = event_overlay.get_node_or_null("EventPanel/EventMargin") as MarginContainer
-		if is_instance_valid(em):
-			em.add_theme_constant_override("margin_bottom", int(64 + bottom_m))
-			if top_m > 0.0:
-				em.add_theme_constant_override("margin_top", int(maxf(36, top_m + 8.0)))
+				act_m.add_theme_constant_override("margin_top", int(maxf(36.0, top_m + 8.0)))
 
 
 func trigger_event() -> void:
@@ -2354,10 +2311,6 @@ func show_tab(tab_name: String) -> void:
 		age_button.visible = is_home
 	if timeline_pull_up_btn != null:
 		timeline_pull_up_btn.visible = is_home
-	if bottom_deadzone != null:
-		var is_light: bool = LifeLibrary.data.theme == "light"
-		bottom_deadzone.color = Color("#f1f5f9") if is_light else Color(0.06, 0.08, 0.16, 1.0)
-		bottom_deadzone.visible = (current_safe_bottom_m > 0.0 and is_home)
 	if not is_home and _is_timeline_open:
 		_close_timeline_drawer()
 

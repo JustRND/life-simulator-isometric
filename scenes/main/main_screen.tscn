@@ -883,7 +883,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 42
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="CharacterContent" type="VBoxContainer" parent="CharacterPanel/CharacterMargin" unique_id=1434596636]
 layout_mode = 2
@@ -1087,7 +1087,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 42
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="InfantContent" type="VBoxContainer" parent="InfantPanel/InfantMargin" unique_id=380468781]
 layout_mode = 2
@@ -1229,7 +1229,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 42
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="AssetsContent" type="VBoxContainer" parent="AssetsPanel/AssetsMargin" unique_id=1236026963]
 layout_mode = 2
@@ -1334,11 +1334,6 @@ theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
 theme_override_font_sizes/font_size = 24
 text = "You do not own any vehicles."
 
-[node name="AssetsListBottomSpacer" type="Control" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsScroll/AssetsList" unique_id=987213464]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-mouse_filter = 2
-
 [node name="BankPanel" type="PanelContainer" parent="." unique_id=28360382]
 visible = false
 layout_mode = 1
@@ -1354,7 +1349,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 42
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="BankContent" type="VBoxContainer" parent="BankPanel/BankMargin" unique_id=657265361]
 layout_mode = 2
@@ -1440,11 +1435,6 @@ theme_override_font_sizes/font_size = 24
 text = "Account Status: Active & In Good Standing"
 horizontal_alignment = 1
 
-[node name="BankListBottomSpacer" type="Control" parent="BankPanel/BankMargin/BankContent/BankScroll/BankList" unique_id=987213465]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-mouse_filter = 2
-
 [node name="RelationshipsPanel" type="PanelContainer" parent="." unique_id=805500706]
 visible = false
 layout_mode = 1
@@ -1460,7 +1450,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 42
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="RelContent" type="VBoxContainer" parent="RelationshipsPanel/RelMargin" unique_id=1236264837]
 layout_mode = 2
@@ -1605,11 +1595,6 @@ theme_override_colors/font_color = Color(0.68, 0.78, 0.9, 1)
 theme_override_font_sizes/font_size = 22
 text = "Relationship: Good"
 autowrap_mode = 3
-
-[node name="RelListBottomSpacer" type="Control" parent="RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList" unique_id=987213463]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-mouse_filter = 2
 
 [node name="ActivitiesPanel" type="PanelContainer" parent="." unique_id=1478149788]
 visible = false
@@ -1927,7 +1912,7 @@ text = "🏡  HOUSEHOLD INTERACTIONS"
 alignment = 0
 
 [node name="ActListBottomSpacer" type="Control" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213462]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 mouse_filter = 2
 
@@ -1956,7 +1941,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 42
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="SettingsContent" type="VBoxContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin" unique_id=778650370]
 layout_mode = 2
@@ -2240,7 +2225,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_bottom = 36
 
 [node name="EventContent" type="VBoxContainer" parent="EventOverlay/EventPanel/EventMargin" unique_id=156847665]
 layout_mode = 2
