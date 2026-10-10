@@ -3,7 +3,6 @@ extends RefCounted
 
 const CATEGORY_VEHICLE := "vehicle"
 const CATEGORY_PROPERTY := "property"
-const CATEGORY_BUSINESS := "business"
 
 # Expensive base premiums & rates (scales with portfolio value)
 const VEHICLE_BASE_PREMIUM := 2500
@@ -11,9 +10,6 @@ const VEHICLE_RATE := 0.045 # 4.5% annual rate of vehicle portfolio value
 
 const PROPERTY_BASE_PREMIUM := 6000
 const PROPERTY_RATE := 0.030 # 3.0% annual rate of property portfolio value
-
-const BUSINESS_BASE_PREMIUM := 10000
-const BUSINESS_RATE := 0.005 # 0.5% annual rate of commercial business portfolio scale/valuation
 
 const VEHICLE_ASSET_CATEGORIES := [
 	AssetCatalog.CATEGORY_CARS,
@@ -54,22 +50,7 @@ static func get_category_valuation(player_data: Node, insurance_cat: String) -> 
 		total += int(asset.get("current_value", asset.get("purchase_price", 0)))
 	return total
 
-static func get_total_business_valuation(player_data: Node) -> int:
-	if not ("owned_businesses" in player_data) or player_data.owned_businesses.is_empty():
-		return 0
-	var total: int = 0
-	for b in player_data.owned_businesses:
-		var val: int = int(b.get("valuation", 0))
-		var type_id: String = str(b.get("type_id", ""))
-		var def: Dictionary = BusinessManager.get_business_type_by_id(type_id) if ResourceLoader.exists("res://scripts/economy/business_manager.gd") else {}
-		var startup: int = int(def.get("startup_cost", 50000))
-		total += maxi(startup, val)
-	return total
-
 static func get_annual_premium(player_data: Node, insurance_cat: String) -> int:
-	if insurance_cat == CATEGORY_BUSINESS:
-		var val: int = get_total_business_valuation(player_data)
-		return int(round(float(BUSINESS_BASE_PREMIUM) + float(val) * BUSINESS_RATE))
 	var val: int = get_category_valuation(player_data, insurance_cat)
 	if insurance_cat == CATEGORY_VEHICLE:
 		return int(round(float(VEHICLE_BASE_PREMIUM) + float(val) * VEHICLE_RATE))
@@ -81,9 +62,6 @@ static func has_insurance(player_data: Node, insurance_cat: String) -> bool:
 	if not "asset_insurance" in player_data:
 		return false
 	return bool(player_data.asset_insurance.get(insurance_cat, false))
-
-static func is_business_insured(player_data: Node) -> bool:
-	return has_insurance(player_data, CATEGORY_BUSINESS)
 
 static func can_afford_insurance(player_data: Node, insurance_cat: String) -> bool:
 	var premium: int = get_annual_premium(player_data, insurance_cat)
@@ -101,11 +79,7 @@ static func buy_insurance(player_data: Node, insurance_cat: String) -> Dictionar
 		player_data.asset_insurance = {}
 	player_data.asset_insurance[insurance_cat] = true
 	
-	var cat_label := "Vehicle"
-	if insurance_cat == CATEGORY_PROPERTY:
-		cat_label = "Property"
-	elif insurance_cat == CATEGORY_BUSINESS:
-		cat_label = "Commercial Business"
+	var cat_label := "Vehicle" if insurance_cat == CATEGORY_VEHICLE else "Property"
 
 	return {
 		"success": true,
@@ -118,11 +92,7 @@ static func cancel_insurance(player_data: Node, insurance_cat: String) -> Dictio
 		return {"success": false, "message": "No active policy found for this category."}
 	
 	player_data.asset_insurance[insurance_cat] = false
-	var cat_label := "Vehicle"
-	if insurance_cat == CATEGORY_PROPERTY:
-		cat_label = "Property"
-	elif insurance_cat == CATEGORY_BUSINESS:
-		cat_label = "Commercial Business"
+	var cat_label := "Vehicle" if insurance_cat == CATEGORY_VEHICLE else "Property"
 
 	return {
 		"success": true,
@@ -131,10 +101,10 @@ static func cancel_insurance(player_data: Node, insurance_cat: String) -> Dictio
 
 static func process_yearly_insurance(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []
-	for cat in [CATEGORY_VEHICLE, CATEGORY_PROPERTY, CATEGORY_BUSINESS]:
+	for cat in [CATEGORY_VEHICLE, CATEGORY_PROPERTY]:
 		if has_insurance(player_data, cat):
 			var premium: int = get_annual_premium(player_data, cat)
-			var cat_label := "Vehicle" if cat == CATEGORY_VEHICLE else ("Property" if cat == CATEGORY_PROPERTY else "Business")
+			var cat_label := "Vehicle" if cat == CATEGORY_VEHICLE else "Property"
 			if player_data.bank_savings >= premium:
 				player_data.bank_savings -= premium
 				logs.append("🛡️ ASSET INSURANCE: Paid $%d annual premium for %s Insurance." % [premium, cat_label])

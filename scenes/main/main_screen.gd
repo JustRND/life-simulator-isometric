@@ -3435,9 +3435,8 @@ func update_bank_panel() -> void:
 
 		var has_veh: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 		var has_prop: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
-		var has_biz: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-		var ins_btn_text := "🛡️ Asset & Business Insurance: Protected" if (has_veh and has_prop and has_biz) else ("🛡️ Insurance: Active Coverage (Tap to Manage)" if (has_veh or has_prop or has_biz) else "🛡️ Asset & Business Insurance (Underwriting)")
-		var ins_btn_col := Color("#10b981") if (has_veh or has_prop or has_biz) else Color("#059669")
+		var ins_btn_text := "🛡️ Asset Insurance: Protected" if (has_veh and has_prop) else ("🛡️ Insurance: Active Coverage (Tap to Manage)" if (has_veh or has_prop) else "🛡️ Asset Insurance (Underwriting)")
+		var ins_btn_col := Color("#10b981") if (has_veh or has_prop) else Color("#059669")
 		var ins_quick_btn := _create_cyber_button(ins_btn_text, ins_btn_col, _show_insurance_modal, true)
 		ins_quick_btn.name = "BankInsuranceButton"
 		bank_card_vbox.add_child(ins_quick_btn)
@@ -3670,56 +3669,6 @@ func update_bank_panel() -> void:
 		btn_buy_prop.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 		btn_buy_prop.tooltip_text = "Insufficient funds to purchase property insurance." if btn_buy_prop.disabled else "Activate property insurance protection."
 		prop_btn_row.add_child(btn_buy_prop)
-
-	# Divider line
-	var biz_sep := HSeparator.new()
-	iv.add_child(biz_sep)
-
-	# --- Category 3: Business Insurance ---
-	var biz_box := VBoxContainer.new()
-	biz_box.add_theme_constant_override("separation", 6)
-	iv.add_child(biz_box)
-
-	var biz_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-	var biz_count: int = PlayerData.owned_businesses.size()
-	var biz_val: int = AssetInsuranceManager.get_total_business_valuation(PlayerData)
-	var biz_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-
-	var biz_hdr := Label.new()
-	biz_hdr.text = "🏢 BUSINESS INSURANCE (Commercial Enterprises & Ventures)"
-	biz_hdr.add_theme_font_size_override("font_size", 24)
-	biz_hdr.add_theme_color_override("font_color", Color("#d97706") if is_light else Color("#fbbf24"))
-	biz_box.add_child(biz_hdr)
-
-	var biz_info := Label.new()
-	var biz_status_text := "✅ ACTIVE POLICY (100% Protected against bankruptcy, insolvency & liquidation)" if biz_has_ins else "⚠️ UNINSURED (Commercial ventures will fully close down and liquidate upon bankruptcy!)"
-	biz_info.text = "• Status: %s\n• Registered Portfolio: %d enterprises (Combined Valuation: $%s)\n• Annual Premium: $%s / year ($10,000 base + 0.5%% enterprise scale)\n• Protection: In the event of bankruptcy, insurance settles corporate liabilities and resets operations to zero so you never lose ownership." % [
-		biz_status_text,
-		biz_count,
-		_format_number(biz_val),
-		_format_number(biz_premium)
-	]
-	biz_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	biz_info.add_theme_font_size_override("font_size", 22)
-	biz_info.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
-	biz_box.add_child(biz_info)
-
-	var biz_btn_row := HBoxContainer.new()
-	biz_btn_row.add_theme_constant_override("separation", 10)
-	biz_box.add_child(biz_btn_row)
-
-	if biz_has_ins:
-		var btn_cancel_biz := _create_cyber_button("Cancel Business Insurance", Color("#ef4444"), func(): _cancel_asset_insurance(AssetInsuranceManager.CATEGORY_BUSINESS), true)
-		btn_cancel_biz.name = "CancelBusinessInsuranceButton"
-		btn_cancel_biz.tooltip_text = "Cancel business insurance policy. Your commercial ventures will no longer be protected against liquidation."
-		biz_btn_row.add_child(btn_cancel_biz)
-	else:
-		var btn_buy_biz := _create_cyber_button("Buy Business Insurance ($%s/yr)" % _format_number(biz_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_BUSINESS), true)
-		btn_buy_biz.name = "BuyBusinessInsuranceButton"
-		btn_buy_biz.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-		btn_buy_biz.tooltip_text = "Insufficient funds to purchase business insurance." if btn_buy_biz.disabled else "Activate business insurance protection."
-		biz_btn_row.add_child(btn_buy_biz)
-
 	bank_list.add_child(ins_card)
 
 	# 2. Debt & Loan Summary Card
@@ -4094,43 +4043,6 @@ func _show_insurance_modal() -> void:
 		btn_b_prop.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 		modal.list.add_child(btn_b_prop)
 
-	# Business Insurance Section
-	var biz_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-	var biz_count: int = PlayerData.owned_businesses.size()
-	var biz_val: int = AssetInsuranceManager.get_total_business_valuation(PlayerData)
-	var biz_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-
-	var biz_title := Label.new()
-	biz_title.text = "\n🏢 BUSINESS INSURANCE"
-	biz_title.add_theme_font_size_override("font_size", 26)
-	biz_title.add_theme_color_override("font_color", Color("#d97706") if is_light else Color("#fbbf24"))
-	modal.list.add_child(biz_title)
-
-	var biz_lbl := Label.new()
-	var biz_stat := "✅ ACTIVE POLICY (Protected)" if biz_has_ins else "⚠️ UNINSURED (High Risk!)"
-	biz_lbl.text = "• Status: %s\n• Registered Portfolio: %d enterprises ($%s valuation)\n• Premium: $%s / year ($10,000 base + 0.5%% valuation)\n• Protection: Prevents businesses from fully closing down on insolvency. Absorbs debt liabilities and resets operations to zero for a fresh restart." % [
-		biz_stat, biz_count, _format_number(biz_val), _format_number(biz_premium)
-	]
-	biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	biz_lbl.add_theme_font_size_override("font_size", 22)
-	biz_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
-	modal.list.add_child(biz_lbl)
-
-	if biz_has_ins:
-		var btn_c_biz := _create_cyber_button("Cancel Business Insurance", Color("#ef4444"), func():
-			modal.overlay.queue_free()
-			_cancel_asset_insurance(AssetInsuranceManager.CATEGORY_BUSINESS)
-		, true)
-		btn_c_biz.name = "ModalCancelBusinessInsuranceButton"
-		modal.list.add_child(btn_c_biz)
-	else:
-		var btn_b_biz := _create_cyber_button("Buy Business Insurance ($%s/yr)" % _format_number(biz_premium), Color("#10b981"), func():
-			modal.overlay.queue_free()
-			_buy_asset_insurance(AssetInsuranceManager.CATEGORY_BUSINESS)
-		, true)
-		btn_b_biz.name = "ModalBuyBusinessInsuranceButton"
-		btn_b_biz.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_BUSINESS)
-		modal.list.add_child(btn_b_biz)
 
 
 func _buy_asset_insurance(category: String) -> void:
@@ -9961,11 +9873,7 @@ func _process_yearly_business_operations() -> void:
 		var profit_val: int = int(r.get("net_profit", 0))
 		var profit_str: String = ("+$%s" % _format_number(profit_val)) if profit_val >= 0 else ("-$%s" % _format_number(abs(profit_val)))
 
-		var saved_by_ins: bool = bool(r.get("saved_by_insurance", false))
-		if saved_by_ins:
-			var timeline_msg: String = "🛡️ BUSINESS SAVED BY INSURANCE: '%s' reached catastrophic insolvency, but First National Pixel Bank Business Insurance intervened! Corporate debt cleared and enterprise reset to zero for a fresh restart." % b_name
-			add_life_event(timeline_msg, "finance")
-		elif is_closed:
+		if is_closed:
 			var close_reason: String = str(r.get("close_reason", ""))
 			if close_reason.is_empty():
 				close_reason = "Operating losses depleted corporate reserves and creditors liquidated assets."
