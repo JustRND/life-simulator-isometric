@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://stage5_verif_runner"]
+
+[ext_resource type="Script" path="res://tests/test_stage_5_verification.gd" id="1_stage5"]
+
+[node name="TestStage5Verification" type="Node"]
+script = ExtResource("1_stage5")

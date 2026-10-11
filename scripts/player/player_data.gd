@@ -1783,6 +1783,17 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 	add_milestone("Reborn in %s." % birthplace, 0, "🍼")
 	generate_initial_siblings()
 
+	if has_node("/root/GameClock"):
+		var clock = get_node("/root/GameClock")
+		if clock != null:
+			var b_idx: int = clock.month_name_to_index(birth_month)
+			clock.setup_new_game(b_idx, birth_day, 2026, 1, 1, 12)
+
+	if has_node("/root/NeedsManager"):
+		var nm = get_node("/root/NeedsManager")
+		if nm != null:
+			nm.reconcile_stat_modifiers(self)
+
 
 func takeover_as_child(child: Dictionary, inherited_money: int, inherited_assets: Array = []) -> void:
 	takeover_as_heir(child, inherited_money, inherited_assets, "child")
@@ -1882,6 +1893,24 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	var CryptoMarketRef = preload("res://scripts/economy/crypto_market.gd")
 	CryptoMarketRef.ensure(self)
 	has_started_game = true
+	is_dead = false
+	hunger = 100.0
+	thirst = 100.0
+	active_stat_modifiers.clear()
+
+	if has_node("/root/GameClock"):
+		var clock = get_node("/root/GameClock")
+		if clock != null:
+			clock.current_age = age
+			clock.birth_year = clock.derive_birth_year(clock.year, clock.month, clock.day, birth_month_idx, birth_day, age)
+			clock.is_paused = false
+			clock.pause_reasons.erase("death")
+			clock._sync_to_player_data()
+
+	if has_node("/root/NeedsManager"):
+		var nm = get_node("/root/NeedsManager")
+		if nm != null:
+			nm.reconcile_stat_modifiers(self)
 
 	health = int(heir.get("health", 85))
 	happiness = int(heir.get("happiness", 75))

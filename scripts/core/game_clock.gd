@@ -320,8 +320,10 @@ func is_running() -> bool:
 		return false
 
 	if external_progression_check.is_valid():
-		if not external_progression_check.call():
-			return false
+		var target_obj = external_progression_check.get_object()
+		if target_obj != null and is_instance_valid(target_obj):
+			if not external_progression_check.call():
+				return false
 
 	if PlayerData != null:
 		if not PlayerData.has_started_game:

@@ -401,6 +401,22 @@ func _connect_runtime_signals() -> void:
 		GameClock.external_progression_check = Callable(self, "is_time_progression_active")
 
 
+func _exit_tree() -> void:
+	if GameClock != null:
+		if GameClock.external_progression_check.is_valid() and GameClock.external_progression_check.get_object() == self:
+			GameClock.external_progression_check = Callable()
+		if GameClock.day_changed.is_connected(_on_clock_day_changed):
+			GameClock.day_changed.disconnect(_on_clock_day_changed)
+		if GameClock.month_changed.is_connected(_on_clock_month_changed):
+			GameClock.month_changed.disconnect(_on_clock_month_changed)
+		if GameClock.year_changed.is_connected(_on_clock_year_changed):
+			GameClock.year_changed.disconnect(_on_clock_year_changed)
+		if GameClock.birthday.is_connected(_on_clock_birthday):
+			GameClock.birthday.disconnect(_on_clock_birthday)
+		if GameClock.time_ticked.is_connected(_on_clock_time_ticked):
+			GameClock.time_ticked.disconnect(_on_clock_time_ticked)
+
+
 
 func _configure_ui() -> void:
 	_configure_creation()
@@ -468,6 +484,9 @@ func _configure_ui() -> void:
 	if time_counter_label != null:
 		time_counter_label.add_theme_font_size_override("font_size", 26)
 		time_counter_label.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color(0.22, 0.83, 0.93, 1))
+		time_counter_label.mouse_filter = Control.MOUSE_FILTER_STOP
+		if not time_counter_label.gui_input.is_connected(_on_time_label_gui_input):
+			time_counter_label.gui_input.connect(_on_time_label_gui_input)
 	phase_label.add_theme_font_size_override("font_size", 28)
 	life_feed.add_theme_font_size_override("normal_font_size", 32)
 	life_feed.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -847,14 +866,27 @@ func _process(delta: float) -> void:
 func _update_time_and_age_labels() -> void:
 	if age_label != null:
 		age_label.text = "Age: %d" % PlayerData.age
+	var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
 	if time_counter_label != null:
-		if GameClock != null:
-			time_counter_label.text = "• 📅 %s" % GameClock.get_date_string()
+		if PlayerData.is_time_paused:
+			time_counter_label.text = "• ⏸️ PAUSED (%s)" % date_str
 		else:
-			time_counter_label.text = "• 📅 %s" % PlayerData.get_date_string()
+			time_counter_label.text = "• 📅 %s" % date_str
 	if age_button != null:
-		var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
 		age_button.tooltip_text = "%s • Age %d" % [date_str, PlayerData.age]
+
+
+func toggle_time_pause() -> void:
+	PlayerData.is_time_paused = not PlayerData.is_time_paused
+	if GameClock != null:
+		GameClock.set_paused(PlayerData.is_time_paused, "player_manual")
+	_update_time_and_age_labels()
+
+
+func _on_time_label_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if PlayerData.has_started_game and not PlayerData.is_dead and not has_any_deliberate_modal_open():
+			toggle_time_pause()
 
 
 func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
@@ -952,6 +984,11 @@ func age_up(target_age: int = -1) -> void:
 		GameClock.year += 1
 		GameClock.birth_year = GameClock.derive_birth_year(GameClock.year, GameClock.month, GameClock.day, GameClock.birth_month, GameClock.birth_day, next_age)
 		GameClock._sync_to_player_data()
+
+	# Catch up any monthly settlements for the skipped period before yearly operations and tax reconciliation
+	var cur_y: int = GameClock.year if GameClock != null else PlayerData.in_game_year
+	var cur_m: int = GameClock.month if GameClock != null else PlayerData.in_game_month
+	MonthlySettlementCoordinator.catch_up_settlements(PlayerData, cur_y, cur_m)
 
 	_process_yearly_operations()
 	_process_birthday_operations(next_age, prev_age)
@@ -2210,6 +2247,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel") and _is_timeline_open:
 		_close_timeline_drawer()
 		get_viewport().set_input_as_handled()
+		return
+
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_SPACE:
+		if PlayerData.has_started_game and not PlayerData.is_dead and not has_any_deliberate_modal_open():
+			toggle_time_pause()
+			get_viewport().set_input_as_handled()
 
 
 
