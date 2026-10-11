@@ -7,6 +7,7 @@ var contrast_errors := 0
 var clipping_errors := 0
 
 func _ready() -> void:
+	get_window().size = Vector2i(390, 844)
 	print("===================================================================")
 	print("🔍 RUNNING AUDIT: VERTICAL TEXT WRAPPING, PANEL CLIPPING & CONTRAST")
 	print("===================================================================")
@@ -113,6 +114,17 @@ func _ready() -> void:
 			await get_tree().process_frame
 			await get_tree().process_frame
 			_audit_open_modal(screen, "Marketplace: %s" % category, theme_mode)
+			_close_all_modals(screen)
+			await get_tree().process_frame
+
+		# Finance Market is owned by a dynamically installed panel rather than a
+		# MainScreen modal method, so audit it explicitly at the mobile viewport.
+		var finance_panel: Node = screen.get_node_or_null("FinancePanel")
+		if finance_panel != null and finance_panel.has_method("open"):
+			finance_panel.open()
+			await get_tree().process_frame
+			await get_tree().process_frame
+			_audit_open_modal(screen, "Finance Market", theme_mode)
 			_close_all_modals(screen)
 			await get_tree().process_frame
 

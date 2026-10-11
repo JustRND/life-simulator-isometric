@@ -338,6 +338,10 @@ func _exchange(list: VBoxContainer) -> void:
 			badge_prefix = "💥 CRASH "
 
 		var trend_lbl := Label.new()
+		# This label is intentionally kept on one line. The main screen's global
+		# anti-clipping hook otherwise changes AUTOWRAP_OFF to word wrapping, which
+		# collapses the price badge to a few pixels on narrow screens.
+		trend_lbl.set_meta("reference_part", true)
 		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
 		trend_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
 		trend_lbl.add_theme_font_size_override("font_size", 29)
