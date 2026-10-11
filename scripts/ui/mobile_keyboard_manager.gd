@@ -390,7 +390,10 @@ static func show_input_popup(options: Dictionary) -> Control:
 	var vp_w: float = 1080.0
 	if tree.root != null:
 		vp_w = tree.root.get_visible_rect().size.x
-	var card_w: float = minf(700.0, vp_w - 32.0)
+	# The popup can be created while the viewport is still settling on mobile.
+	# Keep the width valid so the content never collapses into a narrow column.
+	vp_w = maxf(vp_w, 32.0)
+	var card_w: float = maxf(1.0, minf(700.0, vp_w - 32.0))
 	var top_margin: float = maxf(110.0, get_safe_area_top() + 40.0)
 
 	var card := PanelContainer.new()
@@ -588,12 +591,14 @@ static func show_input_popup(options: Dictionary) -> Control:
 	)
 
 	# PopupCard is positioned directly under a Control overlay, so it does not
-	# receive a container-assigned height. Size it from the completed content
-	# before showing it; otherwise only the focused LineEdit can leak outside
-	# the zero-height card on mobile viewports.
-	var popup_height := maxf(1.0, margin.get_combined_minimum_size().y)
+	# receive a container-assigned height. The minimum size is not reliable until
+	# the card enters the scene tree; use it when available, with enough room for
+	# the title, input, buttons, margins, and an optional subtitle as a fallback.
+	var popup_height := maxf(280.0, margin.get_combined_minimum_size().y)
+	card.custom_minimum_size = Vector2(card_w, popup_height)
 	card.size = Vector2(card_w, popup_height)
 	card.offset_bottom = card.offset_top + popup_height
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 	# Backdrop tap dismisses popup cleanly
 	backdrop.gui_input.connect(func(event: InputEvent):
