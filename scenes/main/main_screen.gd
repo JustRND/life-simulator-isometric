@@ -15025,7 +15025,7 @@ func _ensure_no_clipping_recursive(node: Node) -> void:
 	if node.name == "TimeCounterLabel" or node.has_meta("keep_fixed_size"):
 		return
 	if node is Label:
-		if node.autowrap_mode == TextServer.AUTOWRAP_OFF:
+		if node.autowrap_mode == TextServer.AUTOWRAP_OFF and not node.has_meta("keep_horizontal_text"):
 			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
 		if not node.has_meta("keep_fixed_size"):
@@ -15059,7 +15059,7 @@ func _on_global_node_added(node: Node) -> void:
 	if node.name == "TimeCounterLabel" or node.has_meta("keep_fixed_size") or node.has_meta("reference_part"):
 		return
 	if node is Label:
-		if node.autowrap_mode == TextServer.AUTOWRAP_OFF:
+		if node.autowrap_mode == TextServer.AUTOWRAP_OFF and not node.has_meta("keep_horizontal_text"):
 			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
 	elif node is ScrollContainer:
@@ -17768,10 +17768,15 @@ func _show_charity_modal() -> void:
 		top_row.add_child(name_lbl)
 
 		var amt_lbl := Label.new()
+		amt_lbl.name = "CharityAmount"
+		amt_lbl.set_meta("keep_horizontal_text", true)
 		amt_lbl.text = "$%s" % _format_number(amount)
 		amt_lbl.add_theme_font_size_override("font_size", 36)
 		amt_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 		amt_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		amt_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		amt_lbl.custom_minimum_size.x = 180
+		amt_lbl.size_flags_horizontal = Control.SIZE_SHRINK_END
 		top_row.add_child(amt_lbl)
 
 		# Description
