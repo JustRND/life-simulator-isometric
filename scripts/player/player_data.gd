@@ -98,8 +98,12 @@ var life_milestones: Array = []
 
 var partner: Dictionary = {}
 var ex_partners: Array = []
+var friends: Array = []
 var children: Array = []
 var pregnancy: Dictionary = {}
+var intoxication_level: int = 0
+var has_hangover: bool = false
+var venue_history: Array = []
 var active_debuffs: Array = []
 var active_buffs: Array = []
 var total_donated_charity: int = 0
@@ -370,6 +374,10 @@ func reset_player() -> void:
 
 	partner = {}
 	ex_partners = []
+	friends = []
+	intoxication_level = 0
+	has_hangover = false
+	venue_history = []
 	last_parent_interact_age = -1
 	last_parent_interact_month = -1
 	last_parent_interact_year = -1
@@ -1038,6 +1046,66 @@ func modify_thirst(delta: float) -> void:
 	thirst = clampf(thirst + delta, 0.0, 100.0)
 
 
+func modify_health(delta: int) -> void:
+	health = clampi(health + delta, 0, 100)
+	enforce_buffs_and_debuffs()
+
+
+func modify_happiness(delta: int) -> void:
+	happiness = clampi(happiness + delta, 0, 100)
+	enforce_buffs_and_debuffs()
+
+
+func apply_intoxication(delta: int) -> int:
+	intoxication_level = clampi(intoxication_level + delta, 0, 100)
+	return intoxication_level
+
+
+func clear_intoxication() -> void:
+	intoxication_level = 0
+
+
+func record_venue_visit(venue_id: String, activity_id: String = "", spent: int = 0) -> void:
+	var entry := {
+		"venue_id": venue_id,
+		"activity_id": activity_id,
+		"spent": spent,
+		"age": age,
+		"month": in_game_month,
+		"year": in_game_year,
+		"day": in_game_day
+	}
+	venue_history.append(entry)
+	if venue_history.size() > 50:
+		venue_history.pop_front()
+
+
+func process_daily_venues_and_intoxication() -> Dictionary:
+	var hangover_triggered: bool = false
+	var hangover_cleared: bool = false
+
+	if has_hangover:
+		has_hangover = false
+		hangover_cleared = true
+
+	if intoxication_level >= 50:
+		has_hangover = true
+		hangover_triggered = true
+		intoxication_level = 0
+		modify_health(-10)
+		modify_happiness(-15)
+		modify_thirst(-15.0)
+	else:
+		intoxication_level = 0
+
+	return {
+		"hangover_triggered": hangover_triggered,
+		"hangover_cleared": hangover_cleared,
+		"current_intoxication": intoxication_level,
+		"has_hangover": has_hangover
+	}
+
+
 func add_inventory_item(item_id: String, count: int = 1) -> void:
 	if count <= 0:
 		return
@@ -1610,6 +1678,57 @@ func get_partner_relationship() -> int:
 func set_partner_relationship(val: int) -> void:
 	if has_partner():
 		partner["relationship"] = clampi(val, 0, 100)
+
+
+func get_friends() -> Array:
+	return friends
+
+
+func has_friends() -> bool:
+	return not friends.is_empty()
+
+
+func add_friend(friend_data: Dictionary) -> bool:
+	if friend_data.is_empty():
+		return false
+	var friend_id: String = str(friend_data.get("id", ""))
+	if friend_id == "":
+		friend_id = "friend_%d_%d" % [Time.get_ticks_msec(), randi() % 10000]
+		friend_data["id"] = friend_id
+	for f in friends:
+		if f is Dictionary and str(f.get("id", "")) == friend_id:
+			return false
+	if not friend_data.has("relationship"):
+		friend_data["relationship"] = 50
+	NpcLifeProgress.ensure(friend_data)
+	friends.append(friend_data)
+	return true
+
+
+func remove_friend(friend_id: String) -> bool:
+	for i in range(friends.size() - 1, -1, -1):
+		var f = friends[i]
+		if f is Dictionary and str(f.get("id", "")) == friend_id:
+			friends.remove_at(i)
+			return true
+	return false
+
+
+func get_friend(friend_id: String) -> Dictionary:
+	for f in friends:
+		if f is Dictionary and str(f.get("id", "")) == friend_id:
+			return f
+	return {}
+
+
+func modify_friend_relationship(friend_id: String, delta: int) -> int:
+	for f in friends:
+		if f is Dictionary and str(f.get("id", "")) == friend_id:
+			var cur: int = int(f.get("relationship", 50))
+			var new_rel: int = clampi(cur + delta, 0, 100)
+			f["relationship"] = new_rel
+			return new_rel
+	return -1
 
 
 func get_family_name() -> String:

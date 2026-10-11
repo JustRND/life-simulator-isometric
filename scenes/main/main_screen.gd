@@ -15,6 +15,8 @@ const RentalManager = preload("res://scripts/economy/rental_manager.gd")
 const CryptoMarket = preload("res://scripts/economy/crypto_market.gd")
 const NeuralCatalog = preload("res://scripts/economy/neural_catalog.gd")
 const MonthlySettlementCoordinator = preload("res://scripts/economy/monthly_settlement_coordinator.gd")
+const VenueCatalog = preload("res://scripts/venues/venue_catalog.gd")
+const VenueManager = preload("res://scripts/venues/venue_manager.gd")
 
 
 var portrait: TextureRect
@@ -369,6 +371,10 @@ func _connect_runtime_signals() -> void:
 	var dating_app_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/DatingAppItem") as Button
 	if dating_app_btn != null and not dating_app_btn.pressed.is_connected(_on_dating_app_item_pressed):
 		dating_app_btn.pressed.connect(_on_dating_app_item_pressed)
+
+	var social_venues_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/SocialVenuesActItem") as Button
+	if social_venues_btn != null and not social_venues_btn.pressed.is_connected(_on_social_venues_item_pressed):
+		social_venues_btn.pressed.connect(_on_social_venues_item_pressed)
 
 	var charity_btn := get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/CharityActItem") as Button
 	if charity_btn != null and not charity_btn.pressed.is_connected(_on_charity_item_pressed):
@@ -6087,6 +6093,7 @@ func update_relationships_panel() -> void:
 	# Partner / Romantic Relationship Card
 	_setup_partner_card_ui()
 	_setup_children_cards_ui()
+	_setup_friends_cards_ui()
 
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(relationships_panel)
@@ -7066,6 +7073,181 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 				il.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				im.add_child(il)
 				list.add_child(item_card)
+
+
+func _setup_friends_cards_ui() -> void:
+	var rel_list := get_node_or_null("RelationshipsPanel/RelMargin/RelContent/RelScroll/RelList") as VBoxContainer
+	if rel_list == null:
+		return
+
+	# Detach and free ANY existing Friends cards
+	for child in rel_list.get_children():
+		if child.name.begins_with("FriendsHeaderCard") or child.name.begins_with("FriendCard_") or child.name.begins_with("NoFriendsCard"):
+			rel_list.remove_child(child)
+			child.queue_free()
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	if PlayerData.friends.is_empty():
+		var no_friends_card := PanelContainer.new()
+		no_friends_card.name = "NoFriendsCard"
+		no_friends_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#475569") if is_light else Color("#334155")))
+		var om := MarginContainer.new()
+		om.add_theme_constant_override("margin_left", 24)
+		om.add_theme_constant_override("margin_top", 14)
+		om.add_theme_constant_override("margin_right", 24)
+		om.add_theme_constant_override("margin_bottom", 14)
+		no_friends_card.add_child(om)
+		var ov := VBoxContainer.new()
+		ov.add_theme_constant_override("separation", 6)
+		om.add_child(ov)
+		var ot := Label.new()
+		ot.text = "🤝 FRIENDS: No Friends Yet"
+		ot.add_theme_font_size_override("font_size", 30)
+		ot.add_theme_color_override("font_color", Color("#0d9488") if is_light else Color("#2dd4bf"))
+		ov.add_child(ot)
+		var od := Label.new()
+		od.text = "You haven't formed any close friendships yet. Visit Cafés, Bars, Nightclubs, or Entertainment venues in Activities to meet new people and expand your social circle!"
+		od.add_theme_font_size_override("font_size", 26)
+		od.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		od.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		ov.add_child(od)
+
+		var meet_btn := _create_cyber_button("🍸 Visit Social Venues (Activities)", Color("#ec4899"), func():
+			_on_social_venues_item_pressed()
+		)
+		meet_btn.custom_minimum_size = Vector2(0, 50)
+		meet_btn.add_theme_font_size_override("font_size", 24)
+		ov.add_child(meet_btn)
+
+		rel_list.add_child(no_friends_card)
+		return
+
+	# Header Card
+	var hdr := PanelContainer.new()
+	hdr.name = "FriendsHeaderCard"
+	hdr.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+	var hm := MarginContainer.new()
+	hm.add_theme_constant_override("margin_left", 24)
+	hm.add_theme_constant_override("margin_top", 12)
+	hm.add_theme_constant_override("margin_right", 24)
+	hm.add_theme_constant_override("margin_bottom", 12)
+	hdr.add_child(hm)
+	var hl := Label.new()
+	hl.text = "🤝 FRIENDS & SOCIAL CIRCLE (%d)" % PlayerData.friends.size()
+	hl.add_theme_font_size_override("font_size", 30)
+	hl.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
+	hm.add_child(hl)
+	rel_list.add_child(hdr)
+
+	# Cards for each friend
+	for i in range(PlayerData.friends.size()):
+		var f: Dictionary = PlayerData.friends[i]
+		if f.is_empty():
+			continue
+		var f_card := PanelContainer.new()
+		f_card.name = "FriendCard_" + str(i)
+		f_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#059669") if is_light else Color("#10b981")))
+		var fm := MarginContainer.new()
+		fm.add_theme_constant_override("margin_left", 24)
+		fm.add_theme_constant_override("margin_right", 24)
+		fm.add_theme_constant_override("margin_top", 16)
+		fm.add_theme_constant_override("margin_bottom", 16)
+		f_card.add_child(fm)
+
+		var f_row := HBoxContainer.new()
+		f_row.add_theme_constant_override("separation", 20)
+		fm.add_child(f_row)
+
+		# Portrait Icon
+		var f_icon := TextureRect.new()
+		f_icon.custom_minimum_size = Vector2(90, 90)
+		f_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		f_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var f_age: int = int(f.get("age", 20))
+		var f_gender: String = str(f.get("gender", "FEMALE"))
+		var f_track: int = int(f.get("portrait_track", 0))
+		var f_eth: String = str(f.get("ethnicity", "white"))
+		f_icon.texture = PortraitCatalog.get_portrait(f_age, f_gender, f_track, f_eth)
+		f_icon.material = PortraitCatalog.cutout_material()
+		f_row.add_child(f_icon)
+
+		var f_vbox := VBoxContainer.new()
+		f_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		f_vbox.add_theme_constant_override("separation", 6)
+		f_row.add_child(f_vbox)
+
+		var f_name: String = str(f.get("name", "Friend"))
+		var f_title := Label.new()
+		f_title.text = "%s (Age %d)" % [f_name, f_age]
+		f_title.add_theme_font_size_override("font_size", 28)
+		f_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
+		f_vbox.add_child(f_title)
+
+		var f_info := Label.new()
+		var f_occ: String = str(f.get("occupation", "Friend"))
+		var f_pers: String = str(f.get("personality", "Outgoing"))
+		f_info.text = "%s  •  %s" % [f_occ, f_pers]
+		f_info.add_theme_font_size_override("font_size", 24)
+		f_info.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+		f_vbox.add_child(f_info)
+
+		var f_rel: int = int(f.get("relationship", 50))
+		_setup_relationship_bar(f_vbox, "FriendRelBar_" + str(i), f_rel)
+
+		# Action buttons row
+		var btn_row := HBoxContainer.new()
+		btn_row.add_theme_constant_override("separation", 10)
+		f_vbox.add_child(btn_row)
+
+		var hang_btn := _create_cyber_button("💬 Hang Out", Color("#10b981"), func():
+			var f_idx = i
+			if f_idx >= PlayerData.friends.size():
+				return
+			var cur_f = PlayerData.friends[f_idx]
+			var f_id = str(cur_f.get("id", ""))
+			var boost := randi_range(6, 12)
+			PlayerData.modify_friend_relationship(f_id, boost)
+			PlayerData.modify_happiness(6)
+			add_life_event("You hung out and had great laughs with your friend %s! (Friendship +%d)" % [cur_f.get("name", "Friend"), boost], "relationship")
+			update_relationships_panel()
+			update_ui()
+		)
+		hang_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hang_btn.custom_minimum_size = Vector2(0, 50)
+		hang_btn.add_theme_font_size_override("font_size", 22)
+		btn_row.add_child(hang_btn)
+
+		var invite_btn := _create_cyber_button("🍸 Outing...", Color("#ec4899"), func():
+			var f_idx = i
+			if f_idx >= PlayerData.friends.size():
+				return
+			var cur_f = PlayerData.friends[f_idx]
+			venue_companion_mode = "friend"
+			venue_selected_friend_id = str(cur_f.get("id", ""))
+			_show_social_venues_modal()
+		)
+		invite_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		invite_btn.custom_minimum_size = Vector2(0, 50)
+		invite_btn.add_theme_font_size_override("font_size", 22)
+		btn_row.add_child(invite_btn)
+
+		var remove_btn := _create_cyber_button("❌", Color("#ef4444"), func():
+			var f_idx = i
+			if f_idx >= PlayerData.friends.size():
+				return
+			var cur_f = PlayerData.friends[f_idx]
+			var f_id = str(cur_f.get("id", ""))
+			PlayerData.remove_friend(f_id)
+			add_life_event("You drifted apart from %s and removed them from your social circle." % cur_f.get("name", "Friend"), "relationship")
+			update_relationships_panel()
+			update_ui()
+		)
+		remove_btn.custom_minimum_size = Vector2(50, 50)
+		remove_btn.add_theme_font_size_override("font_size", 20)
+		btn_row.add_child(remove_btn)
+
+		rel_list.add_child(f_card)
 
 
 func _interact_partner(action: String) -> void:
@@ -8820,6 +9002,16 @@ func _on_dating_app_item_pressed() -> void:
 		show_tab("timeline")
 		return
 	_show_dating_app_modal()
+
+
+func _on_social_venues_item_pressed() -> void:
+	if PlayerData.is_in_prison:
+		add_life_event("🔒 RESTRICTED: Inmates are prohibited from visiting outside social venues.", "crime")
+		return
+	if PlayerData.is_in_mental_institution:
+		add_life_event("🔒 RESTRICTED: Psychiatric inpatients are prohibited from visiting outside social venues.", "health")
+		return
+	_show_social_venues_modal()
 
 
 func _on_charity_item_pressed() -> void:
@@ -13924,6 +14116,12 @@ var pension_modal_overlay: ColorRect = null
 var savings_modal_overlay: ColorRect = null
 var pension_status_notice: String = ""
 var savings_status_notice: String = ""
+var social_venues_modal_overlay: ColorRect = null
+var current_venue_category: String = "fast_food"
+var selected_venue_id: String = ""
+var venue_companion_mode: String = "solo"
+var venue_selected_friend_id: String = ""
+var current_venue_patrons: Array = []
 
 
 func _setup_all_translucent_scrollbars() -> void:
@@ -21920,4 +22118,727 @@ func _show_pantry_modal() -> void:
 		s_row.add_child(buy_btn)
 
 		list.add_child(s_card)
+
+
+# -----------------------------------------------------------------------------
+# SOCIAL VENUES & NIGHTLIFE UI SYSTEM
+# -----------------------------------------------------------------------------
+
+func _close_social_venues_modal() -> void:
+	if social_venues_modal_overlay != null and is_instance_valid(social_venues_modal_overlay):
+		social_venues_modal_overlay.queue_free()
+		social_venues_modal_overlay = null
+	if GameClock != null:
+		GameClock.resume("social_venues_modal")
+
+
+func _show_social_venues_modal() -> void:
+	if GameClock != null:
+		GameClock.pause("social_venues_modal")
+
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var border_color := Color("#ec4899")
+	var modal := _refresh_cyber_modal(social_venues_modal_overlay, "🍸 SOCIAL VENUES & NIGHTLIFE", "Dining, Cafés, Bars, Nightclubs, Lounges & Entertainment", border_color)
+	social_venues_modal_overlay = modal.overlay
+	if not social_venues_modal_overlay.tree_exited.is_connected(_on_social_venues_modal_tree_exited):
+		social_venues_modal_overlay.tree_exited.connect(_on_social_venues_modal_tree_exited)
+
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 14)
+
+	# --- 1. STATUS & NEEDS BANNER ---
+	var status_card := PanelContainer.new()
+	status_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
+	var sm := MarginContainer.new()
+	sm.add_theme_constant_override("margin_left", 20)
+	sm.add_theme_constant_override("margin_right", 20)
+	sm.add_theme_constant_override("margin_top", 14)
+	sm.add_theme_constant_override("margin_bottom", 14)
+	status_card.add_child(sm)
+	var sv := VBoxContainer.new()
+	sv.add_theme_constant_override("separation", 8)
+	sm.add_child(sv)
+
+	var stat_row := HBoxContainer.new()
+	stat_row.add_theme_constant_override("separation", 20)
+	sv.add_child(stat_row)
+
+	var funds_lbl := Label.new()
+	funds_lbl.text = "💵 Funds: $%s" % _format_number(PlayerData.get_available_funds())
+	funds_lbl.add_theme_font_size_override("font_size", 28)
+	funds_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
+	funds_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stat_row.add_child(funds_lbl)
+
+	var needs_lbl := Label.new()
+	needs_lbl.text = "🥪 Hunger: %d%%  •  💧 Thirst: %d%%" % [int(round(PlayerData.hunger)), int(round(PlayerData.thirst))]
+	needs_lbl.add_theme_font_size_override("font_size", 28)
+	needs_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	stat_row.add_child(needs_lbl)
+
+	if PlayerData.has_hangover:
+		var hang_lbl := Label.new()
+		hang_lbl.text = "😵 HANGOVER ACTIVE: Pounding headache & dehydration from excessive drinking. Rest and hydrate today (-10 Health, -15 Happiness)."
+		hang_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		hang_lbl.add_theme_font_size_override("font_size", 24)
+		hang_lbl.add_theme_color_override("font_color", Color("#ef4444"))
+		sv.add_child(hang_lbl)
+	elif PlayerData.intoxication_level > 0:
+		var intox_lbl := Label.new()
+		var intox_desc := "Warm Buzz" if PlayerData.intoxication_level < 50 else ("Inebriated" if PlayerData.intoxication_level < 80 else "Heavily Intoxicated (Risk of Hangover)")
+		intox_lbl.text = "🍷 Intoxication: %d%% (%s)" % [PlayerData.intoxication_level, intox_desc]
+		intox_lbl.add_theme_font_size_override("font_size", 24)
+		intox_lbl.add_theme_color_override("font_color", Color("#f59e0b") if PlayerData.intoxication_level < 50 else Color("#f43f5e"))
+		sv.add_child(intox_lbl)
+
+	list.add_child(status_card)
+
+	# --- 2. COMPANION SELECTION ROW ---
+	var comp_card := PanelContainer.new()
+	comp_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#6366f1")))
+	var cm := MarginContainer.new()
+	cm.add_theme_constant_override("margin_left", 20)
+	cm.add_theme_constant_override("margin_right", 20)
+	cm.add_theme_constant_override("margin_top", 12)
+	cm.add_theme_constant_override("margin_bottom", 12)
+	comp_card.add_child(cm)
+	var cv := VBoxContainer.new()
+	cv.add_theme_constant_override("separation", 10)
+	cm.add_child(cv)
+
+	var comp_title := Label.new()
+	comp_title.text = "OUTING COMPANION (WHO ARE YOU VISITING WITH?)"
+	comp_title.add_theme_font_size_override("font_size", 24)
+	comp_title.add_theme_color_override("font_color", Color("#4338ca") if is_light else Color("#a5b4fc"))
+	cv.add_child(comp_title)
+
+	var comp_row := HBoxContainer.new()
+	comp_row.add_theme_constant_override("separation", 12)
+	cv.add_child(comp_row)
+
+	# Solo Button
+	var solo_btn := _create_cyber_button("👤 Solo Outing", Color("#6366f1") if venue_companion_mode == "solo" else Color("#475569"), func():
+		venue_companion_mode = "solo"
+		_show_social_venues_modal()
+	)
+	solo_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	solo_btn.custom_minimum_size = Vector2(0, 54)
+	solo_btn.add_theme_font_size_override("font_size", 24)
+	if venue_companion_mode == "solo":
+		solo_btn.modulate = Color(1.2, 1.2, 1.2, 1.0)
+	comp_row.add_child(solo_btn)
+
+	# Friend Button
+	var has_friends: bool = PlayerData.has_friends()
+	var friend_label_text: String = "🤝 With Friend"
+	var selected_friend: Dictionary = {}
+	if has_friends:
+		if venue_selected_friend_id == "" and PlayerData.friends.size() > 0:
+			venue_selected_friend_id = str(PlayerData.friends[0].get("id", ""))
+		selected_friend = PlayerData.get_friend(venue_selected_friend_id)
+		if not selected_friend.is_empty():
+			friend_label_text = "🤝 %s" % str(selected_friend.get("name", "Friend"))
+	else:
+		friend_label_text = "🤝 With Friend (None)"
+
+	var friend_btn := _create_cyber_button(friend_label_text, Color("#10b981") if venue_companion_mode == "friend" else Color("#475569"), func():
+		if not has_friends:
+			add_life_event("You don't have any friends in your circle yet! Meet people at cafés, bars, or arcades.", "activity")
+			return
+		venue_companion_mode = "friend"
+		_show_social_venues_modal()
+	)
+	friend_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	friend_btn.custom_minimum_size = Vector2(0, 54)
+	friend_btn.add_theme_font_size_override("font_size", 24)
+	if not has_friends:
+		friend_btn.disabled = true
+		friend_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+	elif venue_companion_mode == "friend":
+		friend_btn.modulate = Color(1.2, 1.2, 1.2, 1.0)
+	comp_row.add_child(friend_btn)
+
+	# Date Button
+	var has_partner: bool = PlayerData.has_partner()
+	var date_label_text: String = "❤️ On a Date (%s)" % PlayerData.get_partner_name() if has_partner else "❤️ On a Date (Single)"
+	var date_btn := _create_cyber_button(date_label_text, Color("#f43f5e") if venue_companion_mode == "date" else Color("#475569"), func():
+		if not has_partner:
+			add_life_event("You are currently single. Use the Dating App or meet singles at lounges to start dating!", "activity")
+			return
+		venue_companion_mode = "date"
+		_show_social_venues_modal()
+	)
+	date_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	date_btn.custom_minimum_size = Vector2(0, 54)
+	date_btn.add_theme_font_size_override("font_size", 24)
+	if not has_partner:
+		date_btn.disabled = true
+		date_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+	elif venue_companion_mode == "date":
+		date_btn.modulate = Color(1.2, 1.2, 1.2, 1.0)
+	comp_row.add_child(date_btn)
+
+	# If friend mode active and multiple friends exist, show switcher pills
+	if venue_companion_mode == "friend" and PlayerData.friends.size() > 1:
+		var switcher_row := HBoxContainer.new()
+		switcher_row.add_theme_constant_override("separation", 8)
+		cv.add_child(switcher_row)
+		var sw_lbl := Label.new()
+		sw_lbl.text = "Choose Friend:"
+		sw_lbl.add_theme_font_size_override("font_size", 22)
+		sw_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		switcher_row.add_child(sw_lbl)
+		for f in PlayerData.friends:
+			var f_id: String = str(f.get("id", ""))
+			var f_name: String = str(f.get("name", "Friend"))
+			var f_btn := _create_cyber_button(f_name, Color("#10b981") if f_id == venue_selected_friend_id else Color("#334155"), func():
+				venue_selected_friend_id = f_id
+				_show_social_venues_modal()
+			)
+			f_btn.custom_minimum_size = Vector2(100, 44)
+			f_btn.add_theme_font_size_override("font_size", 20)
+			switcher_row.add_child(f_btn)
+
+	list.add_child(comp_card)
+
+	# --- 3. BROWSER OR VENUE DETAIL VIEW ---
+	if selected_venue_id == "":
+		_render_venues_category_browser(list, is_light)
+	else:
+		_render_selected_venue_detail(list, is_light, selected_friend)
+
+
+func _on_social_venues_modal_tree_exited() -> void:
+	if GameClock != null:
+		GameClock.resume("social_venues_modal")
+
+
+func _render_venues_category_browser(list: VBoxContainer, is_light: bool) -> void:
+	var cat_card := PanelContainer.new()
+	cat_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
+	var cm := MarginContainer.new()
+	cm.add_theme_constant_override("margin_left", 16)
+	cm.add_theme_constant_override("margin_right", 16)
+	cm.add_theme_constant_override("margin_top", 12)
+	cm.add_theme_constant_override("margin_bottom", 12)
+	cat_card.add_child(cm)
+	var cv := VBoxContainer.new()
+	cv.add_theme_constant_override("separation", 10)
+	cm.add_child(cv)
+
+	var cat_title := Label.new()
+	cat_title.text = "SELECT VENUE CATEGORY"
+	cat_title.add_theme_font_size_override("font_size", 26)
+	cat_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	cv.add_child(cat_title)
+
+	var cats: Array = VenueCatalog.get_all_categories()
+	var row1 := HBoxContainer.new()
+	row1.add_theme_constant_override("separation", 8)
+	cv.add_child(row1)
+
+	var row2 := HBoxContainer.new()
+	row2.add_theme_constant_override("separation", 8)
+	cv.add_child(row2)
+
+	for i in range(cats.size()):
+		var cat: Dictionary = cats[i]
+		var c_id: String = str(cat.get("id", ""))
+		var c_name: String = str(cat.get("name", ""))
+		var c_icon: String = str(cat.get("icon", "📍"))
+		var c_color: Color = cat.get("color", Color("#38bdf8"))
+		var is_selected: bool = (c_id == current_venue_category)
+
+		var target_row: HBoxContainer = row1 if i < 4 else row2
+		var short_name: String = "%s %s" % [c_icon, c_name.split(" ")[0]]
+		var cat_btn := _create_cyber_button(short_name, c_color if is_selected else Color("#334155"), func():
+			current_venue_category = c_id
+			selected_venue_id = ""
+			_show_social_venues_modal()
+		)
+		cat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cat_btn.custom_minimum_size = Vector2(0, 52)
+		cat_btn.add_theme_font_size_override("font_size", 22)
+		if is_selected:
+			cat_btn.modulate = Color(1.2, 1.2, 1.2, 1.0)
+		target_row.add_child(cat_btn)
+
+	list.add_child(cat_card)
+
+	# Current Category Description Banner
+	var cur_cat_info: Dictionary = VenueCatalog.get_category(current_venue_category)
+	var cat_desc_lbl := Label.new()
+	cat_desc_lbl.text = "%s %s: %s" % [cur_cat_info.get("icon", ""), cur_cat_info.get("name", "").to_upper(), cur_cat_info.get("description", "")]
+	cat_desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cat_desc_lbl.add_theme_font_size_override("font_size", 24)
+	cat_desc_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+	list.add_child(cat_desc_lbl)
+
+	# Venues in selected category
+	var venues: Array = VenueCatalog.get_venues_in_category(current_venue_category)
+	for v in venues:
+		var v_id: String = str(v.get("id", ""))
+		var v_name: String = str(v.get("name", "Venue"))
+		var v_icon: String = str(v.get("icon", "🍸"))
+		var v_tagline: String = str(v.get("tagline", ""))
+		var v_color: Color = v.get("color", Color("#ec4899"))
+		var min_age: int = int(v.get("min_age", 0))
+		var cover: int = int(v.get("cover_charge", 0))
+		var dress: String = str(v.get("dress_code", "Casual"))
+		var hours: String = str(v.get("operating_hours", "Open"))
+
+		var v_card := PanelContainer.new()
+		v_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(v_color))
+		var vm := MarginContainer.new()
+		vm.add_theme_constant_override("margin_left", 20)
+		vm.add_theme_constant_override("margin_right", 20)
+		vm.add_theme_constant_override("margin_top", 16)
+		vm.add_theme_constant_override("margin_bottom", 16)
+		v_card.add_child(vm)
+
+		var v_row := HBoxContainer.new()
+		v_row.add_theme_constant_override("separation", 18)
+		vm.add_child(v_row)
+
+		var v_info_box := VBoxContainer.new()
+		v_info_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		v_info_box.add_theme_constant_override("separation", 6)
+		v_row.add_child(v_info_box)
+
+		var name_lbl := Label.new()
+		name_lbl.text = "%s %s" % [v_icon, v_name]
+		name_lbl.add_theme_font_size_override("font_size", 30)
+		name_lbl.add_theme_color_override("font_color", v_color.darkened(0.2) if is_light else v_color.lightened(0.2))
+		v_info_box.add_child(name_lbl)
+
+		var tag_lbl := Label.new()
+		tag_lbl.text = v_tagline
+		tag_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		tag_lbl.add_theme_font_size_override("font_size", 24)
+		tag_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#e2e8f0"))
+		v_info_box.add_child(tag_lbl)
+
+		var meta_lbl := Label.new()
+		var cover_str: String = "Free Admission" if cover <= 0 else ("Cover: $%s" % _format_number(cover))
+		var age_str: String = "All Ages" if min_age <= 0 else ("%d+ Required" % min_age)
+		meta_lbl.text = "🕒 %s  •  👗 %s  •  🔞 %s  •  🎟️ %s" % [hours, dress, age_str, cover_str]
+		meta_lbl.add_theme_font_size_override("font_size", 22)
+		meta_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		v_info_box.add_child(meta_lbl)
+
+		# Enter Button with Age / Funds Checks
+		var entry_check: Dictionary = VenueManager.can_enter_venue(PlayerData, v)
+		var btn_text := "Enter Venue"
+		var btn_disabled: bool = false
+		if not entry_check.allowed:
+			btn_disabled = true
+			if entry_check.reason == "age":
+				btn_text = "🔞 %d+ Required" % min_age
+			elif entry_check.reason == "funds":
+				btn_text = "💸 Cover: $%d" % cover
+
+		var enter_btn := _create_cyber_button(btn_text, v_color, func():
+			var check: Dictionary = VenueManager.can_enter_venue(PlayerData, v)
+			if not check.allowed:
+				add_life_event(check.message, "activity")
+				return
+			if cover > 0:
+				var pay_res = VenueManager.pay_cover_charge(PlayerData, v)
+				if not pay_res.success:
+					add_life_event(pay_res.message, "activity")
+					return
+				add_life_event("Paid $%d cover charge to enter %s." % [cover, v_name], "activity")
+			selected_venue_id = v_id
+			current_venue_patrons.clear()
+			_show_social_venues_modal()
+		)
+		enter_btn.custom_minimum_size = Vector2(180, 60)
+		enter_btn.add_theme_font_size_override("font_size", 24)
+		if btn_disabled:
+			enter_btn.disabled = true
+			enter_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+		v_row.add_child(enter_btn)
+
+		list.add_child(v_card)
+
+
+func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected_friend: Dictionary) -> void:
+	var venue: Dictionary = VenueCatalog.get_venue(selected_venue_id)
+	if venue.is_empty():
+		selected_venue_id = ""
+		_show_social_venues_modal()
+		return
+
+	var v_name: String = str(venue.get("name", "Venue"))
+	var v_icon: String = str(venue.get("icon", "🍸"))
+	var v_color: Color = venue.get("color", Color("#ec4899"))
+	var v_tagline: String = str(venue.get("tagline", ""))
+
+	# Back Button Row
+	var back_row := HBoxContainer.new()
+	back_row.add_theme_constant_override("separation", 14)
+	list.add_child(back_row)
+
+	var back_btn := _create_cyber_button("⬅️ Leave Venue (All Destinations)", Color("#64748b"), func():
+		selected_venue_id = ""
+		current_venue_patrons.clear()
+		_show_social_venues_modal()
+	)
+	back_btn.custom_minimum_size = Vector2(300, 54)
+	back_btn.add_theme_font_size_override("font_size", 24)
+	back_row.add_child(back_btn)
+
+	# Venue Header Card
+	var hdr_card := PanelContainer.new()
+	hdr_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(v_color))
+	var hm := MarginContainer.new()
+	hm.add_theme_constant_override("margin_left", 20)
+	hm.add_theme_constant_override("margin_right", 20)
+	hm.add_theme_constant_override("margin_top", 16)
+	hm.add_theme_constant_override("margin_bottom", 16)
+	hdr_card.add_child(hm)
+
+	var hv := VBoxContainer.new()
+	hv.add_theme_constant_override("separation", 6)
+	hm.add_child(hv)
+
+	var title_lbl := Label.new()
+	title_lbl.text = "%s %s" % [v_icon, v_name]
+	title_lbl.add_theme_font_size_override("font_size", 34)
+	title_lbl.add_theme_color_override("font_color", v_color.darkened(0.2) if is_light else v_color.lightened(0.2))
+	hv.add_child(title_lbl)
+
+	var desc_lbl := Label.new()
+	desc_lbl.text = "%s  •  Visiting %s" % [v_tagline, "Solo" if venue_companion_mode == "solo" else ("with " + (player_get_companion_name(selected_friend)))]
+	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.add_theme_font_size_override("font_size", 24)
+	desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	hv.add_child(desc_lbl)
+
+	list.add_child(hdr_card)
+
+	# SECTION 1: FOOD & DRINKS MENU
+	var menu_hdr := Label.new()
+	menu_hdr.text = "🍽️ FOOD & DRINK SELECTIONS"
+	menu_hdr.add_theme_font_size_override("font_size", 28)
+	menu_hdr.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
+	list.add_child(menu_hdr)
+
+	var menu: Array = venue.get("menu", [])
+	for item in menu:
+		var i_name: String = str(item.get("name", "Item"))
+		var i_type: String = str(item.get("type", "food"))
+		var base_price: int = int(item.get("price", 0))
+		var total_price: int = base_price * 2 if venue_companion_mode in ["friend", "date"] else base_price
+		var h_delta: float = float(item.get("hunger", 0.0))
+		var t_delta: float = float(item.get("thirst", 0.0))
+		var hp_delta: int = int(item.get("health", 0))
+		var hap_delta: int = int(item.get("happiness", 0))
+		var alc: int = int(item.get("alcohol_level", 0))
+		var i_desc: String = str(item.get("description", ""))
+
+		var m_card := PanelContainer.new()
+		m_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#3b82f6") if i_type == "food" else Color("#a855f7")))
+		var mm := MarginContainer.new()
+		mm.add_theme_constant_override("margin_left", 18)
+		mm.add_theme_constant_override("margin_right", 18)
+		mm.add_theme_constant_override("margin_top", 12)
+		mm.add_theme_constant_override("margin_bottom", 12)
+		m_card.add_child(mm)
+
+		var m_row := HBoxContainer.new()
+		m_row.add_theme_constant_override("separation", 16)
+		mm.add_child(m_row)
+
+		var m_vbox := VBoxContainer.new()
+		m_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		m_vbox.add_theme_constant_override("separation", 4)
+		m_row.add_child(m_vbox)
+
+		var icon_str: String = "🍲" if i_type == "food" else "🍹"
+		var item_title := Label.new()
+		var price_str := "$%d" % total_price
+		if venue_companion_mode in ["friend", "date"]:
+			price_str += " (for two)"
+		item_title.text = "%s %s  •  %s" % [icon_str, i_name, price_str]
+		item_title.add_theme_font_size_override("font_size", 28)
+		item_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+		m_vbox.add_child(item_title)
+
+		var sub_lbl := Label.new()
+		sub_lbl.text = i_desc
+		sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sub_lbl.add_theme_font_size_override("font_size", 22)
+		sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		m_vbox.add_child(sub_lbl)
+
+		# Stat modifiers row
+		var badges_row := HBoxContainer.new()
+		badges_row.add_theme_constant_override("separation", 12)
+		m_vbox.add_child(badges_row)
+
+		if h_delta > 0:
+			var h_b := Label.new()
+			h_b.text = "🥪 Hunger +%d%%" % int(h_delta)
+			h_b.add_theme_font_size_override("font_size", 20)
+			h_b.add_theme_color_override("font_color", Color("#16a34a"))
+			badges_row.add_child(h_b)
+
+		if t_delta > 0:
+			var t_b := Label.new()
+			t_b.text = "💧 Thirst +%d%%" % int(t_delta)
+			t_b.add_theme_font_size_override("font_size", 20)
+			t_b.add_theme_color_override("font_color", Color("#0284c7"))
+			badges_row.add_child(t_b)
+
+		if hap_delta != 0:
+			var hap_b := Label.new()
+			hap_b.text = "😊 Happiness +%d" % hap_delta
+			hap_b.add_theme_font_size_override("font_size", 20)
+			hap_b.add_theme_color_override("font_color", Color("#e11d48"))
+			badges_row.add_child(hap_b)
+
+		if alc > 0:
+			var alc_b := Label.new()
+			alc_b.text = "🍷 %d%% ABV (18+)" % alc
+			alc_b.add_theme_font_size_override("font_size", 20)
+			alc_b.add_theme_color_override("font_color", Color("#d97706"))
+			badges_row.add_child(alc_b)
+
+		var is_alc_blocked: bool = (alc > 0 and PlayerData.age < VenueCatalog.LEGAL_DRINKING_AGE)
+		var can_afford: bool = PlayerData.can_afford(total_price)
+
+		var order_btn := _create_cyber_button("Order ($%d)" % total_price, Color("#10b981"), func():
+			var order_res: Dictionary = VenueManager.order_menu_item(PlayerData, venue, item, venue_companion_mode, selected_friend)
+			if order_res.success:
+				_play_core_button_sound("core")
+				_trigger_haptic()
+				add_life_event(order_res.message, "activity")
+				update_ui()
+				_show_social_venues_modal()
+			else:
+				add_life_event(order_res.message, "activity")
+		)
+		order_btn.custom_minimum_size = Vector2(170, 56)
+		order_btn.add_theme_font_size_override("font_size", 24)
+		if is_alc_blocked:
+			order_btn.disabled = true
+			order_btn.text = "🔞 18+ Only"
+			order_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+		elif not can_afford:
+			order_btn.disabled = true
+			order_btn.text = "💸 No Cash"
+			order_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+
+		m_row.add_child(order_btn)
+		list.add_child(m_card)
+
+	# SECTION 2: ACTIVITIES & ENTERTAINMENT
+	var act_hdr := Label.new()
+	act_hdr.text = "🎉 AVAILABLE ACTIVITIES"
+	act_hdr.add_theme_font_size_override("font_size", 28)
+	act_hdr.add_theme_color_override("font_color", Color("#d946ef") if is_light else Color("#f472b6"))
+	list.add_child(act_hdr)
+
+	var acts: Array = venue.get("activities", [])
+	for act in acts:
+		var a_name: String = str(act.get("name", "Activity"))
+		var a_cost: int = int(act.get("cost", 0))
+		var a_hap: int = int(act.get("happiness", 0))
+		var a_desc: String = str(act.get("description", ""))
+		var a_vip: bool = bool(act.get("is_vip", false))
+
+		var a_card := PanelContainer.new()
+		a_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#e11d48") if a_vip else Color("#ec4899")))
+		var am := MarginContainer.new()
+		am.add_theme_constant_override("margin_left", 18)
+		am.add_theme_constant_override("margin_right", 18)
+		am.add_theme_constant_override("margin_top", 12)
+		am.add_theme_constant_override("margin_bottom", 12)
+		a_card.add_child(am)
+
+		var a_row := HBoxContainer.new()
+		a_row.add_theme_constant_override("separation", 16)
+		am.add_child(a_row)
+
+		var a_vbox := VBoxContainer.new()
+		a_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		a_vbox.add_theme_constant_override("separation", 4)
+		a_row.add_child(a_vbox)
+
+		var a_title := Label.new()
+		var cost_str := "Free" if a_cost <= 0 else ("$%s" % _format_number(a_cost))
+		a_title.text = "%s %s  •  %s" % ["👑" if a_vip else "✨", a_name, cost_str]
+		a_title.add_theme_font_size_override("font_size", 28)
+		a_title.add_theme_color_override("font_color", Color("#e11d48") if a_vip else (Color("#0f172a") if is_light else Color("#f8fafc")))
+		a_vbox.add_child(a_title)
+
+		var a_sub := Label.new()
+		a_sub.text = a_desc
+		a_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		a_sub.add_theme_font_size_override("font_size", 22)
+		a_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+		a_vbox.add_child(a_sub)
+
+		var play_btn := _create_cyber_button("Participate (%s)" % cost_str, Color("#ec4899"), func():
+			var act_res: Dictionary = VenueManager.perform_activity(PlayerData, venue, act, venue_companion_mode, selected_friend)
+			if act_res.success:
+				_play_core_button_sound("core")
+				_trigger_haptic()
+				add_life_event(act_res.message, "activity")
+				update_ui()
+				_show_social_venues_modal()
+			else:
+				add_life_event(act_res.message, "activity")
+		)
+		play_btn.custom_minimum_size = Vector2(180, 56)
+		play_btn.add_theme_font_size_override("font_size", 24)
+		if a_cost > 0 and not PlayerData.can_afford(a_cost):
+			play_btn.disabled = true
+			play_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+		a_row.add_child(play_btn)
+
+		list.add_child(a_card)
+
+	# SECTION 3: MEET PEOPLE & PATRONS
+	var patron_hdr_row := HBoxContainer.new()
+	patron_hdr_row.add_theme_constant_override("separation", 16)
+	list.add_child(patron_hdr_row)
+
+	var patron_hdr := Label.new()
+	patron_hdr.text = "👥 VENUE PATRONS & SOCIALIZING"
+	patron_hdr.add_theme_font_size_override("font_size", 28)
+	patron_hdr.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
+	patron_hdr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	patron_hdr_row.add_child(patron_hdr)
+
+	var refresh_patrons_btn := _create_cyber_button("🔄 Look Around", Color("#06b6d4"), func():
+		current_venue_patrons.clear()
+		_show_social_venues_modal()
+	)
+	refresh_patrons_btn.custom_minimum_size = Vector2(160, 48)
+	refresh_patrons_btn.add_theme_font_size_override("font_size", 22)
+	patron_hdr_row.add_child(refresh_patrons_btn)
+
+	if current_venue_patrons.is_empty():
+		current_venue_patrons.append(VenueManager.generate_venue_npc(PlayerData, venue))
+		current_venue_patrons.append(VenueManager.generate_venue_npc(PlayerData, venue))
+
+	for p_idx in range(current_venue_patrons.size()):
+		var patron: Dictionary = current_venue_patrons[p_idx]
+		if patron.is_empty():
+			continue
+		var p_name: String = str(patron.get("name", "Patron"))
+		var p_age: int = int(patron.get("age", 20))
+		var p_gender: String = str(patron.get("gender", "FEMALE"))
+		var p_occ: String = str(patron.get("occupation", "Local"))
+		var p_pers: String = str(patron.get("personality", "Outgoing"))
+		var p_interests: Array = patron.get("interests", [])
+		var p_track: int = int(patron.get("portrait_track", 0))
+		var p_eth: String = str(patron.get("ethnicity", "white"))
+		var p_status: String = str(patron.get("relationship_status", "Single"))
+		var p_rel: int = int(patron.get("relationship", 40))
+
+		var p_card := PanelContainer.new()
+		p_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+		var pm := MarginContainer.new()
+		pm.add_theme_constant_override("margin_left", 18)
+		pm.add_theme_constant_override("margin_right", 18)
+		pm.add_theme_constant_override("margin_top", 12)
+		pm.add_theme_constant_override("margin_bottom", 12)
+		p_card.add_child(pm)
+
+		var p_row := HBoxContainer.new()
+		p_row.add_theme_constant_override("separation", 16)
+		pm.add_child(p_row)
+
+		var p_icon := TextureRect.new()
+		p_icon.custom_minimum_size = Vector2(80, 80)
+		p_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		p_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		p_icon.texture = PortraitCatalog.get_portrait(p_age, p_gender, p_track, p_eth)
+		p_icon.material = PortraitCatalog.cutout_material()
+		p_row.add_child(p_icon)
+
+		var p_vbox := VBoxContainer.new()
+		p_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		p_vbox.add_theme_constant_override("separation", 4)
+		p_row.add_child(p_vbox)
+
+		var p_title := Label.new()
+		p_title.text = "%s (Age %d)  •  %s" % [p_name, p_age, p_status]
+		p_title.add_theme_font_size_override("font_size", 26)
+		p_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
+		p_vbox.add_child(p_title)
+
+		var p_sub := Label.new()
+		p_sub.text = "%s  •  %s  •  Interests: %s" % [p_occ, p_pers, ", ".join(p_interests)]
+		p_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		p_sub.add_theme_font_size_override("font_size", 22)
+		p_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+		p_vbox.add_child(p_sub)
+
+		# Action Buttons
+		var p_btn_row := HBoxContainer.new()
+		p_btn_row.add_theme_constant_override("separation", 8)
+		p_vbox.add_child(p_btn_row)
+
+		var chat_btn := _create_cyber_button("💬 Chat", Color("#3b82f6"), func():
+			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "chat")
+			add_life_event(s_res.message, "relationship")
+			update_ui()
+			_show_social_venues_modal()
+		)
+		chat_btn.custom_minimum_size = Vector2(0, 48)
+		chat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		chat_btn.add_theme_font_size_override("font_size", 22)
+		p_btn_row.add_child(chat_btn)
+
+		var drink_btn := _create_cyber_button("🥤 Treat ($12)", Color("#f59e0b"), func():
+			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "buy_drink")
+			add_life_event(s_res.message, "relationship")
+			update_ui()
+			_show_social_venues_modal()
+		)
+		drink_btn.custom_minimum_size = Vector2(0, 48)
+		drink_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		drink_btn.add_theme_font_size_override("font_size", 22)
+		p_btn_row.add_child(drink_btn)
+
+		var befriend_btn := _create_cyber_button("🤝 Befriend", Color("#10b981"), func():
+			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "befriend")
+			add_life_event(s_res.message, "relationship")
+			update_ui()
+			update_relationships_panel()
+			_show_social_venues_modal()
+		)
+		befriend_btn.custom_minimum_size = Vector2(0, 48)
+		befriend_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		befriend_btn.add_theme_font_size_override("font_size", 22)
+		p_btn_row.add_child(befriend_btn)
+
+		# Ask on Date (Only for adults, single player, single candidate)
+		if PlayerData.age >= 18 and p_age >= 18 and not PlayerData.has_partner() and p_status == "Single":
+			var date_btn := _create_cyber_button("💘 Date", Color("#f43f5e"), func():
+				var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "ask_date")
+				add_life_event(s_res.message, "relationship")
+				update_ui()
+				update_relationships_panel()
+				_show_social_venues_modal()
+			)
+			date_btn.custom_minimum_size = Vector2(0, 48)
+			date_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			date_btn.add_theme_font_size_override("font_size", 22)
+			p_btn_row.add_child(date_btn)
+
+		list.add_child(p_card)
+
+
+func player_get_companion_name(selected_friend: Dictionary) -> String:
+	if venue_companion_mode == "date":
+		return "%s (Partner)" % PlayerData.get_partner_name()
+	elif venue_companion_mode == "friend" and not selected_friend.is_empty():
+		return "%s (Friend)" % str(selected_friend.get("name", "Friend"))
+	return "Solo"
+
 

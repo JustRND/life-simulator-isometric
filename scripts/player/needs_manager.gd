@@ -151,6 +151,8 @@ func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
 		var pd = get_node("/root/PlayerData")
 		if pd != null:
 			process_daily_needs(pd, 1)
+			if pd.has_method("process_daily_venues_and_intoxication"):
+				pd.process_daily_venues_and_intoxication()
 
 
 # -----------------------------------------------------------------------------

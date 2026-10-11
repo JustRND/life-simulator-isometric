@@ -174,6 +174,10 @@ func capture_data() -> Dictionary:
 		"active_buffs": PlayerData.active_buffs,
 		"partner": PlayerData.partner,
 		"ex_partners": PlayerData.ex_partners,
+		"friends": PlayerData.friends.duplicate(true),
+		"intoxication_level": PlayerData.intoxication_level,
+		"has_hangover": PlayerData.has_hangover,
+		"venue_history": PlayerData.venue_history.duplicate(true),
 		"last_parent_interact_age": PlayerData.last_parent_interact_age,
 		"last_parent_interact_month": PlayerData.last_parent_interact_month,
 		"last_parent_interact_year": PlayerData.last_parent_interact_year,
@@ -578,6 +582,13 @@ func apply_data(data: Dictionary) -> bool:
 		if c is Dictionary:
 			NpcLifeProgress.ensure(c)
 	PlayerData.ex_partners = Array(data.get("ex_partners", []))
+	PlayerData.friends = Array(data.get("friends", [])).duplicate(true)
+	for f in PlayerData.friends:
+		if f is Dictionary:
+			NpcLifeProgress.ensure(f)
+	PlayerData.intoxication_level = int(data.get("intoxication_level", 0))
+	PlayerData.has_hangover = bool(data.get("has_hangover", false))
+	PlayerData.venue_history = Array(data.get("venue_history", [])).duplicate(true)
 	PlayerData.has_moved_out_from_parents = bool(data.get("has_moved_out_from_parents", false))
 	PlayerData.current_residence_name = str(data.get("current_residence_name", ""))
 	PlayerData.current_residence_type = str(data.get("current_residence_type", "parents"))
