@@ -156,11 +156,16 @@ func apply(node: Control, light: bool) -> void:
 			node.add_theme_constant_override("margin_right", 32)
 			node.add_theme_constant_override("margin_top", 20)
 			node.add_theme_constant_override("margin_bottom", 20)
-		elif str(node.name) in ["ActMargin", "RelMargin", "AssetsMargin", "BankMargin", "InfantMargin", "CharacterMargin", "SettingsMargin", "ConfirmMargin"] or node.has_meta("reference_edge"):
-			node.add_theme_constant_override("margin_left", 24)
-			node.add_theme_constant_override("margin_right", 24)
-			node.add_theme_constant_override("margin_top", 16)
-			node.add_theme_constant_override("margin_bottom", 20)
+		elif str(node.name) in ["ActMargin", "RelMargin", "AssetsMargin", "BankMargin", "InfantMargin", "CharacterMargin", "SettingsMargin"] or node.has_meta("reference_edge"):
+			node.add_theme_constant_override("margin_left", 36)
+			node.add_theme_constant_override("margin_right", 36)
+			node.add_theme_constant_override("margin_top", 64)
+			node.add_theme_constant_override("margin_bottom", 96)
+		elif str(node.name) == "ConfirmMargin":
+			node.add_theme_constant_override("margin_left", 28)
+			node.add_theme_constant_override("margin_right", 28)
+			node.add_theme_constant_override("margin_top", 24)
+			node.add_theme_constant_override("margin_bottom", 24)
 		elif "Card" in parent_name:
 			node.add_theme_constant_override("margin_left", 32)
 			node.add_theme_constant_override("margin_right", 32)
@@ -176,8 +181,11 @@ func apply(node: Control, light: bool) -> void:
 	elif node is Button:
 		node.focus_mode = Control.FOCUS_NONE
 		var is_bank_standout: bool = (node.name == "BankButton" and node.get_parent() != null and node.get_parent().name == "AssetsContent")
+		var is_event_choice: bool = node.has_meta("event_choice") or node.name.begins_with("EventChoice") or (node.get_parent() != null and node.get_parent().name == "EventChoices")
 		if is_bank_standout:
 			_style_banking_standout_button(node, light)
+		elif is_event_choice:
+			pass # Event choices manage their own styleboxes and ReferenceRow
 		else:
 			for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus", "read_only"]:
 				node.add_theme_stylebox_override(state, button_surface(light, state))

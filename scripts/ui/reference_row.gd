@@ -324,13 +324,15 @@ func _sync() -> void:
 
 	var is_event := target.name.begins_with("EventChoice") or (target.get_parent() != null and target.get_parent().name == "EventChoices") or target.has_meta("event_choice")
 	if is_event:
-		heading.add_theme_font_size_override("font_size", 24)
-		symbol.add_theme_font_size_override("font_size", 28)
-		arrow.add_theme_font_size_override("font_size", 22)
-		add_theme_constant_override("margin_top", 10)
-		add_theme_constant_override("margin_bottom", 10)
-		add_theme_constant_override("margin_left", 18)
-		add_theme_constant_override("margin_right", 18)
+		heading.add_theme_font_size_override("font_size", 22)
+		symbol.add_theme_font_size_override("font_size", 26)
+		symbol.custom_minimum_size = Vector2(40, 40)
+		arrow.add_theme_font_size_override("font_size", 20)
+		arrow.custom_minimum_size = Vector2(24, 24)
+		add_theme_constant_override("margin_top", 8)
+		add_theme_constant_override("margin_bottom", 8)
+		add_theme_constant_override("margin_left", 14)
+		add_theme_constant_override("margin_right", 14)
 	if is_act:
 		# Activities buttons are strictly uniform at 96px, with title & emoji centered
 		target.custom_minimum_size.y = 96.0
@@ -340,20 +342,25 @@ func _sync() -> void:
 			var vp: Viewport = target.get_viewport()
 			var vp_w: float = vp.get_visible_rect().size.x if vp != null else 885.0
 			effective_w = maxf(320.0, minf(840.0, vp_w - 32.0) - 80.0)
-		var avail_w := maxf(100.0, effective_w - 150.0)
-		var text_sz: Vector2 = _bold_font.get_multiline_string_size(first, HORIZONTAL_ALIGNMENT_LEFT, avail_w, 24)
-		var line_count: int = clampi(int(round(text_sz.y / 34.0)), 1, 4)
+		var avail_w := maxf(100.0, effective_w - 140.0)
+		var realistic_text_w: float = clampf(avail_w, 180.0, 420.0)
+		var text_sz: Vector2 = _bold_font.get_multiline_string_size(first, HORIZONTAL_ALIGNMENT_LEFT, realistic_text_w, 22)
+		var line_count: int = clampi(int(round(text_sz.y / 31.0)), 1, 4)
+		if first.length() > 62:
+			line_count = maxi(line_count, 3)
+		elif first.length() > 28:
+			line_count = maxi(line_count, 2)
 		var real_lines: int = heading.get_line_count()
 		if real_lines in [1, 2, 3, 4]:
 			line_count = maxi(line_count, real_lines)
 		if line_count <= 1:
-			target.custom_minimum_size.y = 100.0
+			target.custom_minimum_size.y = 96.0
 		elif line_count == 2:
-			target.custom_minimum_size.y = 144.0
+			target.custom_minimum_size.y = 132.0
 		elif line_count == 3:
-			target.custom_minimum_size.y = 192.0
+			target.custom_minimum_size.y = 172.0
 		else:
-			target.custom_minimum_size.y = 240.0
+			target.custom_minimum_size.y = 216.0
 	elif is_options:
 		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
 		if not has_desc:

@@ -1787,13 +1787,13 @@ func _adjust_safe_area() -> void:
 
 	# Ensure all full-screen panels adapt to safe areas (notches/camera at top and home swipe indicator at bottom)
 	var full_screen_panels: Array = [
-		{"panel": activities_panel, "margin_path": "ActMargin", "base_bottom": 64.0, "base_top": 36.0},
-		{"panel": character_panel, "margin_path": "CharacterMargin", "base_bottom": 48.0, "base_top": 36.0},
-		{"panel": infant_panel, "margin_path": "InfantMargin", "base_bottom": 48.0, "base_top": 36.0},
-		{"panel": assets_panel, "margin_path": "AssetsMargin", "base_bottom": 48.0, "base_top": 36.0},
-		{"panel": bank_panel, "margin_path": "BankMargin", "base_bottom": 48.0, "base_top": 36.0},
-		{"panel": relationships_panel, "margin_path": "RelMargin", "base_bottom": 48.0, "base_top": 36.0},
-		{"panel": settings_overlay, "margin_path": "SettingsCard/SettingsMargin", "base_bottom": 48.0, "base_top": 36.0}
+		{"panel": activities_panel, "margin_path": "ActMargin", "base_bottom": 96.0, "base_top": 64.0},
+		{"panel": character_panel, "margin_path": "CharacterMargin", "base_bottom": 96.0, "base_top": 64.0},
+		{"panel": infant_panel, "margin_path": "InfantMargin", "base_bottom": 96.0, "base_top": 64.0},
+		{"panel": assets_panel, "margin_path": "AssetsMargin", "base_bottom": 96.0, "base_top": 64.0},
+		{"panel": bank_panel, "margin_path": "BankMargin", "base_bottom": 96.0, "base_top": 64.0},
+		{"panel": relationships_panel, "margin_path": "RelMargin", "base_bottom": 96.0, "base_top": 64.0},
+		{"panel": settings_overlay, "margin_path": "SettingsCard/SettingsMargin", "base_bottom": 96.0, "base_top": 64.0}
 	]
 	for p_info in full_screen_panels:
 		var p_node: Control = p_info["panel"]
@@ -1802,9 +1802,10 @@ func _adjust_safe_area() -> void:
 			if is_instance_valid(m_node):
 				var b_bot: float = float(p_info["base_bottom"])
 				var b_top: float = float(p_info["base_top"])
+				m_node.add_theme_constant_override("margin_left", 36)
+				m_node.add_theme_constant_override("margin_right", 36)
 				m_node.add_theme_constant_override("margin_bottom", int(maxf(b_bot, b_bot + bottom_m)))
-				if top_m > 0.0:
-					m_node.add_theme_constant_override("margin_top", int(maxf(b_top, top_m + 8.0)))
+				m_node.add_theme_constant_override("margin_top", int(maxf(b_top, top_m + 16.0)))
 	# Responsive horizontal bounds for floating overlay cards (EventPanel, ConfirmCard, CreationCard, DisclaimerCard)
 	var vp_w: float = get_viewport_rect().size.x
 	if vp_w <= 0.0:
@@ -2078,10 +2079,10 @@ func show_event_popup() -> void:
 		n_sb.shadow_color = Color(0, 0, 0, 0.28)
 		n_sb.shadow_size = 4
 		n_sb.shadow_offset = Vector2(0, 3)
-		n_sb.content_margin_left = 20
-		n_sb.content_margin_right = 20
-		n_sb.content_margin_top = 12
-		n_sb.content_margin_bottom = 12
+		n_sb.content_margin_left = 14
+		n_sb.content_margin_right = 14
+		n_sb.content_margin_top = 8
+		n_sb.content_margin_bottom = 8
 		btn.add_theme_stylebox_override("normal", n_sb)
 
 		var h_sb := n_sb.duplicate() as StyleBoxFlat
@@ -2635,6 +2636,7 @@ func show_tab(tab_name: String) -> void:
 			(sc as ScrollContainer).scroll_vertical = 0
 		if has_node("ThemeController"):
 			get_node("ThemeController").apply_subtree(target_panel)
+		_adjust_safe_area()
 		panel_pull_up.play(target_panel)
 
 
@@ -3245,6 +3247,10 @@ func _render_assets_list() -> void:
 
 	# 13. Owned Public Stock Equities & Holdings
 	_render_owned_stocks_section()
+
+	var bottom_spacer := Control.new()
+	bottom_spacer.custom_minimum_size = Vector2(0, 48)
+	assets_list.add_child(bottom_spacer)
 
 
 func _render_owned_assets_section(title_text: String, categories: Array, theme_color: Color) -> void:

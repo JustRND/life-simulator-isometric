@@ -900,10 +900,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="CharacterMargin" type="MarginContainer" parent="CharacterPanel" unique_id=2041454421]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="CharacterContent" type="VBoxContainer" parent="CharacterPanel/CharacterMargin" unique_id=1434596636]
 layout_mode = 2
@@ -1107,10 +1107,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="InfantMargin" type="MarginContainer" parent="InfantPanel" unique_id=826980340]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="InfantContent" type="VBoxContainer" parent="InfantPanel/InfantMargin" unique_id=380468781]
 layout_mode = 2
@@ -1249,10 +1249,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="AssetsMargin" type="MarginContainer" parent="AssetsPanel" unique_id=1023731387]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="AssetsContent" type="VBoxContainer" parent="AssetsPanel/AssetsMargin" unique_id=1236026963]
 layout_mode = 2
@@ -1372,10 +1372,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="BankMargin" type="MarginContainer" parent="BankPanel" unique_id=802972357]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="BankContent" type="VBoxContainer" parent="BankPanel/BankMargin" unique_id=657265361]
 layout_mode = 2
@@ -1476,10 +1476,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="RelMargin" type="MarginContainer" parent="RelationshipsPanel" unique_id=419870991]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="RelContent" type="VBoxContainer" parent="RelationshipsPanel/RelMargin" unique_id=1236264837]
 layout_mode = 2
@@ -1640,10 +1640,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="ActMargin" type="MarginContainer" parent="ActivitiesPanel" unique_id=394409451]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 64
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="ActContent" type="VBoxContainer" parent="ActivitiesPanel/ActMargin" unique_id=1063840037]
 layout_mode = 2
@@ -2015,10 +2015,10 @@ theme_override_styles/panel = SubResource("panel_paper")
 
 [node name="SettingsMargin" type="MarginContainer" parent="SettingsOverlay/SettingsCard" unique_id=551827548]
 layout_mode = 2
-theme_override_constants/margin_left = 42
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 42
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 96
 
 [node name="SettingsContent" type="VBoxContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin" unique_id=778650370]
 layout_mode = 2
@@ -2349,48 +2349,48 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 12
 
 [node name="EventChoice1" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=1862447792]
-custom_minimum_size = Vector2(1, 100)
+custom_minimum_size = Vector2(1, 96)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 1"
 
 [node name="EventChoice2" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=1753297295]
-custom_minimum_size = Vector2(1, 100)
+custom_minimum_size = Vector2(1, 96)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 2"
 
 [node name="EventChoice3" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=1160175461]
-custom_minimum_size = Vector2(1, 100)
+custom_minimum_size = Vector2(1, 96)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 3"
 
 [node name="EventChoice4" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=170960561]
-custom_minimum_size = Vector2(1, 100)
+custom_minimum_size = Vector2(1, 96)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 22
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
