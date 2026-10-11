@@ -7418,27 +7418,75 @@ func _setup_friends_cards_ui() -> void:
 		var btn_row := GridContainer.new()
 		_configure_relationship_action_grid(btn_row)
 		btn_row.add_theme_constant_override("h_separation", 10)
+		btn_row.add_theme_constant_override("v_separation", 8)
 		f_vbox.add_child(btn_row)
 
-		var hang_btn := _create_cyber_button("💬 Hang Out", Color("#10b981"), func():
+		var f_id: String = str(f.get("id", ""))
+		var f_spent: bool = not PlayerData.can_interact_friend_hangout(f_id)
+		var f_complimented: bool = not PlayerData.can_interact_friend_compliment(f_id)
+
+		# 1. Hang Out button
+		var hang_text := "💬 Hang Out (Used)" if f_spent else "💬 Hang Out"
+		var hang_btn := _create_cyber_button(hang_text, Color("#10b981"), func():
 			var f_idx = i
 			if f_idx >= PlayerData.friends.size():
 				return
 			var cur_f = PlayerData.friends[f_idx]
-			var f_id = str(cur_f.get("id", ""))
+			var cur_id = str(cur_f.get("id", ""))
+			var cur_name = str(cur_f.get("name", "Friend"))
+			if not PlayerData.can_interact_friend_hangout(cur_id):
+				add_life_event("⏳ You have already hung out with %s this month. Available again next month!" % cur_name, "relationship")
+				update_ui()
+				return
+			PlayerData.record_friend_hangout(cur_id)
 			var boost := randi_range(6, 12)
-			PlayerData.modify_friend_relationship(f_id, boost)
+			PlayerData.modify_friend_relationship(cur_id, boost)
 			PlayerData.modify_happiness(6)
-			add_life_event("You hung out and had great laughs with your friend %s! (Friendship +%d)" % [cur_f.get("name", "Friend"), boost], "relationship")
+			add_life_event("You hung out and had great laughs with your friend %s! (Friendship +%d)" % [cur_name, boost], "relationship")
 			update_relationships_panel()
 			update_ui()
 		)
 		hang_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		hang_btn.custom_minimum_size = Vector2(0, 50)
 		hang_btn.add_theme_font_size_override("font_size", 22)
+		if f_spent:
+			hang_btn.disabled = true
+			hang_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			hang_btn.tooltip_text = "Already hung out with %s this month. Available again next month." % f_name
 		btn_row.add_child(hang_btn)
 
-		var invite_btn := _create_cyber_button("🍸 Outing...", Color("#ec4899"), func():
+		# 2. Compliment button
+		var comp_text := "🥰 Compliment (Used)" if f_complimented else "🥰 Compliment"
+		var comp_btn := _create_cyber_button(comp_text, Color("#8b5cf6"), func():
+			var f_idx = i
+			if f_idx >= PlayerData.friends.size():
+				return
+			var cur_f = PlayerData.friends[f_idx]
+			var cur_id = str(cur_f.get("id", ""))
+			var cur_name = str(cur_f.get("name", "Friend"))
+			if not PlayerData.can_interact_friend_compliment(cur_id):
+				add_life_event("⏳ You have already complimented %s this month. Available again next month!" % cur_name, "relationship")
+				update_ui()
+				return
+			PlayerData.record_friend_compliment(cur_id)
+			var boost := randi_range(4, 8)
+			PlayerData.modify_friend_relationship(cur_id, boost)
+			PlayerData.modify_happiness(3)
+			add_life_event("You gave your friend %s a warm, thoughtful compliment! (Friendship +%d)" % [cur_name, boost], "relationship")
+			update_relationships_panel()
+			update_ui()
+		)
+		comp_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		comp_btn.custom_minimum_size = Vector2(0, 50)
+		comp_btn.add_theme_font_size_override("font_size", 22)
+		if f_complimented:
+			comp_btn.disabled = true
+			comp_btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			comp_btn.tooltip_text = "Already complimented %s this month. Available again next month." % f_name
+		btn_row.add_child(comp_btn)
+
+		# 3. Outing button
+		var invite_btn := _create_cyber_button("🍸 Outing...", Color("#0284c7"), func():
 			var f_idx = i
 			if f_idx >= PlayerData.friends.size():
 				return
@@ -7452,19 +7500,21 @@ func _setup_friends_cards_ui() -> void:
 		invite_btn.add_theme_font_size_override("font_size", 22)
 		btn_row.add_child(invite_btn)
 
-		var remove_btn := _create_cyber_button("❌", Color("#ef4444"), func():
+		# 4. Remove / Unfriend button
+		var remove_btn := _create_cyber_button("❌ Unfriend", Color("#ef4444"), func():
 			var f_idx = i
 			if f_idx >= PlayerData.friends.size():
 				return
 			var cur_f = PlayerData.friends[f_idx]
-			var f_id = str(cur_f.get("id", ""))
-			PlayerData.remove_friend(f_id)
+			var f_id_to_remove = str(cur_f.get("id", ""))
+			PlayerData.remove_friend(f_id_to_remove)
 			add_life_event("You drifted apart from %s and removed them from your social circle." % cur_f.get("name", "Friend"), "relationship")
 			update_relationships_panel()
 			update_ui()
 		)
-		remove_btn.custom_minimum_size = Vector2(50, 50)
-		remove_btn.add_theme_font_size_override("font_size", 20)
+		remove_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		remove_btn.custom_minimum_size = Vector2(0, 50)
+		remove_btn.add_theme_font_size_override("font_size", 22)
 		btn_row.add_child(remove_btn)
 
 		rel_list.add_child(f_card)

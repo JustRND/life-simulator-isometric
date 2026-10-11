@@ -1738,6 +1738,18 @@ func add_friend(friend_data: Dictionary) -> bool:
 			return false
 	if not friend_data.has("relationship"):
 		friend_data["relationship"] = 50
+	if not friend_data.has("last_spend_time_month"):
+		friend_data["last_spend_time_month"] = -1
+		friend_data["last_spend_time_year"] = -1
+		friend_data["last_spend_time_age"] = -1
+	if not friend_data.has("last_compliment_month"):
+		friend_data["last_compliment_month"] = -1
+		friend_data["last_compliment_year"] = -1
+		friend_data["last_compliment_age"] = -1
+	if not friend_data.has("last_interact_month"):
+		friend_data["last_interact_month"] = -1
+		friend_data["last_interact_year"] = -1
+		friend_data["last_interact_age"] = -1
 	NpcLifeProgress.ensure(friend_data)
 	friends.append(friend_data)
 	return true
@@ -1767,6 +1779,50 @@ func modify_friend_relationship(friend_id: String, delta: int) -> int:
 			f["relationship"] = new_rel
 			return new_rel
 	return -1
+
+
+func can_interact_friend_hangout(friend_id: String) -> bool:
+	var f := get_friend(friend_id)
+	if f.is_empty():
+		return false
+	var m: int = int(f.get("last_spend_time_month", -1))
+	var y: int = int(f.get("last_spend_time_year", -1))
+	var a: int = int(f.get("last_spend_time_age", -1))
+	return not is_activity_used_this_month(m, y, a)
+
+
+func can_interact_friend_compliment(friend_id: String) -> bool:
+	var f := get_friend(friend_id)
+	if f.is_empty():
+		return false
+	var m: int = int(f.get("last_compliment_month", -1))
+	var y: int = int(f.get("last_compliment_year", -1))
+	var a: int = int(f.get("last_compliment_age", -1))
+	return not is_activity_used_this_month(m, y, a)
+
+
+func record_friend_hangout(friend_id: String) -> void:
+	for f in friends:
+		if f is Dictionary and str(f.get("id", "")) == friend_id:
+			f["last_spend_time_age"] = age
+			f["last_spend_time_month"] = in_game_month
+			f["last_spend_time_year"] = in_game_year
+			f["last_interact_age"] = age
+			f["last_interact_month"] = in_game_month
+			f["last_interact_year"] = in_game_year
+			break
+
+
+func record_friend_compliment(friend_id: String) -> void:
+	for f in friends:
+		if f is Dictionary and str(f.get("id", "")) == friend_id:
+			f["last_compliment_age"] = age
+			f["last_compliment_month"] = in_game_month
+			f["last_compliment_year"] = in_game_year
+			f["last_interact_age"] = age
+			f["last_interact_month"] = in_game_month
+			f["last_interact_year"] = in_game_year
+			break
 
 
 func get_family_name() -> String:
