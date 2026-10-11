@@ -112,7 +112,7 @@ func apply(node: Control, light: bool) -> void:
 		if node is Label and node.get_index() == 0 and node.get_parent() is BoxContainer and not node.has_meta("reference_section"):
 			var owner_box := node.get_parent()
 			var inside_card := owner_box.get_parent() is MarginContainer and owner_box.get_parent().get_parent() is PanelContainer
-			if inside_card or owner_box is HBoxContainer:
+			if (inside_card or owner_box is HBoxContainer) and not owner_box.name.ends_with("HeaderRow") and not owner_box.name.ends_with("Header"):
 				node.add_theme_font_override("font", title_font)
 				node.add_theme_font_size_override("font_size", 44)
 				node.add_theme_color_override("font_color", Color("#075b91") if light else Color("#a9dcff"))
@@ -160,7 +160,7 @@ func apply(node: Control, light: bool) -> void:
 			node.add_theme_constant_override("margin_left", 36)
 			node.add_theme_constant_override("margin_right", 36)
 			node.add_theme_constant_override("margin_top", 64)
-			node.add_theme_constant_override("margin_bottom", 96)
+			node.add_theme_constant_override("margin_bottom", 24)
 		elif str(node.name) == "ConfirmMargin":
 			node.add_theme_constant_override("margin_left", 28)
 			node.add_theme_constant_override("margin_right", 28)
@@ -236,9 +236,15 @@ func apply(node: Control, light: bool) -> void:
 		node.add_theme_stylebox_override("normal", bar)
 	if node.has_meta("reference_header_title"):
 		node.add_theme_font_override("font", bold_font)
-		node.add_theme_font_size_override("font_size", 42)
+		node.add_theme_font_size_override("font_size", 34)
 		node.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		node.autowrap_mode = TextServer.AUTOWRAP_OFF
+		node.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		node.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		node.custom_minimum_size.y = 48
 	if node is Button and node.get_parent().has_meta("reference_header") and not node.text in ["✕", "×", "X", "✖"]:
 		# Secondary navigation, such as Back to Assets, belongs to the header.
 		node.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -262,9 +268,11 @@ func _style_header(close: Button) -> void:
 	if not header.name.ends_with("HeaderRow") and not header.name.ends_with("Header"):
 		return
 	var light: bool = LifeLibrary.data.get("theme", "dark") == "light"
-	close.custom_minimum_size = Vector2(80, 80)
+	close.custom_minimum_size = Vector2(56, 56)
+	close.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	close.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	close.add_theme_font_size_override("font_size", 34)
+	close.text = "✕"
+	close.add_theme_font_size_override("font_size", 26)
 	for key in COLORS:
 		close.add_theme_color_override(key, Color("#0f172a") if light else Color.WHITE)
 	close.add_theme_color_override("font_hover_color", Color("#f43f5e"))
@@ -277,40 +285,108 @@ func _style_header(close: Button) -> void:
 		else:
 			circle.bg_color = Color("#28333f") if state != "normal" else Color("#080c12")
 			circle.border_color = Color.WHITE
-		circle.set_corner_radius_all(40)
+		circle.set_corner_radius_all(28)
 		circle.set_border_width_all(2)
+		circle.content_margin_left = 0
+		circle.content_margin_right = 0
+		circle.content_margin_top = 0
+		circle.content_margin_bottom = 0
 		close.add_theme_stylebox_override(state, circle)
+
+	var title_map: Dictionary = {
+		"ACTIVITIES": "Activities",
+		"RELATIONSHIPS": "Relationships",
+		"ASSETS & FINANCES": "Assets & Finances",
+		"SETTINGS": "Settings",
+		"CHARACTER PROFILE": "Character Profile",
+		"TODDLER & LIFE OVERVIEW": "Life Overview",
+		"FIRST NATIONAL PIXEL BANK": "Bank & Finances"
+	}
+
 	if header.has_meta("reference_header"):
 		header.queue_redraw()
 		for child in header.get_children():
-			if child is Label and child.has_meta("reference_header_title"):
+			if child is Label:
+				if title_map.has(child.text):
+					child.text = title_map[child.text]
 				child.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
+				child.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				child.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+				child.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				child.custom_minimum_size.y = 48
+				child.autowrap_mode = TextServer.AUTOWRAP_OFF
+				child.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		return
+
 	header.set_meta("reference_header", true)
-	header.custom_minimum_size.y = 96
-	header.add_theme_constant_override("separation", 16)
+	header.custom_minimum_size.y = 80
+	header.add_theme_constant_override("separation", 12)
 	header.draw.connect(func():
 		var is_lt: bool = LifeLibrary.data.get("theme", "dark") == "light"
 		header.draw_rect(Rect2(Vector2.ZERO, header.size), Color("#edf3fa") if is_lt else Color("#080c12"))
 	)
 	header.resized.connect(header.queue_redraw)
-	header.move_child(close, 0)
-	var gutter := Control.new()
-	gutter.custom_minimum_size.x = 8
-	header.add_child(gutter)
-	header.move_child(gutter, 0)
+
+	var other_buttons: int = 0
+	for c in header.get_children():
+		if c is Button and c != close:
+			other_buttons += 1
+
+	if other_buttons == 0:
+		header.move_child(close, 0)
+		var gutter := Control.new()
+		gutter.custom_minimum_size = Vector2(8, 0)
+		gutter.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		header.add_child(gutter)
+		header.move_child(gutter, 0)
+
+	var has_label := false
 	for child in header.get_children():
 		if child is Label:
+			has_label = true
 			child.set_meta("reference_header_title", true)
+			if title_map.has(child.text):
+				child.text = title_map[child.text]
 			child.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			child.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			child.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			child.add_theme_font_size_override("font_size", 40)
+			child.size_flags_vertical = Control.SIZE_EXPAND_FILL
+			child.custom_minimum_size.y = 48
+			child.autowrap_mode = TextServer.AUTOWRAP_OFF
+			child.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+			child.add_theme_font_override("font", bold_font)
+			child.add_theme_font_size_override("font_size", 34)
 			child.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
-			apply(child, light)
-	var balance := Control.new()
-	balance.custom_minimum_size.x = 80
-	header.add_child(balance)
+
+	if not has_label:
+		var new_lbl := Label.new()
+		new_lbl.set_meta("reference_header_title", true)
+		var panel_name := str(header.get_parent().get_parent().name)
+		if panel_name.ends_with("Panel"):
+			panel_name = panel_name.trim_suffix("Panel")
+		elif panel_name.ends_with("Overlay"):
+			panel_name = panel_name.trim_suffix("Overlay")
+		if title_map.has(panel_name.to_upper()):
+			panel_name = title_map[panel_name.to_upper()]
+		new_lbl.text = panel_name
+		new_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		new_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		new_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		new_lbl.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		new_lbl.custom_minimum_size.y = 48
+		new_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		new_lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		new_lbl.add_theme_font_override("font", bold_font)
+		new_lbl.add_theme_font_size_override("font_size", 34)
+		new_lbl.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
+		header.add_child(new_lbl)
+
+	if other_buttons == 0:
+		var balance := Control.new()
+		balance.custom_minimum_size = Vector2(64, 0)
+		balance.size_flags_horizontal = Control.SIZE_SHRINK_END
+		header.add_child(balance)
 
 
 func _style_banking_standout_button(btn: Button, light: bool) -> void:

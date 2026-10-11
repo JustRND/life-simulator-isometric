@@ -42,8 +42,8 @@ func _ready() -> void:
 	assert(act_margin != null, "ActMargin must exist")
 	var mb = act_margin.get_theme_constant("margin_bottom")
 	print("ActivitiesPanel ActMargin margin_bottom: ", mb)
-	assert(mb >= 64, "ActMargin margin_bottom must be at least 64px")
-	print("✔ 3. ActMargin bottom margin confirmed >= 64px")
+	assert(mb <= 36, "ActMargin margin_bottom must be decreased and compact (actual: %d)" % mb)
+	print("✔ 3. ActMargin bottom margin confirmed <= 36px")
 
 	# 5. Verify ActListBottomSpacer exists in ActList
 	var act_list = act_panel.get_node_or_null("ActMargin/ActContent/ActScroll/ActList")

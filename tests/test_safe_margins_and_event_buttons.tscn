@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://bv81u56bka7re"]
+[gd_scene format=3 uid="uid://bv81u56bka7re"]
 
 [ext_resource type="Script" path="res://tests/test_safe_margins_and_event_buttons.gd" id="1_test"]
 

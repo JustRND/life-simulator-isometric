@@ -903,7 +903,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="CharacterContent" type="VBoxContainer" parent="CharacterPanel/CharacterMargin" unique_id=1434596636]
 layout_mode = 2
@@ -913,20 +913,25 @@ theme_override_constants/separation = 20
 layout_mode = 2
 
 [node name="CharacterTitle" type="Label" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterHeaderRow" unique_id=1468336494]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
-text = "CHARACTER PROFILE"
-autowrap_mode = 3
+text = "Character Profile"
+horizontal_alignment = 1
+vertical_alignment = 1
 text_overrun_behavior = 3
 
 [node name="CloseCharacterButton" type="Button" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterHeaderRow" unique_id=1817061845]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="CharacterScroll" type="ScrollContainer" parent="CharacterPanel/CharacterMargin/CharacterContent" unique_id=1757646919]
@@ -1110,7 +1115,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="InfantContent" type="VBoxContainer" parent="InfantPanel/InfantMargin" unique_id=380468781]
 layout_mode = 2
@@ -1120,19 +1125,25 @@ theme_override_constants/separation = 18
 layout_mode = 2
 
 [node name="InfantTitle" type="Label" parent="InfantPanel/InfantMargin/InfantContent/InfantHeaderRow" unique_id=1360160598]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 44
-text = "TODDLER & LIFE OVERVIEW"
-autowrap_mode = 3
+text = "Life Overview"
+horizontal_alignment = 1
+vertical_alignment = 1
+text_overrun_behavior = 3
 
 [node name="CloseInfantButton" type="Button" parent="InfantPanel/InfantMargin/InfantContent/InfantHeaderRow" unique_id=1142441444]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="StatusCard" type="PanelContainer" parent="InfantPanel/InfantMargin/InfantContent" unique_id=853998808]
@@ -1252,7 +1263,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="AssetsContent" type="VBoxContainer" parent="AssetsPanel/AssetsMargin" unique_id=1236026963]
 layout_mode = 2
@@ -1262,20 +1273,25 @@ theme_override_constants/separation = 24
 layout_mode = 2
 
 [node name="AssetsTitle" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsHeaderRow" unique_id=1022520309]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
-text = "ASSETS & FINANCES"
-autowrap_mode = 3
+text = "Assets & Finances"
+horizontal_alignment = 1
+vertical_alignment = 1
 text_overrun_behavior = 3
 
 [node name="CloseAssetsButton" type="Button" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsHeaderRow" unique_id=1558426471]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="AssetsCashLabel" type="Label" parent="AssetsPanel/AssetsMargin/AssetsContent" unique_id=476374275]
@@ -1375,7 +1391,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="BankContent" type="VBoxContainer" parent="BankPanel/BankMargin" unique_id=657265361]
 layout_mode = 2
@@ -1397,21 +1413,25 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "← ASSETS"
 
 [node name="BankTitle" type="Label" parent="BankPanel/BankMargin/BankContent/BankHeaderRow" unique_id=1052183605]
-custom_minimum_size = Vector2(1, 0)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
-text = "FIRST NATIONAL PIXEL BANK"
+text = "Bank & Finances"
 horizontal_alignment = 1
-autowrap_mode = 2
+vertical_alignment = 1
+text_overrun_behavior = 3
 
 [node name="CloseBankButton" type="Button" parent="BankPanel/BankMargin/BankContent/BankHeaderRow" unique_id=1625863005]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="BankScroll" type="ScrollContainer" parent="BankPanel/BankMargin/BankContent" unique_id=128471928]
@@ -1479,7 +1499,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="RelContent" type="VBoxContainer" parent="RelationshipsPanel/RelMargin" unique_id=1236264837]
 layout_mode = 2
@@ -1489,20 +1509,25 @@ theme_override_constants/separation = 24
 layout_mode = 2
 
 [node name="RelTitle" type="Label" parent="RelationshipsPanel/RelMargin/RelContent/RelHeaderRow" unique_id=1620267041]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
-text = "RELATIONSHIPS"
-autowrap_mode = 3
+text = "Relationships"
+horizontal_alignment = 1
+vertical_alignment = 1
 text_overrun_behavior = 3
 
 [node name="CloseRelButton" type="Button" parent="RelationshipsPanel/RelMargin/RelContent/RelHeaderRow" unique_id=267045736]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="RelScroll" type="ScrollContainer" parent="RelationshipsPanel/RelMargin/RelContent" unique_id=158802062]
@@ -1643,7 +1668,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="ActContent" type="VBoxContainer" parent="ActivitiesPanel/ActMargin" unique_id=1063840037]
 layout_mode = 2
@@ -1653,20 +1678,25 @@ theme_override_constants/separation = 24
 layout_mode = 2
 
 [node name="ActTitle" type="Label" parent="ActivitiesPanel/ActMargin/ActContent/ActHeaderRow" unique_id=1241916855]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
-text = "ACTIVITIES"
-autowrap_mode = 3
+text = "Activities"
+horizontal_alignment = 1
+vertical_alignment = 1
 text_overrun_behavior = 3
 
 [node name="CloseActButton" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActHeaderRow" unique_id=887305750]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="ActScroll" type="ScrollContainer" parent="ActivitiesPanel/ActMargin/ActContent" unique_id=181154892]
@@ -2018,7 +2048,7 @@ layout_mode = 2
 theme_override_constants/margin_left = 36
 theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 96
+theme_override_constants/margin_bottom = 24
 
 [node name="SettingsContent" type="VBoxContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin" unique_id=778650370]
 layout_mode = 2
@@ -2028,20 +2058,25 @@ theme_override_constants/separation = 24
 layout_mode = 2
 
 [node name="SettingsTitle" type="Label" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/SettingsHeader" unique_id=1793013472]
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
-text = "SETTINGS"
-autowrap_mode = 3
+text = "Settings"
+horizontal_alignment = 1
+vertical_alignment = 1
 text_overrun_behavior = 3
 
 [node name="CloseSettingsHeaderButton" type="Button" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/SettingsHeader" unique_id=321787064]
-custom_minimum_size = Vector2(104, 82)
+custom_minimum_size = Vector2(56, 56)
 layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
 theme_override_colors/font_hover_color = Color(1, 0.35, 0.35, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 26
 text = "✕"
 
 [node name="GameInfoCard" type="PanelContainer" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent" unique_id=272032567]

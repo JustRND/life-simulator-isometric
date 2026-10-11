@@ -48,7 +48,7 @@ func _ready() -> void:
 		assert_check(ml >= 36, "%s margin_left is >= 36 (actual: %d)" % [m_name, ml])
 		assert_check(mr >= 36, "%s margin_right is >= 36 (actual: %d)" % [m_name, mr])
 		assert_check(mt >= 64, "%s margin_top is >= 64 (actual: %d)" % [m_name, mt])
-		assert_check(mb >= 96, "%s margin_bottom is >= 96 (actual: %d)" % [m_name, mb])
+		assert_check(mb <= 36 and mb >= 20, "%s margin_bottom is compact and safe <= 36 (actual: %d)" % [m_name, mb])
 
 	# 2. Test Safe Margins After show_tab("assets") and ThemeController execution
 	main_scene.show_tab("assets")
@@ -57,12 +57,57 @@ func _ready() -> void:
 	assert_check(assets_m.get_theme_constant("margin_left") >= 36, "AssetsMargin keeps margin_left >= 36 after show_tab")
 	assert_check(assets_m.get_theme_constant("margin_right") >= 36, "AssetsMargin keeps margin_right >= 36 after show_tab")
 	assert_check(assets_m.get_theme_constant("margin_top") >= 64, "AssetsMargin keeps margin_top >= 64 after show_tab")
-	assert_check(assets_m.get_theme_constant("margin_bottom") >= 96, "AssetsMargin keeps margin_bottom >= 96 after show_tab")
+	assert_check(assets_m.get_theme_constant("margin_bottom") <= 36 and assets_m.get_theme_constant("margin_bottom") >= 20, "AssetsMargin keeps compact margin_bottom <= 36 after show_tab")
 
-	# 3. Test Safe Margins After show_tab on other panels
-	for tab in ["bank", "activities", "relationships", "character"]:
+	# 3. Test Safe Margins and Header Styling (X button size & visible title) After show_tab
+	var header_checks: Dictionary = {
+		"activities": {
+			"header": "ActivitiesPanel/ActMargin/ActContent/ActHeaderRow",
+			"title": "ActTitle",
+			"close": "CloseActButton",
+			"expected_title": "Activities"
+		},
+		"relationships": {
+			"header": "RelationshipsPanel/RelMargin/RelContent/RelHeaderRow",
+			"title": "RelTitle",
+			"close": "CloseRelButton",
+			"expected_title": "Relationships"
+		},
+		"assets": {
+			"header": "AssetsPanel/AssetsMargin/AssetsContent/AssetsHeaderRow",
+			"title": "AssetsTitle",
+			"close": "CloseAssetsButton",
+			"expected_title": "Assets & Finances"
+		},
+		"character": {
+			"header": "CharacterPanel/CharacterMargin/CharacterContent/CharacterHeaderRow",
+			"title": "CharacterTitle",
+			"close": "CloseCharacterButton",
+			"expected_title": "Character Profile"
+		}
+	}
+
+	for tab in ["bank", "activities", "relationships", "character", "assets"]:
 		main_scene.show_tab(tab)
 		await get_tree().process_frame
+		await get_tree().process_frame
+		if header_checks.has(tab):
+			var info: Dictionary = header_checks[tab]
+			var h_node: Node = main_scene.get_node_or_null(info["header"])
+			assert_check(h_node != null, "%s header exists" % tab)
+			if h_node != null:
+				var title_node: Label = h_node.get_node_or_null(info["title"])
+				var close_node: Button = h_node.get_node_or_null(info["close"])
+				assert_check(close_node != null, "%s close button exists" % tab)
+				if close_node != null:
+					assert_check(close_node.custom_minimum_size == Vector2(56, 56), "%s close button minimum size is (56, 56)" % tab)
+					assert_check(close_node.size_flags_horizontal == Control.SIZE_SHRINK_BEGIN, "%s close button does not expand horizontally" % tab)
+				assert_check(title_node != null, "%s title label exists" % tab)
+				if title_node != null:
+					assert_check(title_node.visible, "%s title label is visible" % tab)
+					assert_check(title_node.text == info["expected_title"], "%s title text is '%s' (actual: '%s')" % [tab, info["expected_title"], title_node.text])
+					assert_check(title_node.size_flags_vertical == Control.SIZE_EXPAND_FILL, "%s title label expands vertically to fill header bar" % tab)
+					assert_check(title_node.size_flags_horizontal == Control.SIZE_EXPAND_FILL, "%s title label expands horizontally" % tab)
 
 	# 4. Test Event Button Dynamic Sizing & Text Anti-Clipping
 	var test_event: Dictionary = {
