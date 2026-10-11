@@ -178,6 +178,7 @@ var _pending_move_out_on_lease: bool = false
 @onready var bank_list: VBoxContainer = $BankPanel/BankMargin/BankContent/BankScroll/BankList
 @onready var bank_checking_label: Label = $BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox/CheckingBalanceLabel
 @onready var bank_header_icon: TextureRect = $BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox/BankIconRow/BankHeaderIcon
+var _bank_savings_summary_label: Label = null
 
 # Relationships Panel Nodes
 @onready var relationships_panel: PanelContainer = $RelationshipsPanel
@@ -992,6 +993,7 @@ func _on_time_label_gui_input(event: InputEvent) -> void:
 
 func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
 	_update_time_and_age_labels()
+	_refresh_financial_summaries(assets_panel != null and assets_panel.visible)
 
 
 func _on_clock_month_changed(year: int, month: int) -> void:
@@ -1605,18 +1607,7 @@ func update_ui() -> void:
 	name_label.text = PlayerData.first_name
 	_update_time_and_age_labels()
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
-	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"
-	balance_label.text = "💵 $%s CASH\n🏦 $%s %s" % [
-		_format_number(PlayerData.money),
-		_format_number(PlayerData.bank_savings),
-		bank_title
-	]
-	balance_label.add_theme_font_size_override("font_size", 24)
-	balance_label.custom_minimum_size = Vector2(290, 110)
-	balance_label.tooltip_text = "Cash (Wallet): $%s\nBank Balance (Savings): $%s\nClick to view Bank & Savings" % [
-		_format_number(PlayerData.money),
-		_format_number(PlayerData.bank_savings)
-	]
+	_refresh_financial_summaries()
 
 	if nationality_flag != null and PlayerData.birthplace != "":
 		nationality_flag.texture = CreationOptions.get_flag_for_country(PlayerData.birthplace)
@@ -3194,33 +3185,52 @@ func quit_job() -> void:
 
 
 func update_assets_panel() -> void:
-	var total_assets: int = PlayerData.get_total_asset_value()
-	var net_worth: int = PlayerData.get_net_worth()
-	var total_cash: int = PlayerData.money
-	var savings: int = PlayerData.bank_savings
-	var debt_val: int = PlayerData.get_total_debt()
-	var is_light: bool = LifeLibrary.data.theme == "light"
-
-	if net_worth < 0:
-		assets_cash_label.text = "Cash: $%s  •  Bank: $%s  •  Assets: $%s  •  Debt: $%s\nTotal Net Worth: -$%s" % [
-			_format_number(total_cash),
-			_format_number(savings),
-			_format_number(total_assets),
-			_format_number(debt_val),
-			_format_number(absi(net_worth))
-		]
-		assets_cash_label.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#ef4444"))
-	else:
-		assets_cash_label.text = "Cash: $%s  •  Bank: $%s  •  Assets: $%s\nTotal Net Worth: $%s" % [
-			_format_number(total_cash),
-			_format_number(savings),
-			_format_number(total_assets),
-			_format_number(net_worth)
-		]
-		assets_cash_label.add_theme_color_override("font_color", Color("#16a34a") if is_light else Color("#22c55e"))
-
+	_refresh_financial_summaries(true)
 	_render_assets_list()
 	_configure_button_contrasts()
+
+
+func _refresh_financial_summaries(refresh_assets: bool = false) -> void:
+	# Read both balances together so every finance summary displays one coherent snapshot.
+	var cash: String = _format_number(PlayerData.money)
+	var savings: String = _format_number(PlayerData.bank_savings)
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	if balance_label != null:
+		var bank_title := "BANK BALANCE" if savings.length() <= 7 else "BANK"
+		balance_label.text = "💵 $%s CASH\n🏦 $%s %s" % [cash, savings, bank_title]
+		balance_label.add_theme_font_size_override("font_size", 24)
+		balance_label.custom_minimum_size = Vector2(290, 110)
+		balance_label.tooltip_text = "Cash (Wallet): $%s\nBank Balance (Savings): $%s\nClick to view Bank & Savings" % [cash, savings]
+
+	if bank_checking_label != null:
+		bank_checking_label.text = "Cash: $%s   •   Bank Balance: $%s\n🎯 Credit Score: %d (%s)" % [
+			cash, savings, PlayerData.credit_score, PlayerData.get_credit_rating()
+		]
+	if is_instance_valid(_bank_savings_summary_label):
+		_bank_savings_summary_label.text = "• Bank Balance: $%s  (Protected for Inheritance)\n• Cash: $%s" % [savings, cash]
+
+	if refresh_assets or (assets_panel != null and assets_panel.visible):
+		var total_assets: int = PlayerData.get_total_asset_value()
+		var net_worth: int = PlayerData.get_net_worth()
+		var debt_val: int = PlayerData.get_total_debt()
+		if net_worth < 0:
+			assets_cash_label.text = "Cash: $%s  •  Bank: $%s  •  Assets: $%s  •  Debt: $%s\nTotal Net Worth: -$%s" % [
+				cash,
+				savings,
+				_format_number(total_assets),
+				_format_number(debt_val),
+				_format_number(absi(net_worth))
+			]
+			assets_cash_label.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#ef4444"))
+		else:
+			assets_cash_label.text = "Cash: $%s  •  Bank: $%s  •  Assets: $%s\nTotal Net Worth: $%s" % [
+				cash,
+				savings,
+				_format_number(total_assets),
+				_format_number(net_worth)
+			]
+			assets_cash_label.add_theme_color_override("font_color", Color("#16a34a") if is_light else Color("#22c55e"))
 
 
 func _render_assets_list() -> void:
@@ -4478,12 +4488,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 
 func update_bank_panel() -> void:
 	var is_light: bool = LifeLibrary.data.theme == "light"
-	bank_checking_label.text = "Cash: $%s   •   Bank Balance: $%s\n🎯 Credit Score: %d (%s)" % [
-		_format_number(PlayerData.money),
-		_format_number(PlayerData.bank_savings),
-		PlayerData.credit_score,
-		PlayerData.get_credit_rating()
-	]
+	_refresh_financial_summaries()
 	bank_checking_label.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color(0.396, 0.902, 1, 1))
 	var bank_status_lbl := get_node_or_null("BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox/BankStatusLabel") as Label
 	if bank_status_lbl != null:
@@ -4554,10 +4559,12 @@ func update_bank_panel() -> void:
 	sv.add_child(sav_title)
 
 	var sav_bal := Label.new()
+	sav_bal.name = "SavingsBalanceSummary"
 	sav_bal.text = "• Bank Balance: $%s  (Protected for Inheritance)\n• Cash: $%s" % [
 		_format_number(PlayerData.bank_savings),
 		_format_number(PlayerData.money)
 	]
+	_bank_savings_summary_label = sav_bal
 	sav_bal.custom_minimum_size = Vector2(1, 0)
 	sav_bal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sav_bal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

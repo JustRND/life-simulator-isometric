@@ -48,6 +48,21 @@ func _ready() -> void:
 	BusinessManager.pay_business_taxes(company)
 	assert(company.unpaid_taxes == 0 and PlayerData.bank_savings == 840)
 	main.update_bank_panel()
+	var original_cash: int = PlayerData.money
+	var original_bank: int = PlayerData.bank_savings
+	PlayerData.money = 13240
+	PlayerData.bank_savings = 750
+	main.assets_panel.visible = true
+	main._on_clock_day_changed(PlayerData.in_game_year, PlayerData.in_game_month, PlayerData.in_game_day)
+	assert(main.balance_label.text.contains("$13,240 CASH") and main.balance_label.text.contains("$750 BANK BALANCE"), "Main counter must use current cash and bank balances")
+	assert(main.assets_cash_label.text.contains("Cash: $13,240") and main.assets_cash_label.text.contains("Bank: $750"), "Assets summary must stay in sync with the main counter")
+	assert(main.bank_checking_label.text.contains("Cash: $13,240") and main.bank_checking_label.text.contains("Bank Balance: $750"), "Bank summary must stay in sync with the main counter")
+	assert(main._bank_savings_summary_label.text.contains("Bank Balance: $750") and main._bank_savings_summary_label.text.contains("Cash: $13,240"), "Savings card must stay in sync with the main counter")
+	PlayerData.money = original_cash
+	PlayerData.bank_savings = original_bank
+	main.assets_panel.visible = false
+	main.update_assets_panel()
+	main.update_bank_panel()
 	var found_dep_custom: Button = null
 	var found_wth_custom: Button = null
 	for btn in main.bank_list.find_children("*", "Button", true, false):
