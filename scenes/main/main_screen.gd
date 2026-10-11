@@ -20387,21 +20387,15 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 		list.add_child(installed_card)
 
 	# 3. Category Filter Tabs Row
-	var cat_scroll := ScrollContainer.new()
-	cat_scroll.custom_minimum_size = Vector2(1, 80)
-	cat_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	cat_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	cat_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	list.add_child(cat_scroll)
-
-	var cat_row := HBoxContainer.new()
-	cat_row.set_meta("allow_horizontal_overflow", true)
-	cat_row.add_theme_constant_override("separation", 10)
-	# This row deliberately overflows horizontally on narrow viewports. Each
-	# tab retains enough width for a single readable line instead of wrapping
-	# "Modifications" or "Bio-Regulators" character by character.
-	cat_row.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	cat_scroll.add_child(cat_row)
+	# Six filters fit naturally as a three-column grid: two readable rows on
+	# portrait phones and no clipped fourth tab on wider screens.
+	var cat_grid := GridContainer.new()
+	cat_grid.name = "NeuralCategoryFilterGrid"
+	cat_grid.columns = 3
+	cat_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cat_grid.add_theme_constant_override("h_separation", 10)
+	cat_grid.add_theme_constant_override("v_separation", 10)
+	list.add_child(cat_grid)
 
 	var filter_opts: Array = [
 		{"id": "all", "label": "🌐 All Modifications"},
@@ -20419,11 +20413,11 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 		var tab_btn := _create_cyber_button(opt["label"], tab_col, func():
 			_show_neural_specialist_modal(opt_id)
 		, true)
-		tab_btn.custom_minimum_size = Vector2(300, 62)
-		tab_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		tab_btn.autowrap_mode = TextServer.AUTOWRAP_OFF
+		tab_btn.set_meta("neural_filter_tab", true)
+		tab_btn.custom_minimum_size = Vector2(1, 62)
+		LayoutGuard.configure_compact_grid_action(tab_btn, 1)
 		tab_btn.add_theme_font_size_override("font_size", 24)
-		cat_row.add_child(tab_btn)
+		cat_grid.add_child(tab_btn)
 
 	# 4. Neural Modifications Catalog Cards
 	var all_mods := NeuralCatalog.get_all_modifications()

@@ -95,6 +95,8 @@ func _ready() -> void:
 				await get_tree().process_frame
 				await get_tree().process_frame
 				_audit_open_modal(screen, modal_name, theme_mode)
+				if modal_name == "Neural Specialist":
+					_assert_neural_filter_grid(screen, theme_mode)
 				_close_all_modals(screen)
 				await get_tree().process_frame
 
@@ -284,3 +286,22 @@ func _has_horizontal_scroll_ancestor(control: Control, modal_card: Control) -> b
 				return true
 		current = current.get_parent()
 	return false
+
+
+func _assert_neural_filter_grid(screen: Control, theme_mode: String) -> void:
+	var grid := screen.find_child("NeuralCategoryFilterGrid", true, false) as GridContainer
+	if grid == null or grid.columns != 3:
+		clipping_errors += 1
+		print("  🚨 [%s | Neural Specialist] Missing three-column category filter grid." % theme_mode)
+		return
+	var tabs: Array[Control] = []
+	for child in grid.get_children():
+		if child is Control and child.has_meta("neural_filter_tab"):
+			tabs.append(child as Control)
+	if tabs.size() != 6:
+		clipping_errors += 1
+		print("  🚨 [%s | Neural Specialist] Expected six filter tabs, found %d." % [theme_mode, tabs.size()])
+		return
+	if is_equal_approx(tabs[0].position.y, tabs[3].position.y):
+		clipping_errors += 1
+		print("  🚨 [%s | Neural Specialist] Filter tabs did not wrap into a second row." % theme_mode)
