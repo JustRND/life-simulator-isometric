@@ -32,8 +32,9 @@ static func format_karmic_modifier(modifier_id: String) -> String:
 var age: int = 12
 var in_game_day: int = 1
 var in_game_month: int = 1
-var in_game_year: int = 1
+var in_game_year: int = 2026
 var is_time_paused: bool = false
+var day_accumulator: float = 0.0
 var life_id: String = ""
 var finance_market: Dictionary = {}
 var crypto_wallet: Dictionary = {}
@@ -58,7 +59,9 @@ var current_residence_name: String = ""
 var current_residence_type: String = "parents"
 
 var birth_story: String = ""
+var birth_year: int = 2014
 var birth_month: String = "January"
+var birth_month_idx: int = 1
 var birth_day: int = 1
 var zodiac: String = "Capricorn"
 
@@ -244,7 +247,9 @@ func reset_player() -> void:
 	current_residence_type = "parents"
 
 	birth_story = ""
+	birth_year = 2014
 	birth_month = "January"
+	birth_month_idx = 1
 	birth_day = 1
 	zodiac = "Capricorn"
 
@@ -318,8 +323,9 @@ func reset_player() -> void:
 	age = 12
 	in_game_day = 1
 	in_game_month = 1
-	in_game_year = 1
+	in_game_year = 2026
 	is_time_paused = false
+	day_accumulator = 0.0
 
 	health = 80
 	happiness = 75
@@ -2107,7 +2113,11 @@ func process_yearly_neural_implants() -> Array[String]:
 
 
 func get_date_string() -> String:
-	return "Month %d, Day %d" % [in_game_month, in_game_day]
+	return "%s %d, %d" % [GameClock.get_month_name(in_game_month), in_game_day, in_game_year]
+
+
+func get_calculated_age() -> int:
+	return GameClock.calculate_age(in_game_year, in_game_month, in_game_day, birth_year, birth_month_idx, birth_day)
 
 
 func get_monthly_neural_maintenance() -> int:

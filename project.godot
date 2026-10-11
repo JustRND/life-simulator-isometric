@@ -30,6 +30,7 @@ JobManager="*res://scripts/economy/job_manager.gd"
 LifeLibrary="*res://scripts/core/life_library.gd"
 GameLocale="*res://scripts/core/game_locale.gd"
 MobileKeyboardService="*res://scripts/ui/mobile_keyboard_manager.gd"
+GameClock="*res://scripts/core/game_clock.gd"
 
 [display]
 

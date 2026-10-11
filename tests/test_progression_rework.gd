@@ -28,9 +28,9 @@ func test_starting_state() -> void:
 	assert_true(PlayerData.age == 12, "Default player age is 12 (was 0)")
 	assert_true(PlayerData.in_game_day == 1, "Initial in-game day is 1")
 	assert_true(PlayerData.in_game_month == 1, "Initial in-game month is 1")
-	assert_true(PlayerData.in_game_year == 1, "Initial in-game year is 1")
+	assert_true(PlayerData.in_game_year == 2026, "Initial in-game year is 2026")
 	assert_true(PlayerData.education_level == "Middle School", "Initial education is Middle School")
-	assert_true(PlayerData.get_date_string() == "Month 1, Day 1", "Date string formats correctly")
+	assert_true(PlayerData.get_date_string() == "January 1, 2026", "Date string formats correctly")
 	assert_true(PlayerData.get_stage_name() == "Child", "Age 12 stage name is Child")
 
 
@@ -198,18 +198,27 @@ func test_year_rollover_and_aging() -> void:
 	PlayerData.is_dead = false
 	PlayerData.is_time_paused = false
 	PlayerData.age = 12
-	PlayerData.in_game_day = 30
+	PlayerData.in_game_day = 31
 	PlayerData.in_game_month = 12
-	PlayerData.in_game_year = 1
+	PlayerData.in_game_year = 2026
+	if GameClock != null:
+		GameClock.year = 2026
+		GameClock.month = 12
+		GameClock.day = 31
+		GameClock.birth_year = 2014
+		GameClock.birth_month = 1
+		GameClock.birth_day = 1
+		GameClock.current_age = 12
 
-	# Advance 1 day past Day 30 of Month 12 -> triggers Month 1 of next year and age_up()
+	# Advance 1 day past Day 31 of Month 12 -> triggers Month 1 of next year and birthday/year_changed
 	main_screen._process(1.0)
-	assert_true(PlayerData.in_game_day == 1, "Day rolls over from 30 to 1")
+	assert_true(PlayerData.in_game_day == 1, "Day rolls over from 31 to 1")
 	assert_true(PlayerData.in_game_month == 1, "Month rolls over from 12 to 1")
 	assert_true(PlayerData.age == 13, "Character successfully ages up from 12 to 13 upon year completion")
-	assert_true(PlayerData.in_game_year == 2, "In-game year increments to 2")
+	assert_true(PlayerData.in_game_year == 2027, "In-game year increments to 2027")
 
 	main_screen.queue_free()
+
 
 
 func test_inheritance_mechanics() -> void:

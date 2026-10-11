@@ -19,8 +19,13 @@ func capture_data() -> Dictionary:
 		"has_started_game": PlayerData.has_started_game,
 		"selected_room_id": PlayerData.selected_room_id,
 		"birth_story": PlayerData.birth_story,
+		"save_version": 2,
+		"birth_year": PlayerData.birth_year,
 		"birth_month": PlayerData.birth_month,
+		"birth_month_idx": PlayerData.birth_month_idx,
 		"birth_day": PlayerData.birth_day,
+		"day_accumulator": GameClock.day_accumulator if GameClock != null else PlayerData.day_accumulator,
+		"clock_data": GameClock.capture_save_data() if GameClock != null else {},
 		"zodiac": PlayerData.zodiac,
 		"mother_name": PlayerData.mother_name,
 		"mother_job": PlayerData.mother_job,
@@ -283,7 +288,9 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.selected_room_id = str(data.get("selected_room_id", "room_wood"))
 
 	PlayerData.birth_story = str(data.get("birth_story", ""))
+	PlayerData.birth_year = int(data.get("birth_year", 2014))
 	PlayerData.birth_month = str(data.get("birth_month", "January"))
+	PlayerData.birth_month_idx = int(data.get("birth_month_idx", GameClock.month_name_to_index(PlayerData.birth_month)))
 	PlayerData.birth_day = int(data.get("birth_day", 1))
 	PlayerData.zodiac = str(data.get("zodiac", "Capricorn"))
 
@@ -314,7 +321,16 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.age = int(data.get("age", 12))
 	PlayerData.in_game_day = int(data.get("in_game_day", 1))
 	PlayerData.in_game_month = int(data.get("in_game_month", 1))
-	PlayerData.in_game_year = int(data.get("in_game_year", 1))
+	PlayerData.in_game_year = int(data.get("in_game_year", 2026))
+	PlayerData.day_accumulator = float(data.get("day_accumulator", 0.0))
+
+	if GameClock != null:
+		var clock_dict: Dictionary = Dictionary(data.get("clock_data", {}))
+		if not clock_dict.is_empty():
+			GameClock.restore_save_data(clock_dict)
+		else:
+			# Legacy save migration preserving age, funds, assets
+			GameClock.restore_save_data(data)
 	PlayerData.health = int(data.get("health", 80))
 	PlayerData.happiness = int(data.get("happiness", 75))
 	PlayerData.smarts = int(data.get("smarts", 60))

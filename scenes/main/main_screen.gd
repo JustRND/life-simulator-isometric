@@ -364,6 +364,19 @@ func _connect_runtime_signals() -> void:
 	if close_timeline_btn != null and not close_timeline_btn.pressed.is_connected(_on_close_timeline_button_pressed):
 		close_timeline_btn.pressed.connect(_on_close_timeline_button_pressed)
 
+	if GameClock != null:
+		if not GameClock.day_changed.is_connected(_on_clock_day_changed):
+			GameClock.day_changed.connect(_on_clock_day_changed)
+		if not GameClock.month_changed.is_connected(_on_clock_month_changed):
+			GameClock.month_changed.connect(_on_clock_month_changed)
+		if not GameClock.year_changed.is_connected(_on_clock_year_changed):
+			GameClock.year_changed.connect(_on_clock_year_changed)
+		if not GameClock.birthday.is_connected(_on_clock_birthday):
+			GameClock.birthday.connect(_on_clock_birthday)
+		if not GameClock.time_ticked.is_connected(_on_clock_time_ticked):
+			GameClock.time_ticked.connect(_on_clock_time_ticked)
+		GameClock.external_progression_check = Callable(self, "is_time_progression_active")
+
 
 
 func _configure_ui() -> void:
@@ -723,6 +736,45 @@ func _format_number(val: int) -> String:
 
 
 # --- REAL-TIME PROGRESSION SYSTEM (1s real time = 1 in-game day) ---
+func has_any_deliberate_modal_open() -> bool:
+	if current_event != null:
+		return true
+	if event_overlay != null and is_instance_valid(event_overlay) and event_overlay.visible:
+		return true
+	if settings_overlay != null and is_instance_valid(settings_overlay) and settings_overlay.visible:
+		return true
+	if reset_confirmation_overlay != null and is_instance_valid(reset_confirmation_overlay) and reset_confirmation_overlay.visible:
+		return true
+	if death_screen_overlay != null and is_instance_valid(death_screen_overlay) and death_screen_overlay.visible:
+		return true
+	if new_game_panel != null and is_instance_valid(new_game_panel) and new_game_panel.visible:
+		return true
+
+	var overlays: Array = [
+		doctor_modal_overlay, crime_modal_overlay, casino_modal_overlay,
+		gym_modal_overlay, meditation_modal_overlay, dating_app_modal_overlay,
+		charity_modal_overlay, romance_action_modal_overlay, finance_hub_modal_overlay,
+		crypto_modal_overlay, crypto_trade_dialog_overlay, pension_modal_overlay,
+		savings_modal_overlay, tax_service_modal_overlay, jobs_modal_overlay,
+		job_category_modal_overlay, freelance_modal_overlay, licensing_modal_overlay,
+		license_category_modal_overlay, driving_exam_modal_overlay, business_modal_overlay,
+		business_category_modal_overlay, education_modal_overlay, university_modal_overlay,
+		shopping_modal_overlay, mind_body_modal_overlay, social_media_modal_overlay,
+		pet_adoption_modal_overlay, will_modal_overlay, salon_modal_overlay,
+		spa_modal_overlay, mental_institution_modal_overlay, neural_specialist_modal_overlay,
+		household_modal_overlay
+	]
+	for ov in overlays:
+		if ov != null and is_instance_valid(ov) and ov is CanvasItem and ov.visible:
+			return true
+
+	for child in get_children():
+		if child is CanvasItem and child.visible and child.has_meta("is_deliberate_modal"):
+			return true
+
+	return false
+
+
 func is_time_progression_active() -> bool:
 	if not PlayerData.has_started_game:
 		return false
@@ -730,17 +782,7 @@ func is_time_progression_active() -> bool:
 		return false
 	if PlayerData.is_time_paused:
 		return false
-	if current_event != null:
-		return false
-	if event_overlay != null and event_overlay.visible:
-		return false
-	if new_game_panel != null and new_game_panel.visible:
-		return false
-	if settings_overlay != null and settings_overlay.visible:
-		return false
-	if reset_confirmation_overlay != null and reset_confirmation_overlay.visible:
-		return false
-	if death_screen_overlay != null and is_instance_valid(death_screen_overlay) and death_screen_overlay.visible:
+	if has_any_deliberate_modal_open():
 		return false
 	return true
 
@@ -749,6 +791,22 @@ func _process(delta: float) -> void:
 	if not is_time_progression_active():
 		return
 
+	if GameClock != null:
+		# If GameClock was not stepped this frame by the engine loop (e.g., manual test invocation), step it
+		if not GameClock.was_stepped_this_frame():
+			if GameClock.year != PlayerData.in_game_year or GameClock.month != PlayerData.in_game_month or GameClock.day != PlayerData.in_game_day:
+				GameClock.year = PlayerData.in_game_year
+				GameClock.month = PlayerData.in_game_month
+				GameClock.day = PlayerData.in_game_day
+				GameClock.birth_year = PlayerData.birth_year
+				GameClock.birth_month = PlayerData.birth_month_idx
+				GameClock.birth_day = PlayerData.birth_day
+				GameClock.current_age = GameClock.calculate_age(GameClock.year, GameClock.month, GameClock.day, GameClock.birth_year, GameClock.birth_month, GameClock.birth_day)
+			GameClock.step_clock(delta)
+		_update_time_and_age_labels()
+		return
+
+	# Fallback if GameClock is absent (backward compatibility)
 	day_timer += delta
 	if day_timer >= 1.0:
 		var days_to_advance: int = int(floor(day_timer))
@@ -767,14 +825,42 @@ func _update_time_and_age_labels() -> void:
 	if age_label != null:
 		age_label.text = "Age: %d" % PlayerData.age
 	if time_counter_label != null:
-		time_counter_label.text = "• 📅 Month %d, Day %d" % [PlayerData.in_game_month, PlayerData.in_game_day]
+		if GameClock != null:
+			time_counter_label.text = "• 📅 %s" % GameClock.get_date_string()
+		else:
+			time_counter_label.text = "• 📅 %s" % PlayerData.get_date_string()
+	if age_button != null:
+		var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
+		age_button.tooltip_text = "%s • Age %d" % [date_str, PlayerData.age]
+
+
+func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
+	_update_time_and_age_labels()
+
+
+func _on_clock_month_changed(_year: int, _month: int) -> void:
+	_advance_in_game_month()
+
+
+func _on_clock_year_changed(_year: int) -> void:
+	_advance_in_game_year()
+
+
+func _on_clock_birthday(new_age: int) -> void:
+	_on_character_birthday(new_age)
+
+
+func _on_clock_time_ticked(_day_progress: float) -> void:
+	pass
+
 
 
 func _advance_in_game_month() -> void:
 	if PlayerData.is_dead:
 		return
 
-	PlayerData.in_game_month += 1
+	if GameClock == null:
+		PlayerData.in_game_month += 1
 
 	# 1. Monthly Salary (if employed and not in prison)
 	if not PlayerData.is_in_prison and PlayerData.job_title != "" and PlayerData.job_salary > 0:
@@ -939,28 +1025,49 @@ func _advance_in_game_month() -> void:
 	update_ui()
 
 	# Check Year Rollover (Month 12 -> Month 1)
-	if PlayerData.in_game_month > 12:
+	if GameClock == null and PlayerData.in_game_month > 12:
 		PlayerData.in_game_month = 1
 		PlayerData.in_game_year += 1
 		_advance_in_game_year()
 
 
 func _advance_in_game_year() -> void:
-	age_up()
+	if PlayerData.is_dead:
+		return
+	_process_yearly_operations()
 
 
-func age_up() -> void:
+func _on_character_birthday(new_age: int) -> void:
+	if PlayerData.is_dead:
+		return
+	_process_birthday_operations(new_age)
+
+
+func age_up(target_age: int = -1) -> void:
 	if PlayerData.is_dead:
 		return
 	if current_event != null:
 		return
 
-	var spent_year_in_prison: bool = PlayerData.is_in_prison
 	var prev_age: int = PlayerData.age
-	PlayerData.age += 1
+	var next_age: int = (prev_age + 1) if target_age < 0 else target_age
+	PlayerData.age = next_age
 
-	var year_word: String = "year" if PlayerData.age == 1 else "years"
-	add_life_event("You turned %d %s old." % [PlayerData.age, year_word], "age")
+	if GameClock != null:
+		GameClock.current_age = next_age
+		GameClock.year += 1
+		GameClock.birth_year = GameClock.derive_birth_year(GameClock.year, GameClock.month, GameClock.day, GameClock.birth_month, GameClock.birth_day, next_age)
+		GameClock._sync_to_player_data()
+
+	_process_yearly_operations()
+	_process_birthday_operations(next_age, prev_age)
+
+
+func _process_yearly_operations() -> void:
+	if PlayerData.is_dead:
+		return
+
+	var spent_year_in_prison: bool = PlayerData.is_in_prison
 
 	# 1. Prison Sentence Countdown
 	if PlayerData.is_in_prison:
@@ -1036,21 +1143,41 @@ func age_up() -> void:
 	for p_log in pet_logs:
 		add_life_event(p_log, "relationship")
 
+	# Grades & Smarts decay
+	var p_age: int = PlayerData.age - 1
+	_process_yearly_grades_decay(p_age)
+	_process_yearly_smarts_decay(p_age)
+
+	update_ui()
+	SaveManager.save_game()
+
+
+func _process_birthday_operations(new_age: int, prev_age: int = -1) -> void:
+	if PlayerData.is_dead:
+		return
+	if prev_age < 0:
+		prev_age = new_age - 1
+
+	PlayerData.age = new_age
+
+	var year_word: String = "year" if new_age == 1 else "years"
+	add_life_event("You turned %d %s old." % [new_age, year_word], "age")
+
 	# 8. Education Lifecycle Progression (Kindergarten @ 3, Primary @ 6, Middle @ 11, High @ 14, Grad @ 18)
-	if PlayerData.age == 3:
+	if new_age == 3:
 		PlayerData.education_level = "Kindergarten"
 		PlayerData.grades = 80
 		add_life_event("🧸 You enrolled in Kindergarten! Learning letters, colors, and finger painting.", "milestone")
-	elif PlayerData.age == 6:
+	elif new_age == 6:
 		PlayerData.education_level = "Primary School"
 		add_life_event("🎒 You completed Kindergarten and entered Primary School! Learning math, science, and reading.", "milestone")
-	elif PlayerData.age == 11:
+	elif new_age == 11:
 		PlayerData.education_level = "Middle School"
 		add_life_event("🏫 You completed Primary School and advanced to Middle School! Academic subjects and social dynamics intensify.", "milestone")
-	elif PlayerData.age == 14 and PlayerData.education_level != "High School Dropout":
+	elif new_age == 14 and PlayerData.education_level != "High School Dropout":
 		PlayerData.education_level = "High School"
 		add_life_event("📘 You entered High School! Your academic marks directly determine future career qualification.", "milestone")
-	elif PlayerData.age == 18 and PlayerData.education_level == "High School":
+	elif new_age == 18 and PlayerData.education_level == "High School":
 		PlayerData.education_level = "High School Graduate"
 		var honors_hs := ""
 		if PlayerData.grades >= 90:
@@ -1058,7 +1185,7 @@ func age_up() -> void:
 		elif PlayerData.grades >= 80:
 			honors_hs = " with Honors"
 		add_life_event("🎓 You graduated from High School%s with a final academic grade of %d%% (%s, %.2f GPA)!" % [honors_hs, PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa()], "milestone")
-		PlayerData.add_milestone("Graduated from High School%s (Grade: %d%%, %.2f GPA)." % [honors_hs, PlayerData.grades, PlayerData.get_gpa()], PlayerData.age, "🎓")
+		PlayerData.add_milestone("Graduated from High School%s (Grade: %d%%, %.2f GPA)." % [honors_hs, PlayerData.grades, PlayerData.get_gpa()], new_age, "🎓")
 	elif PlayerData.education_level == "University Student":
 		PlayerData.university_years += 1
 		var uni_title: String = PlayerData.university_name if PlayerData.university_name != "" else "University"
@@ -1090,7 +1217,7 @@ func age_up() -> void:
 				"grades": PlayerData.grades,
 				"gpa": gpa,
 				"honors": honors,
-				"year_graduated": PlayerData.age
+				"year_graduated": new_age
 			}
 			PlayerData.degrees.append(completed_degree)
 			PlayerData.university_years = 0
@@ -1100,17 +1227,10 @@ func age_up() -> void:
 			else:
 				milestone_text = "You graduated from %s with a GPA of %.2f (Final Grades: %d%%)." % [uni_title, gpa, PlayerData.grades]
 			add_life_event("🎓 CONGRATULATIONS! %s Degree: %s in %s! Careers in %s are now unlocked." % [milestone_text, deg_name, maj_name, maj_name], "milestone")
-			PlayerData.add_milestone(milestone_text, PlayerData.age, "🎓")
+			PlayerData.add_milestone(milestone_text, new_age, "🎓")
 		else:
 			var m_label: String = " (%s)" % PlayerData.university_major_title if PlayerData.university_major_title != "" else ""
 			add_life_event("You finished Year %d of 4 at %s%s (Grades: %d%%, %.2f GPA)." % [PlayerData.university_years, uni_title, m_label, PlayerData.grades, PlayerData.get_gpa()], "education")
-
-	# Grades Degradation & Maintenance System (Forces active educational participation)
-	_process_yearly_grades_decay(prev_age)
-
-
-	# Smarts Degradation & Maintenance System (Forces players to actively use education system)
-	_process_yearly_smarts_decay(prev_age)
 
 	# 8. Aging Health Curve & General Sickness
 	randomize_stats()
@@ -1136,13 +1256,13 @@ func age_up() -> void:
 			return
 
 	# 7. Random Illness Contraction by Age (Balanced chances)
-	if not PlayerData.has_illness("cancer") and PlayerData.age >= 30:
+	if not PlayerData.has_illness("cancer") and new_age >= 30:
 		var cancer_chance: float = 0.004
-		if PlayerData.age >= 75:
+		if new_age >= 75:
 			cancer_chance = 0.025
-		elif PlayerData.age >= 60:
+		elif new_age >= 60:
 			cancer_chance = 0.015
-		elif PlayerData.age >= 45:
+		elif new_age >= 45:
 			cancer_chance = 0.008
 
 		if randf() < cancer_chance:
@@ -1150,7 +1270,7 @@ func age_up() -> void:
 			add_life_event("⚠️ DIAGNOSIS: You have been diagnosed with Stage 1 Lymphoma Cancer! Consult a medical doctor immediately for chemotherapy.", "health")
 
 	# 8. Random Accidents (Extremely rare freak accidents with survivable damage)
-	if randf() < 0.002 and PlayerData.age >= 16:
+	if randf() < 0.002 and new_age >= 16:
 		if randf() < 0.6:
 			var dmg: int = randi_range(12, 20)
 			PlayerData.health = maxi(0, PlayerData.health - dmg)
@@ -1167,8 +1287,8 @@ func age_up() -> void:
 				return
 
 	# 9. Natural Old Age Mortality (Age 85+)
-	if PlayerData.age >= 85:
-		var nat_chance: float = float(PlayerData.age - 84) * 0.035
+	if new_age >= 85:
+		var nat_chance: float = float(new_age - 84) * 0.035
 		if randf() < nat_chance:
 			PlayerData.health = 0
 			trigger_death("Old Age & Natural Cardiac Arrest")
@@ -1192,8 +1312,10 @@ func age_up() -> void:
 		if not birth.is_empty():
 			add_life_event(birth, "family")
 
+	_update_time_and_age_labels()
 	update_ui()
 	SaveManager.save_game()
+
 
 
 func _is_intellectual_career(j_id: String, j_title: String) -> bool:
@@ -2298,6 +2420,10 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.birth_month = str(profile.get("birth_month", "January"))
 	PlayerData.birth_day = int(profile.get("birth_day", 1))
 	PlayerData.zodiac = str(profile.get("zodiac", "Capricorn"))
+	var b_m_idx: int = GameClock.month_name_to_index(PlayerData.birth_month) if GameClock != null else 1
+	var b_day: int = PlayerData.birth_day
+	if GameClock != null:
+		GameClock.setup_new_game(b_m_idx, b_day, 2026, 1, 1, 12)
 	PlayerData.mother_name = str(profile.get("mother_name", ""))
 	PlayerData.mother_job = str(profile.get("mother_job", ""))
 	PlayerData.mother_base_age = int(profile.get("mother_age", 35))
@@ -13905,6 +14031,7 @@ func _show_text_input_popup(options: Dictionary) -> Control:
 func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color, use_fade_in: bool = false) -> Dictionary:
 	var overlay := ColorRect.new()
 	overlay.set_meta("theme_exempt", true)
+	overlay.set_meta("is_deliberate_modal", true)
 	overlay.color = Color(0.012, 0.035, 0.07, 0.98)
 	overlay.anchors_preset = Control.PRESET_FULL_RECT
 	overlay.anchor_right = 1.0
@@ -21076,7 +21203,8 @@ func _configure_age_art() -> void:
 	if age_button == null or not is_instance_valid(age_button):
 		return
 	age_button.text = ""
-	age_button.tooltip_text = "Age up one year"
+	var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
+	age_button.tooltip_text = "%s • Age %d" % [date_str, PlayerData.age]
 	for state in ["normal", "hover", "pressed", "disabled"]:
 		age_button.add_theme_stylebox_override(state, StyleBoxEmpty.new())
 
