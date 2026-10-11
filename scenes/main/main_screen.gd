@@ -11055,18 +11055,23 @@ func _show_freelance_modal() -> void:
 		cv.add_theme_constant_override("separation", 10)
 		cm.add_child(cv)
 
-		var top_row := HBoxContainer.new()
+		# A title and its payment range cannot share a narrow mobile HBox: the
+		# price used to extend beyond the modal edge. Keep them in the card's
+		# expanding column so both strings wrap only at words when needed.
+		var top_row := VBoxContainer.new()
+		top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		top_row.add_theme_constant_override("separation", 4)
 		var title_lbl := Label.new()
 		title_lbl.text = "%s %s" % [j_icon, j_title]
-		title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		LayoutGuard.configure_expanding_label(title_lbl)
 		title_lbl.add_theme_font_size_override("font_size", 32)
 		title_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 		top_row.add_child(title_lbl)
 
 		var pay_lbl := Label.new()
 		pay_lbl.text = "$%s - $%s / Project" % [_format_number(min_pay), _format_number(max_pay)]
-		pay_lbl.add_theme_font_size_override("font_size", 30)
+		LayoutGuard.configure_expanding_label(pay_lbl)
+		pay_lbl.add_theme_font_size_override("font_size", 28)
 		pay_lbl.add_theme_color_override("font_color", Color("#34d399"))
 		top_row.add_child(pay_lbl)
 		cv.add_child(top_row)
@@ -11088,12 +11093,16 @@ func _show_freelance_modal() -> void:
 		if is_registered:
 			var reg_info := Label.new()
 			reg_info.text = "✓ Client Roster Active: Projects will automatically offer contracts monthly."
+			LayoutGuard.configure_expanding_label(reg_info)
 			reg_info.add_theme_font_size_override("font_size", 29)
 			reg_info.add_theme_color_override("font_color", Color("#34d399"))
 			cv.add_child(reg_info)
 
-			var btn_row := HBoxContainer.new()
-			btn_row.add_theme_constant_override("separation", 12)
+			# Stacking the two long roster actions preserves usable touch targets
+			# on portrait phones. A shared HBox gave both buttons a sliver of width.
+			var btn_row := VBoxContainer.new()
+			btn_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_row.add_theme_constant_override("separation", 10)
 
 			var can_pitch: bool = not PlayerData.is_activity_used_this_month(int(PlayerData.last_freelance_pitch_month.get(j_id, -1)), int(PlayerData.last_freelance_pitch_year.get(j_id, -1)), int(PlayerData.last_freelance_pitch_age.get(j_id, -1)))
 			if can_pitch:
@@ -20386,8 +20395,12 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 	list.add_child(cat_scroll)
 
 	var cat_row := HBoxContainer.new()
+	cat_row.set_meta("allow_horizontal_overflow", true)
 	cat_row.add_theme_constant_override("separation", 10)
-	cat_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	# This row deliberately overflows horizontally on narrow viewports. Each
+	# tab retains enough width for a single readable line instead of wrapping
+	# "Modifications" or "Bio-Regulators" character by character.
+	cat_row.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	cat_scroll.add_child(cat_row)
 
 	var filter_opts: Array = [
@@ -20406,8 +20419,10 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 		var tab_btn := _create_cyber_button(opt["label"], tab_col, func():
 			_show_neural_specialist_modal(opt_id)
 		, true)
-		tab_btn.custom_minimum_size = Vector2(200, 68)
-		tab_btn.add_theme_font_size_override("font_size", 26)
+		tab_btn.custom_minimum_size = Vector2(300, 62)
+		tab_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		tab_btn.autowrap_mode = TextServer.AUTOWRAP_OFF
+		tab_btn.add_theme_font_size_override("font_size", 24)
 		cat_row.add_child(tab_btn)
 
 	# 4. Neural Modifications Catalog Cards
@@ -23070,23 +23085,23 @@ func _show_social_venues_modal() -> void:
 	sv.add_theme_constant_override("separation", 8)
 	sm.add_child(sv)
 
-	var stat_row := HBoxContainer.new()
-	stat_row.add_theme_constant_override("separation", 20)
+	# Funds and needs carry dynamic currency and percentage strings. Stacking
+	# them prevents the right-hand need label from being squeezed to one glyph.
+	var stat_row := VBoxContainer.new()
+	stat_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stat_row.add_theme_constant_override("separation", 8)
 	sv.add_child(stat_row)
 
 	var funds_lbl := Label.new()
 	funds_lbl.text = "💵 Funds: $%s" % _format_number(PlayerData.get_available_funds())
-	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	funds_lbl.custom_minimum_size = Vector2(1, 0)
+	LayoutGuard.configure_expanding_label(funds_lbl)
 	funds_lbl.add_theme_font_size_override("font_size", 26)
 	funds_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
-	funds_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stat_row.add_child(funds_lbl)
 
 	var needs_lbl := Label.new()
 	needs_lbl.text = "🥪 Hunger: %d%%  •  💧 Thirst: %d%%" % [int(round(PlayerData.hunger)), int(round(PlayerData.thirst))]
-	needs_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	needs_lbl.custom_minimum_size = Vector2(1, 0)
+	LayoutGuard.configure_expanding_label(needs_lbl)
 	needs_lbl.add_theme_font_size_override("font_size", 26)
 	needs_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	stat_row.add_child(needs_lbl)
