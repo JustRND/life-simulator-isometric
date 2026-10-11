@@ -407,15 +407,23 @@ func _sync_event_height() -> void:
 	if heading.size.x <= 1.0:
 		call_deferred("_sync_event_height")
 		return
-	var real_lines := heading.get_line_count()
-	if real_lines <= 0:
-		call_deferred("_sync_event_height")
-		return
-	# Keep the existing visual rhythm while sizing from the label's actual
-	# post-layout line count.  This avoids both clipping and giant minimum
-	# sizes from asking a wrapped label for its minimum height too early.
-	var line_count := clampi(real_lines, 1, 4)
-	var required_height: float = [96.0, 132.0, 172.0, 216.0][line_count - 1]
+	# Measure the text at the width the row actually received. Label line
+	# counts can still be stale during a container relayout, especially when
+	# the modal first opens on a narrow mobile viewport.
+	var font_size := heading.get_theme_font_size("font_size")
+	var text_size := _bold_font.get_multiline_string_size(
+		heading.text, HORIZONTAL_ALIGNMENT_LEFT, heading.size.x, font_size
+	)
+	var line_height := maxf(1.0, _bold_font.get_height(font_size))
+	var measured_lines := int(ceil(text_size.y / line_height))
+	var line_count := clampi(maxi(measured_lines, heading.get_line_count()), 1, 4)
+	# Wrapped Labels do not always contribute their wrapped height to the
+	# nested VBox/HBox minimum size. Give the heading its measured height so
+	# the text itself cannot draw through the next event choice.
+	var content_height := maxf(line_height, text_size.y)
+	if absf(heading.custom_minimum_size.y - content_height) > 1.0:
+		heading.custom_minimum_size.y = content_height
+	var required_height: float = maxf([96.0, 132.0, 172.0, 216.0][line_count - 1], content_height + 32.0)
 	if absf(target.custom_minimum_size.y - required_height) > 1.0:
 		target.custom_minimum_size.y = required_height
 

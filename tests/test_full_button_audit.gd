@@ -52,23 +52,32 @@ func _ready():
 	assert(all_act_uniform, "Activities buttons must be uniform in height")
 	assert(all_act_centered, "Activities buttons must be centered")
 	
-	# 2. Event Choice buttons with multi-line text (the user's campout screenshot)
+	# 2. Event Choice buttons with long text from the mobile meteor-shower report
 	print("\n--- 2. EVENT POPUP BUTTONS (NO CLIPPING) ---")
+	get_window().size = Vector2i(540, 960)
+	await get_tree().process_frame
+	await get_tree().process_frame
 	var event_data = {
-		"id": "test_campout",
-		"title": "BACKYARD FAMILY CAMPOUT",
-		"text": "Younger family relatives plead with wide smiles for an outdoor campout in your backyard with lanterns, sleeping bags, and treats.\n\nWhat do you do?",
+		"id": "perseid_meteor_night",
+		"title": "PEAK METEOR SHOWER",
+		"text": "Clear, crisp midnight skies create optimal viewing conditions for dozens of streaking shooting stars per hour.\n\nWhat do you do?",
 		"choices": [
-			{"text": "Pitch the tent, roast marshmallows, and tell folktales around the campfire"},
-			{"text": "Build a gigantic indoor living room pillow fortress"},
-			{"text": "Set up yard games and let them play badminton and tag"},
-			{"text": "Take everyone to an outdoor retro drive-in movie"}
+			{"text": "Drive to a scenic mountain overlook with warm cider"},
+			{"text": "Watch from a comfortable recliner in your backyard"},
+			{"text": "Host an impromptu rooftop stargazing night with neighbors"},
+			{"text": "Head to bed early to ensure a full eight hours of sleep"}
 		]
 	}
 	main_scene.current_event = event_data
 	main_scene.current_event_choices = event_data.choices
 	main_scene.show_event_popup()
+	var event_panel: Control = main_scene.get_node("EventOverlay/EventPanel")
+	# Exercise a compact phone-sized card where choice labels wrap.
+	event_panel.offset_left = -220.0
+	event_panel.offset_right = 220.0
 	
+	await get_tree().process_frame
+	await get_tree().process_frame
 	await get_tree().process_frame
 	await get_tree().process_frame
 	
@@ -81,12 +90,18 @@ func _ready():
 		var ref_row = btn.get_node_or_null("ReferenceRow")
 		assert(ref_row != null, "Event button must have ReferenceRow")
 		var overflow = (ref_row.position.y + ref_row.size.y) - btn.size.y
+		var heading_bottom: float = ref_row.heading.global_position.y + ref_row.heading.size.y
+		var button_bottom: float = btn.global_position.y + btn.size.y
 		print("Event Choice %d: height=%f, row_height=%f, overflow=%f, lines=%d" % [
 			i, btn.size.y, ref_row.size.y, overflow, ref_row.heading.get_line_count()
 		])
+		assert(ref_row.heading.get_line_count() <= 1 or btn.size.y >= 132.0, "Wrapped event choices must grow beyond the one-line height")
 		if overflow > 1.0:
 			any_event_clipped = true
 			print("FAIL: Event choice %d is clipped by %f px!" % [i, overflow])
+		if heading_bottom > button_bottom + 1.0:
+			any_event_clipped = true
+			print("FAIL: Event choice %d heading extends %f px past its button!" % [i, heading_bottom - button_bottom])
 			
 	assert(not any_event_clipped, "Event choice buttons must NOT clip!")
 	print("Event choices clipping check: PASSED (Zero clipping)")
