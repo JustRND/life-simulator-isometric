@@ -76,6 +76,7 @@ func _ready() -> void:
 			["Spa", "_show_spa_modal"],
 			["Social Media", "_show_social_media_modal"],
 			["Medical Clinic", "_show_doctor_modal"],
+			["Neural Specialist", "_show_neural_specialist_modal"],
 			["Credit Card Application", "_show_credit_card_application"],
 			["Will & Testament", "_show_will_modal"],
 			["Estate Succession", "_show_inheritance_selection_modal"],

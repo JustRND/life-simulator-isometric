@@ -1751,6 +1751,20 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "🏥  Mental Institution"
 alignment = 0
 
+[node name="NeuralSpecialistItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=969269766]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
+theme_override_colors/font_focus_color = Color(0, 0.94, 1, 1)
+theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/font_hover_color = Color(0, 0.94, 1, 1)
+theme_override_font_sizes/font_size = 38
+theme_override_styles/normal = SubResource("card_button_normal")
+theme_override_styles/pressed = SubResource("card_button_pressed")
+theme_override_styles/hover = SubResource("card_button_hover")
+text = "🧠  Neural Specialist"
+alignment = 0
+
 [node name="ShoppingActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=1870605856]
 custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
@@ -2459,6 +2473,7 @@ horizontal_alignment = 1
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/DoctorItem" to="." method="_on_doctor_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/MindBodyItem" to="." method="_on_mind_body_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/MentalInstitutionItem" to="." method="_on_mental_institution_item_pressed"]
+[connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/NeuralSpecialistItem" to="." method="_on_neural_specialist_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/ShoppingActItem" to="." method="_on_shopping_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/SocialMediaActItem" to="." method="_on_social_media_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/PetAdoptionActItem" to="." method="_on_pet_adoption_item_pressed"]

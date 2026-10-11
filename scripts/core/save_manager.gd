@@ -104,6 +104,9 @@ func capture_data() -> Dictionary:
 		"last_dating_app_age": PlayerData.last_dating_app_age,
 		"last_pet_adoption_age": PlayerData.last_pet_adoption_age,
 		"last_charity_donation_age": PlayerData.last_charity_donation_age,
+		"neural_implants": PlayerData.neural_implants.duplicate(true),
+		"last_neural_overclock_age": PlayerData.last_neural_overclock_age,
+		"last_neural_diagnostics_age": PlayerData.last_neural_diagnostics_age,
 		"job_id": PlayerData.job_id,
 		"job_title": PlayerData.job_title,
 		"job_company": PlayerData.job_company,
@@ -369,6 +372,9 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.karma = int(data.get("karma", 0))
 	PlayerData.children = Array(data.get("children", []))
 	PlayerData.pregnancy = Dictionary(data.get("pregnancy", {}))
+	PlayerData.neural_implants = Array(data.get("neural_implants", [])).duplicate(true)
+	PlayerData.last_neural_overclock_age = int(data.get("last_neural_overclock_age", -1))
+	PlayerData.last_neural_diagnostics_age = int(data.get("last_neural_diagnostics_age", -1))
 	PlayerData.active_debuffs = Array(data.get("active_debuffs", []))
 	PlayerData.active_buffs = Array(data.get("active_buffs", []))
 	for b_id in ["buff_philanthropist_heart", "buff_animal_guardian", "buff_youth_mentor", "buff_lifesavers_blessing", "buff_eco_guardian", "buff_grand_benefactor"]:

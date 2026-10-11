@@ -13,6 +13,7 @@ const RoomManager = preload("res://scripts/isometric/room_manager.gd")
 const MortgageManager = preload("res://scripts/economy/mortgage_manager.gd")
 const RentalManager = preload("res://scripts/economy/rental_manager.gd")
 const CryptoMarket = preload("res://scripts/economy/crypto_market.gd")
+const NeuralCatalog = preload("res://scripts/economy/neural_catalog.gd")
 
 
 var portrait: TextureRect
@@ -133,6 +134,7 @@ var will_modal_overlay: Control = null
 var salon_modal_overlay: Control = null
 var spa_modal_overlay: Control = null
 var mental_institution_modal_overlay: Control = null
+var neural_specialist_modal_overlay: Control = null
 var household_modal_overlay: Control = null
 var tax_service_modal_overlay: Control = null
 var _tax_service_source: String = "finance_hub"
@@ -892,6 +894,11 @@ func age_up() -> void:
 			PlayerData.has_gym_membership = false
 			PlayerData.happiness = maxi(5, PlayerData.happiness - 4)
 			add_life_event("⚠️ GYM MEMBERSHIP CANCELLED: You lacked sufficient funds ($%s) in your bank account to renew your gym membership. It has been cancelled." % _format_number(gym_fee), "finance")
+
+	# 7a2. Neural Specialist Implants Annual Maintenance & Calibration
+	var neural_logs := PlayerData.process_yearly_neural_implants()
+	for n_msg in neural_logs:
+		add_life_event(n_msg, "health")
 
 	# 7b. Owned Assets Upkeep, Depreciation & Equity Appreciation
 	var asset_logs := AssetCatalog.process_yearly_assets(PlayerData)
@@ -7953,6 +7960,14 @@ func _on_mental_institution_item_pressed() -> void:
 		show_tab("timeline")
 		return
 	_show_mental_institution_hub_modal()
+
+
+func _on_neural_specialist_item_pressed() -> void:
+	if PlayerData.age < 18:
+		add_life_event("🔒 Restricted: Neural specialist procedures, brain chip attachments and cybernetic cortical modifications require age 18 (Adulthood). Current age: %d." % PlayerData.age, "health")
+		show_tab("timeline")
+		return
+	_show_neural_specialist_modal()
 
 
 func _on_shopping_item_pressed() -> void:
@@ -18741,6 +18756,426 @@ func _show_doctor_modal() -> void:
 	list.add_child(btn_er)
 
 	doctor_modal_overlay.visible = true
+
+
+# --- NEURAL SPECIALIST MODAL ---
+func _show_neural_specialist_modal(selected_category: String = "all") -> void:
+	var modal := _refresh_cyber_modal(
+		neural_specialist_modal_overlay,
+		"🧠 CYBERNETIC NEURAL SPECIALIST",
+		"Advanced AI Brain Chips, Neuro-Lattice Implants & Biomechanical Modifications",
+		Color("#06b6d4")
+	)
+	neural_specialist_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
+	# 1. Telemetry & Neural Vitals Profile Card
+	var profile_card := PanelContainer.new()
+	profile_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#06b6d4")))
+	profile_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var pm := MarginContainer.new()
+	pm.add_theme_constant_override("margin_left", 24)
+	pm.add_theme_constant_override("margin_right", 24)
+	pm.add_theme_constant_override("margin_top", 18)
+	pm.add_theme_constant_override("margin_bottom", 18)
+	profile_card.add_child(pm)
+
+	var pv := VBoxContainer.new()
+	pv.add_theme_constant_override("separation", 12)
+	pv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pm.add_child(pv)
+
+	var head_lbl := Label.new()
+	head_lbl.text = "⚡ NEURAL INTERFACE TELEMETRY"
+	head_lbl.custom_minimum_size = Vector2(1, 0)
+	head_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	head_lbl.add_theme_font_size_override("font_size", 34)
+	head_lbl.add_theme_color_override("font_color", Color("#0891b2") if is_light else Color("#22d3ee"))
+	pv.add_child(head_lbl)
+
+	var funds_lbl := Label.new()
+	funds_lbl.text = "💵 Cash: $%s   •   🏦 Bank: $%s" % [_format_number(PlayerData.money), _format_number(PlayerData.bank_savings)]
+	funds_lbl.custom_minimum_size = Vector2(1, 0)
+	funds_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	funds_lbl.add_theme_font_size_override("font_size", 28)
+	funds_lbl.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
+	pv.add_child(funds_lbl)
+
+	var sockets_count: int = PlayerData.neural_implants.size()
+	var total_maint: int = PlayerData.get_total_neural_maintenance()
+	var has_offline: bool = false
+	for imp in PlayerData.neural_implants:
+		if imp is Dictionary and not bool(imp.get("is_active", true)):
+			has_offline = true
+			break
+
+	var status_text := ""
+	var status_col: Color
+	if sockets_count == 0:
+		status_text = "🔌 Neural Sockets: 0 / 5 Installed • System Idle\nAnnual Maintenance: $0/year"
+		status_col = Color("#475569") if is_light else Color("#94a3b8")
+	elif has_offline:
+		status_text = "⚠️ ATTENTION: Neural Sync Error! One or more implants are OFFLINE due to unpaid maintenance!\nSockets: %d / 5 Active • Annual Upkeep: $%s/year" % [sockets_count, _format_number(total_maint)]
+		status_col = Color("#dc2626") if is_light else Color("#f87171")
+	else:
+		status_text = "🟢 SYNCHRONIZED: All neural implants are fully active & online.\nSockets: %d / 5 Occupied • Annual Upkeep: $%s/year" % [sockets_count, _format_number(total_maint)]
+		status_col = Color("#059669") if is_light else Color("#10b981")
+
+	var status_lbl := Label.new()
+	status_lbl.text = status_text
+	status_lbl.custom_minimum_size = Vector2(1, 0)
+	status_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	status_lbl.add_theme_font_size_override("font_size", 28)
+	status_lbl.add_theme_color_override("font_color", status_col)
+	pv.add_child(status_lbl)
+
+	list.add_child(profile_card)
+
+	# Quick Actions Row (Service Overdue / Diagnostics / Overclock)
+	if has_offline:
+		var overdue_cost := 0
+		for imp in PlayerData.neural_implants:
+			if imp is Dictionary and not bool(imp.get("is_active", true)):
+				overdue_cost += int(imp.get("annual_maintenance", 0))
+
+		var btn_service := _create_cyber_button("🛠️ Service & Reactivate Offline Implants • $%s" % _format_number(overdue_cost), Color("#ef4444"), func():
+			var s_res := PlayerData.service_all_neural_implants()
+			if s_res.get("success", false):
+				add_life_event("🛠️ NEURAL REPAIR: Overdue maintenance of $%s paid. All %d neural implants are back online and synchronized!" % [
+					_format_number(int(s_res.get("cost", 0))),
+					int(s_res.get("count", 0))
+				], "health")
+				update_ui()
+				SaveManager.save_game()
+				_show_neural_specialist_modal(selected_category)
+			else:
+				add_life_event("Unable to service implants: %s" % str(s_res.get("reason", "Insufficient funds")), "finance")
+		)
+		btn_service.disabled = not PlayerData.can_afford(overdue_cost)
+		list.add_child(btn_service)
+
+	# Clinic Maintenance & Diagnostics Buttons
+	var diag_cost := 15000
+	var diag_used: bool = PlayerData.last_neural_diagnostics_age == PlayerData.age
+	var diag_text := "🔬 Full Synaptic Diagnostics & Nanite Calibration ($%s)%s" % [_format_number(diag_cost), " (Completed This Year)" if diag_used else ""]
+	var btn_diag := _create_cyber_button(diag_text, Color("#0284c7"), func():
+		if PlayerData.last_neural_diagnostics_age == PlayerData.age:
+			return
+		if PlayerData.can_afford(diag_cost):
+			PlayerData.debit_funds(diag_cost)
+			PlayerData.last_neural_diagnostics_age = PlayerData.age
+			for imp in PlayerData.neural_implants:
+				if imp is Dictionary:
+					imp["condition"] = 100
+			PlayerData.smarts = mini(100, PlayerData.smarts + 4)
+			PlayerData.mental_state = mini(100, PlayerData.mental_state + 8)
+			add_life_event("🔬 NEURAL CALIBRATION: Neural specialist performed complete synaptic diagnostic sweep ($%s). Cognitive clarity and mental stability enhanced!" % _format_number(diag_cost), "health")
+			update_ui()
+			SaveManager.save_game()
+			_show_neural_specialist_modal(selected_category)
+		else:
+			add_life_event("You cannot afford neural diagnostics ($%s required)." % _format_number(diag_cost), "finance")
+	)
+	if diag_used:
+		btn_diag.disabled = true
+		btn_diag.modulate = Color(0.6, 0.6, 0.6, 0.65)
+	list.add_child(btn_diag)
+
+	# Overclock Protocol Button (Unlocked if at least 1 implant is installed)
+	if sockets_count > 0:
+		var oc_cost := 50000
+		var oc_used: bool = PlayerData.last_neural_overclock_age == PlayerData.age
+		var oc_text := "⚡ Synaptic Frequency Overclock Protocol ($%s)%s" % [_format_number(oc_cost), " (Overclocked This Year)" if oc_used else ""]
+		var btn_oc := _create_cyber_button(oc_text, Color("#8b5cf6"), func():
+			if PlayerData.last_neural_overclock_age == PlayerData.age:
+				return
+			if PlayerData.can_afford(oc_cost):
+				PlayerData.debit_funds(oc_cost)
+				PlayerData.last_neural_overclock_age = PlayerData.age
+				PlayerData.smarts = mini(100, PlayerData.smarts + 8)
+				PlayerData.happiness = mini(100, PlayerData.happiness + 8)
+				add_life_event("⚡ NEURAL OVERCLOCK: Overclocked your cerebral neural lattice to 140%% clockrate ($%s)! Synapses firing with blistering speed." % _format_number(oc_cost), "health")
+				update_ui()
+				SaveManager.save_game()
+				_show_neural_specialist_modal(selected_category)
+			else:
+				add_life_event("You cannot afford the synaptic overclock protocol ($%s required)." % _format_number(oc_cost), "finance")
+		)
+		if oc_used:
+			btn_oc.disabled = true
+			btn_oc.modulate = Color(0.6, 0.6, 0.6, 0.65)
+		list.add_child(btn_oc)
+
+	# 2. Currently Installed Hardware Section (if any installed)
+	if sockets_count > 0:
+		var installed_card := PanelContainer.new()
+		installed_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+		installed_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+		var im := MarginContainer.new()
+		im.add_theme_constant_override("margin_left", 24)
+		im.add_theme_constant_override("margin_right", 24)
+		im.add_theme_constant_override("margin_top", 18)
+		im.add_theme_constant_override("margin_bottom", 18)
+		installed_card.add_child(im)
+
+		var iv := VBoxContainer.new()
+		iv.add_theme_constant_override("separation", 14)
+		iv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		im.add_child(iv)
+
+		var inst_head := Label.new()
+		inst_head.text = "🧬 CURRENTLY INSTALLED NEURAL MODIFICATIONS"
+		inst_head.custom_minimum_size = Vector2(1, 0)
+		inst_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		inst_head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		inst_head.add_theme_font_size_override("font_size", 30)
+		inst_head.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
+		iv.add_child(inst_head)
+
+		for imp in PlayerData.neural_implants:
+			if not imp is Dictionary:
+				continue
+			var mod_id: String = str(imp.get("id", ""))
+			var mod_name: String = str(imp.get("name", "Neural Implant"))
+			var mod_slot: String = str(imp.get("slot", "cortex"))
+			var slot_info := NeuralCatalog.get_slot_info(mod_slot)
+			var slot_name: String = str(slot_info.get("name", "Socket"))
+			var is_active: bool = bool(imp.get("is_active", true))
+			var purchase_price: int = int(imp.get("purchase_price", 0))
+			var annual_maint: int = int(imp.get("annual_maintenance", 0))
+			var salvage_val: int = int(purchase_price * 0.25)
+
+			var imp_box := VBoxContainer.new()
+			imp_box.add_theme_constant_override("separation", 6)
+			imp_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			iv.add_child(imp_box)
+
+			var name_lbl := Label.new()
+			name_lbl.text = "%s %s" % [slot_info.get("icon", "🧠"), mod_name]
+			name_lbl.custom_minimum_size = Vector2(1, 0)
+			name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			name_lbl.add_theme_font_size_override("font_size", 28)
+			name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
+			imp_box.add_child(name_lbl)
+
+			var info_lbl := Label.new()
+			var act_status_str := "🟢 ACTIVE & SYNCED" if is_active else "⚠️ OFFLINE (Unpaid Upkeep)"
+			info_lbl.text = "Socket: %s  •  Status: %s\nAnnual Upkeep: $%s/yr  •  Salvage Value: $%s" % [
+				slot_name,
+				act_status_str,
+				_format_number(annual_maint),
+				_format_number(salvage_val)
+			]
+			info_lbl.custom_minimum_size = Vector2(1, 0)
+			info_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			info_lbl.add_theme_font_size_override("font_size", 24)
+			info_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+			imp_box.add_child(info_lbl)
+
+			var btn_detach := _create_cyber_button("🛠️ Detach & Salvage %s (Recover $%s)" % [mod_name, _format_number(salvage_val)], Color("#64748b"), func():
+				var rem_res := PlayerData.remove_neural_implant(mod_id, true)
+				if rem_res.get("success", false):
+					add_life_event("🛠️ NEURAL EXTRACTION: Safely extracted %s. Salvage refund of $%s deposited to your bank account." % [
+						mod_name,
+						_format_number(salvage_val)
+					], "health")
+					update_ui()
+					SaveManager.save_game()
+					_show_neural_specialist_modal(selected_category)
+			)
+			btn_detach.custom_minimum_size.y = 70
+			btn_detach.add_theme_font_size_override("font_size", 26)
+			imp_box.add_child(btn_detach)
+
+		list.add_child(installed_card)
+
+	# 3. Category Filter Tabs Row
+	var cat_scroll := ScrollContainer.new()
+	cat_scroll.custom_minimum_size = Vector2(1, 80)
+	cat_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cat_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	cat_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	list.add_child(cat_scroll)
+
+	var cat_row := HBoxContainer.new()
+	cat_row.add_theme_constant_override("separation", 10)
+	cat_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cat_scroll.add_child(cat_row)
+
+	var filter_opts: Array = [
+		{"id": "all", "label": "🌐 All Modifications"},
+		{"id": "ai_chips", "label": "🤖 AI Brain Chips"},
+		{"id": "cognitive", "label": "💾 Memory & Cognition"},
+		{"id": "sensory", "label": "👁️ Sensory & Ocular"},
+		{"id": "bio_reg", "label": "🧬 Bio-Regulators"},
+		{"id": "interface", "label": "🌐 Digital Interfaces"}
+	]
+
+	for opt in filter_opts:
+		var opt_id: String = opt["id"]
+		var is_selected: bool = selected_category == opt_id
+		var tab_col: Color = Color("#06b6d4") if is_selected else Color("#334155" if is_light else "#1e293b")
+		var tab_btn := _create_cyber_button(opt["label"], tab_col, func():
+			_show_neural_specialist_modal(opt_id)
+		, true)
+		tab_btn.custom_minimum_size = Vector2(200, 68)
+		tab_btn.add_theme_font_size_override("font_size", 26)
+		cat_row.add_child(tab_btn)
+
+	# 4. Neural Modifications Catalog Cards
+	var all_mods := NeuralCatalog.get_all_modifications()
+	for mod_data in all_mods:
+		var m_cat: String = str(mod_data.get("category", ""))
+		if selected_category != "all" and selected_category != m_cat:
+			continue
+
+		var mod_id: String = str(mod_data.get("id", ""))
+		var mod_name: String = str(mod_data.get("name", "Neural Mod"))
+		var mod_slot: String = str(mod_data.get("slot", "cortex"))
+		var slot_info := NeuralCatalog.get_slot_info(mod_slot)
+		var slot_name: String = str(slot_info.get("name", "Socket"))
+		var mod_price: int = int(mod_data.get("price", 0))
+		var mod_maint: int = int(mod_data.get("annual_maintenance", 0))
+		var mod_icon: String = str(mod_data.get("icon", "🧠"))
+		var is_installed: bool = PlayerData.has_neural_implant(mod_id)
+
+		var existing_in_slot: Dictionary = PlayerData.get_implant_in_slot(mod_slot)
+		var is_slot_occupied: bool = not existing_in_slot.is_empty() and existing_in_slot.get("id", "") != mod_id
+
+		var cat_color := Color("#06b6d4")
+		match m_cat:
+			"ai_chips": cat_color = Color("#06b6d4")
+			"cognitive": cat_color = Color("#3b82f6")
+			"sensory": cat_color = Color("#a855f7")
+			"bio_reg": cat_color = Color("#10b981")
+			"interface": cat_color = Color("#f59e0b")
+
+		var mod_card := PanelContainer.new()
+		mod_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(cat_color))
+		mod_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+		var mm := MarginContainer.new()
+		mm.add_theme_constant_override("margin_left", 24)
+		mm.add_theme_constant_override("margin_right", 24)
+		mm.add_theme_constant_override("margin_top", 18)
+		mm.add_theme_constant_override("margin_bottom", 18)
+		mod_card.add_child(mm)
+
+		var mv := VBoxContainer.new()
+		mv.add_theme_constant_override("separation", 10)
+		mv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		mm.add_child(mv)
+
+		# Title & Slot Tag
+		var title_row := Label.new()
+		title_row.text = "%s %s [%s]" % [mod_icon, mod_name, slot_name]
+		title_row.custom_minimum_size = Vector2(1, 0)
+		title_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		title_row.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		title_row.add_theme_font_size_override("font_size", 30)
+		title_row.add_theme_color_override("font_color", cat_color.darkened(0.2) if is_light else cat_color.lightened(0.2))
+		mv.add_child(title_row)
+
+		# Pricing & Annual Upkeep Row
+		var price_lbl := Label.new()
+		price_lbl.text = "💵 Price: $%s   •   🔧 Annual Maintenance: $%s/year" % [
+			_format_number(mod_price),
+			_format_number(mod_maint)
+		]
+		price_lbl.custom_minimum_size = Vector2(1, 0)
+		price_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		price_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		price_lbl.add_theme_font_size_override("font_size", 26)
+		price_lbl.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
+		mv.add_child(price_lbl)
+
+		# Lore / Description
+		var desc_lbl := Label.new()
+		desc_lbl.text = str(mod_data.get("description", ""))
+		desc_lbl.custom_minimum_size = Vector2(1, 0)
+		desc_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		desc_lbl.add_theme_font_size_override("font_size", 26)
+		desc_lbl.add_theme_color_override("font_color", Color("#1e293b") if is_light else Color("#cbd5e1"))
+		mv.add_child(desc_lbl)
+
+		# Perk Summary
+		var perk_lbl := Label.new()
+		perk_lbl.text = "⚡ %s: %s" % [
+			str(mod_data.get("perk_title", "Perk")),
+			str(mod_data.get("perk_summary", ""))
+		]
+		perk_lbl.custom_minimum_size = Vector2(1, 0)
+		perk_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		perk_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		perk_lbl.add_theme_font_size_override("font_size", 26)
+		perk_lbl.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
+		mv.add_child(perk_lbl)
+
+		# Action Button
+		if is_installed:
+			var btn_inst := _create_disabled_cyber_button("✅ Currently Installed & Synchronized")
+			mv.add_child(btn_inst)
+		elif is_slot_occupied:
+			var old_name: String = str(existing_in_slot.get("name", "Current Hardware"))
+			var old_salvage: int = int(int(existing_in_slot.get("purchase_price", 0)) * 0.25)
+			if PlayerData.can_afford(mod_price):
+				var btn_upg := _create_cyber_button("🔄 Upgrade & Replace [%s] • $%s (Salvage credit: +$%s)" % [
+					old_name,
+					_format_number(mod_price),
+					_format_number(old_salvage)
+				], cat_color, func():
+					var ins_res := PlayerData.install_neural_implant(mod_id)
+					if ins_res.get("success", false):
+						add_life_event("🧠 NEURAL UPGRADE: Surgically replaced %s with %s ($%s)! Salvaged old unit for +$%s credit. Annual maintenance: $%s/year." % [
+							str(ins_res.get("replaced_name", old_name)),
+							mod_name,
+							_format_number(mod_price),
+							_format_number(int(ins_res.get("salvage_refund", 0))),
+							_format_number(mod_maint)
+						], "health")
+						update_ui()
+						SaveManager.save_game()
+						_show_neural_specialist_modal(selected_category)
+					else:
+						add_life_event("Surgery aborted: %s" % str(ins_res.get("reason", "Error")), "health")
+				)
+				mv.add_child(btn_upg)
+			else:
+				var btn_no_funds := _create_disabled_cyber_button("🔄 Upgrade [%s] • $%s" % [old_name, _format_number(mod_price)], "Insufficient Funds ($%s required)" % _format_number(mod_price))
+				mv.add_child(btn_no_funds)
+		else:
+			if PlayerData.can_afford(mod_price):
+				var btn_buy := _create_cyber_button("⚡ Surgically Install %s • $%s" % [mod_name, _format_number(mod_price)], cat_color, func():
+					var ins_res := PlayerData.install_neural_implant(mod_id)
+					if ins_res.get("success", false):
+						add_life_event("🧠 NEURAL SURGERY: Successfully implanted %s into your brain ($%s)! Neuro-synaptic link established. Annual maintenance: $%s/year." % [
+							mod_name,
+							_format_number(mod_price),
+							_format_number(mod_maint)
+						], "health")
+						update_ui()
+						SaveManager.save_game()
+						_show_neural_specialist_modal(selected_category)
+					else:
+						add_life_event("Surgery aborted: %s" % str(ins_res.get("reason", "Error")), "health")
+				)
+				mv.add_child(btn_buy)
+			else:
+				var btn_no_funds := _create_disabled_cyber_button("⚡ Install %s • $%s" % [mod_name, _format_number(mod_price)], "Insufficient Funds ($%s required)" % _format_number(mod_price))
+				mv.add_child(btn_no_funds)
+
+		list.add_child(mod_card)
+
+	neural_specialist_modal_overlay.visible = true
 
 
 # --- 2. CRIME & PRISON MODAL ---

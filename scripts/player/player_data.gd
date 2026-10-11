@@ -3,6 +3,7 @@ extends Node
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
 const BirthStoryGeneratorRef = preload("res://scripts/core/birth_story_generator.gd")
 const NameCatalog = preload("res://scripts/core/name_catalog.gd")
+const NeuralCatalog = preload("res://scripts/economy/neural_catalog.gd")
 
 const KARMIC_MODIFIERS := {
 	# Cosmic Buffs
@@ -184,6 +185,9 @@ var last_spa_activity_age: int = -1
 var last_dating_app_age: int = -1
 var last_pet_adoption_age: int = -1
 var last_charity_donation_age: int = -1
+var neural_implants: Array = []
+var last_neural_overclock_age: int = -1
+var last_neural_diagnostics_age: int = -1
 
 var job_id: String = ""
 var job_title: String = ""
@@ -298,6 +302,10 @@ func reset_player() -> void:
 	casino_plays_this_year = 0
 	last_overtime_age = -1
 	last_childhood_gig_age = -1
+
+	neural_implants.clear()
+	last_neural_overclock_age = -1
+	last_neural_diagnostics_age = -1
 
 	age = 0
 
@@ -1918,3 +1926,185 @@ func sync_room_with_housing() -> String:
 	var rid := get_active_room_id()
 	selected_room_id = rid
 	return rid
+
+
+# --- NEURAL SPECIALIST & BRAIN CHIPS ---
+
+func has_neural_implant(mod_id: String) -> bool:
+	for imp in neural_implants:
+		if imp is Dictionary and imp.get("id", "") == mod_id:
+			return true
+	return false
+
+
+func get_neural_implant(mod_id: String) -> Dictionary:
+	for imp in neural_implants:
+		if imp is Dictionary and imp.get("id", "") == mod_id:
+			return imp
+	return {}
+
+
+func get_implant_in_slot(slot: String) -> Dictionary:
+	for imp in neural_implants:
+		if imp is Dictionary and imp.get("slot", "") == slot:
+			return imp
+	return {}
+
+
+func get_total_neural_maintenance() -> int:
+	var total: int = 0
+	for imp in neural_implants:
+		if imp is Dictionary:
+			total += int(imp.get("annual_maintenance", 0))
+	return total
+
+
+func install_neural_implant(mod_id: String) -> Dictionary:
+	var mod_data := NeuralCatalog.get_modification(mod_id)
+	if mod_data.is_empty():
+		return {"success": false, "reason": "Unknown modification profile."}
+	if age < int(mod_data.get("min_age", 18)):
+		return {"success": false, "reason": "Patient is under minimum age (18 required)."}
+	var price: int = int(mod_data.get("price", 0))
+	if not can_afford(price):
+		return {"success": false, "reason": "Insufficient funds."}
+
+	var slot: String = str(mod_data.get("slot", "cortex"))
+	var old_imp: Dictionary = get_implant_in_slot(slot)
+	var salvage_refund: int = 0
+	if not old_imp.is_empty():
+		salvage_refund = int(int(old_imp.get("purchase_price", 0)) * 0.25)
+		remove_neural_implant(str(old_imp.get("id", "")), false)
+
+	debit_funds(price)
+	if salvage_refund > 0:
+		bank_savings += salvage_refund
+
+	var new_imp: Dictionary = {
+		"id": mod_data.get("id", ""),
+		"name": mod_data.get("name", ""),
+		"slot": slot,
+		"category": mod_data.get("category", ""),
+		"purchase_price": price,
+		"annual_maintenance": int(mod_data.get("annual_maintenance", 0)),
+		"install_age": age,
+		"condition": 100,
+		"is_active": true,
+		"maintenance_paid_this_year": true,
+		"overclocked_this_year": false
+	}
+	neural_implants.append(new_imp)
+
+	# Apply stat boosts
+	var boosts: Dictionary = mod_data.get("stat_boosts", {})
+	if boosts.has("smarts"):
+		smarts = mini(100, smarts + int(boosts["smarts"]))
+	if boosts.has("mental_state"):
+		mental_state = mini(100, mental_state + int(boosts["mental_state"]))
+	if boosts.has("happiness"):
+		happiness = mini(100, happiness + int(boosts["happiness"]))
+	if boosts.has("health"):
+		health = mini(100, health + int(boosts["health"]))
+	if boosts.has("looks"):
+		looks = mini(100, looks + int(boosts["looks"]))
+
+	if mod_data.get("locks_max_smarts", false):
+		smarts = 100
+	if mod_data.get("locks_max_mental_state", false):
+		mental_state = 100
+
+	add_milestone("Attached %s neural modification." % str(mod_data.get("name", "AI Chip")), age, "🧠")
+	return {
+		"success": true,
+		"salvage_refund": salvage_refund,
+		"implant": new_imp,
+		"replaced_name": str(old_imp.get("name", ""))
+	}
+
+
+func remove_neural_implant(mod_id: String, grant_refund: bool = true) -> Dictionary:
+	for i in range(neural_implants.size()):
+		var imp: Dictionary = neural_implants[i]
+		if imp.get("id", "") == mod_id:
+			var refund: int = int(int(imp.get("purchase_price", 0)) * 0.25) if grant_refund else 0
+			if refund > 0:
+				bank_savings += refund
+			var removed_name: String = str(imp.get("name", "Implant"))
+			neural_implants.remove_at(i)
+			return {"success": true, "refund": refund, "name": removed_name}
+	return {"success": false, "reason": "Implant not found."}
+
+
+func service_all_neural_implants() -> Dictionary:
+	var overdue_count: int = 0
+	var overdue_cost: int = 0
+	for imp in neural_implants:
+		if imp is Dictionary and (not bool(imp.get("is_active", true)) or int(imp.get("condition", 100)) < 100):
+			overdue_count += 1
+			overdue_cost += int(imp.get("annual_maintenance", 0))
+
+	if overdue_count == 0:
+		return {"success": false, "reason": "All neural implants are already fully operational and calibrated."}
+
+	if not can_afford(overdue_cost):
+		return {"success": false, "reason": "Insufficient funds to service overdue maintenance ($%d required)." % overdue_cost}
+
+	debit_funds(overdue_cost)
+	for imp in neural_implants:
+		if imp is Dictionary:
+			imp["is_active"] = true
+			imp["condition"] = 100
+			imp["maintenance_paid_this_year"] = true
+
+	mental_state = mini(100, mental_state + 10)
+	happiness = mini(100, happiness + 5)
+	return {"success": true, "cost": overdue_cost, "count": overdue_count}
+
+
+func process_yearly_neural_implants() -> Array[String]:
+	var logs: Array[String] = []
+	if neural_implants.is_empty():
+		return logs
+
+	var total_maint: int = get_total_neural_maintenance()
+	if total_maint > 0:
+		if can_afford(total_maint):
+			debit_funds(total_maint)
+			for imp in neural_implants:
+				if imp is Dictionary:
+					imp["is_active"] = true
+					imp["condition"] = 100
+					imp["maintenance_paid_this_year"] = true
+					imp["overclocked_this_year"] = false
+			logs.append("🧠 NEURAL SPECIALIST: $%s auto-debited for annual maintenance, quantum calibration & nanite replenishment across your %d neural implants." % [
+				String.num(total_maint),
+				neural_implants.size()
+			])
+		else:
+			for imp in neural_implants:
+				if imp is Dictionary:
+					imp["is_active"] = false
+					imp["condition"] = maxi(20, int(imp.get("condition", 100)) - 35)
+					imp["maintenance_paid_this_year"] = false
+			happiness = maxi(5, happiness - 5)
+			mental_state = maxi(5, mental_state - 5)
+			logs.append("⚠️ NEURAL IMPLANT FAILURE: Insufficient funds ($%s required) for annual neural maintenance! Your cybernetic implants entered emergency offline mode (-5 Happiness, -5 Mental State). Visit the Neural Specialist to service and reactivate them." % String.num(total_maint))
+
+	# Apply yearly active perks
+	for imp in neural_implants:
+		if not imp is Dictionary or not bool(imp.get("is_active", true)):
+			continue
+		var mod_id: String = str(imp.get("id", ""))
+		var mod_data := NeuralCatalog.get_modification(mod_id)
+		if mod_data.get("locks_max_smarts", false):
+			smarts = 100
+		if mod_data.get("locks_max_mental_state", false):
+			mental_state = 100
+		if mod_data.has("min_happiness_floor"):
+			happiness = maxi(int(mod_data["min_happiness_floor"]), happiness)
+		if mod_data.has("yearly_health_regen"):
+			health = mini(100, health + int(mod_data["yearly_health_regen"]))
+		if mod_data.get("stress_immunity", false):
+			mental_state = mini(100, mental_state + 3)
+
+	return logs

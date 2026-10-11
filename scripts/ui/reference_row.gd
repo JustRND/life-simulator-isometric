@@ -22,6 +22,8 @@ const DETAILS = {
 	"Licensing & Certifications": ["📜", "Train and earn new qualifications"],
 	"Business & Enterprises": ["🏢", "Build and manage your businesses"],
 	"Doctor & Healthcare": ["🩺", "Look after your health"],
+	"Neural Specialist": ["🧠", "AI brain chips, neuro-implants & cybernetic enhancements"],
+	"NEURAL SPECIALIST": ["🧠", "AI brain chips, neuro-implants & cybernetic enhancements"],
 	"BANKING": ["🏦", "Checking, savings and loans"],
 	"First National Pixel Bank": ["🏦", "Checking, savings and loans"],
 	"Bank & Loans": ["🏦", "Checking, savings and loans"],

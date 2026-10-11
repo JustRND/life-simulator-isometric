@@ -15,6 +15,7 @@ const RULES = [
 	["spend time|socialize|friends", "👥"], ["compliment|praise", "🥰"], ["talk|chat|ask", "💬"],
 	["flight|pilot", "✈"], ["boat|boating", "⛵"], ["car|drive|driver", "🚗"],
 	["license|exam|certified|qualification", "📜"], ["health|doctor|clinic|surgery", "🩺"],
+	["neural|neuro|implant|cyberware|brain chip", "🧠"],
 	["meds|medicine|treatment", "💊"], ["pet|adopt|animal", "🐾"], ["gym|fitness|exercise", "💪"],
 	["meditate|meditation|rest", "🧘"], ["salon|hair", "💇"], ["spa|massage", "💆"],
 	["save", "💾"], ["load|restore", "📂"], ["delete|erase|remove", "🗑"],

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_neural_specialist_001"]
+
+[ext_resource type="Script" path="res://tests/test_neural_specialist.gd" id="1_test"]
+
+[node name="TestNeuralSpecialist" type="Node"]
+script = ExtResource("1_test")
