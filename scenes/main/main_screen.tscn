@@ -2160,17 +2160,20 @@ layout_mode = 2
 theme_override_constants/separation = 22
 
 [node name="ConfirmTitle" type="Label" parent="ResetConfirmationOverlay/ConfirmCard/ConfirmMargin/ConfirmContent" unique_id=874055106]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.827, 0.118, 0.145, 1)
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 40
 text = "⚠️ RESET LIFE PROGRESS"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="ConfirmDesc" type="Label" parent="ResetConfirmationOverlay/ConfirmCard/ConfirmMargin/ConfirmContent" unique_id=9250914]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 33
+theme_override_font_sizes/font_size = 30
 text = "Are you sure you want to end this life?
 
 All life choices, career milestones, relationships, bank savings, and character memories will be permanently erased."
@@ -2231,11 +2234,13 @@ theme_override_constants/separation = 24
 alignment = 1
 
 [node name="NewGameTitle" type="Label" parent="NewGamePanel/CenterContainer/CreationCard/NewGameContent" unique_id=1598762386]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 52
+theme_override_font_sizes/font_size = 46
 text = "CREATE YOUR LIFE"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="NameLabel" type="Label" parent="NewGamePanel/CenterContainer/CreationCard/NewGameContent" unique_id=1471489348]
 layout_mode = 2
@@ -2294,76 +2299,80 @@ theme_override_styles/panel = SubResource("event_card")
 
 [node name="EventMargin" type="MarginContainer" parent="EventOverlay/EventPanel" unique_id=768670823]
 layout_mode = 2
-theme_override_constants/margin_left = 36
-theme_override_constants/margin_top = 36
-theme_override_constants/margin_right = 36
-theme_override_constants/margin_bottom = 36
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 28
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
 
 [node name="EventContent" type="VBoxContainer" parent="EventOverlay/EventPanel/EventMargin" unique_id=156847665]
 layout_mode = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 16
 
 [node name="EventTitle" type="Label" parent="EventOverlay/EventPanel/EventMargin/EventContent" unique_id=1611382857]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 52
+theme_override_font_sizes/font_size = 40
 text = "NEW BIKE"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="EventDescription" type="RichTextLabel" parent="EventOverlay/EventPanel/EventMargin/EventContent" unique_id=40284044]
-custom_minimum_size = Vector2(0, 260)
+custom_minimum_size = Vector2(1, 80)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/default_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/normal_font_size = 34
+theme_override_font_sizes/normal_font_size = 30
 bbcode_enabled = true
+fit_content = true
+autowrap_mode = 3
 text = "Your family gives you a bicycle as a surprise gift.
 
 What do you do?"
 
 [node name="EventChoices" type="VBoxContainer" parent="EventOverlay/EventPanel/EventMargin/EventContent" unique_id=382790794]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="EventChoice1" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=1862447792]
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 1"
 
 [node name="EventChoice2" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=1753297295]
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 2"
 
 [node name="EventChoice3" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=1160175461]
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
 text = "Choice 3"
 
 [node name="EventChoice4" type="Button" parent="EventOverlay/EventPanel/EventMargin/EventContent/EventChoices" unique_id=170960561]
-custom_minimum_size = Vector2(0, 110)
+custom_minimum_size = Vector2(0, 92)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_hover_color = Color(1, 0.95, 0.6, 1)
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 30
 theme_override_styles/normal = SubResource("event_choice_normal")
 theme_override_styles/pressed = SubResource("event_choice_pressed")
 theme_override_styles/hover = SubResource("event_choice_hover")
@@ -2492,20 +2501,24 @@ theme_override_constants/separation = 18
 alignment = 1
 
 [node name="DisclaimerHeaderLabel" type="Label" parent="DisclaimerScreen/CenterContainer/DisclaimerCard/Margin/VBox" unique_id=778899119]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.94, 1, 1)
 theme_override_colors/font_outline_color = Color(0.02, 0.1, 0.25, 1)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 40
 text = "⚠️  DISCLAIMER  ⚠️"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="DisclaimerSubLabel" type="Label" parent="DisclaimerScreen/CenterContainer/DisclaimerCard/Margin/VBox" unique_id=778899120]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.22, 0.74, 0.97, 1)
 theme_override_font_sizes/font_size = 28
 text = "FICTIONAL SIMULATION PROTOCOL"
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="DisclaimerMessage" type="Label" parent="DisclaimerScreen/CenterContainer/DisclaimerCard/Margin/VBox" unique_id=778899121]
 layout_mode = 2

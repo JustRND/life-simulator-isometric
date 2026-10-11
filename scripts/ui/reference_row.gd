@@ -123,9 +123,11 @@ func _build_ui() -> void:
 	row.add_child(words)
 	heading = _label(34, true)
 	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	heading.custom_minimum_size = Vector2(1, 0)
 	words.add_child(heading)
 	description = _label(28)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	description.custom_minimum_size = Vector2(1, 0)
 	words.add_child(description)
 	arrow = _label(34)
 	arrow.custom_minimum_size = Vector2(28, 28)
@@ -321,6 +323,8 @@ func _sync() -> void:
 	symbol.add_theme_color_override("font_color", accent_ink)
 
 	var is_event := target.name.begins_with("EventChoice") or (target.get_parent() != null and target.get_parent().name == "EventChoices") or target.has_meta("event_choice")
+	if is_event:
+		heading.add_theme_font_size_override("font_size", 28)
 	if is_act:
 		# Activities buttons are strictly uniform at 96px, with title & emoji centered
 		target.custom_minimum_size.y = 96.0
@@ -328,18 +332,18 @@ func _sync() -> void:
 		var line_count := 1
 		if cur_w >= 150.0:
 			var avail_w := cur_w - 140.0
-			var chars_per_line := maxf(avail_w / 20.0, 10.0)
+			var chars_per_line := maxf(avail_w / 18.0, 10.0)
 			line_count = int(ceil(float(first.length()) / chars_per_line))
 			var real_lines: int = heading.get_line_count()
 			if real_lines in [1, 2, 3]:
 				line_count = maxi(line_count, real_lines)
 		line_count = clampi(line_count, 1, 3)
 		if line_count <= 1:
-			target.custom_minimum_size.y = 96.0
+			target.custom_minimum_size.y = 86.0
 		elif line_count == 2:
-			target.custom_minimum_size.y = 168.0
+			target.custom_minimum_size.y = 112.0
 		else:
-			target.custom_minimum_size.y = 216.0
+			target.custom_minimum_size.y = 142.0
 	elif is_options:
 		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
 		if not has_desc:

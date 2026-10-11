@@ -1930,17 +1930,21 @@ func show_event_popup() -> void:
 	if event_title != null:
 		event_title.text = str(current_event.get("title", "LIFE EVENT"))
 		event_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#00f0ff"))
-		event_title.add_theme_font_size_override("font_size", 50)
+		event_title.add_theme_font_size_override("font_size", 38)
+		event_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		event_title.custom_minimum_size = Vector2(1, 0)
 
 	event_description.text = get_event_text(current_event) + "\n\nWhat do you do?"
 	event_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	event_description.add_theme_font_size_override("normal_font_size", 38)
+	event_description.fit_content = true
+	event_description.custom_minimum_size = Vector2(1, 80)
+	event_description.add_theme_font_size_override("normal_font_size", 28)
 	event_description.add_theme_color_override("default_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	var desc_inset := StyleBoxEmpty.new()
 	desc_inset.content_margin_left = 32
 	desc_inset.content_margin_right = 32
-	desc_inset.content_margin_top = 20
-	desc_inset.content_margin_bottom = 20
+	desc_inset.content_margin_top = 16
+	desc_inset.content_margin_bottom = 16
 	event_description.add_theme_stylebox_override("normal", desc_inset)
 
 	# Ensure EventPanel is anchored at its resting center position before fading in
