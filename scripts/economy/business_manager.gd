@@ -69,7 +69,14 @@ const CATEGORIES: Array[Dictionary] = [
 		"name": "ENERGY & INFRASTRUCTURE BUSINESS",
 		"icon": "⚡",
 		"color": "#14b8a6",
-		"description": "Renewable solar microgrids and megawatt battery storage utility contracts."
+		"description": "Nuclear power stations, renewable solar microgrids, and megawatt battery utility storage."
+	},
+	{
+		"id": "oil_gas",
+		"name": "OIL & PETROLEUM INDUSTRY",
+		"icon": "🛢️",
+		"color": "#d97706",
+		"description": "Crude oil extraction wells, deepwater offshore drilling platforms, pipelines, and petrochemical refineries."
 	}
 ]
 
@@ -601,18 +608,33 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 	},
 	{
 		"id": "biz_cloud_data_center",
-		"name": "Hyperscale Cloud & AI Compute Data Center",
+		"name": "Tier III Enterprise Colocation & Cloud Data Center",
 		"icon": "🖥️",
 		"category": "tech_media",
 		"required_license": "license_cyber",
 		"required_license_title": "Certified Ethical Hacker & Pen-Tester License",
 		"required_major": "it",
 		"required_degree_title": "Cyber Security & IT",
-		"startup_cost": 18000000,
-		"base_revenue_min": 14000000,
-		"base_revenue_max": 27000000,
-		"base_opex": 13400000,
-		"description": "Host high-density server rack clusters, enterprise GPU clusters for neural training, and low-latency cloud nodes."
+		"startup_cost": 140000000,
+		"base_revenue_min": 95000000,
+		"base_revenue_max": 165000000,
+		"base_opex": 65000000,
+		"description": "Provide commercial server rack colocation, high-speed fiber interconnects, redundant power feeds, and 99.98% SLA infrastructure for corporate enterprise clients."
+	},
+	{
+		"id": "biz_hyperscale_data_center",
+		"name": "Tier IV Hyperscale Cloud & AI Supercompute Campus",
+		"icon": "🏢",
+		"category": "tech_media",
+		"required_license": "license_cyber",
+		"required_license_title": "Certified Ethical Hacker & Pen-Tester License",
+		"required_major": "it",
+		"required_degree_title": "Cyber Security & IT",
+		"startup_cost": 1850000000,
+		"base_revenue_min": 1150000000,
+		"base_revenue_max": 1950000000,
+		"base_opex": 720000000,
+		"description": "Construct a 150-megawatt hyperscale AI computing campus with liquid direct-to-chip cooling, massive GPU accelerator clusters, multi-terabit optical cross-connects, and on-site substation power."
 	},
 	{
 		"id": "biz_digital_marketing_agency",
@@ -868,6 +890,128 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"base_revenue_max": 5400000,
 		"base_opex": 2680000,
 		"description": "Install 350kW liquid-cooled highway charging hubs with solar canopies and automated credit card kiosks."
+	},
+	{
+		"id": "biz_large_nuclear_reactor",
+		"name": "Gigawatt-Scale Nuclear Power Station (AP1000)",
+		"icon": "⚛️",
+		"category": "energy",
+		"required_license": "license_nuclear_operator",
+		"required_license_title": "NRC Certified Senior Nuclear Reactor Operator License",
+		"required_major": "nuclear_physics",
+		"required_degree_title": "Nuclear Physics & Reactor Engineering",
+		"startup_cost": 9500000000,
+		"base_revenue_min": 1900000000,
+		"base_revenue_max": 2850000000,
+		"base_opex": 1150000000,
+		"description": "Commission a multi-gigawatt Generation III+ nuclear power station with pressurized water reactors, providing massive continuous baseload electricity to the continental grid."
+	},
+
+	# --- OIL & PETROLEUM INDUSTRY ---
+	{
+		"id": "biz_oil_exploration",
+		"name": "Geophysical Seismic Exploration & Oil Surveying Firm",
+		"icon": "🗺️",
+		"category": "oil_gas",
+		"required_license": "license_drone",
+		"required_license_title": "Commercial Remote Drone Pilot License",
+		"required_major": "civil_engineering",
+		"required_degree_title": "Civil & Infrastructure Engineering",
+		"startup_cost": 18000000,
+		"base_revenue_min": 14000000,
+		"base_revenue_max": 26000000,
+		"base_opex": 12500000,
+		"description": "Map subsurface petroleum reservoirs using 3D seismic vibroseis trucks, aerial gravimetry drones, and geological acoustic imaging."
+	},
+	{
+		"id": "biz_onshore_oil_field",
+		"name": "Onshore Crude Oil Well Field & Extraction Depot",
+		"icon": "🛢️",
+		"category": "oil_gas",
+		"required_license": "license_petroleum_drilling",
+		"required_license_title": "IADC Certified Well Control & Petroleum Drilling Superintendent License",
+		"required_major": "engineering",
+		"required_degree_title": "Mechanical & Electrical Engineering",
+		"startup_cost": 85000000,
+		"base_revenue_min": 58000000,
+		"base_revenue_max": 98000000,
+		"base_opex": 42000000,
+		"description": "Drill onshore crude oil wells, install automated beam pump jacks, and operate gathering pipelines with localized separator manifolds."
+	},
+	{
+		"id": "biz_oil_drilling_contractor",
+		"name": "High-Pressure Directional Drilling & Rig Contracting",
+		"icon": "🚜",
+		"category": "oil_gas",
+		"required_license": "license_petroleum_drilling",
+		"required_license_title": "IADC Certified Well Control & Petroleum Drilling Superintendent License",
+		"required_major": "engineering",
+		"required_degree_title": "Mechanical & Electrical Engineering",
+		"startup_cost": 190000000,
+		"base_revenue_min": 135000000,
+		"base_revenue_max": 230000000,
+		"base_opex": 105000000,
+		"description": "Deploy fleet of 3,000-horsepower walking land rigs for extended-reach horizontal drilling and hydraulic multistage casing."
+	},
+	{
+		"id": "biz_crude_oil_pipeline",
+		"name": "Interstate Crude Oil Pipeline & Bulk Storage Hub",
+		"icon": "⛽",
+		"category": "oil_gas",
+		"required_license": "license_general_contractor",
+		"required_license_title": "State Licensed General Building Contractor",
+		"required_major": "civil_engineering",
+		"required_degree_title": "Civil & Infrastructure Engineering",
+		"startup_cost": 480000000,
+		"base_revenue_min": 320000000,
+		"base_revenue_max": 540000000,
+		"base_opex": 230000000,
+		"description": "Operate hundreds of miles of welded steel trunk pipelines, high-volume centrifugal booster stations, and multi-million-barrel crude storage terminals."
+	},
+	{
+		"id": "biz_lng_export_terminal",
+		"name": "Liquefied Natural Gas (LNG) Cryogenic Export Terminal",
+		"icon": "❄️",
+		"category": "oil_gas",
+		"required_license": "license_general_contractor",
+		"required_license_title": "State Licensed General Building Contractor",
+		"required_major": "engineering",
+		"required_degree_title": "Mechanical & Electrical Engineering",
+		"startup_cost": 980000000,
+		"base_revenue_min": 620000000,
+		"base_revenue_max": 1100000000,
+		"base_opex": 460000000,
+		"description": "Cryogenically liquefy natural gas down to minus 260 degrees Fahrenheit for bulk tanker loading and international trans-oceanic export."
+	},
+	{
+		"id": "biz_offshore_oil_rig",
+		"name": "Deepwater Offshore Drilling Platform & Rig",
+		"icon": "🌊",
+		"category": "oil_gas",
+		"required_license": "license_offshore_drilling",
+		"required_license_title": "BSEE Offshore Installation Manager & Marine Drilling Superintendent License",
+		"required_major": "engineering",
+		"required_degree_title": "Mechanical & Electrical Engineering",
+		"startup_cost": 1500000000,
+		"base_revenue_min": 920000000,
+		"base_revenue_max": 1600000000,
+		"base_opex": 640000000,
+		"description": "Anchor a semi-submersible deepwater drilling and production platform over oceanic continental shelves, utilizing subsea blowout preventers and dynamic positioning."
+	},
+	{
+		"id": "biz_petrochemical_refinery",
+		"name": "Integrated Petrochemical Refinery & Distillation Complex",
+		"icon": "🏭",
+		"category": "oil_gas",
+		"required_license": "license_petroleum_drilling",
+		"required_license_title": "IADC Certified Well Control & Petroleum Drilling Superintendent License",
+		"required_major": "engineering",
+		"required_degree_title": "Mechanical & Electrical Engineering",
+		"startup_cost": 3400000000,
+		"base_revenue_min": 2200000000,
+		"base_revenue_max": 3600000000,
+		"base_opex": 1650000000,
+		"description": "Fractionate and refine heavy sour crude into gasoline, aviation jet fuel, liquefied polymers, and petrochemical commodities through high-temperature catalytic cracking."
 	}
 ]
 
@@ -1240,7 +1384,7 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		var extra_staff: int = maxi(0, emp_count - baseline_staff)
 		var sector_salary: int = 38000
 		var cat: String = str(def.get("category", ""))
-		if cat == "energy" or cat == "finance_legal":
+		if cat == "energy" or cat == "finance_legal" or cat == "oil_gas":
 			sector_salary = 95000
 		elif cat == "health_science" or cat == "tech_media":
 			sector_salary = 72000

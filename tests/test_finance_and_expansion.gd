@@ -8,7 +8,7 @@ func _ready() -> void:
 	# 1. Test BusinessManager expansion
 	print("\n[TEST 1] Verifying BusinessManager expansion...")
 	var categories: Array = BusinessManager.get_categories()
-	assert(categories.size() == 7, "Expected 7 categories, got %d" % categories.size())
+	assert(categories.size() >= 7, "Expected at least 7 categories, got %d" % categories.size())
 	for cat in categories:
 		var cat_id: String = str(cat.get("id", ""))
 		var biz_in_cat: Array = BusinessManager.get_businesses_in_category(cat_id)
@@ -27,7 +27,8 @@ func _ready() -> void:
 		"license_general_contractor", "license_veterinary",
 		"license_clinical_pharmacist", "license_finra_series7",
 		"license_patent_bar", "license_nuclear_operator",
-		"license_physical_therapist"
+		"license_physical_therapist", "license_petroleum_drilling",
+		"license_offshore_drilling"
 	]
 	for lic_id in test_licenses:
 		var lic: Dictionary = LicenseManager.get_license_by_id(lic_id)

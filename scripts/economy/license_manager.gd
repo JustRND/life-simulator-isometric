@@ -386,6 +386,28 @@ const LICENSES: Array[Dictionary] = [
 		"unlocked_feature": "Physical Rehabilitation & Sports Therapy",
 		"job_id": "job_physical_therapist_lead",
 		"description": "State physical therapy licensing board credential authorizing orthopedic rehabilitation, neuromuscular re-education, athletic injury conditioning, and sports therapy."
+	},
+	{
+		"id": "license_petroleum_drilling",
+		"name": "IADC Certified Well Control & Petroleum Drilling Superintendent License",
+		"icon": "🛢️",
+		"category": "services",
+		"fee": 52000,
+		"min_age": 22,
+		"unlocked_feature": "Commercial Petroleum Extraction & Drilling Operations",
+		"job_id": "job_drilling_superintendent",
+		"description": "International Association of Drilling Contractors certification authorizing high-pressure wellhead control, directional drilling supervisory command, and blowout prevention."
+	},
+	{
+		"id": "license_offshore_drilling",
+		"name": "BSEE Offshore Installation Manager & Marine Drilling Superintendent License",
+		"icon": "⚓",
+		"category": "services",
+		"fee": 68000,
+		"min_age": 24,
+		"unlocked_feature": "Deepwater Offshore Drilling Platform & Rig Management",
+		"job_id": "job_offshore_rig_manager",
+		"description": "Bureau of Safety and Environmental Enforcement credential authorizing deepwater semi-submersible drilling rig operations, marine safety systems, and offshore emergency response."
 	}
 ]
 
