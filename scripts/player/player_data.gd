@@ -46,6 +46,12 @@ var smarts: int = 60
 var looks: int = 65
 var mental_state: int = 80
 
+var hunger: float = 100.0
+var thirst: float = 100.0
+var auto_consume_enabled: bool = true
+var inventory: Array[Dictionary] = []
+var active_stat_modifiers: Dictionary = {}
+
 var first_name: String = ""
 var birthplace: String = ""
 var gender: String = "MALE"
@@ -356,6 +362,11 @@ func reset_player() -> void:
 	monthly_settlement_cursor.clear()
 	transaction_history.clear()
 	last_tax_return.clear()
+	hunger = 100.0
+	thirst = 100.0
+	auto_consume_enabled = true
+	inventory.clear()
+	active_stat_modifiers.clear()
 	loan_balance = 0
 	loan_interest_rate = 0.08
 	credit_score = 650
@@ -856,6 +867,56 @@ func get_owned_assets_by_category(category: String) -> Array[Dictionary]:
 		if item.get("category", "") == category:
 			list.append(item)
 	return list
+
+
+func modify_hunger(delta: float) -> void:
+	hunger = clampf(hunger + delta, 0.0, 100.0)
+
+
+func modify_thirst(delta: float) -> void:
+	thirst = clampf(thirst + delta, 0.0, 100.0)
+
+
+func add_inventory_item(item_id: String, count: int = 1) -> void:
+	if count <= 0:
+		return
+	for entry in inventory:
+		if entry is Dictionary and entry.get("id", "") == item_id:
+			entry["count"] = int(entry.get("count", 0)) + count
+			return
+	inventory.append({
+		"id": item_id,
+		"count": count
+	})
+
+
+func remove_inventory_item(item_id: String, count: int = 1) -> bool:
+	if count <= 0:
+		return true
+	for i in range(inventory.size()):
+		var entry = inventory[i]
+		if entry is Dictionary and entry.get("id", "") == item_id:
+			var cur_count: int = int(entry.get("count", 0))
+			if cur_count >= count:
+				cur_count -= count
+				if cur_count <= 0:
+					inventory.remove_at(i)
+				else:
+					entry["count"] = cur_count
+				return true
+			return false
+	return false
+
+
+func get_inventory_item_count(item_id: String) -> int:
+	for entry in inventory:
+		if entry is Dictionary and entry.get("id", "") == item_id:
+			return int(entry.get("count", 0))
+	return 0
+
+
+func has_inventory_item(item_id: String) -> bool:
+	return get_inventory_item_count(item_id) > 0
 
 
 func has_firearm() -> bool:

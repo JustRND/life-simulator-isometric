@@ -31,6 +31,7 @@ LifeLibrary="*res://scripts/core/life_library.gd"
 GameLocale="*res://scripts/core/game_locale.gd"
 MobileKeyboardService="*res://scripts/ui/mobile_keyboard_manager.gd"
 GameClock="*res://scripts/core/game_clock.gd"
+NeedsManager="*res://scripts/player/needs_manager.gd"
 
 [display]
 
