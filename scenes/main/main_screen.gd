@@ -135,6 +135,7 @@ var spa_modal_overlay: Control = null
 var mental_institution_modal_overlay: Control = null
 var household_modal_overlay: Control = null
 var tax_service_modal_overlay: Control = null
+var _tax_service_source: String = "finance_hub"
 var _pending_move_out_on_purchase: bool = false
 var _pending_move_out_on_lease: bool = false
 
@@ -4221,6 +4222,11 @@ func update_bank_panel() -> void:
 			bank_card_vbox.remove_child(old_ins_btn)
 			old_ins_btn.queue_free()
 
+		var old_tax_btn := bank_card_vbox.get_node_or_null("BankTaxOfficeButton")
+		if old_tax_btn != null:
+			bank_card_vbox.remove_child(old_tax_btn)
+			old_tax_btn.queue_free()
+
 		var has_veh: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 		var has_prop: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 		var ins_btn_text := "🛡️ Asset Insurance: Protected" if (has_veh and has_prop) else ("🛡️ Insurance: Active Coverage (Tap to Manage)" if (has_veh or has_prop) else "🛡️ Asset Insurance (Underwriting)")
@@ -4228,6 +4234,18 @@ func update_bank_panel() -> void:
 		var ins_quick_btn := _create_cyber_button(ins_btn_text, ins_btn_col, _show_insurance_modal, true)
 		ins_quick_btn.name = "BankInsuranceButton"
 		bank_card_vbox.add_child(ins_quick_btn)
+
+		var tax_btn_text: String
+		var tax_btn_col: Color
+		if PlayerData.tax_debt > 0:
+			tax_btn_text = "🏛️ Tax Office & Returns (Unpaid: $%s)" % _format_number(PlayerData.tax_debt)
+			tax_btn_col = Color("#e11d48")
+		else:
+			tax_btn_text = "🏛️ Tax Office & Filings"
+			tax_btn_col = Color("#0d9488")
+		var tax_quick_btn := _create_cyber_button(tax_btn_text, tax_btn_col, func(): _show_tax_service_modal("bank"), true)
+		tax_quick_btn.name = "BankTaxOfficeButton"
+		bank_card_vbox.add_child(tax_quick_btn)
 
 	if bank_list == null:
 		return
@@ -4710,6 +4728,12 @@ func update_bank_panel() -> void:
 	btn_pay_tax.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_pay_tax.set_meta("center_text", true)
 	repay_vbox.add_child(btn_pay_tax)
+	var btn_tax_office := _create_cyber_button("🏛️ Tax Office & Declarations", Color("#0d9488"), func(): _show_tax_service_modal("bank"), true)
+	btn_tax_office.name = "BankRepayTaxOfficeButton"
+	btn_tax_office.tooltip_text = "Open Tax Office & Filings to view deductions, brackets, and corporate returns."
+	btn_tax_office.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	btn_tax_office.set_meta("center_text", true)
+	repay_vbox.add_child(btn_tax_office)
 	var btn_custom := _create_cyber_button("Repay Loan — Enter Amount", Color("#22c55e"), _show_loan_repayment, true)
 	btn_custom.name = "CustomLoanRepaymentButton"
 	btn_custom.disabled = PlayerData.loan_balance <= 0 or PlayerData.get_available_funds() <= 0
@@ -16686,7 +16710,7 @@ func _show_finance_hub_modal() -> void:
 	var _open_taxes = func():
 		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
 		finance_hub_modal_overlay = null
-		_show_tax_service_modal()
+		_show_tax_service_modal("finance_hub")
 
 	var divisions := [
 		{
@@ -18042,7 +18066,9 @@ func _show_savings_account_modal() -> void:
 	savings_modal_overlay.visible = true
 
 
-func _show_tax_service_modal() -> void:
+func _show_tax_service_modal(source: String = "") -> void:
+	if not source.is_empty():
+		_tax_service_source = source
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal := _refresh_cyber_modal(tax_service_modal_overlay, "🏛️ TAX OFFICE & FILINGS", "Internal Revenue & Compliance • Progressive Income, Capital Gains, Property & Corporate Taxes", Color("#0d9488"))
 	tax_service_modal_overlay = modal.overlay
@@ -18058,10 +18084,14 @@ func _show_tax_service_modal() -> void:
 	nav_row.add_theme_constant_override("separation", 12)
 	list.add_child(nav_row)
 
-	var back_btn := _create_cyber_button("← Back to Finance Hub", Color("#64748b"), func():
+	var back_text := "← Back to Bank" if _tax_service_source == "bank" else "← Back to Finance Hub"
+	var back_btn := _create_cyber_button(back_text, Color("#64748b"), func():
 		preload("res://scripts/ui/panel_close.gd").dismiss(tax_service_modal_overlay, false)
 		tax_service_modal_overlay = null
-		_show_finance_hub_modal()
+		if _tax_service_source == "bank":
+			update_bank_panel()
+		else:
+			_show_finance_hub_modal()
 	)
 	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	back_btn.custom_minimum_size = Vector2(1, 56)

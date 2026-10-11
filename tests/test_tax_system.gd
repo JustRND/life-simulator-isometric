@@ -194,10 +194,61 @@ func _test_tax_office_ui() -> void:
 	# 3. Simulate debt and test pay tax debt button if debt exists
 	PlayerData.tax_debt = 5000
 	PlayerData.money = 10000
-	main_screen._show_tax_service_modal() # Refresh modal with debt
+	main_screen._show_tax_service_modal("finance_hub") # Refresh modal with debt from finance hub
 	assert(main_screen.tax_service_modal_overlay != null)
 	print("  ✓ Tax Service modal re-rendered with active tax debt and settlement controls")
-
 	main_screen.tax_service_modal_overlay.queue_free()
-	main_screen.finance_hub_modal_overlay.queue_free()
+	main_screen.tax_service_modal_overlay = null
+	if main_screen.finance_hub_modal_overlay != null:
+		main_screen.finance_hub_modal_overlay.queue_free()
+		main_screen.finance_hub_modal_overlay = null
+
+	# 4. Test Assets -> Banking Panel Tax Button
+	print("--- 7. Testing Banking Panel Tax Button & Navigation ---")
+	main_screen.update_bank_panel()
+	var bank_card_tax_btn := main_screen.get_node_or_null("BankPanel/BankMargin/BankContent/BankScroll/BankList/BankCard/Margin/VBox/BankTaxOfficeButton") as Button
+	assert(bank_card_tax_btn != null, "BankTaxOfficeButton must exist in BankCard VBox")
+	assert(bank_card_tax_btn.text.contains("Tax Office"), "BankTaxOfficeButton must have Tax Office label")
+	print("  ✓ BankCard Tax Button exists: '%s'" % bank_card_tax_btn.text)
+
+	# Simulate pressing BankCard Tax Button
+	bank_card_tax_btn.pressed.emit()
+	await get_tree().process_frame
+	assert(main_screen.tax_service_modal_overlay != null, "Tax Service modal must open from BankCard Tax Button")
+	assert(main_screen.tax_service_modal_overlay.visible, "Tax Service modal must be visible when opened from Bank")
+	assert(main_screen._tax_service_source == "bank", "Tax modal source must be recorded as 'bank'")
+	print("  ✓ BankCard Tax Button successfully opens Tax modal with source='bank'")
+
+	# Check back button in Tax modal
+	var back_btn: Array[Node] = main_screen.tax_service_modal_overlay.find_children("*", "Button", true, false)
+	var found_back_to_bank := false
+	for b in back_btn:
+		if b.text.contains("Back to Bank"):
+			found_back_to_bank = true
+			b.pressed.emit()
+			break
+	assert(found_back_to_bank, "Tax modal must display '← Back to Bank' button when opened from Bank")
+	await get_tree().process_frame
+	assert(main_screen.tax_service_modal_overlay == null, "Tax modal must be dismissed after clicking Back to Bank")
+	print("  ✓ Tax modal '← Back to Bank' button works and returns cleanly to Banking panel")
+
+	# Check Repay Card Tax Office Button
+	var repay_tax_btn := main_screen.bank_list.find_child("BankRepayTaxOfficeButton", true, false) as Button
+	assert(repay_tax_btn != null, "BankRepayTaxOfficeButton must exist in repay card")
+	print("  ✓ Repay Card Tax Button exists: '%s'" % repay_tax_btn.text)
+
+	# 5. Test Finance Market Pulse Button is not a vertical block
+	print("--- 8. Testing Finance Market Pulse Live Quotes Button ---")
+	var fp = preload("res://scripts/ui/finance_panel.gd").new()
+	fp.install(main_screen)
+	fp.open()
+	await get_tree().process_frame
+	assert(fp.overlay != null, "Finance market overlay must be open")
+	var pulse_btn := fp.overlay.find_child("PulseLiveQuotesButton", true, false) as Button
+	assert(pulse_btn != null, "PulseLiveQuotesButton must exist in Finance Market")
+	assert(pulse_btn.autowrap_mode == TextServer.AUTOWRAP_OFF, "Pulse button must not autowrap words into a vertical pillar")
+	print("  ✓ Finance Market '🔄 Pulse Live Quotes' button verified (autowrap disabled, full card layout)")
+	fp.overlay.queue_free()
+
 	main_screen.queue_free()
+

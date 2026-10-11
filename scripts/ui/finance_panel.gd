@@ -253,15 +253,15 @@ func _exchange(list: VBoxContainer) -> void:
 		label(ticker_box, "📰 Financial Wire: %s" % news_txt, 22, Color("#0284c7" if is_light else "#38bdf8"))
 
 	# Live Quote Pulse action
-	var pulse_row := HBoxContainer.new()
-	pulse_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rv.add_child(pulse_row)
-	var pulse_btn := create_market_button(pulse_row, "🔄 Pulse Live Quotes", Color("#0284c7"), func():
+	var pulse_btn := create_market_button(rv, "🔄 Pulse Live Quotes", Color("#0284c7"), func():
 		FinanceMarket.tick_live_market(PlayerData)
 		open()
 	, false, 68)
-	pulse_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	pulse_btn.add_theme_font_size_override("font_size", 30)
+	pulse_btn.name = "PulseLiveQuotesButton"
+	pulse_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pulse_btn.autowrap_mode = TextServer.AUTOWRAP_OFF
+	pulse_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	pulse_btn.add_theme_font_size_override("font_size", 28)
 
 	var listings_label := label(list, "8 active listings • 24 company archetypes • Dynamic market cycles with crashes & rallies.", 25)
 	listings_label.name = "ActiveListings"
