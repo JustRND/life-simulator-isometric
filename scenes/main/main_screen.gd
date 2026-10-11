@@ -474,7 +474,7 @@ func _configure_ui() -> void:
 		balance_label.add_theme_stylebox_override("normal", bal_sb)
 		balance_label.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 		balance_label.add_theme_font_size_override("font_size", 24)
-		balance_label.custom_minimum_size = Vector2(290, 110)
+		balance_label.custom_minimum_size = Vector2(210, 84)
 		balance_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		balance_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		balance_label.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -493,7 +493,17 @@ func _configure_ui() -> void:
 		age_label.add_theme_font_size_override("font_size", 28)
 		age_label.add_theme_color_override("font_color", Color("#b45309") if is_light else Color(0.98, 0.84, 0.35, 1))
 	if time_counter_label != null:
-		time_counter_label.add_theme_font_size_override("font_size", 24)
+		time_counter_label.visible = true
+		time_counter_label.custom_minimum_size = Vector2(170, 32)
+		time_counter_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		time_counter_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		time_counter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		time_counter_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		time_counter_label.clip_text = false
+		time_counter_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+		time_counter_label.set_meta("keep_fixed_size", true)
+		time_counter_label.set_meta("locale_manual", true)
+		time_counter_label.add_theme_font_size_override("font_size", 22)
 		time_counter_label.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color(0.22, 0.83, 0.93, 1))
 		time_counter_label.mouse_filter = Control.MOUSE_FILTER_STOP
 		if not time_counter_label.gui_input.is_connected(_on_time_label_gui_input):
@@ -882,8 +892,11 @@ func _process(delta: float) -> void:
 func _update_time_and_age_labels() -> void:
 	if age_label != null:
 		age_label.text = "Age: %d" % PlayerData.age
-	var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
+	var m_num: int = GameClock.month if GameClock != null else PlayerData.in_game_month
+	var d_num: int = GameClock.day if GameClock != null else PlayerData.in_game_day
+	var date_str := "Month %d, Day %d" % [m_num, d_num]
 	if time_counter_label != null:
+		time_counter_label.visible = true
 		if PlayerData.is_time_paused:
 			time_counter_label.text = "⏸️ %s (PAUSED)" % date_str
 		else:
@@ -14864,6 +14877,8 @@ func _show_text_input_popup(options: Dictionary) -> Control:
 func _ensure_no_clipping_recursive(node: Node) -> void:
 	if not is_instance_valid(node):
 		return
+	if node.name == "TimeCounterLabel" or node.has_meta("keep_fixed_size"):
+		return
 	if node is Label:
 		if node.autowrap_mode == TextServer.AUTOWRAP_OFF:
 			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -14895,6 +14910,8 @@ func _ensure_no_clipping_recursive(node: Node) -> void:
 
 func _on_global_node_added(node: Node) -> void:
 	if not is_instance_valid(node):
+		return
+	if node.name == "TimeCounterLabel" or node.has_meta("keep_fixed_size") or node.has_meta("reference_part"):
 		return
 	if node is Label:
 		if node.autowrap_mode == TextServer.AUTOWRAP_OFF:

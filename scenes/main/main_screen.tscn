@@ -484,7 +484,7 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="PauseTimeButton" type="Button" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/TimeRow" unique_id=1269020287]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(90, 32)
 layout_mode = 2
 focus_mode = 0
 mouse_default_cursor_shape = 2
@@ -492,6 +492,7 @@ theme_override_font_sizes/font_size = 18
 text = "⏸️ Pause"
 
 [node name="TimeCounterLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/TimeRow" unique_id=1269020284]
+custom_minimum_size = Vector2(170, 32)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -499,6 +500,7 @@ mouse_filter = 0
 theme_override_colors/font_color = Color(0.22, 0.83, 0.93, 1)
 theme_override_font_sizes/font_size = 22
 text = "📅 Month 1, Day 1"
+vertical_alignment = 1
 
 [node name="AgeRow" type="HBoxContainer" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020285]
 layout_mode = 2
@@ -517,7 +519,7 @@ theme_override_font_sizes/font_size = 26
 text = "🎒 Child"
 
 [node name="BalanceLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=1720170167]
-custom_minimum_size = Vector2(230, 96)
+custom_minimum_size = Vector2(210, 84)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.255, 0.839, 0.424, 1)
 theme_override_font_sizes/font_size = 22
