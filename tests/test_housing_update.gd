@@ -5,10 +5,10 @@ func _ready() -> void:
 	
 	# 1. Test Game Version
 	var proj_ver := str(ProjectSettings.get_setting("application/config/version", ""))
-	assert(proj_ver == "0.2.0", "Expected version 0.2.0, got %s" % proj_ver)
+	assert(proj_ver == "0.3.0", "Expected version 0.3.0, got %s" % proj_ver)
 	var lib_ver := LifeLibrary.get_version_string()
-	assert(lib_ver == "0.2.0", "Expected LifeLibrary version 0.2.0, got %s" % lib_ver)
-	print("✓ Version check passed: 0.2.0")
+	assert(lib_ver == "0.3.0", "Expected LifeLibrary version 0.3.0, got %s" % lib_ver)
+	print("✓ Version check passed: 0.3.0")
 
 	# 2. Test All 24 Properties have Room Definitions and valid textures
 	var expected_properties := [
@@ -57,9 +57,9 @@ func _ready() -> void:
 	assert(room_btn == null, "RoomCycleButton must be removed from main_screen.tscn")
 	var alpha_lbl = instance.find_child("AlphaVersionLabel", true, false) as Label
 	assert(alpha_lbl != null, "AlphaVersionLabel should exist")
-	assert("v0.2.0" in alpha_lbl.text, "Expected AlphaVersionLabel to show v0.2.0, got: %s" % alpha_lbl.text)
+	assert("v0.3.0" in alpha_lbl.text, "Expected AlphaVersionLabel to show v0.3.0, got: %s" % alpha_lbl.text)
 	instance.queue_free()
-	print("✓ Main screen UI verified: RoomCycleButton removed, AlphaVersionLabel shows v0.2.0")
+	print("✓ Main screen UI verified: RoomCycleButton removed, AlphaVersionLabel shows v0.3.0")
 
 	print("\nALL HOUSING UPDATE TESTS PASSED SUCCESSFULLY!")
 	get_tree().quit(0)
