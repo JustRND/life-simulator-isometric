@@ -3290,6 +3290,9 @@ func _render_owned_pets_section() -> void:
 
 			var header_lbl := Label.new()
 			header_lbl.text = "%s %s • %s (%d yrs old)" % [p_icon, p_name, p_breed, p_age]
+			header_lbl.custom_minimum_size = Vector2(1, 0)
+			header_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			header_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			header_lbl.add_theme_font_size_override("font_size", 30)
 			header_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 			pv.add_child(header_lbl)
@@ -3300,6 +3303,9 @@ func _render_owned_pets_section() -> void:
 				p_hap,
 				_format_number(p_upkeep)
 			]
+			stats_lbl.custom_minimum_size = Vector2(1, 0)
+			stats_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			stats_lbl.add_theme_font_size_override("font_size", 27)
 			stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 			pv.add_child(stats_lbl)
@@ -3905,162 +3911,59 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var border_color := Color("#10b981")
 
-	# Fullscreen overlay
-	var overlay := ColorRect.new()
-	overlay.anchors_preset = Control.PRESET_FULL_RECT
-	overlay.anchor_right = 1.0
-	overlay.anchor_bottom = 1.0
-	overlay.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	overlay.grow_vertical = Control.GROW_DIRECTION_BOTH
-	overlay.color = Color(0, 0, 0, 0.45 if is_light else 0.75)
-	overlay.z_index = 40
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	overlay.set_meta("is_mortgage_panel", true)
-	add_child(overlay)
-
-	# Responsive outer margin
-	var margin_outer := MarginContainer.new()
-	margin_outer.anchors_preset = Control.PRESET_FULL_RECT
-	margin_outer.anchor_right = 1.0
-	margin_outer.anchor_bottom = 1.0
-	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
-	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var top_m: int = 64
-	var bottom_m: int = 64
-	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) or OS.has_feature("mobile") or (OS.has_feature("web") and MobileKeyboardManager.is_mobile()):
-		var current_safe_top_m: float = float(DisplayServer.get_display_safe_area().position.y)
-		var current_safe_bottom_m: float = float(DisplayServer.get_display_safe_area().end.y)
-		top_m = int(maxf(110.0, current_safe_top_m + 16.0))
-		bottom_m = int(maxf(96.0, current_safe_bottom_m + 16.0))
-	margin_outer.add_theme_constant_override("margin_left", 16)
-	margin_outer.add_theme_constant_override("margin_right", 16)
-	margin_outer.add_theme_constant_override("margin_top", top_m)
-	margin_outer.add_theme_constant_override("margin_bottom", bottom_m)
-	overlay.add_child(margin_outer)
-
-	# Smooth pull-up entrance animation!
-	preload("res://scripts/ui/panel_pull_up.gd").watch(margin_outer, overlay)
-
-	var card := PanelContainer.new()
-	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.clip_contents = true
-	var card_style := StyleBoxFlat.new()
-	card_style.bg_color = Color("#edf3fa") if is_light else Color("#090f1d")
-	card_style.border_color = border_color.darkened(0.35) if (is_light and border_color.get_luminance() > 0.45) else border_color
-	card_style.set_border_width_all(3)
-	card_style.set_corner_radius_all(14)
-	card_style.shadow_color = Color(0, 0, 0, 0.15 if is_light else 0.85)
-	card_style.shadow_size = 24
-	card.add_theme_stylebox_override("panel", card_style)
-	margin_outer.add_child(card)
-
-	var margin := MarginContainer.new()
-	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_theme_constant_override("margin_left", 20)
-	margin.add_theme_constant_override("margin_right", 20)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	card.add_child(margin)
-
-	var main_vbox := VBoxContainer.new()
-	main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	main_vbox.add_theme_constant_override("separation", 14)
-	margin.add_child(main_vbox)
-
-	# TOP HEADER ROW with BACK TO PROPERTIES on the TOP LEFT CORNER
-	var header_row := HBoxContainer.new()
-	header_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header_row.add_theme_constant_override("separation", 12)
-	main_vbox.add_child(header_row)
-
-	var btn_back := Button.new()
-	btn_back.text = "← BACK"
-	btn_back.custom_minimum_size = Vector2(1, 56)
-	btn_back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_back.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	btn_back.add_theme_font_size_override("font_size", 28)
-	btn_back.add_theme_color_override("font_color", Color("#ffffff") if not is_light else Color("#064e3b"))
-	btn_back.add_theme_color_override("font_hover_color", Color("#10b981"))
-	var back_style := StyleBoxFlat.new()
-	back_style.bg_color = Color("#064e3b") if not is_light else Color("#d1fae5")
-	back_style.border_color = border_color
-	back_style.set_border_width_all(2)
-	back_style.set_corner_radius_all(10)
-	btn_back.add_theme_stylebox_override("normal", back_style)
-	btn_back.add_theme_stylebox_override("hover", back_style)
-	btn_back.add_theme_stylebox_override("pressed", back_style)
-	btn_back.pressed.connect(func():
-		preload("res://scripts/ui/panel_close.gd").dismiss(overlay, true, func():
-			if previous_overlay != null and is_instance_valid(previous_overlay):
-				previous_overlay.visible = true
-			else:
-				_open_asset_marketplace_modal(AssetCatalog.CATEGORY_PROPERTIES)
-		, card)
+	var modal_dict := _create_cyber_modal(
+		"🏠 MORTGAGE PANEL",
+		"Fixed-Rate Residential Financing Plans with Annual Principal, Interest & Years Left Breakdown",
+		border_color
 	)
-	header_row.add_child(btn_back)
+	var overlay: Control = modal_dict["overlay"]
+	overlay.set_meta("is_mortgage_panel", true)
+	overlay.z_index = 85
+	var card: PanelContainer = modal_dict["card"]
+	var list: VBoxContainer = modal_dict["list"]
+	var title_lbl: Label = modal_dict["title"]
+	var close_btn: Button = modal_dict["close_button"]
 
-	var title_lbl := Label.new()
-	title_lbl.text = "🏠 MORTGAGE PANEL"
-	title_lbl.custom_minimum_size = Vector2(1, 0)
-	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_lbl.size_flags_stretch_ratio = 1.6
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
-	title_lbl.add_theme_font_size_override("font_size", 34)
-	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	header_row.add_child(title_lbl)
 
-	var close_btn := Button.new()
-	close_btn.text = "✕"
-	close_btn.custom_minimum_size = Vector2(80, 68)
-	close_btn.add_theme_font_size_override("font_size", 30)
-	close_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
-	close_btn.add_theme_color_override("font_hover_color", Color("#f43f5e"))
-	var close_style := StyleBoxFlat.new()
-	close_style.bg_color = Color("#edf3fa") if is_light else Color("#1e293b")
-	close_style.border_color = border_color
-	close_style.set_border_width_all(2)
-	close_style.set_corner_radius_all(10)
-	close_btn.add_theme_stylebox_override("normal", close_style)
-	close_btn.add_theme_stylebox_override("hover", close_style)
-	close_btn.add_theme_stylebox_override("pressed", close_style)
+	var header_row: HBoxContainer = title_lbl.get_parent() as HBoxContainer
+	if header_row != null:
+		var btn_back := Button.new()
+		btn_back.text = "← BACK TO PROPERTIES"
+		btn_back.custom_minimum_size = Vector2(160, 56)
+		btn_back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		btn_back.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		btn_back.add_theme_font_size_override("font_size", 24)
+		btn_back.add_theme_color_override("font_color", Color("#ffffff") if not is_light else Color("#064e3b"))
+		btn_back.add_theme_color_override("font_hover_color", Color("#10b981"))
+		var back_style := StyleBoxFlat.new()
+		back_style.bg_color = Color("#064e3b") if not is_light else Color("#d1fae5")
+		back_style.border_color = border_color
+		back_style.set_border_width_all(2)
+		back_style.set_corner_radius_all(10)
+		btn_back.add_theme_stylebox_override("normal", back_style)
+		btn_back.add_theme_stylebox_override("hover", back_style)
+		btn_back.add_theme_stylebox_override("pressed", back_style)
+		btn_back.pressed.connect(func():
+			preload("res://scripts/ui/panel_close.gd").dismiss(overlay, true, func():
+				if previous_overlay != null and is_instance_valid(previous_overlay):
+					previous_overlay.visible = true
+				else:
+					_open_asset_marketplace_modal(AssetCatalog.CATEGORY_PROPERTIES)
+			, card)
+		)
+		header_row.add_child(btn_back)
+		header_row.move_child(btn_back, 0)
+
 	close_btn.pressed.connect(func():
-		preload("res://scripts/ui/panel_close.gd").dismiss(overlay, true, Callable(), card)
 		if previous_overlay != null and is_instance_valid(previous_overlay):
 			previous_overlay.queue_free()
 	)
-	header_row.add_child(close_btn)
 
-	# Subtitle
-	var sub_lbl := Label.new()
-	sub_lbl.text = "Fixed-Rate Residential Financing Plans with Annual Principal, Interest & Years Left Breakdown"
-	sub_lbl.custom_minimum_size = Vector2(1, 0)
-	sub_lbl.add_theme_font_size_override("font_size", 26)
-	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	main_vbox.add_child(sub_lbl)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	main_vbox.add_child(scroll)
-
-	var scroll_m := MarginContainer.new()
-	scroll_m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll_m.add_theme_constant_override("margin_right", 16)
-	scroll_m.add_theme_constant_override("margin_bottom", 20)
-	scroll.add_child(scroll_m)
-
-	var list := VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 16)
-	scroll_m.add_child(list)
+	overlay.tree_exited.connect(func():
+		if is_instance_valid(previous_overlay) and not previous_overlay.visible:
+			previous_overlay.queue_free()
+	)
 
 	# 1. PROPERTY PREVIEW CARD
 	var item_id: String = str(property_item.get("id", ""))
@@ -4199,7 +4102,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 		list.add_child(o_card)
 
 	if has_node("ThemeController"):
-		get_node("ThemeController").apply_subtree(main_vbox)
+		get_node("ThemeController").apply_subtree(overlay)
 
 
 func update_bank_panel() -> void:
@@ -4272,7 +4175,10 @@ func update_bank_panel() -> void:
 
 	var sav_title := Label.new()
 	sav_title.text = "🏦 HIGH-YIELD SAVINGS ACCOUNT (2.5% APR)"
-	sav_title.add_theme_font_size_override("font_size", 36)
+	sav_title.custom_minimum_size = Vector2(1, 0)
+	sav_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sav_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sav_title.add_theme_font_size_override("font_size", 34)
 	sav_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	sv.add_child(sav_title)
 
@@ -4281,13 +4187,19 @@ func update_bank_panel() -> void:
 		_format_number(PlayerData.bank_savings),
 		_format_number(PlayerData.money)
 	]
-	sav_bal.add_theme_font_size_override("font_size", 32)
+	sav_bal.custom_minimum_size = Vector2(1, 0)
+	sav_bal.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sav_bal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sav_bal.add_theme_font_size_override("font_size", 30)
 	sav_bal.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	sv.add_child(sav_bal)
 
 	var dep_title := Label.new()
 	dep_title.text = "Deposit Cash into Bank Balance:"
-	dep_title.add_theme_font_size_override("font_size", 30)
+	dep_title.custom_minimum_size = Vector2(1, 0)
+	dep_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dep_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	dep_title.add_theme_font_size_override("font_size", 28)
 	dep_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(dep_title)
 
@@ -4320,7 +4232,10 @@ func update_bank_panel() -> void:
 
 	var wth_title := Label.new()
 	wth_title.text = "Withdraw from Bank Balance to Cash:"
-	wth_title.add_theme_font_size_override("font_size", 30)
+	wth_title.custom_minimum_size = Vector2(1, 0)
+	wth_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wth_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	wth_title.add_theme_font_size_override("font_size", 28)
 	wth_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	sv.add_child(wth_title)
 
@@ -4493,32 +4408,47 @@ func update_bank_panel() -> void:
 
 	var sum_title := Label.new()
 	sum_title.text = "💳 LIABILITIES & DEBT OVERVIEW"
-	sum_title.add_theme_font_size_override("font_size", 36)
+	sum_title.custom_minimum_size = Vector2(1, 0)
+	sum_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sum_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	sum_title.add_theme_font_size_override("font_size", 34)
 	sum_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	summary_vbox.add_child(sum_title)
 
 	var cs_lbl := Label.new()
 	cs_lbl.text = "• Credit Score: %d (%s)" % [PlayerData.credit_score, PlayerData.get_credit_rating()]
-	cs_lbl.add_theme_font_size_override("font_size", 32)
+	cs_lbl.custom_minimum_size = Vector2(1, 0)
+	cs_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cs_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cs_lbl.add_theme_font_size_override("font_size", 30)
 	cs_lbl.add_theme_color_override("font_color", PlayerData.get_credit_score_color())
 	summary_vbox.add_child(cs_lbl)
 
 	var loan_lbl := Label.new()
 	loan_lbl.text = "• Active Bank Loan: $%s  (@ %d%% APR)" % [_format_number(PlayerData.loan_balance), int(PlayerData.loan_interest_rate * 100)]
-	loan_lbl.add_theme_font_size_override("font_size", 32)
+	loan_lbl.custom_minimum_size = Vector2(1, 0)
+	loan_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	loan_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	loan_lbl.add_theme_font_size_override("font_size", 30)
 	loan_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	summary_vbox.add_child(loan_lbl)
 
 	var tax_lbl := Label.new()
 	var cc_text := ("\n• Credit Card Balance: $%s" % _format_number(PlayerData.credit_card_balance)) if PlayerData.credit_card_balance > 0 else ""
 	tax_lbl.text = "• Unpaid Tax: $%s%s\n• Other Outstanding Debt: $%s" % [_format_number(PlayerData.tax_debt), cc_text, _format_number(PlayerData.debt)]
-	tax_lbl.add_theme_font_size_override("font_size", 32)
+	tax_lbl.custom_minimum_size = Vector2(1, 0)
+	tax_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tax_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tax_lbl.add_theme_font_size_override("font_size", 30)
 	tax_lbl.add_theme_color_override("font_color", Color("#dc2626") if PlayerData.tax_debt + PlayerData.debt + PlayerData.credit_card_balance > 0 else (Color("#0f172a") if is_light else Color("#f8fafc")))
 	summary_vbox.add_child(tax_lbl)
 
 	var total_debt_lbl := Label.new()
 	total_debt_lbl.text = "• Total Debt Burden: $%s" % _format_number(PlayerData.get_total_debt())
-	total_debt_lbl.add_theme_font_size_override("font_size", 34)
+	total_debt_lbl.custom_minimum_size = Vector2(1, 0)
+	total_debt_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	total_debt_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	total_debt_lbl.add_theme_font_size_override("font_size", 32)
 	total_debt_lbl.add_theme_color_override("font_color", (Color("#dc2626") if is_light else Color("#ef4444")) if PlayerData.get_total_debt() > 0 else (Color("#15803d") if is_light else Color("#22c55e")))
 	summary_vbox.add_child(total_debt_lbl)
 
@@ -4541,13 +4471,19 @@ func update_bank_panel() -> void:
 
 	var cc_title := Label.new()
 	cc_title.text = "💳 REVOLVING CREDIT CARD FACILITY" if PlayerData.has_credit_card else "💳 REVOLVING CREDIT CARD & CREDIT SCORE"
-	cc_title.add_theme_font_size_override("font_size", 36)
+	cc_title.custom_minimum_size = Vector2(1, 0)
+	cc_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cc_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cc_title.add_theme_font_size_override("font_size", 34)
 	cc_title.add_theme_color_override("font_color", cc_color)
 	cc_vbox.add_child(cc_title)
 
 	var cc_score_lbl := Label.new()
 	cc_score_lbl.text = "• Credit Score: %d (%s)  [300–850 Range]" % [PlayerData.credit_score, PlayerData.get_credit_rating()]
-	cc_score_lbl.add_theme_font_size_override("font_size", 32)
+	cc_score_lbl.custom_minimum_size = Vector2(1, 0)
+	cc_score_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cc_score_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cc_score_lbl.add_theme_font_size_override("font_size", 30)
 	cc_score_lbl.add_theme_color_override("font_color", PlayerData.get_credit_score_color())
 	cc_vbox.add_child(cc_score_lbl)
 
@@ -4563,7 +4499,10 @@ func update_bank_panel() -> void:
 			_format_number(PlayerData.get_total_asset_value()),
 			_format_number(PlayerData.get_personal_net_worth())
 		]
-		cc_detail.add_theme_font_size_override("font_size", 32)
+		cc_detail.custom_minimum_size = Vector2(1, 0)
+		cc_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cc_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		cc_detail.add_theme_font_size_override("font_size", 28)
 		cc_detail.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cc_vbox.add_child(cc_detail)
 
@@ -4574,7 +4513,10 @@ func update_bank_panel() -> void:
 
 			var pay_title := Label.new()
 			pay_title.text = "💳 MANUAL USAGE REPAYMENT (Term Min: 10%% = $%s)" % _format_number(min_pay)
-			pay_title.add_theme_font_size_override("font_size", 30)
+			pay_title.custom_minimum_size = Vector2(1, 0)
+			pay_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			pay_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			pay_title.add_theme_font_size_override("font_size", 28)
 			pay_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#22c55e"))
 			cc_vbox.add_child(pay_title)
 
@@ -4614,7 +4556,10 @@ func update_bank_panel() -> void:
 		else:
 			var standing_lbl := Label.new()
 			standing_lbl.text = "✅ Account in Good Standing • No Payments Due ($0 Usage)"
-			standing_lbl.add_theme_font_size_override("font_size", 30)
+			standing_lbl.custom_minimum_size = Vector2(1, 0)
+			standing_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			standing_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			standing_lbl.add_theme_font_size_override("font_size", 28)
 			standing_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#22c55e"))
 			cc_vbox.add_child(standing_lbl)
 
@@ -4675,7 +4620,10 @@ func update_bank_panel() -> void:
 
 	var loan_title := Label.new()
 	loan_title.text = "🏦 BORROW FUNDS (INSTANT BANK LOANS)"
-	loan_title.add_theme_font_size_override("font_size", 36)
+	loan_title.custom_minimum_size = Vector2(1, 0)
+	loan_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	loan_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	loan_title.add_theme_font_size_override("font_size", 34)
 	loan_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	loan_vbox.add_child(loan_title)
 
@@ -4696,6 +4644,8 @@ func update_bank_panel() -> void:
 	if PlayerData.loan_balance > 0:
 		var locked_note := Label.new()
 		locked_note.text = "Repay the remaining $%s bank loan to unlock borrowing." % _format_number(PlayerData.loan_balance)
+		locked_note.custom_minimum_size = Vector2(1, 0)
+		locked_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		locked_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		locked_note.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		loan_vbox.add_child(locked_note)
@@ -4718,7 +4668,10 @@ func update_bank_panel() -> void:
 
 	var repay_title := Label.new()
 	repay_title.text = "💸 REPAY OUTSTANDING DEBT & LOANS"
-	repay_title.add_theme_font_size_override("font_size", 36)
+	repay_title.custom_minimum_size = Vector2(1, 0)
+	repay_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	repay_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	repay_title.add_theme_font_size_override("font_size", 34)
 	repay_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#22c55e"))
 	repay_vbox.add_child(repay_title)
 	var btn_pay_tax := _create_cyber_button("Pay Tax $%s" % _format_number(PlayerData.tax_debt), Color("#38bdf8"), _pay_tax, true)
@@ -5088,7 +5041,10 @@ func _show_credit_card_application() -> void:
 
 	var app_title := Label.new()
 	app_title.text = "📋 APPLICANT FINANCIAL PROFILE"
-	app_title.add_theme_font_size_override("font_size", 32)
+	app_title.custom_minimum_size = Vector2(1, 0)
+	app_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	app_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	app_title.add_theme_font_size_override("font_size", 30)
 	app_title.add_theme_color_override("font_color", Color("#38bdf8"))
 	aiv.add_child(app_title)
 
@@ -5101,13 +5057,18 @@ func _show_credit_card_application() -> void:
 		_format_number(PlayerData.debt + PlayerData.loan_balance + PlayerData.credit_card_balance),
 		_format_number(PlayerData.tax_debt)
 	]
-	app_stats.add_theme_font_size_override("font_size", 30)
+	app_stats.custom_minimum_size = Vector2(1, 0)
+	app_stats.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	app_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	app_stats.add_theme_font_size_override("font_size", 28)
 	app_stats.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
 	aiv.add_child(app_stats)
 
 	if PlayerData.get_total_debt() > 0:
 		var debt_warn := Label.new()
 		debt_warn.text = "⚠️ AUTOMATIC DECLINE: All credit card applications are immediately declined if you carry any active debt, unpaid taxes, or bank loans. Clear all debt to apply."
+		debt_warn.custom_minimum_size = Vector2(1, 0)
+		debt_warn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		debt_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		debt_warn.add_theme_font_size_override("font_size", 28)
 		debt_warn.add_theme_color_override("font_color", Color("#ef4444"))
@@ -5137,8 +5098,12 @@ func _show_credit_card_application() -> void:
 		var est_limit := PlayerData.calculate_dynamic_credit_limit(t.tier)
 		var t_title := Label.new()
 		t_title.text = "💳 %s CREDIT CARD — $%s DYNAMIC LIMIT" % [t.tier.to_upper(), _format_number(est_limit)]
-		t_title.add_theme_font_size_override("font_size", 32)
-		t_title.add_theme_color_override("font_color", t.color)
+		t_title.custom_minimum_size = Vector2(1, 0)
+		t_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		t_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		t_title.add_theme_font_size_override("font_size", 30)
+		var t_col: Color = t.color.darkened(0.35) if (is_light and t.color.get_luminance() > 0.40) else t.color
+		t_title.add_theme_color_override("font_color", t_col)
 		cv.add_child(t_title)
 
 		var t_desc := Label.new()
@@ -5148,7 +5113,10 @@ func _show_credit_card_application() -> void:
 			_format_number(t.nw),
 			_format_number(t.limit)
 		]
-		t_desc.add_theme_font_size_override("font_size", 28)
+		t_desc.custom_minimum_size = Vector2(1, 0)
+		t_desc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		t_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		t_desc.add_theme_font_size_override("font_size", 26)
 		t_desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#cbd5e1"))
 		cv.add_child(t_desc)
 
@@ -13941,7 +13909,7 @@ func _refresh_cyber_modal(existing: Variant, title_text: String, subtitle_text: 
 func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color, use_fade_in: bool = false) -> Dictionary:
 	var overlay := ColorRect.new()
 	overlay.set_meta("theme_exempt", true)
-	overlay.color = Color(0.012, 0.035, 0.07, 0.88)
+	overlay.color = Color(0.012, 0.035, 0.07, 0.98)
 	overlay.anchors_preset = Control.PRESET_FULL_RECT
 	overlay.anchor_right = 1.0
 	overlay.anchor_bottom = 1.0
@@ -13957,6 +13925,10 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	margin_outer.anchors_preset = Control.PRESET_FULL_RECT
 	margin_outer.anchor_right = 1.0
 	margin_outer.anchor_bottom = 1.0
+	margin_outer.offset_left = 0.0
+	margin_outer.offset_top = 0.0
+	margin_outer.offset_right = 0.0
+	margin_outer.offset_bottom = 0.0
 	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
 	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -15254,6 +15226,9 @@ func _show_asylum_commitment_modal() -> void:
 
 	var warn_title := Label.new()
 	warn_title.text = "⚠️ ADMISSION DISCLAIMER & INPATIENT SPECIFICATIONS ⚠️"
+	warn_title.custom_minimum_size = Vector2(1, 0)
+	warn_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	warn_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	warn_title.add_theme_font_size_override("font_size", 32)
 	warn_title.add_theme_color_override("font_color", Color("#be123c") if is_light else Color("#fda4af"))
 	nv.add_child(warn_title)
@@ -15269,6 +15244,8 @@ func _show_asylum_commitment_modal() -> void:
 		"  The psychiatric asylum is heavily regulated, calm, and boring. NO RANDOM EVENTS WILL OCCUR.\n\n" + \
 		"• CLINICAL REHABILITATION:\n" + \
 		"  Intensive medical therapy, psychiatric stability, and calm routine restore +25% Mental State per year."
+	disc_text.custom_minimum_size = Vector2(1, 0)
+	disc_text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	disc_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	disc_text.add_theme_font_size_override("font_size", 29)
 	disc_text.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
@@ -15279,6 +15256,9 @@ func _show_asylum_commitment_modal() -> void:
 		PlayerData.mental_state,
 		_format_number(PlayerData.get_available_funds())
 	]
+	current_status.custom_minimum_size = Vector2(1, 0)
+	current_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	current_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	current_status.add_theme_font_size_override("font_size", 28)
 	current_status.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	nv.add_child(current_status)
@@ -15881,6 +15861,9 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [a["icon"], a["breed"], a["age_str"]]
+		head_lbl.custom_minimum_size = Vector2(1, 0)
+		head_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
@@ -15917,6 +15900,9 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 			a["happiness"],
 			a["upkeep"]
 		]
+		stats_lbl.custom_minimum_size = Vector2(1, 0)
+		stats_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
@@ -16017,6 +16003,9 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s Purebred %s • %s" % [a["icon"], a["breed"], a["age_str"]]
+		head_lbl.custom_minimum_size = Vector2(1, 0)
+		head_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
@@ -16055,6 +16044,9 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 			_format_number(upkeep),
 			a["health"]
 		]
+		stats_lbl.custom_minimum_size = Vector2(1, 0)
+		stats_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
@@ -16155,6 +16147,9 @@ func _show_pet_store_modal() -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [a["icon"], a["species"], a["age_str"]]
+		head_lbl.custom_minimum_size = Vector2(1, 0)
+		head_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
@@ -16167,6 +16162,9 @@ func _show_pet_store_modal() -> void:
 			_format_number(upkeep),
 			a["lifespan"]
 		]
+		stats_lbl.custom_minimum_size = Vector2(1, 0)
+		stats_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
@@ -16267,6 +16265,9 @@ func _show_pet_ranch_modal() -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [h["icon"], h["breed"], h["age_str"]]
+		head_lbl.custom_minimum_size = Vector2(1, 0)
+		head_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		head_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
@@ -16279,6 +16280,9 @@ func _show_pet_ranch_modal() -> void:
 			_format_number(upkeep),
 			h["health"]
 		]
+		stats_lbl.custom_minimum_size = Vector2(1, 0)
+		stats_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
@@ -18527,12 +18531,18 @@ func _show_doctor_modal() -> void:
 	stat_m.add_child(stat_v)
 
 	var health_lbl := Label.new()
-	health_lbl.text = "Current Health: %d%%   •   Cash: $%s   •   Bank: $%s" % [PlayerData.health, _format_number(PlayerData.money), _format_number(PlayerData.bank_savings)]
-	health_lbl.add_theme_font_size_override("font_size", 36)
+	health_lbl.text = "❤️ Current Health: %d%%\n💵 Cash: $%s   •   🏦 Bank: $%s" % [PlayerData.health, _format_number(PlayerData.money), _format_number(PlayerData.bank_savings)]
+	health_lbl.custom_minimum_size = Vector2(1, 0)
+	health_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	health_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	health_lbl.add_theme_font_size_override("font_size", 28)
 	health_lbl.add_theme_color_override("font_color", Color("#22c55e") if PlayerData.health > 40 else Color("#f87171"))
 	stat_v.add_child(health_lbl)
 
 	var illness_lbl := Label.new()
+	illness_lbl.custom_minimum_size = Vector2(1, 0)
+	illness_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	illness_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if PlayerData.has_illness("cancer"):
 		var cancer_info := PlayerData.get_illness("cancer")
 		illness_lbl.text = "⚠️ ACTIVE SICKNESS: Stage %d Lymphoma Cancer (Urgent: Seek Chemotherapy!)" % int(cancer_info.get("stage", 1))
@@ -18540,7 +18550,7 @@ func _show_doctor_modal() -> void:
 	else:
 		illness_lbl.text = "Medical Status: No active malignant illnesses detected."
 		illness_lbl.add_theme_color_override("font_color", Color("#1e293b") if is_light else Color("#94a3b8"))
-	illness_lbl.add_theme_font_size_override("font_size", 32)
+	illness_lbl.add_theme_font_size_override("font_size", 28)
 	stat_v.add_child(illness_lbl)
 
 	list.add_child(stat_card)
@@ -18561,13 +18571,18 @@ func _show_doctor_modal() -> void:
 
 	var ins_head := Label.new()
 	ins_head.text = "🛡️ HEALTH INSURANCE POLICY"
-	ins_head.add_theme_font_size_override("font_size", 34)
+	ins_head.custom_minimum_size = Vector2(1, 0)
+	ins_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ins_head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ins_head.add_theme_font_size_override("font_size", 30)
 	ins_head.add_theme_color_override("font_color", Color("#312e81") if is_light else Color("#a5b4fc"))
 	ins_v.add_child(ins_head)
 
 	var ins_status := Label.new()
+	ins_status.custom_minimum_size = Vector2(1, 0)
+	ins_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ins_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ins_status.add_theme_font_size_override("font_size", 30)
+	ins_status.add_theme_font_size_override("font_size", 28)
 
 	match PlayerData.health_insurance:
 		"platinum":
@@ -19953,6 +19968,9 @@ func _show_inheritance_selection_modal() -> void:
 
 	var e_title := Label.new()
 	e_title.text = "🏛️ TOTAL BEQUEATHABLE ESTATE BREAKDOWN"
+	e_title.custom_minimum_size = Vector2(1, 0)
+	e_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	e_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	e_title.add_theme_font_size_override("font_size", 29)
 	e_title.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 	e_vbox.add_child(e_title)
@@ -19978,12 +19996,17 @@ func _show_inheritance_selection_modal() -> void:
 
 	var e_details := Label.new()
 	e_details.text = "\n".join(breakdown_lines)
+	e_details.custom_minimum_size = Vector2(1, 0)
+	e_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	e_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	e_details.add_theme_font_size_override("font_size", 26)
 	e_details.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 	e_vbox.add_child(e_details)
 
 	var e_note := Label.new()
 	e_note.text = "Cryptocurrency token holdings, properties, and business equity will be transferred directly to your chosen heir intact."
+	e_note.custom_minimum_size = Vector2(1, 0)
+	e_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	e_note.add_theme_font_size_override("font_size", 24)
 	e_note.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	e_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

@@ -75,6 +75,8 @@ func _ready() -> void:
 			["Salon", "_show_salon_modal"],
 			["Spa", "_show_spa_modal"],
 			["Social Media", "_show_social_media_modal"],
+			["Medical Clinic", "_show_doctor_modal"],
+			["Credit Card Application", "_show_credit_card_application"],
 			["Will & Testament", "_show_will_modal"],
 			["Estate Succession", "_show_inheritance_selection_modal"],
 			["Casino", "_show_casino_modal"]
@@ -90,6 +92,16 @@ func _ready() -> void:
 				_audit_open_modal(screen, modal_name, theme_mode)
 				_close_all_modals(screen)
 				await get_tree().process_frame
+
+		# Audit Mortgage Panel
+		var prop_item: Dictionary = AssetCatalog.get_item("prop_house")
+		if not prop_item.is_empty():
+			screen._open_mortgage_panel(prop_item, null)
+			await get_tree().process_frame
+			await get_tree().process_frame
+			_audit_open_modal(screen, "Mortgage Panel", theme_mode)
+			_close_all_modals(screen)
+			await get_tree().process_frame
 
 	print("\n===================================================================")
 	print("📊 AUDIT RESULTS SUMMARY:")
