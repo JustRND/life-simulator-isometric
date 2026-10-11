@@ -427,6 +427,45 @@ static func calculate_tax_return(player_data: Node) -> Dictionary:
 # -----------------------------------------------------------------------------
 # 6. ANNUAL TAX FILING EXECUTION (Run during age_up())
 # -----------------------------------------------------------------------------
+static func process_monthly_taxes(player_data: Node) -> Dictionary:
+	var age: int = int(player_data.get("age"))
+	var logs: Array[String] = []
+	if age < 18 or bool(player_data.get("is_in_prison")):
+		return {"monthly_due": 0, "logs": logs}
+
+	# Calculate estimated tax return to derive monthly withholding
+	var tax_return: Dictionary = calculate_tax_return(player_data)
+	var personal_due: int = int(tax_return.get("personal_taxes_due", 0))
+	var monthly_due: int = int(round(float(personal_due) / 12.0))
+
+	if monthly_due > 0:
+		var total_avail: int = int(player_data.get("money")) + int(player_data.get("bank_savings"))
+		if total_avail >= monthly_due:
+			player_data.debit_funds(monthly_due)
+			player_data.taxes_paid_lifetime = int(player_data.get("taxes_paid_lifetime")) + monthly_due
+			logs.append("🏛️ MONTHLY TAX REPORT: Filed monthly tax withholding and paid $%s. Lifetime taxes paid: $%s." % [
+				_format_num(monthly_due), _format_num(player_data.taxes_paid_lifetime)
+			])
+		else:
+			var paid: int = total_avail
+			var unpaid: int = monthly_due - paid
+			player_data.money = 0
+			player_data.bank_savings = 0
+			player_data.tax_debt = int(player_data.get("tax_debt")) + unpaid
+			player_data.taxes_paid_lifetime = int(player_data.get("taxes_paid_lifetime")) + paid
+			player_data.modify_credit_score(-5)
+			logs.append("⚠️ TAX ARREARS: Insufficient funds for $%s monthly tax assessment! Unpaid $%s added to tax debt." % [
+				_format_num(monthly_due), _format_num(unpaid)
+			])
+
+	player_data.last_tax_return = tax_return
+	return {
+		"monthly_due": monthly_due,
+		"tax_return": tax_return,
+		"logs": logs
+	}
+
+
 static func file_annual_taxes(player_data: Node) -> Dictionary:
 	var tax_return: Dictionary = calculate_tax_return(player_data)
 	var age: int = int(player_data.get("age"))

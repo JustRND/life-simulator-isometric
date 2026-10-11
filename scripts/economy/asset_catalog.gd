@@ -1705,6 +1705,36 @@ static func use_asset(player_data: Node, instance_id: String) -> Dictionary:
 			}
 	return {"success": false, "message": "Asset not found."}
 
+static func process_monthly_assets(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	for asset in player_data.owned_assets:
+		var cat: String = str(asset.get("category", ""))
+		var cur_val: int = int(asset.get("current_value", 0))
+		var upkeep: int = int(asset.get("upkeep", 0))
+
+		if cat == CATEGORY_PROPERTIES:
+			upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
+			asset["upkeep"] = upkeep
+
+		var monthly_upkeep: int = maxi(1, int(round(float(upkeep) / 12.0))) if upkeep > 0 else 0
+
+		if monthly_upkeep > 0:
+			if player_data.age < 18:
+				# Under 18: parents / family cover maintenance
+				pass
+			elif player_data.bank_savings >= monthly_upkeep:
+				player_data.bank_savings -= monthly_upkeep
+			elif player_data.get_available_funds() >= monthly_upkeep:
+				player_data.debit_funds(monthly_upkeep)
+			else:
+				asset["condition"] = maxi(10, int(asset.get("condition", 100)) - 5)
+				if cat == CATEGORY_PROPERTIES:
+					logs.append("⚠️ Maintenance Neglect: Lacked $%d monthly maintenance for %s. Condition dropped." % [monthly_upkeep, asset.get("name", "property")])
+				else:
+					logs.append("⚠️ Maintenance Neglect: Lacked $%d monthly upkeep for %s. Condition dropped." % [monthly_upkeep, asset.get("name", "asset")])
+	return logs
+
+
 static func process_yearly_assets(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []
 	for asset in player_data.owned_assets:
@@ -1713,29 +1743,11 @@ static func process_yearly_assets(player_data: Node) -> Array[String]:
 		var orig_price: int = int(asset.get("purchase_price", cur_val))
 		var upkeep: int = int(asset.get("upkeep", 0))
 
-		# 1. Maintenance / Upkeep auto-debit
 		if cat == CATEGORY_PROPERTIES:
-			# Maintenance cost is calculated as a percentage of the house value (2.0% of current asset value)
 			upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
 			asset["upkeep"] = upkeep
 
-		if upkeep > 0:
-			# If player is a minor (< 18), parents / guardians cover family residence and asset upkeep
-			if player_data.age < 18:
-				pass
-			elif player_data.bank_savings >= upkeep:
-				player_data.bank_savings -= upkeep
-			elif player_data.get_available_funds() >= upkeep:
-				player_data.debit_funds(upkeep)
-			else:
-				# Cannot pay upkeep -> condition drops
-				asset["condition"] = maxi(10, int(asset.get("condition", 100)) - 15)
-				if cat == CATEGORY_PROPERTIES:
-					logs.append("⚠️ Maintenance Neglect: You lacked sufficient funds to maintain your %s ($%d maintenance, 2%% of house value). Its condition deteriorated." % [asset.get("name", "asset"), upkeep])
-				else:
-					logs.append("⚠️ Maintenance Neglect: You lacked sufficient funds to service your %s ($%d upkeep). Its condition deteriorated." % [asset.get("name", "asset"), upkeep])
-
-		# 2. Value adjustments (Vehicles and Real Estate depreciate over years, fine art/jewelry appreciate, firearms hold strong value)
+		# Value adjustments (Vehicles and Real Estate depreciate over years, fine art/jewelry appreciate, firearms hold strong value)
 		if cat in [CATEGORY_CARS, CATEGORY_MOTORCYCLES]:
 			var floor_val: int = int(orig_price * 0.20)
 			var dep: int = int(cur_val * 0.06)

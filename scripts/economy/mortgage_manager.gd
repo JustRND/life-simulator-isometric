@@ -133,6 +133,7 @@ static func apply_for_mortgage(player_data: Node, item_id: String, term_years: i
 		"interest_rate": apr,
 		"term_years": term_years,
 		"years_left": term_years,
+		"months_left": term_years * 12,
 		"annual_principal": int(plan.get("annual_principal", 0)),
 		"annual_interest": int(plan.get("annual_interest", 0)),
 		"annual_payment": int(plan.get("annual_payment", 0)),
@@ -188,6 +189,53 @@ static func pay_off_mortgage(player_data: Node, mortgage_id: String) -> Dictiona
 		"success": false,
 		"message": "Mortgage not found."
 	}
+
+
+static func process_monthly_mortgages(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	for i in range(player_data.mortgages.size() - 1, -1, -1):
+		var m: Dictionary = player_data.mortgages[i]
+		var rem_p: int = int(m.get("remaining_principal", 0))
+		var apr: float = float(m.get("interest_rate", 0.05))
+		var term: int = maxi(1, int(m.get("term_years", 15)))
+		var orig_p: int = int(m.get("original_principal", rem_p))
+		var prop_name: String = str(m.get("property_name", "Home"))
+
+		var total_months: int = term * 12
+		var monthly_principal: int = maxi(1, int(round(float(orig_p) / float(total_months))))
+		monthly_principal = mini(monthly_principal, rem_p)
+		var monthly_interest: int = maxi(0, int(round((float(rem_p) * apr) / 12.0)))
+		var total_monthly: int = monthly_principal + monthly_interest
+
+		var total_avail: int = player_data.money + player_data.bank_savings
+		if total_avail >= total_monthly:
+			player_data.debit_funds(total_monthly)
+			m["remaining_principal"] = maxi(0, rem_p - monthly_principal)
+			var months_left: int = int(m.get("months_left", total_months)) - 1
+			m["months_left"] = maxi(0, months_left)
+			m["years_left"] = int(ceil(float(months_left) / 12.0))
+
+			logs.append("🏠 MORTGAGE PAYMENT: Paid $%s monthly mortgage ($%s principal + $%s interest) for %s. Remaining: $%s." % [
+				_format_number(total_monthly), _format_number(monthly_principal), _format_number(monthly_interest),
+				prop_name, _format_number(int(m["remaining_principal"]))
+			])
+
+			if months_left <= 0 or int(m["remaining_principal"]) <= 0:
+				player_data.mortgages.remove_at(i)
+				player_data.modify_credit_score(20)
+				logs.append("🎉 MORTGAGE PAID IN FULL: Congratulations! You have fully paid off the mortgage on %s! Free and clear ownership achieved." % prop_name)
+		else:
+			var paid: int = mini(total_avail, total_monthly)
+			if paid > 0:
+				player_data.debit_funds(paid)
+			var shortfall: int = total_monthly - paid
+			player_data.debt += shortfall
+			player_data.modify_credit_score(-5)
+			logs.append("⚠️ MORTGAGE DEFAULT WARNING: Insufficient funds for $%s monthly mortgage on %s. Paid $%s; shortfall of $%s added to debt." % [
+				_format_number(total_monthly), prop_name, _format_number(paid), _format_number(shortfall)
+			])
+
+	return logs
 
 
 static func process_yearly_mortgages(player_data: Node) -> Array[String]:

@@ -33,7 +33,8 @@ var annual_event_popup_chance: float = 0.45
 @onready var avatar_button: Button = $ProfileStrip/ProfileMargin/ProfileRow/AvatarButton
 @onready var nationality_flag: TextureRect = $ProfileStrip/ProfileMargin/ProfileRow/NationalityFlag
 @onready var name_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/NameLabel
-@onready var age_label: Label = get_node_or_null("ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/AgeLabel") as Label
+@onready var age_label: Label = (find_child("AgeLabel", true, false) as Label) if has_node("ProfileStrip") else null
+@onready var time_counter_label: Label = (find_child("TimeCounterLabel", true, false) as Label) if has_node("ProfileStrip") else null
 @onready var phase_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/PhaseLabel
 @onready var balance_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/BalanceLabel
 
@@ -61,7 +62,8 @@ var _timeline_drawer_tween: Tween = null
 # Startup disclaimer
 @onready var loading_screen: Control = get_node_or_null("LoadingScreen") as Control
 @onready var disclaimer_screen: Control = get_node_or_null("DisclaimerScreen") as Control
-@onready var age_button: Button = $SafeArea/MainColumn/AgeButton
+@onready var age_button: Button = get_node_or_null("SafeArea/MainColumn/AgeButton") as Button
+var day_timer: float = 0.0
 @onready var safe_area: Control = $SafeArea
 @onready var top_bar: PanelContainer = $TopBar
 @onready var profile_strip: PanelContainer = $ProfileStrip
@@ -425,6 +427,10 @@ func _configure_ui() -> void:
 	name_label.add_theme_font_size_override("font_size", 40)
 	if age_label != null:
 		age_label.add_theme_font_size_override("font_size", 28)
+		age_label.add_theme_color_override("font_color", Color("#b45309") if is_light else Color(0.98, 0.84, 0.35, 1))
+	if time_counter_label != null:
+		time_counter_label.add_theme_font_size_override("font_size", 26)
+		time_counter_label.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color(0.22, 0.83, 0.93, 1))
 	phase_label.add_theme_font_size_override("font_size", 28)
 	life_feed.add_theme_font_size_override("normal_font_size", 32)
 	life_feed.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -568,7 +574,7 @@ func _configure_action_bar() -> void:
 
 	# Modern navigation icons retain the existing tactile interactions
 	var icon_configs := [
-		[infant_button, "life", "Infant"],
+		[infant_button, "life", "Life Overview"],
 		[assets_button, "assets", "Assets"],
 		[relationships_button, "relationships", "Relationships"],
 		[activities_button, "activities", "Activities"]
@@ -715,6 +721,182 @@ func _format_number(val: int) -> String:
 	return ("-" if val < 0 else "") + res
 
 
+# --- REAL-TIME PROGRESSION SYSTEM (1s real time = 1 in-game day) ---
+func is_time_progression_active() -> bool:
+	if not PlayerData.has_started_game:
+		return false
+	if PlayerData.is_dead:
+		return false
+	if PlayerData.is_time_paused:
+		return false
+	if current_event != null:
+		return false
+	if event_overlay != null and event_overlay.visible:
+		return false
+	if new_game_panel != null and new_game_panel.visible:
+		return false
+	if settings_overlay != null and settings_overlay.visible:
+		return false
+	if reset_confirmation_overlay != null and reset_confirmation_overlay.visible:
+		return false
+	if death_screen_overlay != null and is_instance_valid(death_screen_overlay) and death_screen_overlay.visible:
+		return false
+	return true
+
+
+func _process(delta: float) -> void:
+	if not is_time_progression_active():
+		return
+
+	day_timer += delta
+	if day_timer >= 1.0:
+		var days_to_advance: int = int(floor(day_timer))
+		day_timer -= float(days_to_advance)
+		for _d in range(days_to_advance):
+			if not is_time_progression_active():
+				break
+			PlayerData.in_game_day += 1
+			if PlayerData.in_game_day > 30:
+				PlayerData.in_game_day = 1
+				_advance_in_game_month()
+		_update_time_and_age_labels()
+
+
+func _update_time_and_age_labels() -> void:
+	if age_label != null:
+		age_label.text = "Age: %d" % PlayerData.age
+	if time_counter_label != null:
+		time_counter_label.text = "• 📅 Month %d, Day %d" % [PlayerData.in_game_month, PlayerData.in_game_day]
+
+
+func _advance_in_game_month() -> void:
+	if PlayerData.is_dead:
+		return
+
+	PlayerData.in_game_month += 1
+
+	# 1. Monthly Salary (if employed and not in prison)
+	if not PlayerData.is_in_prison and PlayerData.job_title != "" and PlayerData.job_salary > 0:
+		var m_salary: int = int(round(float(PlayerData.job_salary) / 12.0))
+		if m_salary > 0:
+			PlayerData.receive_salary(m_salary)
+			add_life_event("💵 Monthly salary of $%s from %s was deposited into your bank account." % [
+				_format_number(m_salary), PlayerData.job_company
+			], "job")
+
+	# 2. Monthly Living Expenses (Adults age >= 18)
+	if PlayerData.age >= 18:
+		var base_living: int = 0
+		if PlayerData.is_in_mental_institution or PlayerData.is_in_prison:
+			base_living = 0
+		elif PlayerData.age < 22 and PlayerData.job_title == "":
+			base_living = 0
+		elif PlayerData.job_salary > 0:
+			base_living = int(round((3200 + PlayerData.job_salary * 0.16) / 12.0))
+		else:
+			base_living = int(round(randi_range(2400, 4800) / 12.0))
+
+		if base_living > 0:
+			var total_avail: int = PlayerData.money + PlayerData.bank_savings
+			if total_avail >= base_living:
+				PlayerData.debit_funds(base_living)
+				add_life_event("Paid monthly basic living expenses of $%s (food, rent & bills)." % _format_number(base_living), "finance")
+			else:
+				var paid: int = total_avail
+				var unpaid: int = base_living - paid
+				PlayerData.money = 0
+				PlayerData.bank_savings = 0
+				PlayerData.debt += unpaid
+				PlayerData.happiness = maxi(5, PlayerData.happiness - randi_range(2, 4))
+				if PlayerData.debt > 15000:
+					PlayerData.health = maxi(5, PlayerData.health - 1)
+				add_life_event("⚠️ FINANCIAL STRUGGLE: Couldn't afford full monthly living expenses ($%s)! Shortfall of $%s added to debt." % [
+					_format_number(base_living), _format_number(unpaid)
+				], "finance")
+
+	# 3. Monthly Rent
+	var rent_logs := RentalManager.process_monthly_rent(PlayerData)
+	for r_msg in rent_logs:
+		add_life_event(r_msg, "lifestyle")
+
+	# 4. Monthly Mortgages
+	var mortgage_logs := MortgageManager.process_monthly_mortgages(PlayerData)
+	for m_msg in mortgage_logs:
+		add_life_event(m_msg, "finance")
+
+	# 5. Monthly Asset Upkeep & Maintenance
+	var asset_logs := AssetCatalog.process_monthly_assets(PlayerData)
+	for log_msg in asset_logs:
+		add_life_event(log_msg, "finance")
+
+	# 6. Monthly Neural Specialist Maintenance
+	var neural_logs := PlayerData.process_monthly_neural_implants()
+	for n_msg in neural_logs:
+		add_life_event(n_msg, "health")
+
+	# 7. Monthly Asset Insurance
+	var ins_logs := AssetInsuranceManager.process_monthly_insurance(PlayerData)
+	for ins_msg in ins_logs:
+		add_life_event(ins_msg, "finance")
+
+	# 8. Monthly Gym Membership
+	if PlayerData.has_gym_membership:
+		var m_gym: int = maxi(1, int(round(float(PlayerData.gym_membership_annual_fee) / 12.0)))
+		if PlayerData.bank_savings >= m_gym:
+			PlayerData.bank_savings -= m_gym
+		elif PlayerData.get_available_funds() >= m_gym:
+			PlayerData.debit_funds(m_gym)
+		else:
+			PlayerData.has_gym_membership = false
+			PlayerData.happiness = maxi(5, PlayerData.happiness - 4)
+			add_life_event("⚠️ GYM MEMBERSHIP CANCELLED: Insufficient funds ($%s) for monthly gym membership." % _format_number(m_gym), "finance")
+
+	# 9. Monthly Mental Institution Inpatient Cost
+	if PlayerData.is_in_mental_institution:
+		var m_inst: int = maxi(1, int(round(float(PlayerData.mental_institution_annual_cost) / 12.0)))
+		if PlayerData.get_available_funds() >= m_inst:
+			PlayerData.debit_funds(m_inst)
+		else:
+			var paid: int = PlayerData.get_available_funds()
+			var unpaid: int = m_inst - paid
+			PlayerData.debit_funds(paid)
+			PlayerData.debt += unpaid
+
+	# 10. Monthly Tax Withholding & Tax Report
+	var tax_res := TaxSystem.process_monthly_taxes(PlayerData)
+	for t_log in tax_res.get("logs", []):
+		add_life_event(t_log, "finance")
+
+	# 11. Monthly Bank Loan Interest
+	if PlayerData.loan_balance > 0:
+		var loan_int: int = maxi(1, int(round((float(PlayerData.loan_balance) * PlayerData.loan_interest_rate) / 12.0)))
+		PlayerData.loan_balance += loan_int
+
+	# 12. Monthly Credit Card Interest
+	if PlayerData.has_credit_card and PlayerData.credit_card_balance > 0:
+		var cc_int: int = maxi(1, int(round((float(PlayerData.credit_card_balance) * PlayerData.credit_card_apr) / 12.0)))
+		PlayerData.credit_card_balance += cc_int
+
+	# 13. Monthly Bank Savings Interest (2.5% Annual / 12)
+	if PlayerData.bank_savings > 0:
+		var m_interest: int = int(round((float(PlayerData.bank_savings) * 0.025) / 12.0))
+		if m_interest > 0:
+			PlayerData.bank_savings += m_interest
+
+	# Update HUD balances and stat bars
+	update_ui()
+
+	# Check Year Rollover (Month 12 -> Month 1)
+	if PlayerData.in_game_month > 12:
+		PlayerData.in_game_month = 1
+		PlayerData.in_game_year += 1
+		_advance_in_game_year()
+
+
+func _advance_in_game_year() -> void:
+	age_up()
+
+
 func age_up() -> void:
 	if PlayerData.is_dead:
 		return
@@ -770,100 +952,13 @@ func age_up() -> void:
 			add_life_event("🎉 ASYLUM DISCHARGE: You completed your 2-year inpatient treatment at the Mental Institution! Your mind has stabilized and you are officially discharged back into society.", "milestone")
 			PlayerData.add_milestone("Discharged from Mental Institution after 2-year inpatient stay.", PlayerData.age, "🏥")
 
-	# 2. Annual Salary Payout (if employed and not in prison)
-	if not PlayerData.is_in_prison and PlayerData.job_title != "" and PlayerData.job_salary > 0:
-		PlayerData.receive_salary(PlayerData.job_salary)
-		add_life_event("Your annual salary of $%s from %s was deposited into your bank account." % [
-			_format_number(PlayerData.job_salary),
-			PlayerData.job_company
-		], "job")
-
-	# 3. Living Expenses & Taxes (Adults age >= 18)
-	if PlayerData.age >= 18:
-		# Young adults under 22 living with parents pay $0 if unemployed
-		var base_living: int = 0
-		if PlayerData.is_in_mental_institution or PlayerData.is_in_prison:
-			base_living = 0
-		elif PlayerData.age < 22 and PlayerData.job_title == "":
-			base_living = 0
-		elif PlayerData.job_salary > 0:
-			base_living = 3200 + int(PlayerData.job_salary * 0.16)
-		else:
-			# Unemployed adult over 22: minimal independent survival costs
-			base_living = randi_range(2400, 4800)
-
-		if base_living > 0:
-			var total_avail: int = PlayerData.money + PlayerData.bank_savings
-			if total_avail >= base_living:
-				PlayerData.debit_funds(base_living)
-				add_life_event("You paid your annual basic living expenses of $%s (food, rent & bills)." % _format_number(base_living), "finance")
-			else:
-				var paid: int = total_avail
-				var unpaid: int = base_living - paid
-				PlayerData.money = 0
-				PlayerData.bank_savings = 0
-				PlayerData.debt += unpaid
-				PlayerData.happiness = maxi(5, PlayerData.happiness - randi_range(2, 5))
-				if PlayerData.debt > 15000:
-					PlayerData.health = maxi(5, PlayerData.health - 1)
-				add_life_event("⚠️ FINANCIAL STRUGGLE: You couldn't afford full living expenses ($%s)! Unpaid $%s added to debt (Total Debt: $%s)." % [
-					_format_number(base_living),
-					_format_number(unpaid),
-					_format_number(PlayerData.get_total_debt())
-				], "finance")
-
 	# Completed service promotes the current job; higher pay begins next year.
 	var promotion := CareerProgression.advance_year(PlayerData, spent_year_in_prison)
 	if not promotion.is_empty():
 		add_life_event(promotion, "career")
 		PlayerData.add_milestone("Promoted to %s at %s." % [PlayerData.job_title, PlayerData.job_company], PlayerData.age, "🎖️")
 
-	# 5. Bank Loan Interest (APR)
-	if PlayerData.loan_balance > 0:
-		var interest: int = maxi(10, int(PlayerData.loan_balance * PlayerData.loan_interest_rate))
-		PlayerData.loan_balance += interest
-		add_life_event("Your bank loan accrued $%s in annual interest (Loan Balance: $%s)." % [
-			_format_number(interest),
-			_format_number(PlayerData.loan_balance)
-		], "finance")
-
-	# 5b. Credit Card Interest & Term Settlement
-	if PlayerData.has_credit_card and PlayerData.credit_card_balance > 0:
-		var cc_interest: int = maxi(5, int(PlayerData.credit_card_balance * PlayerData.credit_card_apr))
-		PlayerData.credit_card_balance += cc_interest
-		add_life_event("Your %s Credit Card accrued $%s in annual interest (Card Usage: $%s, %d%% APR)." % [
-			PlayerData.credit_card_tier,
-			_format_number(cc_interest),
-			_format_number(PlayerData.credit_card_balance),
-			int(PlayerData.credit_card_apr * 100)
-		], "finance")
-
-		var min_payment: int = maxi(1, int(ceil(PlayerData.credit_card_balance * 0.10)))
-		var available_funds: int = PlayerData.get_available_funds()
-
-		if available_funds < min_payment:
-			# Player is unable to pay the minimum usage back to the bank -> Deactivate and convert usage to debt
-			var def_res := PlayerData.deactivate_credit_card_on_default()
-			var unpaid_debt: int = int(def_res.get("unpaid_usage", 0))
-			add_life_event("🚨 CREDIT CARD DEFAULT & DEACTIVATION: You were unable to service the required 10%% minimum term payment ($%s) on your credit card usage. The bank has DEACTIVATED your credit card and transferred all unpaid usage ($%s) into collections as general DEBT! Credit score penalized (-75 pts)." % [
-				_format_number(min_payment),
-				_format_number(unpaid_debt)
-			], "finance")
-		else:
-			# Player has funds; check if manual payment was made this year
-			if PlayerData.credit_card_paid_this_year < min_payment:
-				PlayerData.modify_credit_score(-15)
-				add_life_event("⚠️ MISSED CREDIT CARD TERM: You missed this year's manual term payment on your credit card usage ($%s owed, 10%% minimum: $%s). Interest was assessed and credit score dropped by 15 points. Pay your balance in Banking to prevent card deactivation!" % [
-					_format_number(PlayerData.credit_card_balance),
-					_format_number(min_payment)
-				], "finance")
-			else:
-				PlayerData.modify_credit_score(5)
-				add_life_event("💳 Credit Standing: Timely credit card manual term payments met. Credit score maintained (+5 pts).", "finance")
-
-		PlayerData.credit_card_paid_this_year = 0
-
-	# 5c. Annual Credit Score Evaluation
+	# Annual Credit Score Evaluation
 	if PlayerData.age >= 18:
 		if PlayerData.tax_debt > 0:
 			PlayerData.modify_credit_score(-20)
@@ -874,62 +969,21 @@ func age_up() -> void:
 		elif PlayerData.get_total_debt() == 0:
 			PlayerData.modify_credit_score(5)
 
-	# 6. Bank Savings Interest (2.5% Annual Return)
-	if PlayerData.bank_savings > 0:
-		var savings_interest: int = int(PlayerData.bank_savings * 0.025)
-		if savings_interest > 0:
-			PlayerData.bank_savings += savings_interest
-			add_life_event("Your high-yield bank savings account accrued $%s in annual interest (2.5%% APR)." % _format_number(savings_interest), "finance")
-
-	# 7. Gym Membership Annual Auto-Debit
-	if PlayerData.has_gym_membership:
-		var gym_fee: int = PlayerData.gym_membership_annual_fee
-		if PlayerData.bank_savings >= gym_fee:
-			PlayerData.bank_savings -= gym_fee
-			add_life_event("🏋️ GYM MEMBERSHIP: $%s was auto-debited from your bank account for your annual fitness club membership." % _format_number(gym_fee), "finance")
-		elif PlayerData.get_available_funds() >= gym_fee:
-			PlayerData.debit_funds(gym_fee)
-			add_life_event("🏋️ GYM MEMBERSHIP: $%s was paid from your available funds for your annual fitness club membership." % _format_number(gym_fee), "finance")
-		else:
-			PlayerData.has_gym_membership = false
-			PlayerData.happiness = maxi(5, PlayerData.happiness - 4)
-			add_life_event("⚠️ GYM MEMBERSHIP CANCELLED: You lacked sufficient funds ($%s) in your bank account to renew your gym membership. It has been cancelled." % _format_number(gym_fee), "finance")
-
-	# 7a2. Neural Specialist Implants Annual Maintenance & Calibration
-	var neural_logs := PlayerData.process_yearly_neural_implants()
-	for n_msg in neural_logs:
-		add_life_event(n_msg, "health")
-
-	# 7b. Owned Assets Upkeep, Depreciation & Equity Appreciation
+	# Owned Assets Annual Value Depreciation & Appreciation
 	var asset_logs := AssetCatalog.process_yearly_assets(PlayerData)
 	for log_msg in asset_logs:
 		add_life_event(log_msg, "finance")
 
-	# 7b2. Mortgages Annual Principal & Interest Expenses
-	var mortgage_logs := MortgageManager.process_yearly_mortgages(PlayerData)
-	for m_msg in mortgage_logs:
-		add_life_event(m_msg, "finance")
-
-	# 7b3. Residential Rental Annual Lease Payment
-	var rent_logs := RentalManager.process_yearly_rent(PlayerData)
-	for r_msg in rent_logs:
-		add_life_event(r_msg, "lifestyle")
-
-	# 7c. Asset Insurance Annual Premium Auto-Debit & Policy Lapses
-	var ins_logs := AssetInsuranceManager.process_yearly_insurance(PlayerData)
-	for ins_msg in ins_logs:
-		add_life_event(ins_msg, "finance")
-
-	# 7d. Asset Disaster Events (Earthquakes, Wildfires, Lawsuits, Syndicate Thefts)
+	# Asset Disaster Events (Earthquakes, Wildfires, Lawsuits, Syndicate Thefts)
 	_check_asset_disaster_event()
 
-	# 7e. Random Asset Incident Checks (Total Loss / Insurance Claims)
+	# Random Asset Incident Checks (Total Loss / Insurance Claims)
 	_check_asset_incidents()
 
-	# 7d. Freelance Annual Project Gigs
+	# Freelance Annual Project Gigs
 	_process_yearly_freelance_projects()
 
-	# 7e. Commercial Business Yearly Financial Simulation
+	# Commercial Business Yearly Financial Simulation
 	_process_yearly_business_operations()
 	FinanceMarket.advance_year(PlayerData)
 	var crypto_logs := preload("res://scripts/economy/crypto_market.gd").advance_year(PlayerData)
@@ -940,20 +994,15 @@ func age_up() -> void:
 	for ps_log in ps_logs:
 		add_life_event(ps_log, "finance")
 
-	# 7f. Social Media Audience Growth & Monetization
+	# Social Media Audience Growth & Monetization
 	var social_logs := SocialMediaManager.process_yearly_social_media(PlayerData)
 	for s_log in social_logs:
 		add_life_event(s_log, "lifestyle")
 
-	# 7g. Pet Lifespan, Care & Aging Simulation
+	# Pet Lifespan, Care & Aging Simulation
 	var pet_logs := PetManager.process_yearly_pets(PlayerData)
 	for p_log in pet_logs:
 		add_life_event(p_log, "relationship")
-
-	# 7h. Annual Tax Filing (Consolidates Income Tax, Capital Gains Tax, Property Tax & Corporate Tax via TaxSystem)
-	var tax_filing_res := TaxSystem.file_annual_taxes(PlayerData)
-	for t_log in tax_filing_res.get("logs", []):
-		add_life_event(t_log, "finance")
 
 	# 8. Education Lifecycle Progression (Kindergarten @ 3, Primary @ 6, Middle @ 11, High @ 14, Grad @ 18)
 	if PlayerData.age == 3:
@@ -1380,6 +1429,8 @@ func update_ui() -> void:
 	name_label.text = PlayerData.first_name
 	if age_label != null:
 		age_label.text = "Age: %d" % PlayerData.age
+	if time_counter_label != null:
+		time_counter_label.text = "• 📅 Month %d, Day %d" % [PlayerData.in_game_month, PlayerData.in_game_day]
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
 	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"
 	balance_label.text = "💵 $%s CASH\n🏦 $%s %s" % [
@@ -1411,10 +1462,10 @@ func update_ui() -> void:
 	if mental_bar != null:
 		_update_stat_bar_color(mental_bar, PlayerData.mental_state, Color("#8b5cf6"), Color("#6d28d9"))
 
-	# Update InfantButton icon with age progression (Strictly stage name, never occupation)
+	# Update Life Overview button icon and title
 	if infant_button != null:
 		infant_button.icon = preload("res://scripts/ui/modern_navigation.gd").icon("life")
-		infant_button.text = PlayerData.get_stage_name()
+		infant_button.text = "Life Overview"
 
 	# Assets Button Tooltip
 	if assets_button != null:
@@ -1595,7 +1646,8 @@ func trigger_event() -> void:
 		# The mental institution is boring and uneventful: NO EVENTS SHOULD EVER POP UP.
 		current_event = null
 		current_event_choices.clear()
-		age_button.disabled = false
+		if is_instance_valid(age_button):
+			age_button.disabled = false
 		return
 
 	if PlayerData.age >= 18 and not PlayerData.is_in_prison and not LifeLibrary.data.people.is_empty() and randf() < 0.25:
@@ -1608,7 +1660,8 @@ func trigger_event() -> void:
 	if randf() > annual_event_popup_chance:
 		current_event = null
 		current_event_choices.clear()
-		age_button.disabled = false
+		if is_instance_valid(age_button):
+			age_button.disabled = false
 		return
 
 	var carrier := RelationshipExtras.pregnancy_carrier(PlayerData)
@@ -1647,7 +1700,8 @@ func trigger_event() -> void:
 
 	if current_event == null:
 		current_event_choices.clear()
-		age_button.disabled = false
+		if is_instance_valid(age_button):
+			age_button.disabled = false
 		return
 
 	current_event_choices = generate_event_choices(current_event)
@@ -1717,7 +1771,8 @@ func show_event_popup() -> void:
 		push_error("Event popup nodes are missing.")
 		current_event = null
 		current_event_choices.clear()
-		age_button.disabled = false
+		if is_instance_valid(age_button):
+			age_button.disabled = false
 		return
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
@@ -1758,7 +1813,8 @@ func show_event_popup() -> void:
 
 	event_overlay.modulate.a = 0.0
 	event_overlay.visible = true
-	age_button.disabled = true
+	if is_instance_valid(age_button):
+		age_button.disabled = true
 
 	# Fade in EventPanel seamlessly without upward slide over Age button
 	var f_tween := event_overlay.create_tween()
@@ -2241,6 +2297,7 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.grant_starting_assets()
 	PlayerData.generate_initial_siblings()
 	PlayerData.add_milestone("Born in %s." % PlayerData.birthplace, 0, "🍼")
+	PlayerData.add_milestone("Enrolled in Middle School at age 12.", 12, "🎒")
 
 	hide_new_game_screen()
 	show_tab("timeline")
@@ -2251,8 +2308,9 @@ func _on_start_game_button_pressed() -> void:
 
 	life_feed.clear()
 
-	# Add newborn character description to feed
+	# Add birth story and age 12 middle school beginning
 	add_life_event(PlayerData.birth_story, "milestone")
+	add_life_event("🎒 You begin your journey at age 12, currently attending Middle School.", "milestone")
 	if PlayerData.has_siblings():
 		var sib_tokens: Array[String] = []
 		for s in PlayerData.siblings:
@@ -20960,6 +21018,8 @@ func _randomize_identity() -> void:
 
 
 func _configure_age_art() -> void:
+	if age_button == null or not is_instance_valid(age_button):
+		return
 	age_button.text = ""
 	age_button.tooltip_text = "Age up one year"
 	for state in ["normal", "hover", "pressed", "disabled"]:
@@ -20998,6 +21058,8 @@ func _configure_age_art() -> void:
 
 
 func _on_age_btn_hover() -> void:
+	if age_button == null or not is_instance_valid(age_button):
+		return
 	var art := age_button.get_node_or_null("AgeArtwork") as TextureRect
 	if art != null:
 		var tween := create_tween()
@@ -21005,6 +21067,8 @@ func _on_age_btn_hover() -> void:
 
 
 func _on_age_btn_exit() -> void:
+	if age_button == null or not is_instance_valid(age_button):
+		return
 	var art := age_button.get_node_or_null("AgeArtwork") as TextureRect
 	if art != null:
 		var tween := create_tween()
@@ -21012,6 +21076,8 @@ func _on_age_btn_exit() -> void:
 
 
 func _on_age_btn_down() -> void:
+	if age_button == null or not is_instance_valid(age_button):
+		return
 	_play_core_button_sound("age")
 	var art := age_button.get_node_or_null("AgeArtwork") as TextureRect
 	if art != null:
@@ -21020,6 +21086,8 @@ func _on_age_btn_down() -> void:
 
 
 func _on_age_btn_up() -> void:
+	if age_button == null or not is_instance_valid(age_button):
+		return
 	var art := age_button.get_node_or_null("AgeArtwork") as TextureRect
 	if art != null:
 		var tween := create_tween()
@@ -21328,7 +21396,7 @@ func _configure_version_badge() -> void:
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	var ver: String = LifeLibrary.get_version_string()
 	var formatted_ver: String = ver if ver.begins_with("v") or ver.begins_with("V") else ("v" + ver)
-	label.text = "ALPHA " + formatted_ver
+	label.text = formatted_ver
 
 	var badge_box := StyleBoxFlat.new()
 	badge_box.bg_color = Color(0.961, 0.62, 0.043, 0.16) if is_light else Color(0.961, 0.62, 0.043, 0.12)

@@ -29,7 +29,11 @@ static func format_karmic_modifier(modifier_id: String) -> String:
 		return "%s %s" % [info.get("icon", ""), info.get("title", modifier_id)]
 	return modifier_id.capitalize().replace("_", " ")
 
-var age: int = 0
+var age: int = 12
+var in_game_day: int = 1
+var in_game_month: int = 1
+var in_game_year: int = 1
+var is_time_paused: bool = false
 var life_id: String = ""
 var finance_market: Dictionary = {}
 var crypto_wallet: Dictionary = {}
@@ -158,7 +162,7 @@ var asset_insurance: Dictionary = {
 	"property": false
 }
 
-var education_level: String = "None"
+var education_level: String = "Middle School"
 var grades: int = 75
 var has_scholarship: bool = false
 var university_years: int = 0
@@ -307,7 +311,11 @@ func reset_player() -> void:
 	last_neural_overclock_age = -1
 	last_neural_diagnostics_age = -1
 
-	age = 0
+	age = 12
+	in_game_day = 1
+	in_game_month = 1
+	in_game_year = 1
+	is_time_paused = false
 
 	health = 80
 	happiness = 75
@@ -347,7 +355,7 @@ func reset_player() -> void:
 	health_insurance = "none"
 	asset_insurance = { "vehicle": false, "property": false }
 
-	education_level = "None"
+	education_level = "Middle School"
 	grades = 75
 	has_scholarship = false
 	university_years = 0
@@ -2108,3 +2116,61 @@ func process_yearly_neural_implants() -> Array[String]:
 			mental_state = mini(100, mental_state + 3)
 
 	return logs
+
+
+func get_date_string() -> String:
+	return "Month %d, Day %d" % [in_game_month, in_game_day]
+
+
+func get_monthly_neural_maintenance() -> int:
+	var total_maint: int = get_total_neural_maintenance()
+	return maxi(1, int(round(float(total_maint) / 12.0))) if total_maint > 0 else 0
+
+
+func process_monthly_neural_implants() -> Array[String]:
+	var logs: Array[String] = []
+	if neural_implants.is_empty():
+		return logs
+
+	var monthly_maint: int = get_monthly_neural_maintenance()
+	if monthly_maint > 0:
+		if can_afford(monthly_maint):
+			debit_funds(monthly_maint)
+			for imp in neural_implants:
+				if imp is Dictionary:
+					imp["is_active"] = true
+					imp["condition"] = 100
+					imp["maintenance_paid_this_month"] = true
+			logs.append("🧠 NEURAL SPECIALIST: $%s debited for monthly maintenance & quantum nanite upkeep across %d implants." % [
+				String.num(monthly_maint),
+				neural_implants.size()
+			])
+		else:
+			for imp in neural_implants:
+				if imp is Dictionary:
+					imp["is_active"] = false
+					imp["condition"] = maxi(20, int(imp.get("condition", 100)) - 10)
+					imp["maintenance_paid_this_month"] = false
+			happiness = maxi(5, happiness - 3)
+			mental_state = maxi(5, mental_state - 3)
+			logs.append("⚠️ NEURAL IMPLANT FAILURE: Insufficient funds ($%s required) for monthly neural maintenance! Implants entered offline mode (-3 Happiness, -3 Mental State)." % String.num(monthly_maint))
+
+	# Apply active perks
+	for imp in neural_implants:
+		if not imp is Dictionary or not bool(imp.get("is_active", true)):
+			continue
+		var mod_id: String = str(imp.get("id", ""))
+		var mod_data := NeuralCatalog.get_modification(mod_id)
+		if mod_data.get("locks_max_smarts", false):
+			smarts = 100
+		if mod_data.get("locks_max_mental_state", false):
+			mental_state = 100
+		if mod_data.has("min_happiness_floor"):
+			happiness = maxi(int(mod_data["min_happiness_floor"]), happiness)
+		if mod_data.has("yearly_health_regen"):
+			health = mini(100, health + maxi(1, int(round(float(mod_data["yearly_health_regen"]) / 12.0))))
+		if mod_data.get("stress_immunity", false):
+			mental_state = mini(100, mental_state + 1)
+
+	return logs
+

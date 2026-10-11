@@ -58,22 +58,26 @@ static func get_annual_premium(player_data: Node, insurance_cat: String) -> int:
 		return int(round(float(PROPERTY_BASE_PREMIUM) + float(val) * PROPERTY_RATE))
 	return 0
 
+static func get_monthly_premium(player_data: Node, insurance_cat: String) -> int:
+	var ann: int = get_annual_premium(player_data, insurance_cat)
+	return maxi(1, int(round(float(ann) / 12.0))) if ann > 0 else 0
+
 static func has_insurance(player_data: Node, insurance_cat: String) -> bool:
 	if not "asset_insurance" in player_data:
 		return false
 	return bool(player_data.asset_insurance.get(insurance_cat, false))
 
 static func can_afford_insurance(player_data: Node, insurance_cat: String) -> bool:
-	var premium: int = get_annual_premium(player_data, insurance_cat)
+	var premium: int = get_monthly_premium(player_data, insurance_cat)
 	return player_data.get_available_funds() >= premium
 
 static func buy_insurance(player_data: Node, insurance_cat: String) -> Dictionary:
 	if has_insurance(player_data, insurance_cat):
 		return {"success": false, "message": "You already have an active policy for this category."}
 	
-	var premium: int = get_annual_premium(player_data, insurance_cat)
+	var premium: int = get_monthly_premium(player_data, insurance_cat)
 	if not player_data.debit_funds(premium):
-		return {"success": false, "message": "Insufficient funds to pay the annual premium of $%d." % premium}
+		return {"success": false, "message": "Insufficient funds to pay the monthly premium of $%d." % premium}
 	
 	if not "asset_insurance" in player_data:
 		player_data.asset_insurance = {}
@@ -84,7 +88,7 @@ static func buy_insurance(player_data: Node, insurance_cat: String) -> Dictionar
 	return {
 		"success": true,
 		"cost": premium,
-		"message": "Purchased %s Insurance for $%d. Your %s ventures and holdings are now fully protected." % [cat_label, premium, cat_label.to_lower()]
+		"message": "Purchased %s Insurance for $%d/month. Your %s ventures and holdings are now fully protected." % [cat_label, premium, cat_label.to_lower()]
 	}
 
 static func cancel_insurance(player_data: Node, insurance_cat: String) -> Dictionary:
@@ -98,6 +102,24 @@ static func cancel_insurance(player_data: Node, insurance_cat: String) -> Dictio
 		"success": true,
 		"message": "Cancelled %s Insurance. Your %s holdings are now UNINSURED and vulnerable to permanent loss and liquidation." % [cat_label, cat_label.to_lower()]
 	}
+
+static func process_monthly_insurance(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	for cat in [CATEGORY_VEHICLE, CATEGORY_PROPERTY]:
+		if has_insurance(player_data, cat):
+			var premium: int = get_monthly_premium(player_data, cat)
+			var cat_label := "Vehicle" if cat == CATEGORY_VEHICLE else "Property"
+			if player_data.bank_savings >= premium:
+				player_data.bank_savings -= premium
+				logs.append("🛡️ ASSET INSURANCE: Paid $%d monthly premium for %s Insurance." % [premium, cat_label])
+			elif player_data.debit_funds(premium):
+				logs.append("🛡️ ASSET INSURANCE: Paid $%d monthly premium for %s Insurance from available funds." % [premium, cat_label])
+			else:
+				# Cannot afford -> Policy lapses!
+				player_data.asset_insurance[cat] = false
+				player_data.happiness = maxi(5, player_data.happiness - 10)
+				logs.append("⚠️ ASSET INSURANCE LAPSED: Insufficient funds to pay $%d monthly premium for %s Insurance. Your %s holdings are NO LONGER PROTECTED against disasters!" % [premium, cat_label, cat_label.to_lower()])
+	return logs
 
 static func process_yearly_insurance(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []

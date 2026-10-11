@@ -419,7 +419,7 @@ theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 0.8)
 theme_override_constants/outline_size = 2
 theme_override_fonts/font = ExtResource("6_font")
 theme_override_font_sizes/font_size = 26
-text = "ALPHA v0.2.0"
+text = "v0.3.0"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -478,17 +478,27 @@ theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 40
 text = "Alex Morgan"
 
-[node name="AgeLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020283]
+[node name="AgeRow" type="HBoxContainer" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020285]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="AgeLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/AgeRow" unique_id=1269020283]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.84, 0.35, 1)
 theme_override_font_sizes/font_size = 28
-text = "Age: 0"
+text = "Age: 12"
+
+[node name="TimeCounterLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/AgeRow" unique_id=1269020284]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.22, 0.83, 0.93, 1)
+theme_override_font_sizes/font_size = 26
+text = "• 📅 Month 1, Day 1"
 
 [node name="PhaseLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=526626842]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 28
-text = "🍼 Infant"
+text = "🎒 Child"
 
 [node name="BalanceLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=1720170167]
 custom_minimum_size = Vector2(290, 110)
@@ -779,7 +789,7 @@ theme_override_font_sizes/font_size = 26
 theme_override_styles/normal = SubResource("action_button")
 theme_override_styles/pressed = SubResource("action_button")
 theme_override_styles/hover = SubResource("action_button")
-text = "Infant"
+text = "Life Overview"
 
 [node name="AssetsButton" type="Button" parent="SafeArea/MainColumn/ActionBar/ActionRow" unique_id=1908634224]
 custom_minimum_size = Vector2(0, 210)
@@ -793,11 +803,6 @@ theme_override_styles/normal = SubResource("action_button")
 theme_override_styles/pressed = SubResource("action_button")
 theme_override_styles/hover = SubResource("action_button")
 text = "Assets"
-
-[node name="AgeSpacer" type="Control" parent="SafeArea/MainColumn/ActionBar/ActionRow" unique_id=1297525299]
-custom_minimum_size = Vector2(230, 0)
-layout_mode = 2
-mouse_filter = 2
 
 [node name="RelationshipsButton" type="Button" parent="SafeArea/MainColumn/ActionBar/ActionRow" unique_id=1545373131]
 custom_minimum_size = Vector2(0, 210)
@@ -824,27 +829,6 @@ theme_override_styles/normal = SubResource("action_button")
 theme_override_styles/pressed = SubResource("action_button")
 theme_override_styles/hover = SubResource("action_button")
 text = "Activities"
-
-[node name="AgeButton" type="Button" parent="SafeArea/MainColumn" unique_id=1585919690]
-z_index = 20
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -115.0
-offset_top = -230.0
-offset_right = 115.0
-grow_horizontal = 2
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_font_sizes/font_size = 42
-theme_override_styles/normal = SubResource("age")
-theme_override_styles/pressed = SubResource("age")
-theme_override_styles/hover = SubResource("age")
-text = "+
-AGE"
 
 [node name="CharacterPanel" type="PanelContainer" parent="." unique_id=1982251484]
 visible = false
@@ -2359,7 +2343,7 @@ show_percentage = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.73, 0.9, 0.99, 1)
 theme_override_font_sizes/font_size = 30
-text = "Loading assets..."
+text = "v0.3.0 • Progression Rework"
 horizontal_alignment = 1
 
 [node name="DisclaimerScreen" type="Control" parent="." unique_id=778899112]
@@ -2456,7 +2440,6 @@ horizontal_alignment = 1
 [connection signal="pressed" from="SafeArea/MainColumn/ActionBar/ActionRow/AssetsButton" to="." method="_on_assets_button_pressed"]
 [connection signal="pressed" from="SafeArea/MainColumn/ActionBar/ActionRow/RelationshipsButton" to="." method="_on_relationships_button_pressed"]
 [connection signal="pressed" from="SafeArea/MainColumn/ActionBar/ActionRow/ActivitiesButton" to="." method="_on_activities_button_pressed"]
-[connection signal="pressed" from="SafeArea/MainColumn/AgeButton" to="." method="_on_age_button_pressed"]
 [connection signal="pressed" from="CharacterPanel/CharacterMargin/CharacterContent/CharacterHeaderRow/CloseCharacterButton" to="." method="_on_close_panel_button_pressed"]
 [connection signal="pressed" from="InfantPanel/InfantMargin/InfantContent/InfantHeaderRow/CloseInfantButton" to="." method="_on_close_panel_button_pressed"]
 [connection signal="pressed" from="AssetsPanel/AssetsMargin/AssetsContent/AssetsHeaderRow/CloseAssetsButton" to="." method="_on_close_panel_button_pressed"]

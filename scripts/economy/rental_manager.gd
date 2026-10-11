@@ -88,12 +88,13 @@ static func can_rent(player_data: Node, rental_id: String) -> Dictionary:
 		}
 
 	var ann_rent: int = int(item.get("annual_rent", 0))
+	var m_rent: int = int(item.get("monthly_rent", 0))
 	var total_avail: int = player_data.money + player_data.bank_savings
-	if total_avail < ann_rent:
+	if total_avail < m_rent:
 		return {
 			"allowed": false,
-			"reason": "Insufficient Funds: Requires first year's rent of $%s upfront (Available: $%s)." % [
-				_format_number(ann_rent), _format_number(total_avail)
+			"reason": "Insufficient Funds: Requires first month's rent of $%s upfront (Available: $%s)." % [
+				_format_number(m_rent), _format_number(total_avail)
 			]
 		}
 
@@ -113,8 +114,8 @@ static func sign_lease(player_data: Node, rental_id: String) -> Dictionary:
 	var m_rent: int = int(item.get("monthly_rent", 0))
 	var prop_name: String = str(item.get("name", "Rental Home"))
 
-	# Debit 1st year's rent
-	player_data.debit_funds(ann_rent)
+	# Debit 1st month's rent upfront
+	player_data.debit_funds(m_rent)
 
 	# Set rented property on player (NOTE: completely separate from owned_assets!)
 	player_data.rented_property = {
@@ -123,6 +124,7 @@ static func sign_lease(player_data: Node, rental_id: String) -> Dictionary:
 		"monthly_rent": m_rent,
 		"annual_rent": ann_rent,
 		"happiness_bonus": int(item.get("happiness_bonus", 8)),
+		"months_leased": 1,
 		"years_leased": 1,
 		"lease_start_age": player_data.age,
 		"image_glyph": str(item.get("image_glyph", "🏠"))
@@ -131,12 +133,12 @@ static func sign_lease(player_data: Node, rental_id: String) -> Dictionary:
 	player_data.happiness = mini(100, player_data.happiness + int(item.get("happiness_bonus", 8)))
 
 	if player_data.has_method("add_milestone"):
-		player_data.add_milestone("Signed 1-year residential lease for %s." % prop_name, player_data.age, "🏠")
+		player_data.add_milestone("Signed residential lease for %s." % prop_name, player_data.age, "🏠")
 
 	return {
 		"success": true,
-		"message": "Congratulations! You signed a lease for %s at $%s/month ($%s/year) and moved into your new residence." % [
-			prop_name, _format_number(m_rent), _format_number(ann_rent)
+		"message": "Congratulations! You signed a lease for %s at $%s/month and moved into your new residence." % [
+			prop_name, _format_number(m_rent)
 		]
 	}
 
@@ -155,6 +157,41 @@ static func terminate_lease(player_data: Node) -> Dictionary:
 		"success": true,
 		"message": "You terminated your lease on %s and moved out." % old_name
 	}
+
+
+static func process_monthly_rent(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	if not has_active_lease(player_data):
+		return logs
+
+	var rent_dict: Dictionary = player_data.rented_property
+	var m_rent: int = int(rent_dict.get("monthly_rent", 0))
+	if m_rent <= 0:
+		m_rent = maxi(1, int(round(float(rent_dict.get("annual_rent", 0)) / 12.0)))
+	var prop_name: String = str(rent_dict.get("name", "Rental Home"))
+	var total_avail: int = player_data.money + player_data.bank_savings
+
+	if total_avail >= m_rent:
+		player_data.debit_funds(m_rent)
+		rent_dict["months_leased"] = int(rent_dict.get("months_leased", 1)) + 1
+		rent_dict["years_leased"] = int(ceil(float(rent_dict["months_leased"]) / 12.0))
+		logs.append("🏠 RENT PAYMENT: Paid $%s monthly rent for %s." % [
+			_format_number(m_rent), prop_name
+		])
+	else:
+		var paid: int = mini(total_avail, m_rent)
+		if paid > 0:
+			player_data.debit_funds(paid)
+		var shortfall: int = m_rent - paid
+		player_data.debt += shortfall
+		player_data.rented_property.clear()
+		player_data.happiness = maxi(0, player_data.happiness - 18)
+		player_data.modify_credit_score(-20)
+		logs.append("⚠️ EVICTION NOTICE: You could not afford the $%s monthly rent for %s! Your lease was terminated, shortfall of $%s added to debt, and you were evicted." % [
+			_format_number(m_rent), prop_name, _format_number(shortfall)
+		])
+
+	return logs
 
 
 static func process_yearly_rent(player_data: Node) -> Array[String]:
