@@ -35,7 +35,7 @@ func _draw() -> void:
 			draw_circle(points[0], 4, color)
 	var font := ThemeDB.fallback_font
 	var ink := Color("#17394a") if light else Color("#dce9f5")
-	draw_string(font, Vector2(24, size.y - 16), "%s %d → %d  |  %s %s" % [GameLocale.translate("Age"), int(history[0].age), int(history[-1].age), GameLocale.translate("Scale"), GameLocale.money(upper)], HORIZONTAL_ALIGNMENT_LEFT, size.x - 48, 19, ink)
+	draw_string(font, Vector2(24, size.y - 16), "%s %d → %d  |  %s %s" % [GameLocale.translate("Age"), int(history[0].age), int(history[-1].age), GameLocale.translate("Scale"), GameLocale.money(upper)], HORIZONTAL_ALIGNMENT_LEFT, size.x - 48, 23, ink)
 
 
 func _background(light: bool) -> StyleBoxFlat:

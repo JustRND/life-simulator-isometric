@@ -105,15 +105,15 @@ func apply(node: Control, light: bool) -> void:
 	if node is Label or node is RichTextLabel:
 		if node is Label and node.get_parent() is VBoxContainer:
 			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		node.add_theme_font_size_override("font_size", maxi(30, node.get_theme_font_size("font_size")))
-		node.add_theme_font_size_override("normal_font_size", 32)
+		node.add_theme_font_size_override("font_size", maxi(34, node.get_theme_font_size("font_size")))
+		node.add_theme_font_size_override("normal_font_size", 36)
 		# Give nested information cards the same title/body hierarchy as menu rows.
 		if node is Label and node.get_index() == 0 and node.get_parent() is BoxContainer and not node.has_meta("reference_section"):
 			var owner_box := node.get_parent()
 			var inside_card := owner_box.get_parent() is MarginContainer and owner_box.get_parent().get_parent() is PanelContainer
 			if inside_card or owner_box is HBoxContainer:
 				node.add_theme_font_override("font", title_font)
-				node.add_theme_font_size_override("font_size", 40)
+				node.add_theme_font_size_override("font_size", 44)
 				node.add_theme_color_override("font_color", Color("#075b91") if light else Color("#a9dcff"))
 				node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if (node is RichTextLabel or node is Label) and (node.name == "EventDescription" or (node.get_parent() != null and node.get_parent().name == "EventContent")):
@@ -168,7 +168,7 @@ func apply(node: Control, light: bool) -> void:
 	if node is LineEdit or node is TextEdit:
 		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus", "read_only"]:
 			node.add_theme_stylebox_override(state, surface(light, state))
-		node.add_theme_font_size_override("font_size", 38)
+		node.add_theme_font_size_override("font_size", 42)
 		node.add_theme_color_override("caret_color", ink)
 		node.add_theme_color_override("selection_color", Color("#3c7096"))
 		node.add_theme_color_override("font_selected_color", Color.WHITE)
@@ -203,15 +203,15 @@ func apply(node: Control, light: bool) -> void:
 			node.expand_icon = true
 			node.add_theme_constant_override("icon_max_width", 1)
 		else:
-			node.add_theme_font_size_override("font_size", 26)
-			node.custom_minimum_size.y = maxf(node.custom_minimum_size.y, 60)
+			node.add_theme_font_size_override("font_size", 30)
+			node.custom_minimum_size.y = maxf(node.custom_minimum_size.y, 72)
 	if node.has_meta("reference_section"):
 		node.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		node.custom_minimum_size.y = 60
+		node.custom_minimum_size.y = 70
 		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		node.add_theme_font_override("font", bold_font)
-		node.add_theme_font_size_override("font_size", 30)
+		node.add_theme_font_size_override("font_size", 34)
 		var bar := StyleBoxFlat.new()
 		bar.content_margin_left = 16
 		bar.content_margin_right = 16
@@ -227,7 +227,7 @@ func apply(node: Control, light: bool) -> void:
 		node.add_theme_stylebox_override("normal", bar)
 	if node.has_meta("reference_header_title"):
 		node.add_theme_font_override("font", bold_font)
-		node.add_theme_font_size_override("font_size", 38)
+		node.add_theme_font_size_override("font_size", 42)
 		node.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
 		node.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	if node is Button and node.get_parent().has_meta("reference_header") and not node.text in ["✕", "×", "X", "✖"]:
@@ -253,9 +253,9 @@ func _style_header(close: Button) -> void:
 	if not header.name.ends_with("HeaderRow") and not header.name.ends_with("Header"):
 		return
 	var light: bool = LifeLibrary.data.get("theme", "dark") == "light"
-	close.custom_minimum_size = Vector2(68, 68)
+	close.custom_minimum_size = Vector2(80, 80)
 	close.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	close.add_theme_font_size_override("font_size", 30)
+	close.add_theme_font_size_override("font_size", 34)
 	for key in COLORS:
 		close.add_theme_color_override(key, Color("#0f172a") if light else Color.WHITE)
 	close.add_theme_color_override("font_hover_color", Color("#f43f5e"))
@@ -268,7 +268,7 @@ func _style_header(close: Button) -> void:
 		else:
 			circle.bg_color = Color("#28333f") if state != "normal" else Color("#080c12")
 			circle.border_color = Color.WHITE
-		circle.set_corner_radius_all(34)
+		circle.set_corner_radius_all(40)
 		circle.set_border_width_all(2)
 		close.add_theme_stylebox_override(state, circle)
 	if header.has_meta("reference_header"):
@@ -278,7 +278,7 @@ func _style_header(close: Button) -> void:
 				child.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
 		return
 	header.set_meta("reference_header", true)
-	header.custom_minimum_size.y = 84
+	header.custom_minimum_size.y = 96
 	header.add_theme_constant_override("separation", 16)
 	header.draw.connect(func():
 		var is_lt: bool = LifeLibrary.data.get("theme", "dark") == "light"
@@ -296,11 +296,11 @@ func _style_header(close: Button) -> void:
 			child.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			child.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			child.add_theme_font_size_override("font_size", 36)
+			child.add_theme_font_size_override("font_size", 40)
 			child.add_theme_color_override("font_color", Color("#0f172a") if light else Color.WHITE)
 			apply(child, light)
 	var balance := Control.new()
-	balance.custom_minimum_size.x = 68
+	balance.custom_minimum_size.x = 80
 	header.add_child(balance)
 
 

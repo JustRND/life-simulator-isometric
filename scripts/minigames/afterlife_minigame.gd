@@ -216,7 +216,7 @@ func _build_ui() -> void:
 	title_lbl.set_meta("reference_part", true)
 	title_lbl.text = "⚖️ ASTRAL TRIBUNAL • SCALES OF SAMSARA" if is_condemned else "✨ CELESTIAL HALL • ASCENSION OF SOULS"
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_lbl.add_theme_font_size_override("font_size", 34)
+	title_lbl.add_theme_font_size_override("font_size", 38)
 	title_lbl.add_theme_color_override("font_color", Color("#ef4444") if is_condemned else Color("#38bdf8"))
 	main_v.add_child(title_lbl)
 
@@ -225,7 +225,7 @@ func _build_ui() -> void:
 	sub_lbl.text = "YOUR MORTAL LIFE HAS ENDED. THE COSMIC ARBITER WEIGHS YOUR EXISTENCE."
 	sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sub_lbl.add_theme_font_size_override("font_size", 22)
+	sub_lbl.add_theme_font_size_override("font_size", 26)
 	sub_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	main_v.add_child(sub_lbl)
 
@@ -266,7 +266,7 @@ func _build_ui() -> void:
 	sc_header.set_meta("reference_part", true)
 	sc_header.text = "THE SACRED BALANCE OF DEEDS"
 	sc_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sc_header.add_theme_font_size_override("font_size", 26)
+	sc_header.add_theme_font_size_override("font_size", 30)
 	sc_header.add_theme_color_override("font_color", Color("#ef4444") if is_condemned else Color("#f59e0b"))
 	sc_v.add_child(sc_header)
 
@@ -279,7 +279,7 @@ func _build_ui() -> void:
 	left_pan.set_meta("reference_part", true)
 	left_pan.text = "⚖️ [ Sins & Transgressions ]"
 	left_pan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_pan.add_theme_font_size_override("font_size", 24)
+	left_pan.add_theme_font_size_override("font_size", 28)
 	left_pan.add_theme_color_override("font_color", Color("#f87171"))
 	pans_row.add_child(left_pan)
 
@@ -288,7 +288,7 @@ func _build_ui() -> void:
 	right_pan.text = "[ Virtues & Merits ] ⚖️"
 	right_pan.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	right_pan.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_pan.add_theme_font_size_override("font_size", 24)
+	right_pan.add_theme_font_size_override("font_size", 28)
 	right_pan.add_theme_color_override("font_color", Color("#4ade80"))
 	pans_row.add_child(right_pan)
 
@@ -314,7 +314,7 @@ func _build_ui() -> void:
 	scale_needle.text = "• • [ BALANCING ] • •"
 	scale_needle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scale_needle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	scale_needle.add_theme_font_size_override("font_size", 26)
+	scale_needle.add_theme_font_size_override("font_size", 30)
 	scale_needle.add_theme_color_override("font_color", Color("#e2e8f0"))
 	npm.add_child(scale_needle)
 
@@ -323,7 +323,7 @@ func _build_ui() -> void:
 	scale_status_lbl.text = "Press below to place your mortal soul upon the Scales of Judgment."
 	scale_status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	scale_status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	scale_status_lbl.add_theme_font_size_override("font_size", 23)
+	scale_status_lbl.add_theme_font_size_override("font_size", 27)
 	scale_status_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	sc_v.add_child(scale_status_lbl)
 
@@ -331,8 +331,8 @@ func _build_ui() -> void:
 	weigh_button = Button.new()
 	weigh_button.set_meta("reference_part", true)
 	weigh_button.text = "⚖️ WEIGH MORTAL RECORD"
-	weigh_button.custom_minimum_size.y = 84
-	weigh_button.add_theme_font_size_override("font_size", 30)
+	weigh_button.custom_minimum_size.y = 98
+	weigh_button.add_theme_font_size_override("font_size", 34)
 	var wb_style := StyleBoxFlat.new()
 	wb_style.bg_color = Color("#7f1d1d") if is_condemned else Color("#0284c7")
 	wb_style.border_color = Color("#ef4444") if is_condemned else Color("#38bdf8")
@@ -371,7 +371,7 @@ func _build_ui() -> void:
 	verdict_title.set_meta("reference_part", true)
 	verdict_title.text = "💀 ARBITER'S VERDICT: CONDEMNED BY KARMIC DEBT" if is_condemned else "🌟 ARBITER'S VERDICT: BLESSED WITH CELESTIAL MERIT"
 	verdict_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	verdict_title.add_theme_font_size_override("font_size", 30)
+	verdict_title.add_theme_font_size_override("font_size", 34)
 	verdict_title.add_theme_color_override("font_color", Color("#ef4444") if is_condemned else Color("#22c55e"))
 	vp_v.add_child(verdict_title)
 
@@ -382,7 +382,7 @@ func _build_ui() -> void:
 	else:
 		verdict_decree.text = "\"Noble soul, your life resonated with virtue, kindness, and honorable choices. The cosmos rewards spiritual merit. You are granted an auspicious rebirth endowed with celestial blessings.\""
 	verdict_decree.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	verdict_decree.add_theme_font_size_override("font_size", 24)
+	verdict_decree.add_theme_font_size_override("font_size", 28)
 	verdict_decree.add_theme_color_override("font_color", Color("#cbd5e1"))
 	vp_v.add_child(verdict_decree)
 
@@ -390,7 +390,7 @@ func _build_ui() -> void:
 	var mod_header := Label.new()
 	mod_header.set_meta("reference_part", true)
 	mod_header.text = "⚡ IMPOSED KARMIC PENALTIES:" if is_condemned else "✨ BESTOWED COSMIC BLESSINGS:"
-	mod_header.add_theme_font_size_override("font_size", 26)
+	mod_header.add_theme_font_size_override("font_size", 30)
 	mod_header.add_theme_color_override("font_color", Color("#f87171") if is_condemned else Color("#38bdf8"))
 	vp_v.add_child(mod_header)
 
@@ -424,7 +424,7 @@ func _build_ui() -> void:
 		var item_title := Label.new()
 		item_title.set_meta("reference_part", true)
 		item_title.text = "%s %s" % [d_info.get("icon", "•"), d_info.get("title", "Effect")]
-		item_title.add_theme_font_size_override("font_size", 26)
+		item_title.add_theme_font_size_override("font_size", 30)
 		item_title.add_theme_color_override("font_color", Color(d_info.get("color", "#f87171")))
 		iv.add_child(item_title)
 
@@ -432,7 +432,7 @@ func _build_ui() -> void:
 		item_desc.set_meta("reference_part", true)
 		item_desc.text = str(d_info.get("desc", ""))
 		item_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		item_desc.add_theme_font_size_override("font_size", 22)
+		item_desc.add_theme_font_size_override("font_size", 26)
 		item_desc.add_theme_color_override("font_color", Color("#cbd5e1"))
 		iv.add_child(item_desc)
 
@@ -468,7 +468,7 @@ func _build_ui() -> void:
 	# Avatar Portrait Preview
 	var av_rect := TextureRect.new()
 	av_rect.set_meta("theme_exempt", true)
-	av_rect.custom_minimum_size = Vector2(116, 116)
+	av_rect.custom_minimum_size = Vector2(136, 136)
 	av_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	av_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	var av_tex: Texture2D = PortraitCatalogRef.get_portrait(
@@ -491,7 +491,7 @@ func _build_ui() -> void:
 	id_title.set_meta("reference_part", true)
 	id_title.text = "NEW MORTAL VESSEL (%s)" % ("FORCED REBIRTH" if is_condemned else "BLESSED REBIRTH")
 	id_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	id_title.add_theme_font_size_override("font_size", 24)
+	id_title.add_theme_font_size_override("font_size", 28)
 	id_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	id_info_v.add_child(id_title)
 
@@ -499,7 +499,7 @@ func _build_ui() -> void:
 	id_name.set_meta("reference_part", true)
 	id_name.text = "Name: %s" % str(reborn_identity["first_name"])
 	id_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	id_name.add_theme_font_size_override("font_size", 28)
+	id_name.add_theme_font_size_override("font_size", 32)
 	id_name.add_theme_color_override("font_color", Color("#ffffff"))
 	id_info_v.add_child(id_name)
 
@@ -512,7 +512,7 @@ func _build_ui() -> void:
 	]
 	id_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	id_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	id_details.add_theme_font_size_override("font_size", 24)
+	id_details.add_theme_font_size_override("font_size", 28)
 	id_details.add_theme_color_override("font_color", Color("#cbd5e1"))
 	id_info_v.add_child(id_details)
 
@@ -521,7 +521,7 @@ func _build_ui() -> void:
 	unnegotiable_note.text = "⛔ UNMODIFIABLE & UNNEGOTIABLE: Destiny is sealed by cosmic verdict." if is_condemned else "✨ BLESSED DESTINY: Reborn with auspicious cosmic grace."
 	unnegotiable_note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	unnegotiable_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	unnegotiable_note.add_theme_font_size_override("font_size", 22)
+	unnegotiable_note.add_theme_font_size_override("font_size", 26)
 	unnegotiable_note.add_theme_color_override("font_color", Color("#f87171") if is_condemned else Color("#4ade80"))
 	vp_v.add_child(unnegotiable_note)
 
@@ -529,8 +529,8 @@ func _build_ui() -> void:
 	accept_button = Button.new()
 	accept_button.set_meta("reference_part", true)
 	accept_button.text = "⚡ ACCEPT FORCED REBIRTH" if is_condemned else "🌟 EMBARK ON BLESSED REBIRTH"
-	accept_button.custom_minimum_size.y = 96
-	accept_button.add_theme_font_size_override("font_size", 32)
+	accept_button.custom_minimum_size.y = 110
+	accept_button.add_theme_font_size_override("font_size", 36)
 	var ab_style := StyleBoxFlat.new()
 	ab_style.bg_color = Color("#7f1d1d") if is_condemned else Color("#15803d")
 	ab_style.border_color = Color("#ef4444") if is_condemned else Color("#22c55e")

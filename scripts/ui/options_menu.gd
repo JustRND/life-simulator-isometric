@@ -55,7 +55,7 @@ func install(screen: Control, settings_pages: Node) -> void:
 
 
 func section(parent: Node, text: String) -> Label:
-	var label: Label = pages._label(text, 30)
+	var label: Label = pages._label(text, 34)
 	if parent.has_meta("reference_menu"):
 		label.set_meta("reference_section", true)
 	var is_light: bool = LifeLibrary.data.theme == "light"
@@ -137,18 +137,18 @@ func _achievements() -> void:
 	for entry in LifeLibrary.ACHIEVEMENTS:
 		var unlocked: bool = LifeLibrary.data.achievements.has(entry[0])
 		section(view.list, ("🏆 " if unlocked else "🔒 ") + entry[1])
-		var label: Label = pages._label(entry[2] + ("\nUnlocked " + str(LifeLibrary.data.achievements[entry[0]]) if unlocked else "\nLocked"), 28)
+		var label: Label = pages._label(entry[2] + ("\nUnlocked " + str(LifeLibrary.data.achievements[entry[0]]) if unlocked else "\nLocked"), 32)
 		view.list.add_child(label)
 
 
 func country_picker(parent: Node) -> OptionButton:
 	var picker := OptionButton.new()
-	picker.custom_minimum_size.y = 90
-	picker.add_theme_font_size_override("font_size", 30)
+	picker.custom_minimum_size.y = 104
+	picker.add_theme_font_size_override("font_size", 34)
 	for country in Creation.COUNTRIES:
 		picker.add_icon_item(Creation.get_flag_for_country(country[0]), country[0])
-	picker.get_popup().add_theme_constant_override("icon_max_width", 58)
-	picker.add_theme_constant_override("icon_max_width", 58)
+	picker.get_popup().add_theme_constant_override("icon_max_width", 70)
+	picker.add_theme_constant_override("icon_max_width", 70)
 	parent.add_child(picker)
 	_style_input(picker)
 	var bp_popup := picker.get_popup()
@@ -173,15 +173,15 @@ func _style_input(control: Control) -> void:
 	control.add_theme_stylebox_override("hover", pages._style(Color("#bfdbfe") if is_light else Color("#1d3353"), Color("#0284c7") if is_light else Color("#64e6ff"), 16))
 	control.add_theme_stylebox_override("focus", pages._style(Color(0, 0, 0, 0), Color("#b45309") if is_light else Color("#ffd481"), 0))
 	control.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#aee4f5"))
-	control.add_theme_font_size_override("font_size", 30)
+	control.add_theme_font_size_override("font_size", 34)
 
 
 func field(parent: Node, placeholder: String) -> LineEdit:
 	var edit := LineEdit.new()
 	edit.placeholder_text = placeholder
 	edit.max_length = 48
-	edit.custom_minimum_size.y = 90
-	edit.add_theme_font_size_override("font_size", 30)
+	edit.custom_minimum_size.y = 104
+	edit.add_theme_font_size_override("font_size", 34)
 	parent.add_child(edit)
 	_style_input(edit)
 	MobileKeyboardManager.attach_to_input(edit, placeholder)
@@ -226,7 +226,7 @@ func _people() -> void:
 	var gender := OptionButton.new()
 	gender.add_item("MALE")
 	gender.add_item("FEMALE")
-	gender.custom_minimum_size.y = 84
+	gender.custom_minimum_size.y = 98
 	view.list.add_child(gender)
 	_style_input(gender)
 	gender.get_popup().add_theme_stylebox_override("panel", pages._style(Color("#12213b"), Color("#40647e"), 16))
@@ -241,14 +241,14 @@ func _people() -> void:
 	for ethnicity in Portraits.ETHNICITIES:
 		for track in range(4):
 			var avatar := Button.new()
-			avatar.custom_minimum_size = Vector2(120, 120)
+			avatar.custom_minimum_size = Vector2(140, 140)
 			avatar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			avatar.toggle_mode = true
 			avatar.button_group = group
 			avatar.button_pressed = ethnicity == "white" and track == 0
 			avatar.icon = Portraits.get_portrait(25, "MALE", track, ethnicity)
 			avatar.expand_icon = true
-			avatar.add_theme_constant_override("icon_max_width", 108)
+			avatar.add_theme_constant_override("icon_max_width", 124)
 			avatar.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 			grid.add_child(avatar)
 			_style_input(avatar)
@@ -267,7 +267,7 @@ func _people() -> void:
 		var row := button(view.list, "%s • %s" % [person.name, person.country], func(): pass)
 		row.icon = Portraits.get_portrait(25, person.gender, person.portrait_track, person.ethnicity)
 		row.expand_icon = true
-		row.add_theme_constant_override("icon_max_width", 80)
+		row.add_theme_constant_override("icon_max_width", 94)
 
 
 
@@ -276,8 +276,8 @@ func _settings() -> void:
 	var audio := CheckButton.new()
 	audio.text = "Mute sound"
 	audio.button_pressed = AudioServer.is_bus_mute(0)
-	audio.custom_minimum_size.y = 94
-	audio.add_theme_font_size_override("font_size", 32)
+	audio.custom_minimum_size.y = 108
+	audio.add_theme_font_size_override("font_size", 36)
 	view.list.add_child(audio)
 	audio.toggled.connect(func(value):
 		AudioServer.set_bus_mute(0, value)
@@ -287,8 +287,8 @@ func _settings() -> void:
 	var haptics := CheckButton.new()
 	haptics.text = "Haptic feedback (Vibration)"
 	haptics.button_pressed = bool(LifeLibrary.data.get("haptics_enabled", true))
-	haptics.custom_minimum_size.y = 94
-	haptics.add_theme_font_size_override("font_size", 32)
+	haptics.custom_minimum_size.y = 108
+	haptics.add_theme_font_size_override("font_size", 36)
 	view.list.add_child(haptics)
 	haptics.toggled.connect(func(value):
 		LifeLibrary.data.haptics_enabled = value
@@ -300,7 +300,7 @@ func _settings() -> void:
 		language.add_item(title)
 	language.select(maxi(0, ["en", "id", "ru"].find(GameLocale.language())))
 	_style_input(language)
-	language.custom_minimum_size.y = 90
+	language.custom_minimum_size.y = 104
 	view.list.add_child(language)
 	section(view.list, "Interface localization: English, Indonesian and Russian. Legacy story text may remain in English.")
 	var status := section(view.list, "")
@@ -368,7 +368,7 @@ func _show_notice() -> void:
 	hbox.add_theme_constant_override("separation", 16)
 	margin.add_child(hbox)
 
-	var label: Label = pages._label("★ ACHIEVEMENT UNLOCKED\n%s — %s" % entry, 30)
+	var label: Label = pages._label("★ ACHIEVEMENT UNLOCKED\n%s — %s" % entry, 34)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -379,17 +379,17 @@ func _show_notice() -> void:
 	close_btn.text = "✕"
 	close_btn.focus_mode = Control.FOCUS_NONE
 	close_btn.mouse_filter = Control.MOUSE_FILTER_STOP
-	close_btn.custom_minimum_size = Vector2(76, 76)
+	close_btn.custom_minimum_size = Vector2(88, 88)
 	close_btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	close_btn.add_theme_font_size_override("font_size", 32)
+	close_btn.add_theme_font_size_override("font_size", 36)
 
 	var x_color: Color = Color("#b45309") if is_light else Color("#ffd481")
 	var btn_style := StyleBoxFlat.new()
 	btn_style.bg_color = Color("#000000", 0.08) if is_light else Color("#ffffff", 0.10)
 	btn_style.border_color = x_color
 	btn_style.set_border_width_all(2)
-	btn_style.set_corner_radius_all(32)
+	btn_style.set_corner_radius_all(40)
 	btn_style.content_margin_left = 12
 	btn_style.content_margin_right = 12
 	btn_style.content_margin_top = 8

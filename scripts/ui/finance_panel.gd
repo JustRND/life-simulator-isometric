@@ -26,12 +26,12 @@ func install(screen: Control) -> void:
 	FinanceMarket.ensure.call_deferred(PlayerData)
 
 
-func label(parent: Node, text: String, size: int = 28, color: Color = Color.TRANSPARENT) -> Label:
+func label(parent: Node, text: String, size: int = 32, color: Color = Color.TRANSPARENT) -> Label:
 	var node := Label.new()
 	node.set_meta("reference_part", true)
 	node.text = text
 	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	node.add_theme_font_size_override("font_size", maxi(26, size))
+	node.add_theme_font_size_override("font_size", maxi(30, size))
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	if color != Color.TRANSPARENT:
 		node.add_theme_color_override("font_color", color)
@@ -42,7 +42,7 @@ func label(parent: Node, text: String, size: int = 28, color: Color = Color.TRAN
 
 
 ## Creates a tactile, game-like button with a visible border, rounded corners, and shadow backdrop.
-func create_market_button(parent: Node, text: String, color: Color, action: Callable, disabled: bool = false, min_height: int = 68) -> Button:
+func create_market_button(parent: Node, text: String, color: Color, action: Callable, disabled: bool = false, min_height: int = 82) -> Button:
 	var btn := Button.new()
 	btn.set_meta("reference_part", true)
 	btn.set_meta("market_button", true)
@@ -51,7 +51,7 @@ func create_market_button(parent: Node, text: String, color: Color, action: Call
 	btn.custom_minimum_size.y = min_height
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	btn.add_theme_font_size_override("font_size", 26)
+	btn.add_theme_font_size_override("font_size", 30)
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	
 	var is_light: bool = LifeLibrary.data.theme == "light"
@@ -63,10 +63,10 @@ func create_market_button(parent: Node, text: String, color: Color, action: Call
 	normal_sb.shadow_color = Color(0, 0, 0, 0.28)
 	normal_sb.shadow_size = 4
 	normal_sb.shadow_offset = Vector2(0, 3)
-	normal_sb.content_margin_left = 22
-	normal_sb.content_margin_right = 22
-	normal_sb.content_margin_top = 12
-	normal_sb.content_margin_bottom = 12
+	normal_sb.content_margin_left = 26
+	normal_sb.content_margin_right = 26
+	normal_sb.content_margin_top = 14
+	normal_sb.content_margin_bottom = 14
 	btn.add_theme_stylebox_override("normal", normal_sb)
 	
 	var hover_sb := normal_sb.duplicate() as StyleBoxFlat
@@ -150,9 +150,9 @@ func open() -> void:
 	for tab in ["Exchange", "Portfolio", "My Businesses"]:
 		var is_active: bool = (tab == selected_tab)
 		var tab_color := Color("#0284c7") if is_active else Color("#475569" if is_light else "#1e293b")
-		var tab_btn := create_market_button(tabs, tab, tab_color, func(): selected_tab = tab; message = ""; open(), false, 64)
+		var tab_btn := create_market_button(tabs, tab, tab_color, func(): selected_tab = tab; message = ""; open(), false, 78)
 		tab_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		tab_btn.add_theme_font_size_override("font_size", 26)
+		tab_btn.add_theme_font_size_override("font_size", 30)
 		if is_active:
 			tab_btn.add_theme_color_override("font_color", Color.WHITE)
 		else:
@@ -255,9 +255,9 @@ func _exchange(list: VBoxContainer) -> void:
 	var pulse_btn := create_market_button(pulse_row, "🔄 Pulse Live Quotes", Color("#0284c7"), func():
 		FinanceMarket.tick_live_market(PlayerData)
 		open()
-	, false, 54)
+	, false, 68)
 	pulse_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	pulse_btn.add_theme_font_size_override("font_size", 26)
+	pulse_btn.add_theme_font_size_override("font_size", 30)
 
 	var listings_label := label(list, "8 active listings • 24 company archetypes • Dynamic market cycles with crashes & rallies.", 25)
 	listings_label.name = "ActiveListings"
@@ -335,7 +335,7 @@ func _exchange(list: VBoxContainer) -> void:
 
 		var trend_lbl := Label.new()
 		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
-		trend_lbl.add_theme_font_size_override("font_size", 25)
+		trend_lbl.add_theme_font_size_override("font_size", 29)
 		var text_col: Color
 		if is_crash:
 			text_col = Color("#ef4444" if not is_light else "#b91c1c")
@@ -481,8 +481,8 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	line_edit.set_meta("reference_part", true)
 	line_edit.text = "10" if is_buy else str(mini(owned_qty, 10))
 	line_edit.placeholder_text = "Type share quantity..."
-	line_edit.custom_minimum_size.y = 68
-	line_edit.add_theme_font_size_override("font_size", 32)
+	line_edit.custom_minimum_size.y = 82
+	line_edit.add_theme_font_size_override("font_size", 36)
 	line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var le_empty := StyleBoxEmpty.new()
 	le_empty.content_margin_left = 16
@@ -607,17 +607,17 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 				var current_qty := int(line_edit.text)
 				line_edit.text = str(current_qty + p_val)
 				update_calculation.call()
-			, false, 52)
+			, false, 64)
 			pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			pb.add_theme_font_size_override("font_size", 22)
+			pb.add_theme_font_size_override("font_size", 26)
 		
 		var max_b := create_market_button(preset_row, "MAX", Color("#0284c7"), func():
 			var limit_qty := mini(max_affordable, int(c.available))
 			line_edit.text = str(maxi(1, limit_qty))
 			update_calculation.call()
-		, max_affordable <= 0, 52)
+		, max_affordable <= 0, 64)
 		max_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		max_b.add_theme_font_size_override("font_size", 22)
+		max_b.add_theme_font_size_override("font_size", 26)
 	else:
 		for frac in [0.25, 0.50, 0.75]:
 			var pct_label := "%d%%" % int(frac * 100)
@@ -625,16 +625,16 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 				var q := maxi(1, int(owned_qty * frac))
 				line_edit.text = str(q)
 				update_calculation.call()
-			, owned_qty <= 0, 52)
+			, owned_qty <= 0, 64)
 			pb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			pb.add_theme_font_size_override("font_size", 22)
+			pb.add_theme_font_size_override("font_size", 26)
 		
 		var all_b := create_market_button(preset_row, "ALL (100%)", Color("#e11d48"), func():
 			line_edit.text = str(owned_qty)
 			update_calculation.call()
-		, owned_qty <= 0, 52)
+		, owned_qty <= 0, 64)
 		all_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		all_b.add_theme_font_size_override("font_size", 22)
+		all_b.add_theme_font_size_override("font_size", 26)
 	
 	confirm_btn.pressed.connect(func():
 		var final_qty := int(line_edit.text)

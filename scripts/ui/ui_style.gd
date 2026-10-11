@@ -1,8 +1,8 @@
 class_name UIStyle
 extends RefCounted
 ## Shared tokens for custom controls that retain their own layouts and accents.
-const BODY_SIZE := 32
-const DETAIL_SIZE := 30
+const BODY_SIZE := 36
+const DETAIL_SIZE := 34
 const BUTTON_HEIGHT := 96
 const RADIUS := 10
 const OPEN_SECONDS := 0.34
@@ -72,7 +72,7 @@ func apply_button(button: Button) -> void:
 		button.add_theme_font_size_override("font_size", DETAIL_SIZE if in_grid else BODY_SIZE)
 
 	if in_grid:
-		button.custom_minimum_size.y = clampf(button.custom_minimum_size.y, 58, 68)
+		button.custom_minimum_size.y = clampf(button.custom_minimum_size.y, 68, 80)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -94,10 +94,10 @@ func apply_button(button: Button) -> void:
 				style.border_color = existing.border_color
 		style.set_corner_radius_all(RADIUS)
 		style.set_border_width_all(2)
-		style.content_margin_left = 12 if in_grid else 20
-		style.content_margin_right = 12 if in_grid else 20
-		style.content_margin_top = 8 if in_grid else 14
-		style.content_margin_bottom = 8 if in_grid else 14
+		style.content_margin_left = 14 if in_grid else 24
+		style.content_margin_right = 14 if in_grid else 24
+		style.content_margin_top = 10 if in_grid else 16
+		style.content_margin_bottom = 10 if in_grid else 16
 		if state == "normal" or state == "hover":
 			style.shadow_color = Color(0, 0, 0, 0.25)
 			style.shadow_size = 4

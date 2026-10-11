@@ -1733,11 +1733,11 @@ func show_event_popup() -> void:
 	if event_title != null:
 		event_title.text = str(current_event.get("title", "LIFE EVENT"))
 		event_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#00f0ff"))
-		event_title.add_theme_font_size_override("font_size", 46)
+		event_title.add_theme_font_size_override("font_size", 50)
 
 	event_description.text = get_event_text(current_event) + "\n\nWhat do you do?"
 	event_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	event_description.add_theme_font_size_override("normal_font_size", 34)
+	event_description.add_theme_font_size_override("normal_font_size", 38)
 	event_description.add_theme_color_override("default_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	var desc_inset := StyleBoxEmpty.new()
 	desc_inset.content_margin_left = 32
@@ -2594,13 +2594,13 @@ func update_history_panel() -> void:
 		else:
 			badge_lbl.text = "✨ UNIQUE EVENT"
 			badge_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
-		badge_lbl.add_theme_font_size_override("font_size", 24)
+		badge_lbl.add_theme_font_size_override("font_size", 28)
 		badge_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		header_hbox.add_child(badge_lbl)
 
 		var age_lbl := Label.new()
 		age_lbl.text = "AGE %d" % int(entry.get("age", 0))
-		age_lbl.add_theme_font_size_override("font_size", 24)
+		age_lbl.add_theme_font_size_override("font_size", 28)
 		age_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		header_hbox.add_child(age_lbl)
 
@@ -2608,7 +2608,7 @@ func update_history_panel() -> void:
 		desc_lbl.text = str(entry.get("text", ""))
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		desc_lbl.add_theme_font_size_override("font_size", 26)
+		desc_lbl.add_theme_font_size_override("font_size", 30)
 		desc_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		vbox.add_child(desc_lbl)
 
@@ -2636,7 +2636,7 @@ func update_history_panel() -> void:
 			empty.text = "No life events recorded yet.\nYour milestones, achievements, and unique choices will appear here."
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		empty.add_theme_font_size_override("font_size", 28)
+		empty.add_theme_font_size_override("font_size", 32)
 		empty.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		history_list.add_child(empty)
 
@@ -2705,7 +2705,7 @@ func update_character_panel() -> void:
 		if PlayerData.life_milestones.is_empty():
 			var empty_lbl := Label.new()
 			empty_lbl.text = "No life milestones achieved yet."
-			empty_lbl.add_theme_font_size_override("font_size", 26)
+			empty_lbl.add_theme_font_size_override("font_size", 30)
 			empty_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 			m_list.add_child(empty_lbl)
 		else:
@@ -2719,7 +2719,7 @@ func update_character_panel() -> void:
 					var item := Label.new()
 					item.text = "%s Age %d: %s" % [m_icon, m_age, m_text]
 					item.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-					item.add_theme_font_size_override("font_size", 28)
+					item.add_theme_font_size_override("font_size", 32)
 					item.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
 					m_list.add_child(item)
 
@@ -2896,14 +2896,14 @@ func _render_assets_list() -> void:
 
 	var stitle := Label.new()
 	stitle.text = "🛍️ COMMERCIAL SHOPPING & BROKERAGES"
-	stitle.add_theme_font_size_override("font_size", 30)
+	stitle.add_theme_font_size_override("font_size", 34)
 	stitle.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(stitle)
 
 	var sdesc := Label.new()
 	sdesc.text = "Vehicle dealerships, real estate brokerages, jewelers, aircraft, and yacht dealers are now located in the dedicated Shopping hub inside Activities!"
 	sdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sdesc.add_theme_font_size_override("font_size", 24)
+	sdesc.add_theme_font_size_override("font_size", 28)
 	sdesc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	sv.add_child(sdesc)
 
@@ -2911,7 +2911,7 @@ func _render_assets_list() -> void:
 		_show_shopping_modal()
 	)
 	btn_open_shop.custom_minimum_size.y = 72
-	btn_open_shop.add_theme_font_size_override("font_size", 28)
+	btn_open_shop.add_theme_font_size_override("font_size", 32)
 	sv.add_child(btn_open_shop)
 
 	assets_list.add_child(store_card)
@@ -2975,7 +2975,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 
 	var title_lbl := Label.new()
 	title_lbl.text = "%s (%d)" % [title_text, matching_items.size()]
-	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	var tc: Color = theme_color.darkened(0.35) if (is_light and theme_color.get_luminance() > 0.35) else theme_color
 	title_lbl.add_theme_color_override("font_color", tc)
 	sv.add_child(title_lbl)
@@ -2983,7 +2983,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 	if matching_items.is_empty():
 		var empty_lbl := Label.new()
 		empty_lbl.text = "You do not currently own any assets in this category. Visit the marketplaces above to acquire vehicles or properties!"
-		empty_lbl.add_theme_font_size_override("font_size", 24)
+		empty_lbl.add_theme_font_size_override("font_size", 28)
 		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(empty_lbl)
@@ -3027,7 +3027,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 
 			var name_lbl := Label.new()
 			name_lbl.text = str(item.get("name", "Asset"))
-			name_lbl.add_theme_font_size_override("font_size", 26)
+			name_lbl.add_theme_font_size_override("font_size", 30)
 			name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 			name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			iv.add_child(name_lbl)
@@ -3043,7 +3043,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 				]
 			else:
 				val_lbl.text = "Resale Value: $%s   •   Upkeep: $%s/yr" % [_format_number(cur_val), _format_number(upkeep)]
-			val_lbl.add_theme_font_size_override("font_size", 22)
+			val_lbl.add_theme_font_size_override("font_size", 26)
 			val_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 			val_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			iv.add_child(val_lbl)
@@ -3078,7 +3078,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 				m_info.text = "🏦 Active Mortgage: $%s balance remaining (%d years left)\n• Annual Expense: $%s/yr ($%s principal + $%s interest at %.1f%% APR)" % [
 					_format_number(rem_p), y_left, _format_number(ann_prin + ann_int), _format_number(ann_prin), _format_number(ann_int), apr_pct
 				]
-				m_info.add_theme_font_size_override("font_size", 20)
+				m_info.add_theme_font_size_override("font_size", 24)
 				m_info.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
 				m_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				mv.add_child(m_info)
@@ -3091,7 +3091,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 					update_assets_panel()
 				, true)
 				m_pay_btn.custom_minimum_size.y = 38
-				m_pay_btn.add_theme_font_size_override("font_size", 20)
+				m_pay_btn.add_theme_font_size_override("font_size", 24)
 				m_pay_btn.disabled = (PlayerData.money + PlayerData.bank_savings) < rem_p
 				mv.add_child(m_pay_btn)
 				iv.add_child(m_box)
@@ -3140,7 +3140,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			)
 			btn_use.custom_minimum_size.y = 58
 			btn_use.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_use.add_theme_font_size_override("font_size", 22)
+			btn_use.add_theme_font_size_override("font_size", 26)
 			if is_used:
 				btn_use.disabled = true
 				btn_use.modulate = Color(0.6, 0.6, 0.6, 0.65)
@@ -3161,7 +3161,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			)
 			btn_sell.custom_minimum_size.y = 58
 			btn_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_sell.add_theme_font_size_override("font_size", 22)
+			btn_sell.add_theme_font_size_override("font_size", 26)
 			if is_minor_property:
 				btn_sell.disabled = true
 				btn_sell.modulate = Color(0.6, 0.6, 0.6, 0.65)
@@ -3181,7 +3181,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 					active_box.add_theme_stylebox_override("panel", ab_style)
 					var ab_lbl := Label.new()
 					ab_lbl.text = "  🏡 CURRENT RESIDENCE & ACTIVE ROOM TEMPLATE  "
-					ab_lbl.add_theme_font_size_override("font_size", 20)
+					ab_lbl.add_theme_font_size_override("font_size", 24)
 					ab_lbl.add_theme_color_override("font_color", Color("#34d399") if not is_light else Color("#065f46"))
 					ab_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 					active_box.add_child(ab_lbl)
@@ -3199,7 +3199,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 						SaveManager.save_game()
 					, true)
 					btn_set_residence.custom_minimum_size.y = 54
-					btn_set_residence.add_theme_font_size_override("font_size", 20)
+					btn_set_residence.add_theme_font_size_override("font_size", 24)
 					iv.add_child(btn_set_residence)
 
 	assets_list.add_child(section_card)
@@ -3223,14 +3223,14 @@ func _render_owned_pets_section() -> void:
 	var pets_list: Array = PlayerData.get("pets") if PlayerData.get("pets") is Array else []
 	var title_lbl := Label.new()
 	title_lbl.text = "🐾 OWNED PETS & COMPANIONS (%d)" % pets_list.size()
-	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	title_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#10b981"))
 	sv.add_child(title_lbl)
 
 	if pets_list.is_empty():
 		var empty_lbl := Label.new()
 		empty_lbl.text = "You do not currently care for any pets. Visit Pet Adoption in Activities to welcome a companion to your home!"
-		empty_lbl.add_theme_font_size_override("font_size", 24)
+		empty_lbl.add_theme_font_size_override("font_size", 28)
 		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(empty_lbl)
@@ -3290,7 +3290,7 @@ func _render_owned_pets_section() -> void:
 				ic_lbl.text = p_icon
 				ic_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 				ic_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-				ic_lbl.add_theme_font_size_override("font_size", 58)
+				ic_lbl.add_theme_font_size_override("font_size", 62)
 				icon_box.add_child(ic_lbl)
 				ph.add_child(icon_box)
 
@@ -3301,7 +3301,7 @@ func _render_owned_pets_section() -> void:
 
 			var header_lbl := Label.new()
 			header_lbl.text = "%s %s • %s (%d yrs old)" % [p_icon, p_name, p_breed, p_age]
-			header_lbl.add_theme_font_size_override("font_size", 26)
+			header_lbl.add_theme_font_size_override("font_size", 30)
 			header_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 			pv.add_child(header_lbl)
 
@@ -3311,7 +3311,7 @@ func _render_owned_pets_section() -> void:
 				p_hap,
 				_format_number(p_upkeep)
 			]
-			stats_lbl.add_theme_font_size_override("font_size", 23)
+			stats_lbl.add_theme_font_size_override("font_size", 27)
 			stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 			pv.add_child(stats_lbl)
 
@@ -3329,7 +3329,7 @@ func _render_owned_pets_section() -> void:
 			)
 			btn_play.custom_minimum_size.y = 58
 			btn_play.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_play.add_theme_font_size_override("font_size", 22)
+			btn_play.add_theme_font_size_override("font_size", 26)
 			if has_played_this_year:
 				btn_play.disabled = true
 				btn_play.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -3345,7 +3345,7 @@ func _render_owned_pets_section() -> void:
 			)
 			btn_walk.custom_minimum_size.y = 58
 			btn_walk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_walk.add_theme_font_size_override("font_size", 22)
+			btn_walk.add_theme_font_size_override("font_size", 26)
 			if has_walked_this_year:
 				btn_walk.disabled = true
 				btn_walk.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -3361,7 +3361,7 @@ func _render_owned_pets_section() -> void:
 			)
 			btn_treat.custom_minimum_size.y = 58
 			btn_treat.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_treat.add_theme_font_size_override("font_size", 22)
+			btn_treat.add_theme_font_size_override("font_size", 26)
 			if has_treated_this_year:
 				btn_treat.disabled = true
 				btn_treat.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -3377,7 +3377,7 @@ func _render_owned_pets_section() -> void:
 			)
 			btn_vet.custom_minimum_size.y = 58
 			btn_vet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_vet.add_theme_font_size_override("font_size", 22)
+			btn_vet.add_theme_font_size_override("font_size", 26)
 			if has_vetted_this_year:
 				btn_vet.disabled = true
 				btn_vet.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -3392,7 +3392,7 @@ func _render_owned_pets_section() -> void:
 			rename_edit.text = p_name
 			rename_edit.placeholder_text = "Enter new pet name..."
 			rename_edit.custom_minimum_size.y = 54
-			rename_edit.add_theme_font_size_override("font_size", 23)
+			rename_edit.add_theme_font_size_override("font_size", 27)
 			if has_node("OptionsMenu"):
 				get_node("OptionsMenu")._style_input(rename_edit)
 			MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % p_name)
@@ -3412,14 +3412,14 @@ func _render_owned_pets_section() -> void:
 			)
 			btn_save_name.custom_minimum_size.y = 40
 			btn_save_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_save_name.add_theme_font_size_override("font_size", 21)
+			btn_save_name.add_theme_font_size_override("font_size", 25)
 			rename_btn_row.add_child(btn_save_name)
 
 			var btn_cancel_name := _create_cyber_button("✖ Cancel", Color("#64748b"), func():
 				rename_box.visible = false
 			)
 			btn_cancel_name.custom_minimum_size.y = 40
-			btn_cancel_name.add_theme_font_size_override("font_size", 21)
+			btn_cancel_name.add_theme_font_size_override("font_size", 25)
 			rename_btn_row.add_child(btn_cancel_name)
 			rename_box.add_child(rename_btn_row)
 			pv.add_child(rename_box)
@@ -3433,7 +3433,7 @@ func _render_owned_pets_section() -> void:
 			)
 			btn_rename.custom_minimum_size.y = 40
 			btn_rename.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_rename.add_theme_font_size_override("font_size", 21)
+			btn_rename.add_theme_font_size_override("font_size", 25)
 			sec_h.add_child(btn_rename)
 
 	assets_list.add_child(section_card)
@@ -3478,7 +3478,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		back_hub_btn.text = "← Hub"
 		back_hub_btn.custom_minimum_size = Vector2(88, 48)
 		back_hub_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		back_hub_btn.add_theme_font_size_override("font_size", 22)
+		back_hub_btn.add_theme_font_size_override("font_size", 26)
 		back_hub_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 		back_hub_btn.add_theme_color_override("font_hover_color", border_color)
 
@@ -3528,7 +3528,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		_format_number(PlayerData.bank_savings),
 		_format_number(PlayerData.money + PlayerData.bank_savings)
 	]
-	bal_lbl.add_theme_font_size_override("font_size", 26)
+	bal_lbl.add_theme_font_size_override("font_size", 30)
 	bal_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 	bal_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bm.add_child(bal_lbl)
@@ -3545,7 +3545,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		move_card.add_child(mbm)
 		var mlbl := Label.new()
 		mlbl.text = "🚪 MOVING OUT: Purchasing any property below will establish your new home and move you out from your parents' house!"
-		mlbl.add_theme_font_size_override("font_size", 24)
+		mlbl.add_theme_font_size_override("font_size", 28)
 		mlbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 		mlbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		mbm.add_child(mlbl)
@@ -3622,7 +3622,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 			icon_lbl.custom_minimum_size = Vector2(280, 150)
 			icon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			icon_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			icon_lbl.add_theme_font_size_override("font_size", 80)
+			icon_lbl.add_theme_font_size_override("font_size", 84)
 			img_frame.add_child(icon_lbl)
 
 		# 2. PRODUCT NAME  ------- PRICE
@@ -3633,14 +3633,14 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		var item_name_lbl := Label.new()
 		item_name_lbl.text = item_name
 		item_name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		item_name_lbl.add_theme_font_size_override("font_size", 32)
+		item_name_lbl.add_theme_font_size_override("font_size", 36)
 		item_name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		item_name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		row_name_price.add_child(item_name_lbl)
 
 		var price_label := Label.new()
 		price_label.text = "$%s" % _format_number(price)
-		price_label.add_theme_font_size_override("font_size", 34)
+		price_label.add_theme_font_size_override("font_size", 38)
 		price_label.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row_name_price.add_child(price_label)
@@ -3653,7 +3653,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		var upkeep_lbl := Label.new()
 		upkeep_lbl.text = "Annual Upkeep: $%s/yr" % _format_number(upkeep)
 		upkeep_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		upkeep_lbl.add_theme_font_size_override("font_size", 26)
+		upkeep_lbl.add_theme_font_size_override("font_size", 30)
 		upkeep_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 		row_upkeep_perk.add_child(upkeep_lbl)
 
@@ -3680,7 +3680,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 
 		var perk_lbl := Label.new()
 		perk_lbl.text = "%s Lifestyle Asset" % perk_word
-		perk_lbl.add_theme_font_size_override("font_size", 26)
+		perk_lbl.add_theme_font_size_override("font_size", 30)
 		perk_lbl.add_theme_color_override("font_color", Color("#db2777") if is_light else Color("#f472b6"))
 		perk_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		row_upkeep_perk.add_child(perk_lbl)
@@ -3688,7 +3688,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		# 4. DESCRIPTION
 		var desc_lbl := Label.new()
 		desc_lbl.text = desc
-		desc_lbl.add_theme_font_size_override("font_size", 25)
+		desc_lbl.add_theme_font_size_override("font_size", 29)
 		desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(desc_lbl)
@@ -3719,7 +3719,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		var can_afford_any: bool = can_afford_funds or can_afford_cc
 
 		var req_lbl := Label.new()
-		req_lbl.add_theme_font_size_override("font_size", 24)
+		req_lbl.add_theme_font_size_override("font_size", 28)
 		req_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if not is_of_age:
 			req_lbl.text = "⚠️ Legal Requirement: Minimum Age %d+ Required (You are Age %d)" % [min_age, PlayerData.age]
@@ -3778,7 +3778,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 					show_tab("timeline")
 			, true)
 			btn_buy_funds.custom_minimum_size.y = 68
-			btn_buy_funds.add_theme_font_size_override("font_size", 26)
+			btn_buy_funds.add_theme_font_size_override("font_size", 30)
 			btn_buy_funds.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			btn_buy_funds.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_buy_funds.set_meta("center_text", true)
@@ -3820,7 +3820,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 					show_tab("timeline")
 			, true)
 			btn_buy_cc.custom_minimum_size.y = 68
-			btn_buy_cc.add_theme_font_size_override("font_size", 26)
+			btn_buy_cc.add_theme_font_size_override("font_size", 30)
 			btn_buy_cc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			btn_buy_cc.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_buy_cc.set_meta("center_text", true)
@@ -3856,7 +3856,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 					show_tab("timeline")
 			, true)
 			btn_buy.custom_minimum_size.y = 62
-			btn_buy.add_theme_font_size_override("font_size", 28)
+			btn_buy.add_theme_font_size_override("font_size", 32)
 			btn_buy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			btn_buy.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_buy.set_meta("center_text", true)
@@ -3884,7 +3884,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				_open_mortgage_panel(item, overlay)
 			, true)
 			btn_mortgage.custom_minimum_size.y = 68
-			btn_mortgage.add_theme_font_size_override("font_size", 26)
+			btn_mortgage.add_theme_font_size_override("font_size", 30)
 			btn_mortgage.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			btn_mortgage.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_mortgage.set_meta("center_text", true)
@@ -3990,7 +3990,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	var btn_back := Button.new()
 	btn_back.text = "← BACK TO PROPERTIES"
 	btn_back.custom_minimum_size = Vector2(230, 48)
-	btn_back.add_theme_font_size_override("font_size", 24)
+	btn_back.add_theme_font_size_override("font_size", 28)
 	btn_back.add_theme_color_override("font_color", Color("#ffffff") if not is_light else Color("#064e3b"))
 	btn_back.add_theme_color_override("font_hover_color", Color("#10b981"))
 	var back_style := StyleBoxFlat.new()
@@ -4016,14 +4016,14 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
-	title_lbl.add_theme_font_size_override("font_size", 30)
+	title_lbl.add_theme_font_size_override("font_size", 34)
 	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	header_row.add_child(title_lbl)
 
 	var close_btn := Button.new()
 	close_btn.text = "✕"
-	close_btn.custom_minimum_size = Vector2(68, 58)
-	close_btn.add_theme_font_size_override("font_size", 26)
+	close_btn.custom_minimum_size = Vector2(80, 68)
+	close_btn.add_theme_font_size_override("font_size", 30)
 	close_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 	close_btn.add_theme_color_override("font_hover_color", Color("#f43f5e"))
 	var close_style := StyleBoxFlat.new()
@@ -4044,7 +4044,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	# Subtitle
 	var sub_lbl := Label.new()
 	sub_lbl.text = "Fixed-Rate Residential Financing Plans with Annual Principal, Interest & Years Left Breakdown"
-	sub_lbl.add_theme_font_size_override("font_size", 22)
+	sub_lbl.add_theme_font_size_override("font_size", 26)
 	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	main_vbox.add_child(sub_lbl)
@@ -4090,7 +4090,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 
 	var p_title := Label.new()
 	p_title.text = "🏡 %s" % item_name
-	p_title.add_theme_font_size_override("font_size", 28)
+	p_title.add_theme_font_size_override("font_size", 32)
 	p_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	pv.add_child(p_title)
 
@@ -4106,7 +4106,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 		PlayerData.credit_score,
 		PlayerData.get_credit_rating()
 	]
-	p_desc.add_theme_font_size_override("font_size", 22)
+	p_desc.add_theme_font_size_override("font_size", 26)
 	p_desc.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	p_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	pv.add_child(p_desc)
@@ -4140,13 +4140,13 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 		var o_name := Label.new()
 		o_name.text = "📑 %d-YEAR FIXED MORTGAGE (%.1f%% APR)" % [term_years, apr * 100.0]
 		o_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		o_name.add_theme_font_size_override("font_size", 26)
+		o_name.add_theme_font_size_override("font_size", 30)
 		o_name.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		o_header.add_child(o_name)
 
 		var o_ann_total := Label.new()
 		o_ann_total.text = "$%s/yr" % _format_number(int(plan.get("annual_payment", 0)))
-		o_ann_total.add_theme_font_size_override("font_size", 28)
+		o_ann_total.add_theme_font_size_override("font_size", 32)
 		o_ann_total.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		o_header.add_child(o_ann_total)
 
@@ -4160,7 +4160,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 			_format_number(int(plan.get("total_interest", 0))),
 			_format_number(int(plan.get("total_cost", 0)))
 		]
-		o_breakdown.add_theme_font_size_override("font_size", 22)
+		o_breakdown.add_theme_font_size_override("font_size", 26)
 		o_breakdown.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		o_breakdown.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ov.add_child(o_breakdown)
@@ -4183,7 +4183,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 				add_life_event(str(m_res.get("message", "Application declined.")), "finance")
 		, true)
 		btn_apply.custom_minimum_size.y = 64
-		btn_apply.add_theme_font_size_override("font_size", 24)
+		btn_apply.add_theme_font_size_override("font_size", 28)
 		btn_apply.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_apply.set_meta("center_text", true)
 
@@ -4252,7 +4252,7 @@ func update_bank_panel() -> void:
 
 	var sav_title := Label.new()
 	sav_title.text = "🏦 HIGH-YIELD SAVINGS ACCOUNT (2.5% APR)"
-	sav_title.add_theme_font_size_override("font_size", 32)
+	sav_title.add_theme_font_size_override("font_size", 36)
 	sav_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	sv.add_child(sav_title)
 
@@ -4261,13 +4261,13 @@ func update_bank_panel() -> void:
 		_format_number(PlayerData.bank_savings),
 		_format_number(PlayerData.money)
 	]
-	sav_bal.add_theme_font_size_override("font_size", 28)
+	sav_bal.add_theme_font_size_override("font_size", 32)
 	sav_bal.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	sv.add_child(sav_bal)
 
 	var dep_title := Label.new()
 	dep_title.text = "Deposit Cash into Bank Balance:"
-	dep_title.add_theme_font_size_override("font_size", 26)
+	dep_title.add_theme_font_size_override("font_size", 30)
 	dep_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(dep_title)
 
@@ -4300,7 +4300,7 @@ func update_bank_panel() -> void:
 
 	var wth_title := Label.new()
 	wth_title.text = "Withdraw from Bank Balance to Cash:"
-	wth_title.add_theme_font_size_override("font_size", 26)
+	wth_title.add_theme_font_size_override("font_size", 30)
 	wth_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	sv.add_child(wth_title)
 
@@ -4351,14 +4351,14 @@ func update_bank_panel() -> void:
 
 	var ins_title := Label.new()
 	ins_title.text = "🛡️ ASSET & PROPERTY INSURANCE (UNDERWRITING)"
-	ins_title.add_theme_font_size_override("font_size", 32)
+	ins_title.add_theme_font_size_override("font_size", 36)
 	ins_title.add_theme_color_override("font_color", ins_theme_col)
 	iv.add_child(ins_title)
 
 	var ins_desc := Label.new()
 	ins_desc.text = "• First National Pixel Bank Underwriting Division provides full replacement guarantees against catastrophic earthquakes, wildfires, collisions, and total-loss events.\n• Policies carry expensive annual premiums billed annually upon aging."
 	ins_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ins_desc.add_theme_font_size_override("font_size", 24)
+	ins_desc.add_theme_font_size_override("font_size", 28)
 	ins_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	iv.add_child(ins_desc)
 
@@ -4374,7 +4374,7 @@ func update_bank_panel() -> void:
 
 	var veh_hdr := Label.new()
 	veh_hdr.text = "🚗 VEHICLE INSURANCE (Cars, Bikes, Motorcycles, Aircraft & Yachts)"
-	veh_hdr.add_theme_font_size_override("font_size", 28)
+	veh_hdr.add_theme_font_size_override("font_size", 32)
 	veh_hdr.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	veh_box.add_child(veh_hdr)
 
@@ -4387,7 +4387,7 @@ func update_bank_panel() -> void:
 		_format_number(veh_premium)
 	]
 	veh_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	veh_info.add_theme_font_size_override("font_size", 26)
+	veh_info.add_theme_font_size_override("font_size", 30)
 	veh_info.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	veh_box.add_child(veh_info)
 
@@ -4423,7 +4423,7 @@ func update_bank_panel() -> void:
 
 	var prop_hdr := Label.new()
 	prop_hdr.text = "🏠 PROPERTY INSURANCE (Real Estate, Homes, Apartments & Mansions)"
-	prop_hdr.add_theme_font_size_override("font_size", 28)
+	prop_hdr.add_theme_font_size_override("font_size", 32)
 	prop_hdr.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	prop_box.add_child(prop_hdr)
 
@@ -4436,7 +4436,7 @@ func update_bank_panel() -> void:
 		_format_number(prop_premium)
 	]
 	prop_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	prop_info.add_theme_font_size_override("font_size", 26)
+	prop_info.add_theme_font_size_override("font_size", 30)
 	prop_info.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	prop_box.add_child(prop_info)
 
@@ -4473,32 +4473,32 @@ func update_bank_panel() -> void:
 
 	var sum_title := Label.new()
 	sum_title.text = "💳 LIABILITIES & DEBT OVERVIEW"
-	sum_title.add_theme_font_size_override("font_size", 32)
+	sum_title.add_theme_font_size_override("font_size", 36)
 	sum_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	summary_vbox.add_child(sum_title)
 
 	var cs_lbl := Label.new()
 	cs_lbl.text = "• Credit Score: %d (%s)" % [PlayerData.credit_score, PlayerData.get_credit_rating()]
-	cs_lbl.add_theme_font_size_override("font_size", 28)
+	cs_lbl.add_theme_font_size_override("font_size", 32)
 	cs_lbl.add_theme_color_override("font_color", PlayerData.get_credit_score_color())
 	summary_vbox.add_child(cs_lbl)
 
 	var loan_lbl := Label.new()
 	loan_lbl.text = "• Active Bank Loan: $%s  (@ %d%% APR)" % [_format_number(PlayerData.loan_balance), int(PlayerData.loan_interest_rate * 100)]
-	loan_lbl.add_theme_font_size_override("font_size", 28)
+	loan_lbl.add_theme_font_size_override("font_size", 32)
 	loan_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	summary_vbox.add_child(loan_lbl)
 
 	var tax_lbl := Label.new()
 	var cc_text := ("\n• Credit Card Balance: $%s" % _format_number(PlayerData.credit_card_balance)) if PlayerData.credit_card_balance > 0 else ""
 	tax_lbl.text = "• Unpaid Tax: $%s%s\n• Other Outstanding Debt: $%s" % [_format_number(PlayerData.tax_debt), cc_text, _format_number(PlayerData.debt)]
-	tax_lbl.add_theme_font_size_override("font_size", 28)
+	tax_lbl.add_theme_font_size_override("font_size", 32)
 	tax_lbl.add_theme_color_override("font_color", Color("#dc2626") if PlayerData.tax_debt + PlayerData.debt + PlayerData.credit_card_balance > 0 else (Color("#0f172a") if is_light else Color("#f8fafc")))
 	summary_vbox.add_child(tax_lbl)
 
 	var total_debt_lbl := Label.new()
 	total_debt_lbl.text = "• Total Debt Burden: $%s" % _format_number(PlayerData.get_total_debt())
-	total_debt_lbl.add_theme_font_size_override("font_size", 30)
+	total_debt_lbl.add_theme_font_size_override("font_size", 34)
 	total_debt_lbl.add_theme_color_override("font_color", (Color("#dc2626") if is_light else Color("#ef4444")) if PlayerData.get_total_debt() > 0 else (Color("#15803d") if is_light else Color("#22c55e")))
 	summary_vbox.add_child(total_debt_lbl)
 
@@ -4521,13 +4521,13 @@ func update_bank_panel() -> void:
 
 	var cc_title := Label.new()
 	cc_title.text = "💳 REVOLVING CREDIT CARD FACILITY" if PlayerData.has_credit_card else "💳 REVOLVING CREDIT CARD & CREDIT SCORE"
-	cc_title.add_theme_font_size_override("font_size", 32)
+	cc_title.add_theme_font_size_override("font_size", 36)
 	cc_title.add_theme_color_override("font_color", cc_color)
 	cc_vbox.add_child(cc_title)
 
 	var cc_score_lbl := Label.new()
 	cc_score_lbl.text = "• Credit Score: %d (%s)  [300–850 Range]" % [PlayerData.credit_score, PlayerData.get_credit_rating()]
-	cc_score_lbl.add_theme_font_size_override("font_size", 28)
+	cc_score_lbl.add_theme_font_size_override("font_size", 32)
 	cc_score_lbl.add_theme_color_override("font_color", PlayerData.get_credit_score_color())
 	cc_vbox.add_child(cc_score_lbl)
 
@@ -4543,7 +4543,7 @@ func update_bank_panel() -> void:
 			_format_number(PlayerData.get_total_asset_value()),
 			_format_number(PlayerData.get_personal_net_worth())
 		]
-		cc_detail.add_theme_font_size_override("font_size", 28)
+		cc_detail.add_theme_font_size_override("font_size", 32)
 		cc_detail.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cc_vbox.add_child(cc_detail)
 
@@ -4554,7 +4554,7 @@ func update_bank_panel() -> void:
 
 			var pay_title := Label.new()
 			pay_title.text = "💳 MANUAL USAGE REPAYMENT (Term Min: 10%% = $%s)" % _format_number(min_pay)
-			pay_title.add_theme_font_size_override("font_size", 26)
+			pay_title.add_theme_font_size_override("font_size", 30)
 			pay_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#22c55e"))
 			cc_vbox.add_child(pay_title)
 
@@ -4594,7 +4594,7 @@ func update_bank_panel() -> void:
 		else:
 			var standing_lbl := Label.new()
 			standing_lbl.text = "✅ Account in Good Standing • No Payments Due ($0 Usage)"
-			standing_lbl.add_theme_font_size_override("font_size", 26)
+			standing_lbl.add_theme_font_size_override("font_size", 30)
 			standing_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#22c55e"))
 			cc_vbox.add_child(standing_lbl)
 
@@ -4626,7 +4626,7 @@ func update_bank_panel() -> void:
 		var cc_info := Label.new()
 		cc_info.text = "• Status: No Active Credit Card\n• Approval Criteria: Zero debt, zero unpaid taxes, qualifying credit score & net worth."
 		cc_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		cc_info.add_theme_font_size_override("font_size", 26)
+		cc_info.add_theme_font_size_override("font_size", 30)
 		cc_info.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		cc_vbox.add_child(cc_info)
 
@@ -4655,7 +4655,7 @@ func update_bank_panel() -> void:
 
 	var loan_title := Label.new()
 	loan_title.text = "🏦 BORROW FUNDS (INSTANT BANK LOANS)"
-	loan_title.add_theme_font_size_override("font_size", 32)
+	loan_title.add_theme_font_size_override("font_size", 36)
 	loan_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	loan_vbox.add_child(loan_title)
 
@@ -4698,7 +4698,7 @@ func update_bank_panel() -> void:
 
 	var repay_title := Label.new()
 	repay_title.text = "💸 REPAY OUTSTANDING DEBT & LOANS"
-	repay_title.add_theme_font_size_override("font_size", 32)
+	repay_title.add_theme_font_size_override("font_size", 36)
 	repay_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#22c55e"))
 	repay_vbox.add_child(repay_title)
 	var btn_pay_tax := _create_cyber_button("Pay Tax $%s" % _format_number(PlayerData.tax_debt), Color("#38bdf8"), _pay_tax, true)
@@ -4732,7 +4732,7 @@ func update_bank_panel() -> void:
 		var cc_note := Label.new()
 		cc_note.text = "ℹ️ Note: Credit card usage ($%s) must be paid inside the Revolving Credit Card facility above." % _format_number(PlayerData.credit_card_balance)
 		cc_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		cc_note.add_theme_font_size_override("font_size", 22)
+		cc_note.add_theme_font_size_override("font_size", 26)
 		cc_note.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		repay_vbox.add_child(cc_note)
 
@@ -4749,7 +4749,7 @@ func _show_insurance_modal() -> void:
 	var intro := Label.new()
 	intro.text = "Protect your titled vehicles and deeded real estate against catastrophic earthquakes, wildfires, vehicle collisions, and disasters. Insurance guarantees full claim restoration. Premiums are expensive and charged annually upon aging."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	intro.add_theme_font_size_override("font_size", 26)
+	intro.add_theme_font_size_override("font_size", 30)
 	intro.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#e2e8f0"))
 	modal.list.add_child(intro)
 
@@ -4761,7 +4761,7 @@ func _show_insurance_modal() -> void:
 
 	var veh_title := Label.new()
 	veh_title.text = "\n🚗 VEHICLE INSURANCE"
-	veh_title.add_theme_font_size_override("font_size", 30)
+	veh_title.add_theme_font_size_override("font_size", 34)
 	veh_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	modal.list.add_child(veh_title)
 
@@ -4771,7 +4771,7 @@ func _show_insurance_modal() -> void:
 		veh_stat, veh_count, _format_number(veh_val), _format_number(veh_premium)
 	]
 	veh_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	veh_lbl.add_theme_font_size_override("font_size", 26)
+	veh_lbl.add_theme_font_size_override("font_size", 30)
 	veh_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	modal.list.add_child(veh_lbl)
 
@@ -4799,7 +4799,7 @@ func _show_insurance_modal() -> void:
 
 	var prop_title := Label.new()
 	prop_title.text = "\n🏠 PROPERTY INSURANCE"
-	prop_title.add_theme_font_size_override("font_size", 30)
+	prop_title.add_theme_font_size_override("font_size", 34)
 	prop_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	modal.list.add_child(prop_title)
 
@@ -4809,7 +4809,7 @@ func _show_insurance_modal() -> void:
 		prop_stat, prop_count, _format_number(prop_val), _format_number(prop_premium)
 	]
 	prop_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	prop_lbl.add_theme_font_size_override("font_size", 26)
+	prop_lbl.add_theme_font_size_override("font_size", 30)
 	prop_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	modal.list.add_child(prop_lbl)
 
@@ -4872,7 +4872,7 @@ func _show_loan_repayment() -> void:
 	summary.text = "Loan balance: $%s • Available funds: $%s" % [_format_number(PlayerData.loan_balance), _format_number(PlayerData.get_available_funds())]
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_color_override("font_color", Color("#334155") if LifeLibrary.data.theme == "light" else Color("#e2e8f0"))
-	summary.add_theme_font_size_override("font_size", 30)
+	summary.add_theme_font_size_override("font_size", 34)
 	modal.list.add_child(summary)
 	var amount := LineEdit.new()
 	amount.name = "LoanRepaymentAmount"
@@ -4888,7 +4888,7 @@ func _show_loan_repayment() -> void:
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#b91c1c") if LifeLibrary.data.theme == "light" else Color("#fca5a5"))
-	feedback.add_theme_font_size_override("font_size", 30)
+	feedback.add_theme_font_size_override("font_size", 34)
 	modal.list.add_child(feedback)
 	var submit := _create_cyber_button("Repay Loan", Color("#22c55e"), func():
 		var requested := _parse_loan_payment(amount.text)
@@ -5062,7 +5062,7 @@ func _show_credit_card_application() -> void:
 
 	var app_title := Label.new()
 	app_title.text = "📋 APPLICANT FINANCIAL PROFILE"
-	app_title.add_theme_font_size_override("font_size", 28)
+	app_title.add_theme_font_size_override("font_size", 32)
 	app_title.add_theme_color_override("font_color", Color("#38bdf8"))
 	aiv.add_child(app_title)
 
@@ -5075,7 +5075,7 @@ func _show_credit_card_application() -> void:
 		_format_number(PlayerData.debt + PlayerData.loan_balance + PlayerData.credit_card_balance),
 		_format_number(PlayerData.tax_debt)
 	]
-	app_stats.add_theme_font_size_override("font_size", 26)
+	app_stats.add_theme_font_size_override("font_size", 30)
 	app_stats.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
 	aiv.add_child(app_stats)
 
@@ -5083,7 +5083,7 @@ func _show_credit_card_application() -> void:
 		var debt_warn := Label.new()
 		debt_warn.text = "⚠️ AUTOMATIC DECLINE: All credit card applications are immediately declined if you carry any active debt, unpaid taxes, or bank loans. Clear all debt to apply."
 		debt_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		debt_warn.add_theme_font_size_override("font_size", 24)
+		debt_warn.add_theme_font_size_override("font_size", 28)
 		debt_warn.add_theme_color_override("font_color", Color("#ef4444"))
 		aiv.add_child(debt_warn)
 
@@ -5111,7 +5111,7 @@ func _show_credit_card_application() -> void:
 		var est_limit := PlayerData.calculate_dynamic_credit_limit(t.tier)
 		var t_title := Label.new()
 		t_title.text = "💳 %s CREDIT CARD — $%s DYNAMIC LIMIT" % [t.tier.to_upper(), _format_number(est_limit)]
-		t_title.add_theme_font_size_override("font_size", 28)
+		t_title.add_theme_font_size_override("font_size", 32)
 		t_title.add_theme_color_override("font_color", t.color)
 		cv.add_child(t_title)
 
@@ -5122,7 +5122,7 @@ func _show_credit_card_application() -> void:
 			_format_number(t.nw),
 			_format_number(t.limit)
 		]
-		t_desc.add_theme_font_size_override("font_size", 24)
+		t_desc.add_theme_font_size_override("font_size", 28)
 		t_desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#cbd5e1"))
 		cv.add_child(t_desc)
 
@@ -5133,7 +5133,7 @@ func _show_credit_card_application() -> void:
 		if is_current:
 			var curr_lbl := Label.new()
 			curr_lbl.text = "✔ CURRENT ACTIVE CARD"
-			curr_lbl.add_theme_font_size_override("font_size", 24)
+			curr_lbl.add_theme_font_size_override("font_size", 28)
 			curr_lbl.add_theme_color_override("font_color", Color("#22c55e"))
 			cv.add_child(curr_lbl)
 		else:
@@ -5161,7 +5161,7 @@ func _show_credit_card_application() -> void:
 				var reason_lbl := Label.new()
 				reason_lbl.text = "❌ %s" % str(check.get("reason", "Ineligible"))
 				reason_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				reason_lbl.add_theme_font_size_override("font_size", 23)
+				reason_lbl.add_theme_font_size_override("font_size", 27)
 				reason_lbl.add_theme_color_override("font_color", Color("#ef4444"))
 				cv.add_child(reason_lbl)
 
@@ -5179,7 +5179,7 @@ func _show_credit_card_advance() -> void:
 	]
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_color_override("font_color", Color("#334155") if LifeLibrary.data.theme == "light" else Color("#e2e8f0"))
-	summary.add_theme_font_size_override("font_size", 30)
+	summary.add_theme_font_size_override("font_size", 34)
 	modal.list.add_child(summary)
 
 	var amount := LineEdit.new()
@@ -5197,7 +5197,7 @@ func _show_credit_card_advance() -> void:
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
-	feedback.add_theme_font_size_override("font_size", 28)
+	feedback.add_theme_font_size_override("font_size", 32)
 	modal.list.add_child(feedback)
 
 	var submit := _create_cyber_button("Draw Credit Advance", Color("#f59e0b"), func():
@@ -5267,7 +5267,7 @@ func _show_credit_card_custom_amount_modal(min_pay: int, total_usage: int) -> vo
 	]
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	summary.add_theme_color_override("font_color", Color("#334155") if LifeLibrary.data.theme == "light" else Color("#e2e8f0"))
-	summary.add_theme_font_size_override("font_size", 28)
+	summary.add_theme_font_size_override("font_size", 32)
 	modal.list.add_child(summary)
 
 	var quick_row := HBoxContainer.new()
@@ -5287,7 +5287,7 @@ func _show_credit_card_custom_amount_modal(min_pay: int, total_usage: int) -> vo
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
-	feedback.add_theme_font_size_override("font_size", 26)
+	feedback.add_theme_font_size_override("font_size", 30)
 	feedback.text = "Minimum payment is locked at 10%% ($%s)." % _format_number(min_pay)
 	modal.list.add_child(feedback)
 
@@ -5352,7 +5352,7 @@ func _show_credit_card_custom_amount_modal(min_pay: int, total_usage: int) -> vo
 		p_btn.set_meta("center_text", true)
 		p_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		p_btn.custom_minimum_size.y = 54
-		p_btn.add_theme_font_size_override("font_size", 22)
+		p_btn.add_theme_font_size_override("font_size", 26)
 		quick_row.add_child(p_btn)
 
 
@@ -5456,7 +5456,7 @@ func _setup_parent_action_row(vbox: VBoxContainer, parent_type: String) -> void:
 		btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		btn.custom_minimum_size = Vector2(120, 64)
 		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		btn.add_theme_font_size_override("font_size", 24)
+		btn.add_theme_font_size_override("font_size", 28)
 		btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 		var act_key: String = act[1]
@@ -5768,7 +5768,7 @@ func update_relationships_panel() -> void:
 			mother_edu_label = Label.new()
 			mother_edu_label.name = "MotherEduLabel"
 			mother_edu_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			mother_edu_label.add_theme_font_size_override("font_size", 26)
+			mother_edu_label.add_theme_font_size_override("font_size", 30)
 			mom_vbox.add_child(mother_edu_label)
 			mom_vbox.move_child(mother_edu_label, mother_job_label.get_index() + 1)
 
@@ -5799,7 +5799,7 @@ func update_relationships_panel() -> void:
 					mom_debuff_lbl.name = "MotherDebuffLabel"
 					mom_debuff_lbl.set_meta("reference_part", true)
 					mom_debuff_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-					mom_debuff_lbl.add_theme_font_size_override("font_size", 24)
+					mom_debuff_lbl.add_theme_font_size_override("font_size", 28)
 					mom_vbox.add_child(mom_debuff_lbl)
 					mom_vbox.move_child(mom_debuff_lbl, mother_status_label.get_index() + 1)
 				mom_debuff_lbl.visible = true
@@ -5847,7 +5847,7 @@ func update_relationships_panel() -> void:
 				father_edu_label = Label.new()
 				father_edu_label.name = "FatherEduLabel"
 				father_edu_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				father_edu_label.add_theme_font_size_override("font_size", 26)
+				father_edu_label.add_theme_font_size_override("font_size", 30)
 				dad_vbox.add_child(father_edu_label)
 				dad_vbox.move_child(father_edu_label, father_job_label.get_index() + 1)
 
@@ -5874,7 +5874,7 @@ func update_relationships_panel() -> void:
 						dad_debuff_lbl.name = "FatherDebuffLabel"
 						dad_debuff_lbl.set_meta("reference_part", true)
 						dad_debuff_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-						dad_debuff_lbl.add_theme_font_size_override("font_size", 24)
+						dad_debuff_lbl.add_theme_font_size_override("font_size", 28)
 						dad_vbox.add_child(dad_debuff_lbl)
 						dad_vbox.move_child(dad_debuff_lbl, father_status_label.get_index() + 1)
 					dad_debuff_lbl.visible = true
@@ -6022,21 +6022,21 @@ func _setup_partner_card_ui() -> void:
 
 		var name_lbl := Label.new()
 		name_lbl.text = "%s: %s (Age %d)" % [p_status, p_name, p_age]
-		name_lbl.add_theme_font_size_override("font_size", 32)
+		name_lbl.add_theme_font_size_override("font_size", 36)
 		name_lbl.add_theme_color_override("font_color", Color("#e11d48") if is_light else Color("#f43f5e"))
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(name_lbl)
 
 		var occ_lbl := Label.new()
 		occ_lbl.text = NpcLifeProgress.get_occupation_display(p)
-		occ_lbl.add_theme_font_size_override("font_size", 26)
+		occ_lbl.add_theme_font_size_override("font_size", 30)
 		occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(occ_lbl)
 
 		var edu_lbl := Label.new()
 		edu_lbl.text = NpcLifeProgress.get_education_display(p)
-		edu_lbl.add_theme_font_size_override("font_size", 24)
+		edu_lbl.add_theme_font_size_override("font_size", 28)
 		edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(edu_lbl)
@@ -6045,21 +6045,21 @@ func _setup_partner_card_ui() -> void:
 		if not biz_str.is_empty():
 			var biz_lbl := Label.new()
 			biz_lbl.text = biz_str
-			biz_lbl.add_theme_font_size_override("font_size", 24)
+			biz_lbl.add_theme_font_size_override("font_size", 28)
 			biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 			biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(biz_lbl)
 
 		var wealth_lbl := Label.new()
 		wealth_lbl.text = NpcLifeProgress.get_finances_display(p)
-		wealth_lbl.add_theme_font_size_override("font_size", 24)
+		wealth_lbl.add_theme_font_size_override("font_size", 28)
 		wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(wealth_lbl)
 
 		var hob_lbl := Label.new()
 		hob_lbl.text = "Interests: %s" % ", ".join(p_hobbies)
-		hob_lbl.add_theme_font_size_override("font_size", 24)
+		hob_lbl.add_theme_font_size_override("font_size", 28)
 		hob_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		hob_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(hob_lbl)
@@ -6067,7 +6067,7 @@ func _setup_partner_card_ui() -> void:
 		var stat_lbl := Label.new()
 		var yr_str := "year" if p_years == 1 else "years"
 		stat_lbl.text = "Relationship: %d%% (%s)  •  Together: %d %s" % [p_rel, _relationship_status_text(p_rel), p_years, yr_str]
-		stat_lbl.add_theme_font_size_override("font_size", 26)
+		stat_lbl.add_theme_font_size_override("font_size", 30)
 		stat_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		stat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(stat_lbl)
@@ -6098,12 +6098,12 @@ func _setup_partner_card_ui() -> void:
 			var engagement_note := Label.new()
 			engagement_note.text = "Engaged at age %d • Wedding from age %d\nLonger postponements reduce your bond and both partners' happiness." % [int(p.engaged_age), int(p.engaged_age) + 1]
 			engagement_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			engagement_note.add_theme_font_size_override("font_size", 24)
+			engagement_note.add_theme_font_size_override("font_size", 28)
 			cv.add_child(engagement_note)
 		var partner_joy := Label.new()
 		partner_joy.text = "Partner happiness: %d%%" % int(p.get("happiness", 50))
 		partner_joy.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		partner_joy.add_theme_font_size_override("font_size", 24)
+		partner_joy.add_theme_font_size_override("font_size", 28)
 		cv.add_child(partner_joy)
 
 		var break_word := "Divorce" if p_status in ["Wife", "Husband"] else "Break Up"
@@ -6164,7 +6164,7 @@ func _setup_partner_card_ui() -> void:
 			btn.custom_minimum_size = Vector2(120, 64)
 			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-			btn.add_theme_font_size_override("font_size", 24)
+			btn.add_theme_font_size_override("font_size", 28)
 			btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
@@ -6244,14 +6244,14 @@ func _setup_partner_card_ui() -> void:
 
 		var stitle := Label.new()
 		stitle.text = "💔 NO ROMANTIC PARTNER"
-		stitle.add_theme_font_size_override("font_size", 28)
+		stitle.add_theme_font_size_override("font_size", 32)
 		stitle.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		sv.add_child(stitle)
 
 		var sdesc := Label.new()
 		sdesc.text = "You are currently single. Looking for companionship or love? Launch the Dating App in Activities to browse compatible profiles, chat, and ask potential partners out!"
 		sdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		sdesc.add_theme_font_size_override("font_size", 24)
+		sdesc.add_theme_font_size_override("font_size", 28)
 		sdesc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		sv.add_child(sdesc)
 
@@ -6288,7 +6288,7 @@ func _setup_children_cards_ui() -> void:
 	header.add_child(hm)
 	var hlbl := Label.new()
 	hlbl.text = "👶 CHILDREN & LINEAGE (%d)" % PlayerData.children.size()
-	hlbl.add_theme_font_size_override("font_size", 28)
+	hlbl.add_theme_font_size_override("font_size", 32)
 	hlbl.add_theme_color_override("font_color", Color("#db2777") if is_light else Color("#f472b6"))
 	hm.add_child(hlbl)
 	rel_list.add_child(header)
@@ -6334,21 +6334,21 @@ func _setup_children_cards_ui() -> void:
 
 		var title := Label.new()
 		title.text = "%s (%s, Age %d)" % [c_name, "Daughter" if c_gender == "FEMALE" else "Son", c_age]
-		title.add_theme_font_size_override("font_size", 28)
+		title.add_theme_font_size_override("font_size", 32)
 		title.add_theme_color_override("font_color", Color("#db2777") if is_light else Color("#f472b6"))
 		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(title)
 
 		var occ_lbl := Label.new()
 		occ_lbl.text = NpcLifeProgress.get_occupation_display(c)
-		occ_lbl.add_theme_font_size_override("font_size", 24)
+		occ_lbl.add_theme_font_size_override("font_size", 28)
 		occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(occ_lbl)
 
 		var edu_lbl := Label.new()
 		edu_lbl.text = NpcLifeProgress.get_education_display(c)
-		edu_lbl.add_theme_font_size_override("font_size", 23)
+		edu_lbl.add_theme_font_size_override("font_size", 27)
 		edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(edu_lbl)
@@ -6357,7 +6357,7 @@ func _setup_children_cards_ui() -> void:
 		if not biz_str.is_empty():
 			var biz_lbl := Label.new()
 			biz_lbl.text = biz_str
-			biz_lbl.add_theme_font_size_override("font_size", 23)
+			biz_lbl.add_theme_font_size_override("font_size", 27)
 			biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 			biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(biz_lbl)
@@ -6365,7 +6365,7 @@ func _setup_children_cards_ui() -> void:
 		if c_age >= 18:
 			var wealth_lbl := Label.new()
 			wealth_lbl.text = NpcLifeProgress.get_finances_display(c)
-			wealth_lbl.add_theme_font_size_override("font_size", 23)
+			wealth_lbl.add_theme_font_size_override("font_size", 27)
 			wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 			wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(wealth_lbl)
@@ -6396,7 +6396,7 @@ func _setup_children_cards_ui() -> void:
 		btn_spend.custom_minimum_size = Vector2(120, 64)
 		btn_spend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_spend.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		btn_spend.add_theme_font_size_override("font_size", 24)
+		btn_spend.add_theme_font_size_override("font_size", 28)
 		btn_spend.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_spend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if child_spent:
@@ -6417,7 +6417,7 @@ func _setup_children_cards_ui() -> void:
 		btn_gift.custom_minimum_size = Vector2(120, 64)
 		btn_gift.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_gift.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		btn_gift.add_theme_font_size_override("font_size", 24)
+		btn_gift.add_theme_font_size_override("font_size", 28)
 		btn_gift.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_gift.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -6438,7 +6438,7 @@ func _setup_children_cards_ui() -> void:
 		btn_details.custom_minimum_size = Vector2(120, 64)
 		btn_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_details.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		btn_details.add_theme_font_size_override("font_size", 24)
+		btn_details.add_theme_font_size_override("font_size", 28)
 		btn_details.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		act_row.add_child(btn_details)
@@ -6475,12 +6475,12 @@ func _setup_siblings_cards_ui() -> void:
 		om.add_child(ov)
 		var ot := Label.new()
 		ot.text = "👥 SIBLINGS: Only Child"
-		ot.add_theme_font_size_override("font_size", 26)
+		ot.add_theme_font_size_override("font_size", 30)
 		ot.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color(0.396, 0.902, 1, 1))
 		ov.add_child(ot)
 		var od := Label.new()
 		od.text = "You do not have any brothers or sisters. You are an only child in the family."
-		od.add_theme_font_size_override("font_size", 22)
+		od.add_theme_font_size_override("font_size", 26)
 		od.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		od.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ov.add_child(od)
@@ -6499,7 +6499,7 @@ func _setup_siblings_cards_ui() -> void:
 	header.add_child(hm)
 	var hlbl := Label.new()
 	hlbl.text = "👥 SIBLINGS & FAMILY (%d)" % PlayerData.siblings.size()
-	hlbl.add_theme_font_size_override("font_size", 28)
+	hlbl.add_theme_font_size_override("font_size", 32)
 	hlbl.add_theme_color_override("font_color", Color("#6d28d9") if is_light else Color("#c084fc"))
 	hm.add_child(hlbl)
 	rel_list.add_child(header)
@@ -6554,20 +6554,20 @@ func _setup_siblings_cards_ui() -> void:
 		else:
 			title.text = "%s (%s, Deceased)" % [s_name, s_rel]
 			title.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		title.add_theme_font_size_override("font_size", 28)
+		title.add_theme_font_size_override("font_size", 32)
 		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(title)
 
 		var occ_lbl := Label.new()
 		occ_lbl.text = "Occupation: " + NpcLifeProgress.get_occupation_display(s) if is_alive else "Status: In Memoriam"
-		occ_lbl.add_theme_font_size_override("font_size", 24)
+		occ_lbl.add_theme_font_size_override("font_size", 28)
 		occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(occ_lbl)
 
 		var edu_lbl := Label.new()
 		edu_lbl.text = NpcLifeProgress.get_education_display(s)
-		edu_lbl.add_theme_font_size_override("font_size", 24)
+		edu_lbl.add_theme_font_size_override("font_size", 28)
 		edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(edu_lbl)
@@ -6576,7 +6576,7 @@ func _setup_siblings_cards_ui() -> void:
 		if not biz_str.is_empty() and is_alive:
 			var biz_lbl := Label.new()
 			biz_lbl.text = biz_str
-			biz_lbl.add_theme_font_size_override("font_size", 24)
+			biz_lbl.add_theme_font_size_override("font_size", 28)
 			biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 			biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(biz_lbl)
@@ -6584,7 +6584,7 @@ func _setup_siblings_cards_ui() -> void:
 		if s_age >= 18 and is_alive:
 			var wealth_lbl := Label.new()
 			wealth_lbl.text = NpcLifeProgress.get_finances_display(s)
-			wealth_lbl.add_theme_font_size_override("font_size", 24)
+			wealth_lbl.add_theme_font_size_override("font_size", 28)
 			wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 			wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(wealth_lbl)
@@ -6597,7 +6597,7 @@ func _setup_siblings_cards_ui() -> void:
 		else:
 			stat_lbl.text = "Status: Passed Away • Rest in Peace"
 			stat_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-		stat_lbl.add_theme_font_size_override("font_size", 23)
+		stat_lbl.add_theme_font_size_override("font_size", 27)
 		cv.add_child(stat_lbl)
 
 		if is_alive:
@@ -6627,7 +6627,7 @@ func _setup_siblings_cards_ui() -> void:
 			)
 			btn_spend.custom_minimum_size = Vector2(120, 64)
 			btn_spend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_spend.add_theme_font_size_override("font_size", 24)
+			btn_spend.add_theme_font_size_override("font_size", 28)
 			if sib_spent:
 				btn_spend.disabled = true
 				btn_spend.modulate = Color(0.6, 0.6, 0.6, 0.65)
@@ -6650,7 +6650,7 @@ func _setup_siblings_cards_ui() -> void:
 			)
 			btn_comp.custom_minimum_size = Vector2(120, 64)
 			btn_comp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_comp.add_theme_font_size_override("font_size", 24)
+			btn_comp.add_theme_font_size_override("font_size", 28)
 			if sib_complimented:
 				btn_comp.disabled = true
 				btn_comp.modulate = Color(0.6, 0.6, 0.6, 0.65)
@@ -6668,7 +6668,7 @@ func _setup_siblings_cards_ui() -> void:
 			)
 			btn_gift.custom_minimum_size = Vector2(120, 64)
 			btn_gift.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_gift.add_theme_font_size_override("font_size", 24)
+			btn_gift.add_theme_font_size_override("font_size", 28)
 			if is_too_young:
 				btn_gift.disabled = true
 				btn_gift.modulate = Color(0.5, 0.5, 0.5, 0.6)
@@ -6686,7 +6686,7 @@ func _setup_siblings_cards_ui() -> void:
 			)
 			btn_details.custom_minimum_size = Vector2(120, 64)
 			btn_details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_details.add_theme_font_size_override("font_size", 24)
+			btn_details.add_theme_font_size_override("font_size", 28)
 			act_row.add_child(btn_details)
 
 			cv.add_child(act_row)
@@ -6781,20 +6781,20 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 
 	var s_title := Label.new()
 	s_title.text = "📊 Current Life Status"
-	s_title.add_theme_font_size_override("font_size", 26)
+	s_title.add_theme_font_size_override("font_size", 30)
 	s_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
 	sv.add_child(s_title)
 
 	var occ_lbl := Label.new()
 	occ_lbl.text = NpcLifeProgress.get_occupation_display(s)
-	occ_lbl.add_theme_font_size_override("font_size", 24)
+	occ_lbl.add_theme_font_size_override("font_size", 28)
 	occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sv.add_child(occ_lbl)
 
 	var edu_lbl := Label.new()
 	edu_lbl.text = NpcLifeProgress.get_education_display(s)
-	edu_lbl.add_theme_font_size_override("font_size", 24)
+	edu_lbl.add_theme_font_size_override("font_size", 28)
 	edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sv.add_child(edu_lbl)
@@ -6803,7 +6803,7 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 	if not biz_str.is_empty():
 		var biz_lbl := Label.new()
 		biz_lbl.text = biz_str
-		biz_lbl.add_theme_font_size_override("font_size", 24)
+		biz_lbl.add_theme_font_size_override("font_size", 28)
 		biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(biz_lbl)
@@ -6811,7 +6811,7 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 	if s_age >= 18:
 		var wealth_lbl := Label.new()
 		wealth_lbl.text = NpcLifeProgress.get_finances_display(s)
-		wealth_lbl.add_theme_font_size_override("font_size", 24)
+		wealth_lbl.add_theme_font_size_override("font_size", 28)
 		wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(wealth_lbl)
@@ -6823,7 +6823,7 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 	if not degrees.is_empty():
 		var deg_header := Label.new()
 		deg_header.text = "🎓 Earned Degrees & Credentials"
-		deg_header.add_theme_font_size_override("font_size", 26)
+		deg_header.add_theme_font_size_override("font_size", 30)
 		deg_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
 		list.add_child(deg_header)
 
@@ -6845,7 +6845,7 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 					float(d.get("gpa", 3.0)),
 					honors_str
 				]
-				d_lbl.add_theme_font_size_override("font_size", 23)
+				d_lbl.add_theme_font_size_override("font_size", 27)
 				d_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
 				d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				dm.add_child(d_lbl)
@@ -6855,14 +6855,14 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 	var history: Array = life.get("history", [])
 	var hist_header := Label.new()
 	hist_header.text = "📜 Milestones & Background Progression (%d Events)" % history.size()
-	hist_header.add_theme_font_size_override("font_size", 26)
+	hist_header.add_theme_font_size_override("font_size", 30)
 	hist_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
 	list.add_child(hist_header)
 
 	if history.is_empty():
 		var empty_lbl := Label.new()
 		empty_lbl.text = "No recorded background milestones yet. Milestones are recorded as %s grows up and ages!" % s_name
-		empty_lbl.add_theme_font_size_override("font_size", 22)
+		empty_lbl.add_theme_font_size_override("font_size", 26)
 		empty_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(empty_lbl)
@@ -6882,7 +6882,7 @@ func _show_sibling_progression_modal(sibling_index: int) -> void:
 				item_card.add_child(im)
 				var il := Label.new()
 				il.text = "Age %d • %s" % [h_age, h_text]
-				il.add_theme_font_size_override("font_size", 22)
+				il.add_theme_font_size_override("font_size", 26)
 				il.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 				il.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				im.add_child(il)
@@ -7019,7 +7019,7 @@ func _show_proposal_modal() -> void:
 	var list: VBoxContainer = modal.list
 	var selected: Array = []
 	var total := Label.new()
-	total.add_theme_font_size_override("font_size", 30)
+	total.add_theme_font_size_override("font_size", 34)
 	total.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var confirm := _create_cyber_button("💍 Propose with Gifts", Color("#ec4899"), func():
 		PlayerData.last_partner_propose_age = PlayerData.age
@@ -7167,20 +7167,20 @@ func _show_child_progression_modal(child_index: int) -> void:
 
 	var s_title := Label.new()
 	s_title.text = "📊 Current Life Status"
-	s_title.add_theme_font_size_override("font_size", 26)
+	s_title.add_theme_font_size_override("font_size", 30)
 	s_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
 	sv.add_child(s_title)
 
 	var occ_lbl := Label.new()
 	occ_lbl.text = NpcLifeProgress.get_occupation_display(c)
-	occ_lbl.add_theme_font_size_override("font_size", 24)
+	occ_lbl.add_theme_font_size_override("font_size", 28)
 	occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sv.add_child(occ_lbl)
 
 	var edu_lbl := Label.new()
 	edu_lbl.text = NpcLifeProgress.get_education_display(c)
-	edu_lbl.add_theme_font_size_override("font_size", 24)
+	edu_lbl.add_theme_font_size_override("font_size", 28)
 	edu_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sv.add_child(edu_lbl)
@@ -7189,7 +7189,7 @@ func _show_child_progression_modal(child_index: int) -> void:
 	if not biz_str.is_empty():
 		var biz_lbl := Label.new()
 		biz_lbl.text = biz_str
-		biz_lbl.add_theme_font_size_override("font_size", 24)
+		biz_lbl.add_theme_font_size_override("font_size", 28)
 		biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(biz_lbl)
@@ -7197,7 +7197,7 @@ func _show_child_progression_modal(child_index: int) -> void:
 	if c_age >= 18:
 		var wealth_lbl := Label.new()
 		wealth_lbl.text = NpcLifeProgress.get_finances_display(c)
-		wealth_lbl.add_theme_font_size_override("font_size", 24)
+		wealth_lbl.add_theme_font_size_override("font_size", 28)
 		wealth_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(wealth_lbl)
@@ -7209,7 +7209,7 @@ func _show_child_progression_modal(child_index: int) -> void:
 	if not degrees.is_empty():
 		var deg_header := Label.new()
 		deg_header.text = "🎓 Earned Degrees & Credentials"
-		deg_header.add_theme_font_size_override("font_size", 26)
+		deg_header.add_theme_font_size_override("font_size", 30)
 		deg_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
 		list.add_child(deg_header)
 
@@ -7231,7 +7231,7 @@ func _show_child_progression_modal(child_index: int) -> void:
 					float(d.get("gpa", 3.0)),
 					honors_str
 				]
-				d_lbl.add_theme_font_size_override("font_size", 23)
+				d_lbl.add_theme_font_size_override("font_size", 27)
 				d_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
 				d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				dm.add_child(d_lbl)
@@ -7241,14 +7241,14 @@ func _show_child_progression_modal(child_index: int) -> void:
 	var history: Array = life.get("history", [])
 	var hist_header := Label.new()
 	hist_header.text = "📜 Milestones & Background Progression (%d Events)" % history.size()
-	hist_header.add_theme_font_size_override("font_size", 26)
+	hist_header.add_theme_font_size_override("font_size", 30)
 	hist_header.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
 	list.add_child(hist_header)
 
 	if history.is_empty():
 		var empty_lbl := Label.new()
 		empty_lbl.text = "No recorded background milestones yet. Milestones are added as %s grows up and ages!" % c_name
-		empty_lbl.add_theme_font_size_override("font_size", 22)
+		empty_lbl.add_theme_font_size_override("font_size", 26)
 		empty_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		list.add_child(empty_lbl)
@@ -7268,7 +7268,7 @@ func _show_child_progression_modal(child_index: int) -> void:
 				item_card.add_child(im)
 				var il := Label.new()
 				il.text = "Age %d: %s" % [h_age, h_text]
-				il.add_theme_font_size_override("font_size", 22)
+				il.add_theme_font_size_override("font_size", 26)
 				il.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 				il.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 				im.add_child(il)
@@ -7284,7 +7284,7 @@ func _show_wedding_modal() -> void:
 	var selected: Array[int] = [0, 0, 0]
 	var total := Label.new()
 	total.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	total.add_theme_font_size_override("font_size", 30)
+	total.add_theme_font_size_override("font_size", 34)
 	var confirm := _create_cyber_button("💍 Celebrate & Marry", Color("#38bdf8"), func():
 		var res: String = RelationshipExtras.celebrate_wedding(PlayerData, selected[0], selected[1], selected[2])
 		var p_name: String = PlayerData.get_partner_name()
@@ -7300,7 +7300,7 @@ func _show_wedding_modal() -> void:
 	for section in range(options.size()):
 		var heading := Label.new()
 		heading.text = headings[section]
-		heading.add_theme_font_size_override("font_size", 32)
+		heading.add_theme_font_size_override("font_size", 36)
 		heading.add_theme_color_override("font_color", Color("#64e6ff"))
 		list.add_child(heading)
 		var group := ButtonGroup.new()
@@ -7347,7 +7347,7 @@ func _show_postpone_modal() -> void:
 		var note := Label.new()
 		note.text = "You are already waiting this year. Revisit wedding plans after your next birthday."
 		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		note.add_theme_font_size_override("font_size", 30)
+		note.add_theme_font_size_override("font_size", 34)
 		list.add_child(note)
 		return
 	list.add_child(_create_cyber_button("Wait another year", Color("#8b5cf6"), func():
@@ -7509,7 +7509,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 		var wtitle := Label.new()
 		wtitle.text = "⚠️ CURRENTLY IN A RELATIONSHIP"
-		wtitle.add_theme_font_size_override("font_size", 26)
+		wtitle.add_theme_font_size_override("font_size", 30)
 		wtitle.add_theme_color_override("font_color", Color("#fbbf24"))
 		wv.add_child(wtitle)
 
@@ -7519,7 +7519,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 			PlayerData.get_partner_status()
 		]
 		wdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		wdesc.add_theme_font_size_override("font_size", 24)
+		wdesc.add_theme_font_size_override("font_size", 28)
 		wdesc.add_theme_color_override("font_color", Color("#f1f5f9"))
 		wv.add_child(wdesc)
 
@@ -7565,31 +7565,31 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	var name_lbl := Label.new()
 	name_lbl.text = "%s, %d" % [str(cand["name"]), int(cand["age"])]
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_lbl.add_theme_font_size_override("font_size", 38)
+	name_lbl.add_theme_font_size_override("font_size", 42)
 	name_lbl.add_theme_color_override("font_color", Color("#f43f5e"))
 	info_vbox.add_child(name_lbl)
 	if not str(cand.get("nationality", "")).is_empty():
 		var nationality := Label.new()
 		nationality.text = str(cand.nationality)
-		nationality.add_theme_font_size_override("font_size", 26)
+		nationality.add_theme_font_size_override("font_size", 30)
 		nationality.add_theme_color_override("font_color", Color("#aee4f5"))
 		info_vbox.add_child(nationality)
 
 	var match_lbl := Label.new()
 	match_lbl.text = "💖 %d%% Compatibility Match" % int(cand["compatibility"])
-	match_lbl.add_theme_font_size_override("font_size", 26)
+	match_lbl.add_theme_font_size_override("font_size", 30)
 	match_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	info_vbox.add_child(match_lbl)
 
 	var job_lbl := Label.new()
 	job_lbl.text = "💼 %s" % str(cand["occupation"])
-	job_lbl.add_theme_font_size_override("font_size", 28)
+	job_lbl.add_theme_font_size_override("font_size", 32)
 	job_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 	info_vbox.add_child(job_lbl)
 
 	var edu_lbl := Label.new()
 	edu_lbl.text = "🎓 %s" % str(cand["education"])
-	edu_lbl.add_theme_font_size_override("font_size", 24)
+	edu_lbl.add_theme_font_size_override("font_size", 28)
 	edu_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	info_vbox.add_child(edu_lbl)
 
@@ -7597,21 +7597,21 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	if not biz_str.is_empty():
 		var biz_lbl := Label.new()
 		biz_lbl.text = biz_str
-		biz_lbl.add_theme_font_size_override("font_size", 24)
+		biz_lbl.add_theme_font_size_override("font_size", 28)
 		biz_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 		info_vbox.add_child(biz_lbl)
 
 	# Hobbies Section
 	var hob_title := Label.new()
 	hob_title.text = "🎯 Hobbies & Interests:"
-	hob_title.add_theme_font_size_override("font_size", 24)
+	hob_title.add_theme_font_size_override("font_size", 28)
 	hob_title.add_theme_color_override("font_color", Color("#34d399"))
 	pv.add_child(hob_title)
 
 	var hobs: Array = cand["hobbies"]
 	var hob_lbl := Label.new()
 	hob_lbl.text = " •  %s  •  %s  •  %s" % [str(hobs[0]), str(hobs[1]), str(hobs[2])]
-	hob_lbl.add_theme_font_size_override("font_size", 26)
+	hob_lbl.add_theme_font_size_override("font_size", 30)
 	hob_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 	pv.add_child(hob_lbl)
 
@@ -7632,7 +7632,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	var bio_lbl := Label.new()
 	bio_lbl.text = "\"%s\"" % str(cand["bio"])
 	bio_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	bio_lbl.add_theme_font_size_override("font_size", 24)
+	bio_lbl.add_theme_font_size_override("font_size", 28)
 	bio_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	bm.add_child(bio_lbl)
 	pv.add_child(bio_box)
@@ -7654,7 +7654,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL DATING SEARCH COMPLETED\nYou have already explored matchmaking singles for Age %d.\nGive romantic connections time to develop. Advance age (+1 Year) to swipe and match again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 27)
+		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -7997,14 +7997,14 @@ func _show_household_interactions_modal() -> void:
 
 	var title_lbl := Label.new()
 	title_lbl.text = "CURRENT RESIDENCE & HOUSEHOLD"
-	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.add_theme_font_size_override("font_size", 30)
 	title_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 	sv.add_child(title_lbl)
 
 	var has_moved: bool = bool(PlayerData.get("has_moved_out_from_parents"))
 	var desc_lbl := Label.new()
 	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc_lbl.add_theme_font_size_override("font_size", 23)
+	desc_lbl.add_theme_font_size_override("font_size", 27)
 	desc_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 
 	if has_moved:
@@ -8066,7 +8066,7 @@ func _show_household_interactions_modal() -> void:
 
 	var act_title := Label.new()
 	act_title.text = "HOUSEHOLD ACTIONS"
-	act_title.add_theme_font_size_override("font_size", 26)
+	act_title.add_theme_font_size_override("font_size", 30)
 	act_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 	av.add_child(act_title)
 
@@ -8082,7 +8082,7 @@ func _show_household_interactions_modal() -> void:
 			_show_move_out_choice_prompt(overlay)
 		, true)
 		btn_move.custom_minimum_size.y = 58
-		btn_move.add_theme_font_size_override("font_size", 26)
+		btn_move.add_theme_font_size_override("font_size", 30)
 		av.add_child(btn_move)
 
 	# Additional Actions if moved out
@@ -8090,7 +8090,7 @@ func _show_household_interactions_modal() -> void:
 		var cur_room_name: String = RoomManager.get_room_data(PlayerData.get_active_room_id()).get("name", "Starter Home")
 		var room_badge := Label.new()
 		room_badge.text = "🏡 Active Room Template: %s\n(Acquire properties in the Real Estate market to unlock new room styles!)" % cur_room_name
-		room_badge.add_theme_font_size_override("font_size", 20)
+		room_badge.add_theme_font_size_override("font_size", 24)
 		room_badge.add_theme_color_override("font_color", Color("#94a3b8"))
 		room_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		room_badge.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -8102,7 +8102,7 @@ func _show_household_interactions_modal() -> void:
 				_show_rent_house_modal()
 			, true)
 			btn_lease.custom_minimum_size.y = 64
-			btn_lease.add_theme_font_size_override("font_size", 24)
+			btn_lease.add_theme_font_size_override("font_size", 28)
 			av.add_child(btn_lease)
 
 	content_list.add_child(act_card)
@@ -8132,7 +8132,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 	var msg_lbl := Label.new()
 	msg_lbl.text = "You are taking the big step of moving out from your parents' house into your own place!\n\nChoose whether you want to buy a house (from the shopping menu) and move in, or rent a place to stay (from the RENT A HOUSE feature):"
 	msg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	msg_lbl.add_theme_font_size_override("font_size", 24)
+	msg_lbl.add_theme_font_size_override("font_size", 28)
 	msg_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	iv.add_child(msg_lbl)
 	content_list.add_child(info_card)
@@ -8162,7 +8162,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 
 		var sec_lbl := Label.new()
 		sec_lbl.text = "🏡 MOVE INTO ALREADY OWNED REAL ESTATE"
-		sec_lbl.add_theme_font_size_override("font_size", 24)
+		sec_lbl.add_theme_font_size_override("font_size", 28)
 		sec_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 		ov.add_child(sec_lbl)
 
@@ -8172,7 +8172,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 				_execute_move_out("owned", p_name, [prompt_overlay, parent_overlay])
 			, true)
 			btn_move_owned.custom_minimum_size.y = 66
-			btn_move_owned.add_theme_font_size_override("font_size", 25)
+			btn_move_owned.add_theme_font_size_override("font_size", 29)
 			ov.add_child(btn_move_owned)
 
 		content_list.add_child(owned_section)
@@ -8193,14 +8193,14 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 
 	var buy_title := Label.new()
 	buy_title.text = "🛍️ OPTION 1: BUY A HOUSE (SHOPPING MENU)"
-	buy_title.add_theme_font_size_override("font_size", 24)
+	buy_title.add_theme_font_size_override("font_size", 28)
 	buy_title.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 	bv.add_child(buy_title)
 
 	var buy_desc := Label.new()
 	buy_desc.text = "Browse residential properties in the real estate market. Purchasing a property will establish your permanent residence and move you out from your parents' house."
 	buy_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	buy_desc.add_theme_font_size_override("font_size", 22)
+	buy_desc.add_theme_font_size_override("font_size", 26)
 	buy_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	bv.add_child(buy_desc)
 
@@ -8212,7 +8212,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 		_open_asset_marketplace_modal(AssetCatalog.CATEGORY_PROPERTIES)
 	, true)
 	btn_open_buy.custom_minimum_size.y = 68
-	btn_open_buy.add_theme_font_size_override("font_size", 25)
+	btn_open_buy.add_theme_font_size_override("font_size", 29)
 	bv.add_child(btn_open_buy)
 	content_list.add_child(buy_card)
 
@@ -8235,7 +8235,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 
 		var cur_lease_title := Label.new()
 		cur_lease_title.text = "🏢 MOVE INTO ACTIVE LEASE"
-		cur_lease_title.add_theme_font_size_override("font_size", 24)
+		cur_lease_title.add_theme_font_size_override("font_size", 28)
 		cur_lease_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 		lv.add_child(cur_lease_title)
 
@@ -8243,7 +8243,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 			_execute_move_out("rented", cur_rent_name, [prompt_overlay, parent_overlay])
 		, true)
 		btn_move_lease.custom_minimum_size.y = 66
-		btn_move_lease.add_theme_font_size_override("font_size", 25)
+		btn_move_lease.add_theme_font_size_override("font_size", 29)
 		lv.add_child(btn_move_lease)
 		content_list.add_child(lease_card)
 
@@ -8263,14 +8263,14 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 
 	var rent_title := Label.new()
 	rent_title.text = "🏠 OPTION 2: RENT A PLACE TO STAY (RENT A HOUSE)"
-	rent_title.add_theme_font_size_override("font_size", 24)
+	rent_title.add_theme_font_size_override("font_size", 28)
 	rent_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 	rv.add_child(rent_title)
 
 	var rent_desc := Label.new()
 	rent_desc.text = "Browse residential rentals (studios, apartments, lofts, townhouses). Signing a rental lease allows you to move into your own place with flexible annual terms."
 	rent_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	rent_desc.add_theme_font_size_override("font_size", 22)
+	rent_desc.add_theme_font_size_override("font_size", 26)
 	rent_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	rv.add_child(rent_desc)
 
@@ -8282,7 +8282,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 		_show_rent_house_modal()
 	, true)
 	btn_open_rent.custom_minimum_size.y = 68
-	btn_open_rent.add_theme_font_size_override("font_size", 25)
+	btn_open_rent.add_theme_font_size_override("font_size", 29)
 	rv.add_child(btn_open_rent)
 	content_list.add_child(rent_card)
 
@@ -8350,7 +8350,7 @@ func _show_rent_house_modal() -> void:
 		_format_number(PlayerData.bank_savings),
 		_format_number(PlayerData.money + PlayerData.bank_savings)
 	]
-	bal_lbl.add_theme_font_size_override("font_size", 26)
+	bal_lbl.add_theme_font_size_override("font_size", 30)
 	bal_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 	bal_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bm.add_child(bal_lbl)
@@ -8367,7 +8367,7 @@ func _show_rent_house_modal() -> void:
 		move_card.add_child(rbm)
 		var rmlbl := Label.new()
 		rmlbl.text = "🚪 MOVING OUT: Signing any lease below will establish your new residence and move you out from your parents' house!"
-		rmlbl.add_theme_font_size_override("font_size", 24)
+		rmlbl.add_theme_font_size_override("font_size", 28)
 		rmlbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 		rmlbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		rbm.add_child(rmlbl)
@@ -8389,7 +8389,7 @@ func _show_rent_house_modal() -> void:
 
 	var status_title := Label.new()
 	status_title.text = "CURRENT LIVING ARRANGEMENT"
-	status_title.add_theme_font_size_override("font_size", 26)
+	status_title.add_theme_font_size_override("font_size", 30)
 	status_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 	sv.add_child(status_title)
 
@@ -8403,7 +8403,7 @@ func _show_rent_house_modal() -> void:
 			int(rent_dict.get("years_leased", 1)),
 			int(rent_dict.get("happiness_bonus", 8))
 		]
-		active_lbl.add_theme_font_size_override("font_size", 23)
+		active_lbl.add_theme_font_size_override("font_size", 27)
 		active_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		active_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(active_lbl)
@@ -8417,14 +8417,14 @@ func _show_rent_house_modal() -> void:
 			show_tab("timeline")
 		, true)
 		btn_terminate.custom_minimum_size.y = 58
-		btn_terminate.add_theme_font_size_override("font_size", 24)
+		btn_terminate.add_theme_font_size_override("font_size", 28)
 		btn_terminate.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_terminate.set_meta("center_text", true)
 		sv.add_child(btn_terminate)
 	else:
 		var no_lease_lbl := Label.new()
 		no_lease_lbl.text = "You do not currently hold an active rental lease.\n(Living with family or in your owned real estate. Rented homes do NOT equal ownership and will not appear in the Owned Assets tab.)"
-		no_lease_lbl.add_theme_font_size_override("font_size", 22)
+		no_lease_lbl.add_theme_font_size_override("font_size", 26)
 		no_lease_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		no_lease_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(no_lease_lbl)
@@ -8461,26 +8461,26 @@ func _show_rent_house_modal() -> void:
 		var r_title := Label.new()
 		r_title.text = "%s %s" % [r_glyph, r_name]
 		r_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		r_title.add_theme_font_size_override("font_size", 28)
+		r_title.add_theme_font_size_override("font_size", 32)
 		r_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		r_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		header_h.add_child(r_title)
 
 		var r_price := Label.new()
 		r_price.text = "$%s/mo" % _format_number(m_rent)
-		r_price.add_theme_font_size_override("font_size", 30)
+		r_price.add_theme_font_size_override("font_size", 34)
 		r_price.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		header_h.add_child(r_price)
 
 		var ann_lbl := Label.new()
 		ann_lbl.text = "Annual Rent: $%s/yr   •   +%d Happiness Living Perk" % [_format_number(a_rent), h_bonus]
-		ann_lbl.add_theme_font_size_override("font_size", 22)
+		ann_lbl.add_theme_font_size_override("font_size", 26)
 		ann_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		rv.add_child(ann_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = r_desc
-		desc_lbl.add_theme_font_size_override("font_size", 22)
+		desc_lbl.add_theme_font_size_override("font_size", 26)
 		desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		rv.add_child(desc_lbl)
@@ -8502,7 +8502,7 @@ func _show_rent_house_modal() -> void:
 				add_life_event(str(lease_res.get("message", "Cannot sign lease.")), "finance")
 		, true)
 		btn_lease.custom_minimum_size.y = 64
-		btn_lease.add_theme_font_size_override("font_size", 24)
+		btn_lease.add_theme_font_size_override("font_size", 28)
 		btn_lease.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_lease.set_meta("center_text", true)
 
@@ -8612,7 +8612,7 @@ func _show_career_ladder() -> void:
 		var stage: Dictionary = stages[index]
 		var label := Label.new()
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.add_theme_font_size_override("font_size", 31)
+		label.add_theme_font_size_override("font_size", 35)
 		label.add_theme_color_override("font_color", Color("#34d399") if index == int(PlayerData.career_progress.get("rank", 0)) else Color("#b8dcf5"))
 		label.text = "%s%s\n%d years of service • Age %d+ • $%s/year\n" % ["CURRENT: " if index == int(PlayerData.career_progress.get("rank", 0)) else "", stage.title, int(stage.years), int(stage.min_age), _format_number(int(stage.salary))]
 		list.add_child(label)
@@ -8640,11 +8640,11 @@ func _show_jobs_modal() -> void:
 
 	var cur_title := Label.new()
 	cur_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	cur_title.add_theme_font_size_override("font_size", 28)
+	cur_title.add_theme_font_size_override("font_size", 32)
 	cur_title.add_theme_color_override("font_color", Color("#38bdf8"))
 
 	var cur_desc := Label.new()
-	cur_desc.add_theme_font_size_override("font_size", 26)
+	cur_desc.add_theme_font_size_override("font_size", 30)
 	cur_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	if PlayerData.job_title != "":
@@ -8803,14 +8803,14 @@ func _show_jobs_modal() -> void:
 	var sec_title := Label.new()
 	sec_title.text = "🏢 CAREER SECTORS & OCCUPATIONAL HUBS"
 	sec_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sec_title.add_theme_font_size_override("font_size", 28)
+	sec_title.add_theme_font_size_override("font_size", 32)
 	sec_title.add_theme_color_override("font_color", Color("#38bdf8"))
 	sec_header.add_child(sec_title)
 
 	var sec_desc := Label.new()
 	sec_desc.text = "Select an industry sector to view open positions, salary packages, and qualification requirements."
 	sec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sec_desc.add_theme_font_size_override("font_size", 24)
+	sec_desc.add_theme_font_size_override("font_size", 28)
 	sec_desc.add_theme_color_override("font_color", Color("#94a3b8"))
 	sec_header.add_child(sec_desc)
 
@@ -8832,7 +8832,7 @@ func _show_jobs_modal() -> void:
 			_show_job_category_modal(cat_id)
 		)
 		cat_btn.custom_minimum_size.y = 96
-		cat_btn.add_theme_font_size_override("font_size", 28)
+		cat_btn.add_theme_font_size_override("font_size", 32)
 		list.add_child(cat_btn)
 
 	jobs_modal_overlay.visible = true
@@ -8866,7 +8866,7 @@ func _show_job_category_modal(category_id: String) -> void:
 		_show_jobs_modal()
 	)
 	back_btn.custom_minimum_size.y = 84
-	back_btn.add_theme_font_size_override("font_size", 28)
+	back_btn.add_theme_font_size_override("font_size", 32)
 	list.add_child(back_btn)
 
 	# Jobs in this category
@@ -8892,7 +8892,7 @@ func _show_job_category_modal(category_id: String) -> void:
 		var title_lbl := Label.new()
 		title_lbl.text = "%s  •  %s" % [job.get("title", "Job"), job.get("workplace", "Company")]
 		title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_lbl.add_theme_font_size_override("font_size", 34)
+		title_lbl.add_theme_font_size_override("font_size", 38)
 		title_lbl.add_theme_color_override("font_color", cat_color)
 		vbox.add_child(title_lbl)
 
@@ -8900,7 +8900,7 @@ func _show_job_category_modal(category_id: String) -> void:
 		var salary_lbl := Label.new()
 		salary_lbl.text = "💰 Salary: $%s / yr   •   Min Age: %d" % [_format_number(salary_val), JobManager.minimum_age(job)]
 		salary_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		salary_lbl.add_theme_font_size_override("font_size", 30)
+		salary_lbl.add_theme_font_size_override("font_size", 34)
 		salary_lbl.add_theme_color_override("font_color", Color("#34d399"))
 		vbox.add_child(salary_lbl)
 
@@ -8931,14 +8931,14 @@ func _show_job_category_modal(category_id: String) -> void:
 			var req_lbl := Label.new()
 			req_lbl.text = "📋 " + " • ".join(req_parts)
 			req_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			req_lbl.add_theme_font_size_override("font_size", 28)
+			req_lbl.add_theme_font_size_override("font_size", 32)
 			req_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 			vbox.add_child(req_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = str(job.get("description", ""))
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_lbl.add_theme_font_size_override("font_size", 27)
+		desc_lbl.add_theme_font_size_override("font_size", 31)
 		desc_lbl.add_theme_color_override("font_color", Color("#e2e8f0"))
 		vbox.add_child(desc_lbl)
 
@@ -8957,7 +8957,7 @@ func _show_job_category_modal(category_id: String) -> void:
 		if is_current:
 			btn = _create_disabled_cyber_button("✓ CURRENT OCCUPATION", "Currently employed in this position.")
 			btn.custom_minimum_size.y = 88
-			btn.add_theme_font_size_override("font_size", 30)
+			btn.add_theme_font_size_override("font_size", 34)
 			var cur_style := StyleBoxFlat.new()
 			cur_style.bg_color = Color("#0e3a2f")
 			cur_style.border_color = Color("#10b981")
@@ -8972,12 +8972,12 @@ func _show_job_category_modal(category_id: String) -> void:
 				_show_job_category_modal(category_id)
 			)
 			btn.custom_minimum_size.y = 88
-			btn.add_theme_font_size_override("font_size", 30)
+			btn.add_theme_font_size_override("font_size", 34)
 		else:
 			var lock_text := "🔒 LOCKED: Requires Age %d+ (Current: %d)" % [JobManager.minimum_age(job), PlayerData.age] if PlayerData.age < JobManager.minimum_age(job) else "🔒 LOCKED: " + str(eval.get("reason", "Not qualified"))
 			btn = _create_disabled_cyber_button(lock_text, "")
 			btn.custom_minimum_size.y = 88
-			btn.add_theme_font_size_override("font_size", 30)
+			btn.add_theme_font_size_override("font_size", 34)
 
 		vbox.add_child(btn)
 		list.add_child(card)
@@ -8990,7 +8990,7 @@ func _show_simple_popup(title_text: String, msg_text: String, border_color: Colo
 	var lbl := Label.new()
 	lbl.text = msg_text
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl.add_theme_font_size_override("font_size", 26)
+	lbl.add_theme_font_size_override("font_size", 30)
 	lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	var list_node: VBoxContainer = m.get("list")
 	list_node.add_child(lbl)
@@ -9226,7 +9226,7 @@ func _show_licensing_modal() -> void:
 
 	var ih := Label.new()
 	ih.text = "🏛️ OFFICIAL STATE LICENSING BUREAU"
-	ih.add_theme_font_size_override("font_size", 30)
+	ih.add_theme_font_size_override("font_size", 34)
 	ih.add_theme_color_override("font_color", Color("#22d3ee"))
 	iv.add_child(ih)
 
@@ -9236,7 +9236,7 @@ func _show_licensing_modal() -> void:
 		_format_number(PlayerData.bank_savings)
 	]
 	idesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	idesc.add_theme_font_size_override("font_size", 26)
+	idesc.add_theme_font_size_override("font_size", 30)
 	idesc.add_theme_color_override("font_color", Color("#cbd5e1"))
 	iv.add_child(idesc)
 	list.add_child(info_card)
@@ -9258,7 +9258,7 @@ func _show_licensing_modal() -> void:
 			_show_license_category_modal(cat_id)
 		)
 		cat_btn.custom_minimum_size.y = 96
-		cat_btn.add_theme_font_size_override("font_size", 28)
+		cat_btn.add_theme_font_size_override("font_size", 32)
 		list.add_child(cat_btn)
 
 	licensing_modal_overlay.visible = true
@@ -9291,7 +9291,7 @@ func _show_license_category_modal(category_id: String) -> void:
 		_show_licensing_modal()
 	)
 	back_btn.custom_minimum_size.y = 84
-	back_btn.add_theme_font_size_override("font_size", 28)
+	back_btn.add_theme_font_size_override("font_size", 32)
 	list.add_child(back_btn)
 
 	# Licenses in this category
@@ -9328,13 +9328,13 @@ func _show_license_category_modal(category_id: String) -> void:
 		title_lbl.text = "%s %s" % [lic_icon, lic_name]
 		title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_lbl.add_theme_font_size_override("font_size", 28)
+		title_lbl.add_theme_font_size_override("font_size", 32)
 		title_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 		header_row.add_child(title_lbl)
 
 		var fee_lbl := Label.new()
 		fee_lbl.text = "$%s Fee" % _format_number(fee)
-		fee_lbl.add_theme_font_size_override("font_size", 28)
+		fee_lbl.add_theme_font_size_override("font_size", 32)
 		fee_lbl.add_theme_color_override("font_color", Color("#34d399") if is_certified else Color("#38bdf8"))
 		header_row.add_child(fee_lbl)
 		cv.add_child(header_row)
@@ -9342,14 +9342,14 @@ func _show_license_category_modal(category_id: String) -> void:
 		var meta_lbl := Label.new()
 		meta_lbl.text = "Min Age: %d+  •  Authorizes: %s" % [min_age, unlocked]
 		meta_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		meta_lbl.add_theme_font_size_override("font_size", 25)
+		meta_lbl.add_theme_font_size_override("font_size", 29)
 		meta_lbl.add_theme_color_override("font_color", Color("#a5f3fc"))
 		cv.add_child(meta_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = desc
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_lbl.add_theme_font_size_override("font_size", 25)
+		desc_lbl.add_theme_font_size_override("font_size", 29)
 		desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
@@ -9367,7 +9367,7 @@ func _show_license_category_modal(category_id: String) -> void:
 			cert_btn.add_theme_stylebox_override("disabled", sb)
 			cert_btn.add_theme_color_override("font_color", Color("#6ee7b7"))
 			cert_btn.add_theme_color_override("font_disabled_color", Color("#6ee7b7"))
-			cert_btn.add_theme_font_size_override("font_size", 26)
+			cert_btn.add_theme_font_size_override("font_size", 30)
 			cv.add_child(cert_btn)
 		else:
 			var eval := LicenseManager.can_take_license(lic_id)
@@ -9384,12 +9384,12 @@ func _show_license_category_modal(category_id: String) -> void:
 						add_life_event(str(res.get("reason", "Could not take exam.")), "activity")
 				)
 				btn_take.custom_minimum_size.y = 64
-				btn_take.add_theme_font_size_override("font_size", 26)
+				btn_take.add_theme_font_size_override("font_size", 30)
 				cv.add_child(btn_take)
 			else:
 				var lk_btn := _create_disabled_cyber_button(str(eval.get("reason", "Ineligible to take qualification exam.")))
 				lk_btn.custom_minimum_size.y = 64
-				lk_btn.add_theme_font_size_override("font_size", 24)
+				lk_btn.add_theme_font_size_override("font_size", 28)
 				cv.add_child(lk_btn)
 
 		list.add_child(card)
@@ -9472,13 +9472,13 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 		questions.size()
 	]
 	tlbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tlbl.add_theme_font_size_override("font_size", 25)
+	tlbl.add_theme_font_size_override("font_size", 29)
 	tlbl.add_theme_color_override("font_color", Color("#93c5fd"))
 	thbox.add_child(tlbl)
 
 	var score_lbl := Label.new()
 	score_lbl.text = "Current Score: %d" % int(exam_state.get("score", 0))
-	score_lbl.add_theme_font_size_override("font_size", 26)
+	score_lbl.add_theme_font_size_override("font_size", 30)
 	score_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 	thbox.add_child(score_lbl)
 	tm.add_child(thbox)
@@ -9502,7 +9502,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 	var stype_lbl := Label.new()
 	stype_lbl.text = "OFFICIAL TRAFFIC SIGN: [ %s ]" % str(current_q.get("sign_type", "ROAD SIGN"))
 	stype_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stype_lbl.add_theme_font_size_override("font_size", 24)
+	stype_lbl.add_theme_font_size_override("font_size", 28)
 	stype_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	sv.add_child(stype_lbl)
 
@@ -9532,7 +9532,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 	var icon_lbl := Label.new()
 	icon_lbl.text = str(current_q.get("icon", "🛑"))
 	icon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	icon_lbl.add_theme_font_size_override("font_size", 58)
+	icon_lbl.add_theme_font_size_override("font_size", 62)
 	sbv.add_child(icon_lbl)
 
 	var sign_text_str: String = str(current_q.get("sign_text", ""))
@@ -9540,7 +9540,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 		var text_lbl := Label.new()
 		text_lbl.text = sign_text_str
 		text_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		text_lbl.add_theme_font_size_override("font_size", 28)
+		text_lbl.add_theme_font_size_override("font_size", 32)
 		text_lbl.add_theme_color_override("font_color", Color(str(current_q.get("text_color", "#ffffff"))))
 		sbv.add_child(text_lbl)
 
@@ -9550,7 +9550,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 	prompt_lbl.text = "❓ What is the legal meaning of this road sign?"
 	prompt_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	prompt_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	prompt_lbl.add_theme_font_size_override("font_size", 28)
+	prompt_lbl.add_theme_font_size_override("font_size", 32)
 	prompt_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 	sv.add_child(prompt_lbl)
 
@@ -9580,7 +9580,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 		var opt_btn := _create_cyber_button(btn_label, Color("#0284c7"))
 		opt_btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		opt_btn.custom_minimum_size.y = 76
-		opt_btn.add_theme_font_size_override("font_size", 25)
+		opt_btn.add_theme_font_size_override("font_size", 29)
 		opt_btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 		opt_btn.pressed.connect(func():
@@ -9613,7 +9613,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 				var fb_lbl := Label.new()
 				fb_lbl.text = "✓ CORRECT ANSWER! %s" % correct_meaning
 				fb_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				fb_lbl.add_theme_font_size_override("font_size", 26)
+				fb_lbl.add_theme_font_size_override("font_size", 30)
 				fb_lbl.add_theme_color_override("font_color", Color("#6ee7b7"))
 				fbm.add_child(fb_lbl)
 				feedback_container.add_child(fb_card)
@@ -9649,7 +9649,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 				var fb_lbl := Label.new()
 				fb_lbl.text = "❌ INCORRECT. The correct road rule is:\n%s" % correct_meaning
 				fb_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				fb_lbl.add_theme_font_size_override("font_size", 26)
+				fb_lbl.add_theme_font_size_override("font_size", 30)
 				fb_lbl.add_theme_color_override("font_color", Color("#fca5a5"))
 				fbm.add_child(fb_lbl)
 				feedback_container.add_child(fb_card)
@@ -9661,7 +9661,7 @@ func _render_driving_exam_step(exam_state: Dictionary) -> void:
 				_render_driving_exam_step(exam_state)
 			)
 			next_btn.custom_minimum_size.y = 68
-			next_btn.add_theme_font_size_override("font_size", 26)
+			next_btn.add_theme_font_size_override("font_size", 30)
 			feedback_container.add_child(next_btn)
 		)
 
@@ -9713,7 +9713,7 @@ func _render_driving_exam_results(exam_state: Dictionary) -> void:
 
 	var score_header := Label.new()
 	score_header.text = "EXAMINATION SCORE: %d / %d (Passing Standard: 2/3)" % [score, total]
-	score_header.add_theme_font_size_override("font_size", 30)
+	score_header.add_theme_font_size_override("font_size", 34)
 	score_header.add_theme_color_override("font_color", Color("#ffffff"))
 	rv.add_child(score_header)
 
@@ -9727,20 +9727,20 @@ func _render_driving_exam_results(exam_state: Dictionary) -> void:
 		var pass_desc := Label.new()
 		pass_desc.text = "Congratulations! You correctly identified the road signs and demonstrated state driving competency.\n\nYour official %s has been stamped, registered, and authorized on your public record!" % lic_name
 		pass_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		pass_desc.add_theme_font_size_override("font_size", 26)
+		pass_desc.add_theme_font_size_override("font_size", 30)
 		pass_desc.add_theme_color_override("font_color", Color("#a7f3d0"))
 		rv.add_child(pass_desc)
 
 		var badge_lbl := Label.new()
 		badge_lbl.text = "%s  %s — Active Qualification Granted!" % [lic_icon, lic_name]
-		badge_lbl.add_theme_font_size_override("font_size", 28)
+		badge_lbl.add_theme_font_size_override("font_size", 32)
 		badge_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 		rv.add_child(badge_lbl)
 	else:
 		var fail_desc := Label.new()
 		fail_desc.text = "You scored %d / %d. The state road bureau requires a minimum score of 2 out of 3 correct answers to certify driving qualifications.\n\nNo license fee was charged. You may review traffic signs and retake the test at any time." % [score, total]
 		fail_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		fail_desc.add_theme_font_size_override("font_size", 26)
+		fail_desc.add_theme_font_size_override("font_size", 30)
 		fail_desc.add_theme_color_override("font_color", Color("#fca5a5"))
 		rv.add_child(fail_desc)
 
@@ -9753,14 +9753,14 @@ func _render_driving_exam_results(exam_state: Dictionary) -> void:
 			_show_license_category_modal(cat_id)
 		)
 		back_btn.custom_minimum_size.y = 68
-		back_btn.add_theme_font_size_override("font_size", 26)
+		back_btn.add_theme_font_size_override("font_size", 30)
 		list.add_child(back_btn)
 	else:
 		var retake_btn := _create_cyber_button("🔄 Retake Examination", Color("#38bdf8"), func():
 			_start_driving_exam_minigame(lic_id, cat_id)
 		)
 		retake_btn.custom_minimum_size.y = 68
-		retake_btn.add_theme_font_size_override("font_size", 26)
+		retake_btn.add_theme_font_size_override("font_size", 30)
 		list.add_child(retake_btn)
 
 		var exit_btn := _create_cyber_button("← Return to Vehicle Licenses", Color("#64748b"), func():
@@ -9769,7 +9769,7 @@ func _render_driving_exam_results(exam_state: Dictionary) -> void:
 			_show_license_category_modal(cat_id)
 		)
 		exit_btn.custom_minimum_size.y = 66
-		exit_btn.add_theme_font_size_override("font_size", 24)
+		exit_btn.add_theme_font_size_override("font_size", 28)
 		list.add_child(exit_btn)
 
 	driving_exam_modal_overlay.visible = true
@@ -9800,14 +9800,14 @@ func _show_freelance_modal() -> void:
 
 	var ih := Label.new()
 	ih.text = "🌐 FREELANCE CLIENT CONTRACT HUB"
-	ih.add_theme_font_size_override("font_size", 30)
+	ih.add_theme_font_size_override("font_size", 34)
 	ih.add_theme_color_override("font_color", Color("#c084fc"))
 	iv.add_child(ih)
 
 	var idesc := Label.new()
 	idesc.text = "Freelance occupations do not pay fixed annual salaries. Instead, income is generated per client project. Once registered, client contract requests arrive automatically each year during aging, or you can actively pitch for gigs right now!"
 	idesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	idesc.add_theme_font_size_override("font_size", 26)
+	idesc.add_theme_font_size_override("font_size", 30)
 	idesc.add_theme_color_override("font_color", Color("#cbd5e1"))
 	iv.add_child(idesc)
 	list.add_child(info_card)
@@ -9846,13 +9846,13 @@ func _show_freelance_modal() -> void:
 		title_lbl.text = "%s %s" % [j_icon, j_title]
 		title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_lbl.add_theme_font_size_override("font_size", 28)
+		title_lbl.add_theme_font_size_override("font_size", 32)
 		title_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 		top_row.add_child(title_lbl)
 
 		var pay_lbl := Label.new()
 		pay_lbl.text = "$%s - $%s / Project" % [_format_number(min_pay), _format_number(max_pay)]
-		pay_lbl.add_theme_font_size_override("font_size", 26)
+		pay_lbl.add_theme_font_size_override("font_size", 30)
 		pay_lbl.add_theme_color_override("font_color", Color("#34d399"))
 		top_row.add_child(pay_lbl)
 		cv.add_child(top_row)
@@ -9860,21 +9860,21 @@ func _show_freelance_modal() -> void:
 		var lic_lbl := Label.new()
 		lic_lbl.text = "Required Credential: %s (%s)" % [lic_title, "✓ Certified" if has_license else "❌ Not Certified"]
 		lic_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		lic_lbl.add_theme_font_size_override("font_size", 25)
+		lic_lbl.add_theme_font_size_override("font_size", 29)
 		lic_lbl.add_theme_color_override("font_color", Color("#a7f3d0") if has_license else Color("#fca5a5"))
 		cv.add_child(lic_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = desc
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_lbl.add_theme_font_size_override("font_size", 25)
+		desc_lbl.add_theme_font_size_override("font_size", 29)
 		desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
 		if is_registered:
 			var reg_info := Label.new()
 			reg_info.text = "✓ Client Roster Active: Projects will automatically offer contracts annually."
-			reg_info.add_theme_font_size_override("font_size", 25)
+			reg_info.add_theme_font_size_override("font_size", 29)
 			reg_info.add_theme_color_override("font_color", Color("#34d399"))
 			cv.add_child(reg_info)
 
@@ -9901,13 +9901,13 @@ func _show_freelance_modal() -> void:
 				)
 				pitch_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				pitch_btn.custom_minimum_size.y = 64
-				pitch_btn.add_theme_font_size_override("font_size", 25)
+				pitch_btn.add_theme_font_size_override("font_size", 29)
 				btn_row.add_child(pitch_btn)
 			else:
 				var done_pitch := _create_disabled_cyber_button("✓ Pitched for Age %d" % PlayerData.age, "Annual pitch quota reached.")
 				done_pitch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 				done_pitch.custom_minimum_size.y = 64
-				done_pitch.add_theme_font_size_override("font_size", 24)
+				done_pitch.add_theme_font_size_override("font_size", 28)
 				btn_row.add_child(done_pitch)
 
 			var pause_btn := _create_cyber_button("⏸️ Pause Roster", Color("#ef4444"), func():
@@ -9917,7 +9917,7 @@ func _show_freelance_modal() -> void:
 				_show_freelance_modal()
 			)
 			pause_btn.custom_minimum_size.y = 64
-			pause_btn.add_theme_font_size_override("font_size", 25)
+			pause_btn.add_theme_font_size_override("font_size", 29)
 			btn_row.add_child(pause_btn)
 
 			cv.add_child(btn_row)
@@ -9930,12 +9930,12 @@ func _show_freelance_modal() -> void:
 					_show_freelance_modal()
 			)
 			reg_btn.custom_minimum_size.y = 64
-			reg_btn.add_theme_font_size_override("font_size", 26)
+			reg_btn.add_theme_font_size_override("font_size", 30)
 			cv.add_child(reg_btn)
 		else:
 			var lk_btn := _create_disabled_cyber_button("Requires %s" % lic_title, "You must take the qualification exam in the Licensing Panel first.")
 			lk_btn.custom_minimum_size.y = 64
-			lk_btn.add_theme_font_size_override("font_size", 24)
+			lk_btn.add_theme_font_size_override("font_size", 28)
 			cv.add_child(lk_btn)
 
 		list.add_child(card)
@@ -9997,7 +9997,7 @@ func _show_business_modal(initial_tab: String = "", selected_uid: String = "", p
 		)
 		back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		back_btn.custom_minimum_size.y = 58
-		back_btn.add_theme_font_size_override("font_size", 23)
+		back_btn.add_theme_font_size_override("font_size", 27)
 		back_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		back_btn.set_meta("center_text", true)
 		nav_bar.add_child(back_btn)
@@ -10015,7 +10015,7 @@ func _show_business_modal(initial_tab: String = "", selected_uid: String = "", p
 		)
 		btn_tab_ent.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_tab_ent.custom_minimum_size.y = 60
-		btn_tab_ent.add_theme_font_size_override("font_size", 26)
+		btn_tab_ent.add_theme_font_size_override("font_size", 30)
 		btn_tab_ent.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		tab_bar.add_child(btn_tab_ent)
 
@@ -10025,7 +10025,7 @@ func _show_business_modal(initial_tab: String = "", selected_uid: String = "", p
 		)
 		btn_tab_inc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_tab_inc.custom_minimum_size.y = 60
-		btn_tab_inc.add_theme_font_size_override("font_size", 26)
+		btn_tab_inc.add_theme_font_size_override("font_size", 30)
 		btn_tab_inc.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		tab_bar.add_child(btn_tab_inc)
 
@@ -10070,14 +10070,14 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		var etitle := Label.new()
 		etitle.text = "🏢 No Commercial Enterprises Owned Yet"
 		etitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		etitle.add_theme_font_size_override("font_size", 28)
+		etitle.add_theme_font_size_override("font_size", 32)
 		etitle.add_theme_color_override("font_color", Color("#fbbf24"))
 		ev.add_child(etitle)
 
 		var edesc := Label.new()
 		edesc.text = "You do not own any operating commercial companies. Complete the corresponding 4-year degree at university, then explore available business types in the 'Incorporate (16 Types)' tab!"
 		edesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		edesc.add_theme_font_size_override("font_size", 25)
+		edesc.add_theme_font_size_override("font_size", 29)
 		edesc.add_theme_color_override("font_color", Color("#cbd5e1"))
 		ev.add_child(edesc)
 
@@ -10085,7 +10085,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 			_show_business_modal("incorporate")
 		)
 		goto_inc.custom_minimum_size.y = 66
-		goto_inc.add_theme_font_size_override("font_size", 26)
+		goto_inc.add_theme_font_size_override("font_size", 30)
 		ev.add_child(goto_inc)
 
 		list.add_child(empty_card)
@@ -10099,7 +10099,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		_format_number(total_val)
 	]
 	hdr.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hdr.add_theme_font_size_override("font_size", 28)
+	hdr.add_theme_font_size_override("font_size", 32)
 	hdr.add_theme_color_override("font_color", Color("#fbbf24"))
 	list.add_child(hdr)
 
@@ -10138,13 +10138,13 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		title_lbl.text = "%s %s" % [b_icon, b_name]
 		title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_lbl.add_theme_font_size_override("font_size", 30)
+		title_lbl.add_theme_font_size_override("font_size", 34)
 		title_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 		top_row.add_child(title_lbl)
 
 		var val_lbl := Label.new()
 		val_lbl.text = "Valuation: $%s" % _format_number(val)
-		val_lbl.add_theme_font_size_override("font_size", 28)
+		val_lbl.add_theme_font_size_override("font_size", 32)
 		val_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 		top_row.add_child(val_lbl)
 		cv.add_child(top_row)
@@ -10157,7 +10157,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 			status_badge.text = "✓ Legally Chartered & Licensed Enterprise"
 			status_badge.add_theme_color_override("font_color", Color("#86efac"))
 		status_badge.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		status_badge.add_theme_font_size_override("font_size", 24)
+		status_badge.add_theme_font_size_override("font_size", 28)
 		cv.add_child(status_badge)
 
 		var stats_lbl := Label.new()
@@ -10173,7 +10173,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 			_format_number(loan_bal)
 		]
 		stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		stats_lbl.add_theme_font_size_override("font_size", 25)
+		stats_lbl.add_theme_font_size_override("font_size", 29)
 		stats_lbl.add_theme_color_override("font_color", Color("#e2e8f0"))
 		cv.add_child(stats_lbl)
 
@@ -10182,7 +10182,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		)
 		btn_fin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_fin.custom_minimum_size.y = 60
-		btn_fin.add_theme_font_size_override("font_size", 25)
+		btn_fin.add_theme_font_size_override("font_size", 29)
 		btn_fin.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_fin.set_meta("center_text", true)
 		cv.add_child(btn_fin)
@@ -10198,7 +10198,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		rename_edit.text = b_name
 		rename_edit.placeholder_text = "Enter new enterprise name..."
 		rename_edit.custom_minimum_size.y = 58
-		rename_edit.add_theme_font_size_override("font_size", 24)
+		rename_edit.add_theme_font_size_override("font_size", 28)
 		get_node("OptionsMenu")._style_input(rename_edit)
 		MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % b_name)
 		rename_box.add_child(rename_edit)
@@ -10217,7 +10217,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		)
 		btn_save_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_save_name.custom_minimum_size.y = 54
-		btn_save_name.add_theme_font_size_override("font_size", 22)
+		btn_save_name.add_theme_font_size_override("font_size", 26)
 		btn_save_name.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_save_name.set_meta("center_text", true)
 		rename_btn_row.add_child(btn_save_name)
@@ -10227,7 +10227,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		)
 		btn_cancel_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_cancel_name.custom_minimum_size.y = 54
-		btn_cancel_name.add_theme_font_size_override("font_size", 22)
+		btn_cancel_name.add_theme_font_size_override("font_size", 26)
 		btn_cancel_name.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_cancel_name.set_meta("center_text", true)
 		rename_btn_row.add_child(btn_cancel_name)
@@ -10240,7 +10240,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		)
 		btn_rename.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rename.custom_minimum_size.y = 58
-		btn_rename.add_theme_font_size_override("font_size", 23)
+		btn_rename.add_theme_font_size_override("font_size", 27)
 		btn_rename.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_rename.set_meta("center_text", true)
 		actions_row.add_child(btn_rename)
@@ -10254,7 +10254,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		)
 		btn_hire.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_hire.custom_minimum_size.y = 58
-		btn_hire.add_theme_font_size_override("font_size", 23)
+		btn_hire.add_theme_font_size_override("font_size", 27)
 		btn_hire.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_hire.set_meta("center_text", true)
 		actions_row.add_child(btn_hire)
@@ -10268,7 +10268,7 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		)
 		btn_sell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_sell.custom_minimum_size.y = 58
-		btn_sell.add_theme_font_size_override("font_size", 23)
+		btn_sell.add_theme_font_size_override("font_size", 27)
 		btn_sell.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_sell.set_meta("center_text", true)
 		actions_row.add_child(btn_sell)
@@ -10295,7 +10295,7 @@ func _render_business_tab_incorporate(list: VBoxContainer) -> void:
 	var ih := Label.new()
 	ih.text = "🏛️ COMMERCIAL ENTERPRISE SECTORS"
 	ih.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ih.add_theme_font_size_override("font_size", 30)
+	ih.add_theme_font_size_override("font_size", 34)
 	ih.add_theme_color_override("font_color", Color("#fbbf24"))
 	iv.add_child(ih)
 
@@ -10305,7 +10305,7 @@ func _render_business_tab_incorporate(list: VBoxContainer) -> void:
 		_format_number(PlayerData.bank_savings)
 	]
 	idesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	idesc.add_theme_font_size_override("font_size", 26)
+	idesc.add_theme_font_size_override("font_size", 30)
 	idesc.add_theme_color_override("font_color", Color("#cbd5e1"))
 	iv.add_child(idesc)
 	list.add_child(info_card)
@@ -10327,7 +10327,7 @@ func _render_business_tab_incorporate(list: VBoxContainer) -> void:
 			_show_business_category_modal(cat_id)
 		)
 		cat_btn.custom_minimum_size.y = 96
-		cat_btn.add_theme_font_size_override("font_size", 28)
+		cat_btn.add_theme_font_size_override("font_size", 32)
 		list.add_child(cat_btn)
 
 
@@ -10350,7 +10350,7 @@ func _show_business_category_modal(category_id: String) -> void:
 	)
 	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	back_btn.custom_minimum_size.y = 58
-	back_btn.add_theme_font_size_override("font_size", 23)
+	back_btn.add_theme_font_size_override("font_size", 27)
 	back_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	back_btn.set_meta("center_text", true)
 	nav_bar.add_child(back_btn)
@@ -10398,13 +10398,13 @@ func _show_business_category_modal(category_id: String) -> void:
 		title_lbl.text = "%s %s" % [b_icon, b_name]
 		title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title_lbl.add_theme_font_size_override("font_size", 28)
+		title_lbl.add_theme_font_size_override("font_size", 32)
 		title_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 		top_row.add_child(title_lbl)
 
 		var cost_lbl := Label.new()
 		cost_lbl.text = "$%s Capital" % _format_number(cost)
-		cost_lbl.add_theme_font_size_override("font_size", 28)
+		cost_lbl.add_theme_font_size_override("font_size", 32)
 		cost_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 		top_row.add_child(cost_lbl)
 		cv.add_child(top_row)
@@ -10412,21 +10412,21 @@ func _show_business_category_modal(category_id: String) -> void:
 		var lic_lbl := Label.new()
 		lic_lbl.text = "Commercial Qualification: %s (%s)" % [lic_title, "✓ Certified License" if has_license else "❌ Unlicensed (Required for Legal Charter)"]
 		lic_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		lic_lbl.add_theme_font_size_override("font_size", 25)
+		lic_lbl.add_theme_font_size_override("font_size", 29)
 		lic_lbl.add_theme_color_override("font_color", Color("#a7f3d0") if has_license else Color("#fca5a5"))
 		cv.add_child(lic_lbl)
 
 		var proj_lbl := Label.new()
 		proj_lbl.text = "Projected Revenue: $%s - $%s/yr  •  Base OpEx: $%s/yr" % [_format_number(rev_min), _format_number(rev_max), _format_number(opex)]
 		proj_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		proj_lbl.add_theme_font_size_override("font_size", 25)
+		proj_lbl.add_theme_font_size_override("font_size", 29)
 		proj_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 		cv.add_child(proj_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = desc
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_lbl.add_theme_font_size_override("font_size", 25)
+		desc_lbl.add_theme_font_size_override("font_size", 29)
 		desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
@@ -10437,7 +10437,7 @@ func _show_business_category_modal(category_id: String) -> void:
 
 			var name_lbl := Label.new()
 			name_lbl.text = "Business / Trade Name:"
-			name_lbl.add_theme_font_size_override("font_size", 24)
+			name_lbl.add_theme_font_size_override("font_size", 28)
 			name_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 			name_box.add_child(name_lbl)
 
@@ -10445,7 +10445,7 @@ func _show_business_category_modal(category_id: String) -> void:
 			name_edit.text = b_name
 			name_edit.placeholder_text = "Enter custom business name..."
 			name_edit.custom_minimum_size.y = 58
-			name_edit.add_theme_font_size_override("font_size", 25)
+			name_edit.add_theme_font_size_override("font_size", 29)
 			name_edit.add_theme_color_override("font_color", Color("#ffffff"))
 			name_edit.add_theme_color_override("placeholder_color", Color("#64748b"))
 
@@ -10481,7 +10481,7 @@ func _show_business_category_modal(category_id: String) -> void:
 						add_life_event(str(res.get("reason", "Could not incorporate.")), "activity")
 				)
 				btn_found.custom_minimum_size.y = 64
-				btn_found.add_theme_font_size_override("font_size", 26)
+				btn_found.add_theme_font_size_override("font_size", 30)
 				cv.add_child(btn_found)
 
 			# EXTRA BUTTON (Item 6): Allow creating business WITHOUT a license or degree
@@ -10501,19 +10501,19 @@ func _show_business_category_modal(category_id: String) -> void:
 					add_life_event(str(res.get("reason", "Could not operate.")), "activity")
 			)
 			btn_unlic.custom_minimum_size.y = 60
-			btn_unlic.add_theme_font_size_override("font_size", 24)
+			btn_unlic.add_theme_font_size_override("font_size", 28)
 			cv.add_child(btn_unlic)
 
 			var unlic_warn := Label.new()
 			unlic_warn.text = "⚠️ Unlicensed operation is illegal. High annual risk of police audits, lawsuits, shutdown, and prison."
 			unlic_warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			unlic_warn.add_theme_font_size_override("font_size", 22)
+			unlic_warn.add_theme_font_size_override("font_size", 26)
 			unlic_warn.add_theme_color_override("font_color", Color("#fca5a5"))
 			cv.add_child(unlic_warn)
 		else:
 			var lk_funds := _create_disabled_cyber_button("Insufficient Funds ($%s Required • You have $%s)" % [_format_number(cost), _format_number(total_funds)], "Deposit or save more cash to meet startup incorporation requirements.")
 			lk_funds.custom_minimum_size.y = 64
-			lk_funds.add_theme_font_size_override("font_size", 24)
+			lk_funds.add_theme_font_size_override("font_size", 28)
 			cv.add_child(lk_funds)
 
 		list.add_child(card)
@@ -10570,7 +10570,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	var stitle := Label.new()
 	stitle.text = "🏛️ STRICT CORPORATE ENTITY SEPARATION"
 	stitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stitle.add_theme_font_size_override("font_size", 28)
+	stitle.add_theme_font_size_override("font_size", 32)
 	stitle.add_theme_color_override("font_color", Color("#38bdf8"))
 	sv.add_child(stitle)
 
@@ -10581,7 +10581,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		_format_number(PlayerData.bank_savings)
 	]
 	sdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sdesc.add_theme_font_size_override("font_size", 25)
+	sdesc.add_theme_font_size_override("font_size", 29)
 	sdesc.add_theme_color_override("font_color", Color("#e0f2fe"))
 	sv.add_child(sdesc)
 	list.add_child(sep_card)
@@ -10603,7 +10603,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	var f_title := Label.new()
 	f_title.text = "%s %s — CORPORATE BALANCE SHEET" % [b_icon, b_name]
 	f_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	f_title.add_theme_font_size_override("font_size", 29)
+	f_title.add_theme_font_size_override("font_size", 33)
 	f_title.add_theme_color_override("font_color", Color("#ffffff"))
 	fv.add_child(f_title)
 
@@ -10620,7 +10620,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		employees
 	]
 	f_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	f_body.add_theme_font_size_override("font_size", 26)
+	f_body.add_theme_font_size_override("font_size", 30)
 	f_body.add_theme_color_override("font_color", Color("#fef08a"))
 	fv.add_child(f_body)
 	list.add_child(fin_card)
@@ -10642,7 +10642,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	var t_title := Label.new()
 	t_title.text = "🏛️ CORPORATE TAX COMPLIANCE SECTION"
 	t_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	t_title.add_theme_font_size_override("font_size", 28)
+	t_title.add_theme_font_size_override("font_size", 32)
 	t_title.add_theme_color_override("font_color", Color("#ffffff"))
 	tv.add_child(t_title)
 
@@ -10656,7 +10656,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		int(target_biz.get("last_tax_paid_year", PlayerData.age))
 	]
 	t_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	t_desc.add_theme_font_size_override("font_size", 25)
+	t_desc.add_theme_font_size_override("font_size", 29)
 	t_desc.add_theme_color_override("font_color", Color("#fca5a5") if unpaid_tax > 0 else Color("#86efac"))
 	tv.add_child(t_desc)
 
@@ -10672,14 +10672,14 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 				add_life_event(str(r.get("message", "Could not pay taxes.")), "finance")
 		)
 		btn_pay_tax.custom_minimum_size.y = 64
-		btn_pay_tax.add_theme_font_size_override("font_size", 25)
+		btn_pay_tax.add_theme_font_size_override("font_size", 29)
 		btn_pay_tax.disabled = treasury < unpaid_tax
 		tv.add_child(btn_pay_tax)
 	else:
 		var paid_lbl := Label.new()
 		paid_lbl.text = "✓ All corporate taxes are fully paid and in compliance."
 		paid_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		paid_lbl.add_theme_font_size_override("font_size", 25)
+		paid_lbl.add_theme_font_size_override("font_size", 29)
 		paid_lbl.add_theme_color_override("font_color", Color("#86efac"))
 		tv.add_child(paid_lbl)
 
@@ -10702,14 +10702,14 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	var l_title := Label.new()
 	l_title.text = "🏦 COMMERCIAL LOANS & CREDIT FACILITY SECTION"
 	l_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l_title.add_theme_font_size_override("font_size", 28)
+	l_title.add_theme_font_size_override("font_size", 32)
 	l_title.add_theme_color_override("font_color", Color("#ffffff"))
 	lv.add_child(l_title)
 
 	var l_desc := Label.new()
 	l_desc.text = "Active Commercial Loan Balance: $%s  •  Interest Rate: 7.5%% APR\nDisbursed loans are directly deposited into %s corporate treasury." % [_format_number(cur_loan), b_name]
 	l_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l_desc.add_theme_font_size_override("font_size", 25)
+	l_desc.add_theme_font_size_override("font_size", 29)
 	l_desc.add_theme_color_override("font_color", Color("#ddd6fe"))
 	lv.add_child(l_desc)
 
@@ -10732,7 +10732,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		)
 		btn_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_b.custom_minimum_size.y = 64
-		btn_b.add_theme_font_size_override("font_size", 22)
+		btn_b.add_theme_font_size_override("font_size", 26)
 		btn_b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		borrow_row.add_child(btn_b)
 
@@ -10756,7 +10756,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		)
 		btn_rep10.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rep10.custom_minimum_size.y = 64
-		btn_rep10.add_theme_font_size_override("font_size", 22)
+		btn_rep10.add_theme_font_size_override("font_size", 26)
 		btn_rep10.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_rep10.disabled = treasury < 10000
 		repay_row.add_child(btn_rep10)
@@ -10773,7 +10773,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		)
 		btn_rep_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rep_all.custom_minimum_size.y = 64
-		btn_rep_all.add_theme_font_size_override("font_size", 22)
+		btn_rep_all.add_theme_font_size_override("font_size", 26)
 		btn_rep_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_rep_all.disabled = treasury < cur_loan
 		repay_row.add_child(btn_rep_all)
@@ -10787,7 +10787,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		, true)
 		btn_rep_custom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rep_custom.custom_minimum_size.y = 64
-		btn_rep_custom.add_theme_font_size_override("font_size", 22)
+		btn_rep_custom.add_theme_font_size_override("font_size", 26)
 		btn_rep_custom.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_rep_custom.set_meta("center_text", true)
 		repay_row.add_child(btn_rep_custom)
@@ -10799,7 +10799,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		repay_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
 		repay_input.placeholder_text = "Enter whole dollars (Max: $%s)" % _format_number(mini(cur_loan, treasury))
 		repay_input.custom_minimum_size.y = 58
-		repay_input.add_theme_font_size_override("font_size", 24)
+		repay_input.add_theme_font_size_override("font_size", 28)
 		get_node("OptionsMenu")._style_input(repay_input)
 		MobileKeyboardManager.attach_to_input(repay_input, "Enter custom repayment amount:")
 		inline_repay_box.add_child(repay_input)
@@ -10819,7 +10819,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		, true)
 		btn_sub_repay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_sub_repay.custom_minimum_size.y = 56
-		btn_sub_repay.add_theme_font_size_override("font_size", 22)
+		btn_sub_repay.add_theme_font_size_override("font_size", 26)
 		btn_sub_repay.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_sub_repay.set_meta("center_text", true)
 		repay_btn_row.add_child(btn_sub_repay)
@@ -10829,7 +10829,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		, true)
 		btn_can_repay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_can_repay.custom_minimum_size.y = 56
-		btn_can_repay.add_theme_font_size_override("font_size", 22)
+		btn_can_repay.add_theme_font_size_override("font_size", 26)
 		btn_can_repay.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_can_repay.set_meta("center_text", true)
 		repay_btn_row.add_child(btn_can_repay)
@@ -10856,14 +10856,14 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	var e_title := Label.new()
 	e_title.text = "💵 CAPITAL TRANSFERS & OWNER DIVIDENDS"
 	e_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	e_title.add_theme_font_size_override("font_size", 28)
+	e_title.add_theme_font_size_override("font_size", 32)
 	e_title.add_theme_color_override("font_color", Color("#ffffff"))
 	ev.add_child(e_title)
 
 	var e_desc := Label.new()
 	e_desc.text = "Transfer liquidity between your personal funds and %s corporate treasury." % b_name
 	e_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	e_desc.add_theme_font_size_override("font_size", 25)
+	e_desc.add_theme_font_size_override("font_size", 29)
 	e_desc.add_theme_color_override("font_color", Color("#a7f3d0"))
 	ev.add_child(e_desc)
 
@@ -10884,7 +10884,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		, true)
 		btn_div.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_div.custom_minimum_size.y = 68
-		btn_div.add_theme_font_size_override("font_size", 22)
+		btn_div.add_theme_font_size_override("font_size", 26)
 		btn_div.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_div.set_meta("center_text", true)
 		btn_div.disabled = treasury < amt
@@ -10902,7 +10902,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		, true)
 		btn_inj.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_inj.custom_minimum_size.y = 68
-		btn_inj.add_theme_font_size_override("font_size", 22)
+		btn_inj.add_theme_font_size_override("font_size", 26)
 		btn_inj.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_inj.set_meta("center_text", true)
 		btn_inj.disabled = PlayerData.get_available_funds() < amt
@@ -10922,7 +10922,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	custom_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
 	custom_input.placeholder_text = "Enter amount in whole dollars..."
 	custom_input.custom_minimum_size.y = 58
-	custom_input.add_theme_font_size_override("font_size", 24)
+	custom_input.add_theme_font_size_override("font_size", 28)
 	get_node("OptionsMenu")._style_input(custom_input)
 	MobileKeyboardManager.attach_to_input(custom_input, "Enter custom transfer amount:")
 	inline_custom_box.add_child(custom_input)
@@ -10942,7 +10942,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	, true)
 	btn_do_custom_div.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_do_custom_div.custom_minimum_size.y = 56
-	btn_do_custom_div.add_theme_font_size_override("font_size", 22)
+	btn_do_custom_div.add_theme_font_size_override("font_size", 26)
 	btn_do_custom_div.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_do_custom_div.set_meta("center_text", true)
 	custom_act_row.add_child(btn_do_custom_div)
@@ -10959,7 +10959,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	, true)
 	btn_do_custom_inj.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_do_custom_inj.custom_minimum_size.y = 56
-	btn_do_custom_inj.add_theme_font_size_override("font_size", 22)
+	btn_do_custom_inj.add_theme_font_size_override("font_size", 26)
 	btn_do_custom_inj.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_do_custom_inj.set_meta("center_text", true)
 	custom_act_row.add_child(btn_do_custom_inj)
@@ -10969,7 +10969,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	, true)
 	btn_can_custom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_can_custom.custom_minimum_size.y = 56
-	btn_can_custom.add_theme_font_size_override("font_size", 22)
+	btn_can_custom.add_theme_font_size_override("font_size", 26)
 	btn_can_custom.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_can_custom.set_meta("center_text", true)
 	custom_act_row.add_child(btn_can_custom)
@@ -10980,7 +10980,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	, true)
 	btn_custom_toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_custom_toggle.custom_minimum_size.y = 60
-	btn_custom_toggle.add_theme_font_size_override("font_size", 22)
+	btn_custom_toggle.add_theme_font_size_override("font_size", 26)
 	btn_custom_toggle.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_custom_toggle.set_meta("center_text", true)
 	custom_eq_row.add_child(btn_custom_toggle)
@@ -11006,14 +11006,14 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	var exp_title := Label.new()
 	exp_title.text = "🚀 CORPORATE TREASURY REINVESTMENT & EXPANSION"
 	exp_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	exp_title.add_theme_font_size_override("font_size", 28)
+	exp_title.add_theme_font_size_override("font_size", 32)
 	exp_title.add_theme_color_override("font_color", Color("#ffffff"))
 	exp_v.add_child(exp_title)
 
 	var exp_desc := Label.new()
 	exp_desc.text = "Available Corporate Treasury: $%s\nDeploy corporate treasury funds to expand business branches, automate facilities, or fund advertising campaigns." % _format_number(treasury)
 	exp_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	exp_desc.add_theme_font_size_override("font_size", 25)
+	exp_desc.add_theme_font_size_override("font_size", 29)
 	exp_desc.add_theme_color_override("font_color", Color("#bae6fd"))
 	exp_v.add_child(exp_desc)
 
@@ -11027,7 +11027,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	branch_input.text = "%s - Branch %d" % [b_name, branches + 1]
 	branch_input.placeholder_text = "Enter branch name..."
 	branch_input.custom_minimum_size.y = 58
-	branch_input.add_theme_font_size_override("font_size", 24)
+	branch_input.add_theme_font_size_override("font_size", 28)
 	get_node("OptionsMenu")._style_input(branch_input)
 	MobileKeyboardManager.attach_to_input(branch_input, "Enter branch name for %s:" % b_name)
 	branch_box.add_child(branch_input)
@@ -11048,7 +11048,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	, true)
 	btn_sub_branch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_sub_branch.custom_minimum_size.y = 58
-	btn_sub_branch.add_theme_font_size_override("font_size", 22)
+	btn_sub_branch.add_theme_font_size_override("font_size", 26)
 	btn_sub_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_sub_branch.set_meta("center_text", true)
 	branch_btn_row.add_child(btn_sub_branch)
@@ -11058,7 +11058,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	, true)
 	btn_can_branch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_can_branch.custom_minimum_size.y = 58
-	btn_can_branch.add_theme_font_size_override("font_size", 22)
+	btn_can_branch.add_theme_font_size_override("font_size", 26)
 	btn_can_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_can_branch.set_meta("center_text", true)
 	branch_btn_row.add_child(btn_can_branch)
@@ -11068,7 +11068,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		branch_box.visible = not branch_box.visible
 	, true)
 	btn_branch.custom_minimum_size.y = 64
-	btn_branch.add_theme_font_size_override("font_size", 24)
+	btn_branch.add_theme_font_size_override("font_size", 28)
 	btn_branch.disabled = treasury < next_branch_cost
 	btn_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_branch.set_meta("center_text", true)
@@ -11088,7 +11088,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 			add_life_event(str(r.get("message", "Could not upgrade.")), "finance")
 	, true)
 	btn_fac.custom_minimum_size.y = 64
-	btn_fac.add_theme_font_size_override("font_size", 24)
+	btn_fac.add_theme_font_size_override("font_size", 28)
 	btn_fac.disabled = treasury < fac_cost or fac_tier >= 5
 	btn_fac.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_fac.set_meta("center_text", true)
@@ -11106,7 +11106,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 			add_life_event(str(r.get("message", "Could not fund ad blitz.")), "finance")
 	, true)
 	btn_ad.custom_minimum_size.y = 64
-	btn_ad.add_theme_font_size_override("font_size", 24)
+	btn_ad.add_theme_font_size_override("font_size", 28)
 	btn_ad.disabled = treasury < 25000
 	btn_ad.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_ad.set_meta("center_text", true)
@@ -11133,7 +11133,7 @@ func _show_rename_business_modal(biz: Dictionary) -> void:
 
 	var name_lbl := Label.new()
 	name_lbl.text = "New Enterprise Name:"
-	name_lbl.add_theme_font_size_override("font_size", 25)
+	name_lbl.add_theme_font_size_override("font_size", 29)
 	name_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 	edit_box.add_child(name_lbl)
 
@@ -11141,7 +11141,7 @@ func _show_rename_business_modal(biz: Dictionary) -> void:
 	name_edit.text = cur_name
 	name_edit.placeholder_text = "Enter custom business name..."
 	name_edit.custom_minimum_size.y = 60
-	name_edit.add_theme_font_size_override("font_size", 26)
+	name_edit.add_theme_font_size_override("font_size", 30)
 	var edit_sb := StyleBoxFlat.new()
 	edit_sb.bg_color = Color("#071022")
 	edit_sb.border_color = Color("#f59e0b")
@@ -11172,7 +11172,7 @@ func _show_rename_business_modal(biz: Dictionary) -> void:
 				add_life_event(str(r.get("message", "Could not rename.")), "activity")
 	)
 	btn_save.custom_minimum_size.y = 66
-	btn_save.add_theme_font_size_override("font_size", 26)
+	btn_save.add_theme_font_size_override("font_size", 30)
 	list.add_child(btn_save)
 
 func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
@@ -11192,7 +11192,7 @@ func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
 		int(BusinessManager.get_corporate_tax_rate(PlayerData.owned_businesses.size() + 1) * 100)
 	]
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.add_theme_font_size_override("font_size", 27)
+	summary.add_theme_font_size_override("font_size", 31)
 	summary.add_theme_color_override("font_color", Color("#bae6fd"))
 	modal.list.add_child(summary)
 
@@ -11201,7 +11201,7 @@ func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
 
 	var name_lbl := Label.new()
 	name_lbl.text = "BRANCH TRADE NAME:"
-	name_lbl.add_theme_font_size_override("font_size", 24)
+	name_lbl.add_theme_font_size_override("font_size", 28)
 	name_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	name_box.add_child(name_lbl)
 
@@ -11209,7 +11209,7 @@ func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
 	name_edit.text = default_branch_name
 	name_edit.placeholder_text = "Enter custom branch name..."
 	name_edit.custom_minimum_size.y = 66
-	name_edit.add_theme_font_size_override("font_size", 26)
+	name_edit.add_theme_font_size_override("font_size", 30)
 	get_node("OptionsMenu")._style_input(name_edit)
 	MobileKeyboardManager.attach_to_input(name_edit, "Enter branch name for %s:" % parent_name)
 	name_box.add_child(name_edit)
@@ -11218,7 +11218,7 @@ func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
-	feedback.add_theme_font_size_override("font_size", 26)
+	feedback.add_theme_font_size_override("font_size", 30)
 	modal.list.add_child(feedback)
 
 	var btn_deploy := _create_cyber_button("🏢 Deploy $%s & Establish Branch" % _format_number(next_cost), Color("#0284c7"), func():
@@ -11243,7 +11243,7 @@ func _show_expand_branch_modal(biz: Dictionary, cur_uid: String) -> void:
 			feedback.text = "⚠️ " + str(r.get("message", "Could not open branch."))
 	, true)
 	btn_deploy.custom_minimum_size.y = 66
-	btn_deploy.add_theme_font_size_override("font_size", 26)
+	btn_deploy.add_theme_font_size_override("font_size", 30)
 	btn_deploy.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_deploy.set_meta("center_text", true)
 	btn_deploy.disabled = cur_treasury < next_cost
@@ -11261,7 +11261,7 @@ func _show_business_repay_custom_loan(biz: Dictionary, cur_uid: String) -> void:
 	var summary := Label.new()
 	summary.text = "Commercial Loan: $%s • Corporate Treasury: $%s" % [_format_number(cur_loan), _format_number(cur_treasury)]
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.add_theme_font_size_override("font_size", 28)
+	summary.add_theme_font_size_override("font_size", 32)
 	summary.add_theme_color_override("font_color", Color("#e2e8f0"))
 	modal.list.add_child(summary)
 
@@ -11280,7 +11280,7 @@ func _show_business_repay_custom_loan(biz: Dictionary, cur_uid: String) -> void:
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
-	feedback.add_theme_font_size_override("font_size", 26)
+	feedback.add_theme_font_size_override("font_size", 30)
 	modal.list.add_child(feedback)
 
 	var submit := _create_cyber_button("💳 Repay Commercial Loan", Color("#10b981"), func():
@@ -11335,7 +11335,7 @@ func _show_business_custom_dividend(biz: Dictionary, cur_uid: String) -> void:
 	var summary := Label.new()
 	summary.text = "Available Corporate Treasury: $%s" % _format_number(cur_treasury)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.add_theme_font_size_override("font_size", 28)
+	summary.add_theme_font_size_override("font_size", 32)
 	summary.add_theme_color_override("font_color", Color("#a7f3d0"))
 	modal.list.add_child(summary)
 
@@ -11354,7 +11354,7 @@ func _show_business_custom_dividend(biz: Dictionary, cur_uid: String) -> void:
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
-	feedback.add_theme_font_size_override("font_size", 26)
+	feedback.add_theme_font_size_override("font_size", 30)
 	modal.list.add_child(feedback)
 
 	var submit := _create_cyber_button("💰 Withdraw Dividend", Color("#10b981"), func():
@@ -11401,7 +11401,7 @@ func _show_business_custom_capital(biz: Dictionary, cur_uid: String) -> void:
 	var summary := Label.new()
 	summary.text = "Available Personal Funds: $%s" % _format_number(avail_funds)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.add_theme_font_size_override("font_size", 28)
+	summary.add_theme_font_size_override("font_size", 32)
 	summary.add_theme_color_override("font_color", Color("#bae6fd"))
 	modal.list.add_child(summary)
 
@@ -11420,7 +11420,7 @@ func _show_business_custom_capital(biz: Dictionary, cur_uid: String) -> void:
 	var feedback := Label.new()
 	feedback.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	feedback.add_theme_color_override("font_color", Color("#ef4444"))
-	feedback.add_theme_font_size_override("font_size", 26)
+	feedback.add_theme_font_size_override("font_size", 30)
 	modal.list.add_child(feedback)
 
 	var submit := _create_cyber_button("💵 Inject Capital", Color("#0284c7"), func():
@@ -11481,7 +11481,7 @@ func _render_owned_businesses_section() -> void:
 
 	var stitle := Label.new()
 	stitle.text = "🏢 COMMERCIAL ENTERPRISES & BUSINESSES (%d)" % PlayerData.owned_businesses.size()
-	stitle.add_theme_font_size_override("font_size", 28)
+	stitle.add_theme_font_size_override("font_size", 32)
 	stitle.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	sv.add_child(stitle)
 
@@ -11490,13 +11490,13 @@ func _render_owned_businesses_section() -> void:
 		_show_business_modal()
 	)
 	btn_biz.custom_minimum_size.y = 68
-	btn_biz.add_theme_font_size_override("font_size", 26)
+	btn_biz.add_theme_font_size_override("font_size", 30)
 	sv.add_child(btn_biz)
 
 	if PlayerData.owned_businesses.is_empty():
 		var empty_lbl := Label.new()
 		empty_lbl.text = "You do not currently own any commercial enterprises. Click the button above to explore business incorporation opportunities!"
-		empty_lbl.add_theme_font_size_override("font_size", 24)
+		empty_lbl.add_theme_font_size_override("font_size", 28)
 		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(empty_lbl)
@@ -11517,7 +11517,7 @@ func _render_owned_businesses_section() -> void:
 
 			var name_lbl := Label.new()
 			name_lbl.text = "%s %s" % [str(b.get("icon", "🏢")), str(b.get("name", "Business"))]
-			name_lbl.add_theme_font_size_override("font_size", 28)
+			name_lbl.add_theme_font_size_override("font_size", 32)
 			name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#ffffff"))
 			name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(name_lbl)
@@ -11528,7 +11528,7 @@ func _render_owned_businesses_section() -> void:
 				_format_number(int(b.get("treasury", 0))),
 				int(b.get("employees", 4))
 			]
-			val_lbl.add_theme_font_size_override("font_size", 24)
+			val_lbl.add_theme_font_size_override("font_size", 28)
 			val_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#fde68a"))
 			cv.add_child(val_lbl)
 
@@ -11536,7 +11536,7 @@ func _render_owned_businesses_section() -> void:
 				_show_business_modal("treasury", str(b.get("uid", "")))
 			)
 			btn_manage.custom_minimum_size.y = 58
-			btn_manage.add_theme_font_size_override("font_size", 24)
+			btn_manage.add_theme_font_size_override("font_size", 28)
 			cv.add_child(btn_manage)
 
 			sv.add_child(card)
@@ -11597,14 +11597,14 @@ func _render_owned_crypto_section() -> void:
 
 	var stitle := Label.new()
 	stitle.text = "🪙 OWNED CRYPTOCURRENCY ASSETS (%d)" % held_coins.size()
-	stitle.add_theme_font_size_override("font_size", 28)
+	stitle.add_theme_font_size_override("font_size", 32)
 	stitle.add_theme_color_override("font_color", Color("#d97706") if is_light else Color("#fbbf24"))
 	sv.add_child(stitle)
 
 	if held_coins.is_empty():
 		var empty_lbl := Label.new()
 		empty_lbl.text = "You do not currently hold any cryptocurrencies in your wallet. Trade Bitcoin, Ethereum, Solana, and more on the Cryptocurrency Exchange!"
-		empty_lbl.add_theme_font_size_override("font_size", 24)
+		empty_lbl.add_theme_font_size_override("font_size", 28)
 		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sv.add_child(empty_lbl)
@@ -11613,7 +11613,7 @@ func _render_owned_crypto_section() -> void:
 			_show_crypto_exchange_modal()
 		)
 		btn_open.custom_minimum_size.y = 64
-		btn_open.add_theme_font_size_override("font_size", 26)
+		btn_open.add_theme_font_size_override("font_size", 30)
 		sv.add_child(btn_open)
 	else:
 		# Summary Stats Bar
@@ -11646,14 +11646,14 @@ func _render_owned_crypto_section() -> void:
 			sign_pct,
 			gain_pct
 		]
-		s_lbl.add_theme_font_size_override("font_size", 23)
+		s_lbl.add_theme_font_size_override("font_size", 27)
 		s_lbl.add_theme_color_override("font_color", Color("#15803d" if is_light else "#4ade80") if is_pnl_up else Color("#dc2626" if is_light else "#f87171"))
 		s_v.add_child(s_lbl)
 
 		var sent_info: Dictionary = CryptoMarket.get_sentiment_info(PlayerData)
 		var cycle_lbl := Label.new()
 		cycle_lbl.text = "Market Cycle: %s" % sent_info.get("label", "BULL RUN")
-		cycle_lbl.add_theme_font_size_override("font_size", 22)
+		cycle_lbl.add_theme_font_size_override("font_size", 26)
 		cycle_lbl.add_theme_color_override("font_color", Color(sent_info.get("color", "#10b981")))
 		s_v.add_child(cycle_lbl)
 
@@ -11685,14 +11685,14 @@ func _render_owned_crypto_section() -> void:
 
 			var name_l := Label.new()
 			name_l.text = "%s %s (%s)" % [coin["icon"], coin["name"], coin["symbol"]]
-			name_l.add_theme_font_size_override("font_size", 26)
+			name_l.add_theme_font_size_override("font_size", 30)
 			name_l.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 			name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			h_top.add_child(name_l)
 
 			var val_badge := Label.new()
 			val_badge.text = "$%s" % _format_number(int(round(coin["value"])))
-			val_badge.add_theme_font_size_override("font_size", 26)
+			val_badge.add_theme_font_size_override("font_size", 30)
 			val_badge.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 			h_top.add_child(val_badge)
 
@@ -11704,7 +11704,7 @@ func _render_owned_crypto_section() -> void:
 				_format_number(int(round(coin["price"]))),
 				_format_number(int(round(avg_cost_per_token)))
 			]
-			detail_l.add_theme_font_size_override("font_size", 22)
+			detail_l.add_theme_font_size_override("font_size", 26)
 			detail_l.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 			detail_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cv.add_child(detail_l)
@@ -11719,7 +11719,7 @@ func _render_owned_crypto_section() -> void:
 				cp_sign,
 				coin["pnl_pct"]
 			]
-			c_pnl_lbl.add_theme_font_size_override("font_size", 22)
+			c_pnl_lbl.add_theme_font_size_override("font_size", 26)
 			c_pnl_lbl.add_theme_color_override("font_color", Color("#15803d" if is_light else "#4ade80") if is_coin_up else Color("#dc2626" if is_light else "#f87171"))
 			cv.add_child(c_pnl_lbl)
 
@@ -11727,14 +11727,14 @@ func _render_owned_crypto_section() -> void:
 				_show_crypto_exchange_modal()
 			)
 			btn_trade.custom_minimum_size.y = 54
-			btn_trade.add_theme_font_size_override("font_size", 22)
+			btn_trade.add_theme_font_size_override("font_size", 26)
 			cv.add_child(btn_trade)
 
 		var btn_more := _create_cyber_button("🪙 Open Cryptocurrency Exchange ➔", Color("#d97706") if is_light else Color("#f59e0b"), func():
 			_show_crypto_exchange_modal()
 		)
 		btn_more.custom_minimum_size.y = 64
-		btn_more.add_theme_font_size_override("font_size", 26)
+		btn_more.add_theme_font_size_override("font_size", 30)
 		sv.add_child(btn_more)
 
 	assets_list.add_child(section_card)
@@ -11765,7 +11765,7 @@ func _render_owned_stocks_section() -> void:
 
 	var title_lbl := Label.new()
 	title_lbl.text = "📈 OWNED STOCKS & PUBLIC EQUITIES (%d)" % holdings.size()
-	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	title_lbl.add_theme_color_override("font_color", Color("#0891b2") if is_light else Color("#22d3ee"))
 	sv.add_child(title_lbl)
 
@@ -11807,14 +11807,14 @@ func _render_owned_stocks_section() -> void:
 
 		var name_l := Label.new()
 		name_l.text = "🏛️ " + str(pos.get("name", "Stock " + uid))
-		name_l.add_theme_font_size_override("font_size", 26)
+		name_l.add_theme_font_size_override("font_size", 30)
 		name_l.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		name_l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		h_top.add_child(name_l)
 
 		var val_badge := Label.new()
 		val_badge.text = "$%s" % _format_number(int(round(val)))
-		val_badge.add_theme_font_size_override("font_size", 26)
+		val_badge.add_theme_font_size_override("font_size", 30)
 		val_badge.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		h_top.add_child(val_badge)
 
@@ -11831,7 +11831,7 @@ func _render_owned_stocks_section() -> void:
 			sp_sign,
 			gain_pct
 		]
-		sub_l.add_theme_font_size_override("font_size", 22)
+		sub_l.add_theme_font_size_override("font_size", 26)
 		sub_l.add_theme_color_override("font_color", Color("#15803d" if is_light else "#4ade80") if is_up else Color("#dc2626" if is_light else "#f87171"))
 		sub_l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		cv.add_child(sub_l)
@@ -11842,7 +11842,7 @@ func _render_owned_stocks_section() -> void:
 				fp.open()
 		)
 		btn_trade.custom_minimum_size.y = 54
-		btn_trade.add_theme_font_size_override("font_size", 22)
+		btn_trade.add_theme_font_size_override("font_size", 26)
 		cv.add_child(btn_trade)
 
 	assets_list.add_child(section_card)
@@ -12033,7 +12033,7 @@ func _show_education_modal() -> void:
 	else:
 		level_lbl.text = "🏫 Academic Status: %s" % PlayerData.get_education_display_string()
 	level_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	level_lbl.add_theme_font_size_override("font_size", 32)
+	level_lbl.add_theme_font_size_override("font_size", 36)
 	level_lbl.add_theme_color_override("font_color", Color("#c7d2fe"))
 	sv.add_child(level_lbl)
 
@@ -12046,7 +12046,7 @@ func _show_education_modal() -> void:
 		grade_lbl.text = "📊 Current Marks / GPA: %d%% (%s, %.2f GPA)" % [PlayerData.grades, PlayerData.get_letter_grade(), PlayerData.get_gpa()]
 		grade_lbl.add_theme_color_override("font_color", grade_color)
 	grade_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	grade_lbl.add_theme_font_size_override("font_size", 32)
+	grade_lbl.add_theme_font_size_override("font_size", 36)
 	sv.add_child(grade_lbl)
 
 	var schol_lbl := Label.new()
@@ -12063,13 +12063,13 @@ func _show_education_modal() -> void:
 		schol_lbl.text = "🏆 University Scholarship: None (Tuition varies by institution)"
 		schol_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	schol_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	schol_lbl.add_theme_font_size_override("font_size", 29)
+	schol_lbl.add_theme_font_size_override("font_size", 33)
 	sv.add_child(schol_lbl)
 
 	var impact_lbl := Label.new()
 	impact_lbl.text = "Career Impact: Academic marks directly dictate career qualification. High grades unlock high-paying corporate, tech, and medical careers; failing grades restrict you to low-paying manual labor."
 	impact_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	impact_lbl.add_theme_font_size_override("font_size", 27)
+	impact_lbl.add_theme_font_size_override("font_size", 31)
 	impact_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	sv.add_child(impact_lbl)
 
@@ -12094,14 +12094,14 @@ func _show_education_modal() -> void:
 
 		var atitle := Label.new()
 		atitle.text = "🚨 ACADEMIC RECORD EXPIRED (0% MARKS)"
-		atitle.add_theme_font_size_override("font_size", 32)
+		atitle.add_theme_font_size_override("font_size", 36)
 		atitle.add_theme_color_override("font_color", Color("#ef4444"))
 		av.add_child(atitle)
 
 		var adesc := Label.new()
 		adesc.text = "Your academic qualification has completely lapsed due to prolonged neglect. University admissions and formal job applications are locked. YOU MUST COMPLETE AN ACADEMIC REFRESHER COURSE TO RESTORE YOUR STANDING."
 		adesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		adesc.add_theme_font_size_override("font_size", 27)
+		adesc.add_theme_font_size_override("font_size", 31)
 		adesc.add_theme_color_override("font_color", Color("#fca5a5"))
 		av.add_child(adesc)
 
@@ -12125,14 +12125,14 @@ func _show_education_modal() -> void:
 	if PlayerData.age >= 3:
 		var mg_header := Label.new()
 		mg_header.text = "🎮 EDUCATIONAL MINIGAMES & PRACTICAL EXAMS"
-		mg_header.add_theme_font_size_override("font_size", 32)
+		mg_header.add_theme_font_size_override("font_size", 36)
 		mg_header.add_theme_color_override("font_color", Color("#38bdf8"))
 		list.add_child(mg_header)
 
 		var mg_desc := Label.new()
 		mg_desc.text = "Participate in educational challenges! Correct answers directly boost your Academic Marks (+5% per answer) and protect against yearly degradation:"
 		mg_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		mg_desc.add_theme_font_size_override("font_size", 26)
+		mg_desc.add_theme_font_size_override("font_size", 30)
 		mg_desc.add_theme_color_override("font_color", Color("#cbd5e1"))
 		list.add_child(mg_desc)
 
@@ -12166,7 +12166,7 @@ func _show_education_modal() -> void:
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL SCHOOL PARTICIPATION COMPLETED\nYou have already taken a school activity for Age %d.\nAcademic activities are concluded for this school year. Advance age (+1 Year) to participate again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 27)
+		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -12179,7 +12179,7 @@ func _show_education_modal() -> void:
 		var infant_tip := Label.new()
 		infant_tip.text = "🧸 Early Cognitive Development: Kindergarten enrollment begins at age 3. Interactive learning activities build your character's intelligence and emotional happiness early on:"
 		infant_tip.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		infant_tip.add_theme_font_size_override("font_size", 25)
+		infant_tip.add_theme_font_size_override("font_size", 29)
 		infant_tip.add_theme_color_override("font_color", Color("#93c5fd"))
 		list.add_child(infant_tip)
 
@@ -12435,7 +12435,7 @@ func _show_education_modal() -> void:
 		var u_title := Label.new()
 		u_title.text = "🏛️ ACTIVE UNIVERSITY ENROLLMENT (OBLIGATED 4 YEARS)"
 		u_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		u_title.add_theme_font_size_override("font_size", 32)
+		u_title.add_theme_font_size_override("font_size", 36)
 		u_title.add_theme_color_override("font_color", Color("#00f0ff"))
 		uv.add_child(u_title)
 
@@ -12449,7 +12449,7 @@ func _show_education_modal() -> void:
 			yr_current
 		]
 		u_inst.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		u_inst.add_theme_font_size_override("font_size", 28)
+		u_inst.add_theme_font_size_override("font_size", 32)
 		u_inst.add_theme_color_override("font_color", Color("#f8fafc"))
 		uv.add_child(u_inst)
 
@@ -12457,7 +12457,7 @@ func _show_education_modal() -> void:
 		var t_cost: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
 		t_info.text = "Annual Tuition: Free (Scholarship Active)" if PlayerData.has_scholarship else "Annual Tuition: $%s / yr" % _format_number(t_cost)
 		t_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		t_info.add_theme_font_size_override("font_size", 27)
+		t_info.add_theme_font_size_override("font_size", 31)
 		t_info.add_theme_color_override("font_color", Color("#34d399") if PlayerData.has_scholarship else Color("#fbbf24"))
 		uv.add_child(t_info)
 
@@ -12521,7 +12521,7 @@ func _show_education_modal() -> void:
 	# -------------------------------------------------------------
 	var uni_header := Label.new()
 	uni_header.text = "🏛️ UNIVERSITY ENROLLMENT & STUDY PATHS"
-	uni_header.add_theme_font_size_override("font_size", 32)
+	uni_header.add_theme_font_size_override("font_size", 36)
 	uni_header.add_theme_color_override("font_color", Color("#38bdf8"))
 	list.add_child(uni_header)
 
@@ -12565,7 +12565,7 @@ func _show_education_modal() -> void:
 		var dl := Label.new()
 		dl.text = "⚠️ DROPOUT STATUS: You dropped out of high school. High-skill careers and University admission are barred. You can study for your GED to restore high school credential."
 		dl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		dl.add_theme_font_size_override("font_size", 25)
+		dl.add_theme_font_size_override("font_size", 29)
 		dl.add_theme_color_override("font_color", Color("#fca5a5"))
 		dm.add_child(dl)
 		list.add_child(drop_card)
@@ -12612,7 +12612,7 @@ func _show_education_modal() -> void:
 		var gl := Label.new()
 		gl.text = "🎓 UNIVERSITY ALUMNUS • COMPLETED DEGREES (%d)" % maxi(1, PlayerData.degrees.size())
 		gl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		gl.add_theme_font_size_override("font_size", 32)
+		gl.add_theme_font_size_override("font_size", 36)
 		gl.add_theme_color_override("font_color", Color("#34d399"))
 		gv.add_child(gl)
 
@@ -12629,7 +12629,7 @@ func _show_education_modal() -> void:
 				m_str
 			]
 			g_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			g_sub.add_theme_font_size_override("font_size", 28)
+			g_sub.add_theme_font_size_override("font_size", 32)
 			g_sub.add_theme_color_override("font_color", Color("#a7f3d0"))
 			gv.add_child(g_sub)
 		else:
@@ -12644,14 +12644,14 @@ func _show_education_modal() -> void:
 					int(deg_item.get("year_graduated", PlayerData.age))
 				]
 				deg_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-				deg_lbl.add_theme_font_size_override("font_size", 28)
+				deg_lbl.add_theme_font_size_override("font_size", 32)
 				deg_lbl.add_theme_color_override("font_color", Color("#a7f3d0"))
 				gv.add_child(deg_lbl)
 
 		var path_note := Label.new()
 		path_note.text = "✨ Multiple Study Paths: Having completed a 4-year degree, you are free to enroll in another university and pursue additional degrees at any time!"
 		path_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_note.add_theme_font_size_override("font_size", 26)
+		path_note.add_theme_font_size_override("font_size", 30)
 		path_note.add_theme_color_override("font_color", Color("#6ee7b7"))
 		gv.add_child(path_note)
 
@@ -12675,14 +12675,14 @@ func _show_education_modal() -> void:
 		var lib_title := Label.new()
 		lib_title.text = "📚 PUBLIC LIBRARY & LIFELONG SELF-STUDY"
 		lib_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		lib_title.add_theme_font_size_override("font_size", 32)
+		lib_title.add_theme_font_size_override("font_size", 36)
 		lib_title.add_theme_color_override("font_color", Color("#38bdf8"))
 		lv_lib.add_child(lib_title)
 
 		var lib_desc := Label.new()
 		lib_desc.text = "Cognitive Maintenance: Without regular education, reading, or mental challenge, your Smarts level naturally degrades each year. Reading literature or taking professional workshops maintains and expands your intellect."
 		lib_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		lib_desc.add_theme_font_size_override("font_size", 26)
+		lib_desc.add_theme_font_size_override("font_size", 30)
 		lib_desc.add_theme_color_override("font_color", Color("#cbd5e1"))
 		lv_lib.add_child(lib_desc)
 
@@ -12751,7 +12751,7 @@ func _show_university_modal(initial_tab: String = "enrollment") -> void:
 	)
 	btn_tab_enroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_tab_enroll.custom_minimum_size.y = 64
-	btn_tab_enroll.add_theme_font_size_override("font_size", 26)
+	btn_tab_enroll.add_theme_font_size_override("font_size", 30)
 	btn_tab_enroll.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_apply_category_tab_styling(btn_tab_enroll, tab == "enrollment", is_light)
 	tab_bar.add_child(btn_tab_enroll)
@@ -12761,7 +12761,7 @@ func _show_university_modal(initial_tab: String = "enrollment") -> void:
 	)
 	btn_tab_paths.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_tab_paths.custom_minimum_size.y = 64
-	btn_tab_paths.add_theme_font_size_override("font_size", 26)
+	btn_tab_paths.add_theme_font_size_override("font_size", 30)
 	btn_tab_paths.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_apply_category_tab_styling(btn_tab_paths, tab == "study_paths", is_light)
 	tab_bar.add_child(btn_tab_paths)
@@ -12826,7 +12826,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 	var status_lbl := Label.new()
 	status_lbl.text = "🏫 Academic Status: %s" % PlayerData.get_education_display_string()
 	status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_lbl.add_theme_font_size_override("font_size", 32)
+	status_lbl.add_theme_font_size_override("font_size", 36)
 	status_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(status_lbl)
 
@@ -12843,7 +12843,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		PlayerData.smarts
 	]
 	grade_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	grade_lbl.add_theme_font_size_override("font_size", 28)
+	grade_lbl.add_theme_font_size_override("font_size", 32)
 	grade_lbl.add_theme_color_override("font_color", g_color)
 	sv.add_child(grade_lbl)
 
@@ -12855,7 +12855,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		schol_lbl.text = "🏆 University Scholarship: None (Standard annual tuition applies)"
 		schol_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	schol_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	schol_lbl.add_theme_font_size_override("font_size", 27)
+	schol_lbl.add_theme_font_size_override("font_size", 31)
 	sv.add_child(schol_lbl)
 
 	var funds_lbl := Label.new()
@@ -12866,7 +12866,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		_format_number(total_avail)
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	funds_lbl.add_theme_font_size_override("font_size", 27)
+	funds_lbl.add_theme_font_size_override("font_size", 31)
 	funds_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	sv.add_child(funds_lbl)
 
@@ -12891,7 +12891,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		var u_title := Label.new()
 		u_title.text = "🏛️ ACTIVE UNIVERSITY ENROLLMENT (OBLIGATED 4 YEARS)"
 		u_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		u_title.add_theme_font_size_override("font_size", 32)
+		u_title.add_theme_font_size_override("font_size", 36)
 		u_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#00f0ff"))
 		uv.add_child(u_title)
 
@@ -12905,7 +12905,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 			yr_current
 		]
 		u_inst.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		u_inst.add_theme_font_size_override("font_size", 28)
+		u_inst.add_theme_font_size_override("font_size", 32)
 		u_inst.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		uv.add_child(u_inst)
 
@@ -12913,7 +12913,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		var t_cost: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
 		t_info.text = "Annual Tuition: Free (Scholarship Active)" if PlayerData.has_scholarship else "Annual Tuition: $%s / yr" % _format_number(t_cost)
 		t_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		t_info.add_theme_font_size_override("font_size", 27)
+		t_info.add_theme_font_size_override("font_size", 31)
 		t_info.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399") if PlayerData.has_scholarship else (Color("#b45309") if is_light else Color("#fbbf24")))
 		uv.add_child(t_info)
 
@@ -12974,14 +12974,14 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 	# Institutions Catalog
 	var cat_header := Label.new()
 	cat_header.text = "🏛️ ACCREDITED INSTITUTIONS & ENROLLMENT"
-	cat_header.add_theme_font_size_override("font_size", 34)
+	cat_header.add_theme_font_size_override("font_size", 38)
 	cat_header.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	list.add_child(cat_header)
 
 	var cat_sub := Label.new()
 	cat_sub.text = "Choose an accredited institution and major. Characters may only enroll in one university at a time and are obligated to study for 4 years. After graduating, you can take another study path!"
 	cat_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	cat_sub.add_theme_font_size_override("font_size", 27)
+	cat_sub.add_theme_font_size_override("font_size", 31)
 	cat_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	list.add_child(cat_sub)
 
@@ -13008,21 +13008,21 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		var inst_title := Label.new()
 		inst_title.text = "%s  %s" % [str(inst.get("icon", "🏛️")), str(inst.get("name", ""))]
 		inst_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		inst_title.add_theme_font_size_override("font_size", 32)
+		inst_title.add_theme_font_size_override("font_size", 36)
 		inst_title.add_theme_color_override("font_color", col)
 		vb.add_child(inst_title)
 
 		var inst_tagline := Label.new()
 		inst_tagline.text = str(inst.get("tagline", ""))
 		inst_tagline.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		inst_tagline.add_theme_font_size_override("font_size", 27)
+		inst_tagline.add_theme_font_size_override("font_size", 31)
 		inst_tagline.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#93c5fd"))
 		vb.add_child(inst_tagline)
 
 		var inst_major := Label.new()
 		inst_major.text = "🎓 Major: %s  •  %s" % [str(inst.get("major_title", "")), str(inst.get("degree_title", ""))]
 		inst_major.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		inst_major.add_theme_font_size_override("font_size", 29)
+		inst_major.add_theme_font_size_override("font_size", 33)
 		inst_major.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		vb.add_child(inst_major)
 
@@ -13030,14 +13030,14 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		var c_list: Array = inst.get("unlocked_careers", [])
 		inst_careers.text = "🎯 Unlocks Careers: %s" % ", ".join(c_list)
 		inst_careers.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		inst_careers.add_theme_font_size_override("font_size", 27)
+		inst_careers.add_theme_font_size_override("font_size", 31)
 		inst_careers.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 		vb.add_child(inst_careers)
 
 		var inst_desc := Label.new()
 		inst_desc.text = str(inst.get("description", ""))
 		inst_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		inst_desc.add_theme_font_size_override("font_size", 26)
+		inst_desc.add_theme_font_size_override("font_size", 30)
 		inst_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		vb.add_child(inst_desc)
 
@@ -13071,7 +13071,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 			locked_btn.add_theme_stylebox_override("normal", lk_style)
 			locked_btn.add_theme_color_override("font_disabled_color", Color("#475569") if is_light else Color("#94a3b8"))
 			locked_btn.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-			locked_btn.add_theme_font_size_override("font_size", 26)
+			locked_btn.add_theme_font_size_override("font_size", 30)
 			vb.add_child(locked_btn)
 		elif is_eligible:
 			var enroll_btn := _create_cyber_button("🏛️ Enroll in %s (%s)\nReq Met: %d%% GPA & %d Smarts" % [
@@ -13121,7 +13121,7 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 			locked_btn.add_theme_stylebox_override("normal", lk_style)
 			locked_btn.add_theme_color_override("font_disabled_color", Color("#64748b") if is_light else Color("#94a3b8"))
 			locked_btn.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-			locked_btn.add_theme_font_size_override("font_size", 26)
+			locked_btn.add_theme_font_size_override("font_size", 30)
 			vb.add_child(locked_btn)
 
 		list.add_child(card)
@@ -13147,14 +13147,14 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 	var p_title := Label.new()
 	p_title.text = "📜 ACADEMIC STUDY PATHS & CAREER TRAJECTORIES"
 	p_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	p_title.add_theme_font_size_override("font_size", 32)
+	p_title.add_theme_font_size_override("font_size", 36)
 	p_title.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 	sv.add_child(p_title)
 
 	var p_desc := Label.new()
 	p_desc.text = "Higher education unlocks high-earning professional careers. Completing a 4-year degree permanently confers the degree and qualifies you for its corporate, tech, medical, and specialized jobs. Characters are free to take multiple study paths throughout their lifetime!"
 	p_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	p_desc.add_theme_font_size_override("font_size", 27)
+	p_desc.add_theme_font_size_override("font_size", 31)
 	p_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	sv.add_child(p_desc)
 
@@ -13178,7 +13178,7 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 		var deg_header := Label.new()
 		deg_header.text = "🎓 CONFERRED DEGREES & ALUMNUS HONORS (%d)" % PlayerData.degrees.size()
 		deg_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		deg_header.add_theme_font_size_override("font_size", 30)
+		deg_header.add_theme_font_size_override("font_size", 34)
 		deg_header.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		dv.add_child(deg_header)
 
@@ -13193,7 +13193,7 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 				int(deg_item.get("year_graduated", PlayerData.age))
 			]
 			d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			d_lbl.add_theme_font_size_override("font_size", 27)
+			d_lbl.add_theme_font_size_override("font_size", 31)
 			d_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 			dv.add_child(d_lbl)
 
@@ -13223,21 +13223,21 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 		var path_title := Label.new()
 		path_title.text = "%s  %s Track" % [str(inst.get("icon", "📜")), str(inst.get("major_title", "Major"))]
 		path_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_title.add_theme_font_size_override("font_size", 32)
+		path_title.add_theme_font_size_override("font_size", 36)
 		path_title.add_theme_color_override("font_color", col)
 		vb.add_child(path_title)
 
 		var path_deg := Label.new()
 		path_deg.text = "📜 Conferred Degree: %s" % str(inst.get("degree_title", ""))
 		path_deg.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_deg.add_theme_font_size_override("font_size", 28)
+		path_deg.add_theme_font_size_override("font_size", 32)
 		path_deg.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		vb.add_child(path_deg)
 
 		var path_inst := Label.new()
 		path_inst.text = "🏛️ Offered by: %s (%s)" % [str(inst.get("name", "")), str(inst.get("tagline", ""))]
 		path_inst.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_inst.add_theme_font_size_override("font_size", 26)
+		path_inst.add_theme_font_size_override("font_size", 30)
 		path_inst.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#93c5fd"))
 		vb.add_child(path_inst)
 
@@ -13247,7 +13247,7 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 			int(inst.get("min_smarts", 50))
 		]
 		path_req.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_req.add_theme_font_size_override("font_size", 26)
+		path_req.add_theme_font_size_override("font_size", 30)
 		path_req.add_theme_color_override("font_color", Color("#d97706") if is_light else Color("#fbbf24"))
 		vb.add_child(path_req)
 
@@ -13255,14 +13255,14 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 		var c_list: Array = inst.get("unlocked_careers", [])
 		path_careers.text = "🎯 Career Trajectory (Job Market Unlocks):\n  • " + "\n  • ".join(c_list)
 		path_careers.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_careers.add_theme_font_size_override("font_size", 27)
+		path_careers.add_theme_font_size_override("font_size", 31)
 		path_careers.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 		vb.add_child(path_careers)
 
 		var path_desc := Label.new()
 		path_desc.text = str(inst.get("description", ""))
 		path_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		path_desc.add_theme_font_size_override("font_size", 26)
+		path_desc.add_theme_font_size_override("font_size", 30)
 		path_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		vb.add_child(path_desc)
 
@@ -13314,7 +13314,7 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 			locked_btn.add_theme_stylebox_override("normal", lk_style)
 			locked_btn.add_theme_color_override("font_disabled_color", Color("#475569") if is_light else Color("#94a3b8"))
 			locked_btn.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-			locked_btn.add_theme_font_size_override("font_size", 26)
+			locked_btn.add_theme_font_size_override("font_size", 30)
 			vb.add_child(locked_btn)
 		else:
 			var req_eval: Dictionary = EducationCatalog.can_enroll(inst, PlayerData.grades, PlayerData.smarts)
@@ -13346,7 +13346,7 @@ func _render_university_study_paths_category(list: VBoxContainer) -> void:
 				locked_btn.add_theme_stylebox_override("normal", lk_style)
 				locked_btn.add_theme_color_override("font_disabled_color", Color("#64748b") if is_light else Color("#94a3b8"))
 				locked_btn.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-				locked_btn.add_theme_font_size_override("font_size", 26)
+				locked_btn.add_theme_font_size_override("font_size", 30)
 				vb.add_child(locked_btn)
 
 		list.add_child(card)
@@ -13548,7 +13548,7 @@ func _render_education_minigame_step() -> void:
 
 	var progress_lbl := Label.new()
 	progress_lbl.text = "QUESTION %d OF %d  •  CURRENT SCORE: %d" % [current_q + 1, total_questions, score]
-	progress_lbl.add_theme_font_size_override("font_size", 28)
+	progress_lbl.add_theme_font_size_override("font_size", 32)
 	progress_lbl.add_theme_color_override("font_color", border_col)
 	qc.add_child(progress_lbl)
 
@@ -13568,13 +13568,13 @@ func _render_education_minigame_step() -> void:
 	var prompt_lbl := Label.new()
 	prompt_lbl.text = str(q_data.prompt)
 	prompt_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	prompt_lbl.add_theme_font_size_override("font_size", 34)
+	prompt_lbl.add_theme_font_size_override("font_size", 38)
 	prompt_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 	qv.add_child(prompt_lbl)
 
 	var feedback_lbl := Label.new()
 	feedback_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	feedback_lbl.add_theme_font_size_override("font_size", 28)
+	feedback_lbl.add_theme_font_size_override("font_size", 32)
 	feedback_lbl.text = ""
 	qv.add_child(feedback_lbl)
 
@@ -13602,7 +13602,7 @@ func _render_education_minigame_step() -> void:
 		btn.custom_minimum_size = Vector2(100, 68)
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		btn.add_theme_font_size_override("font_size", 28)
+		btn.add_theme_font_size_override("font_size", 32)
 		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
@@ -13676,7 +13676,7 @@ func _show_education_minigame_results() -> void:
 
 	var rtitle := Label.new()
 	rtitle.text = "🎉 EXAM COMPLETED! (%d/%d Correct)" % [sc, total_questions]
-	rtitle.add_theme_font_size_override("font_size", 34)
+	rtitle.add_theme_font_size_override("font_size", 38)
 	rtitle.add_theme_color_override("font_color", border_col)
 	rv.add_child(rtitle)
 
@@ -13704,7 +13704,7 @@ func _show_education_minigame_results() -> void:
 	else:
 		rdesc.text = "Great effort! Your test results have been registered into your academic transcript:\n\n• Annual academic maintenance fulfilled (grades protected from degradation)"
 	rdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	rdesc.add_theme_font_size_override("font_size", 28)
+	rdesc.add_theme_font_size_override("font_size", 32)
 	rdesc.add_theme_color_override("font_color", Color("#cbd5e1"))
 	rv.add_child(rdesc)
 
@@ -13978,16 +13978,16 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	if is_light and title_col.get_luminance() > 0.35:
 		title_col = Color("#0369a1")
 	title_lbl.add_theme_color_override("font_color", title_col)
-	title_lbl.add_theme_font_size_override("font_size", 30)
+	title_lbl.add_theme_font_size_override("font_size", 34)
 	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	header_row.add_child(title_lbl)
 
 	var close_btn := Button.new()
 	close_btn.set_meta("reference_part", true)
 	close_btn.text = "✕"
-	close_btn.custom_minimum_size = Vector2(68, 58)
+	close_btn.custom_minimum_size = Vector2(80, 68)
 	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	close_btn.add_theme_font_size_override("font_size", 26)
+	close_btn.add_theme_font_size_override("font_size", 30)
 	close_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 	close_btn.add_theme_color_override("font_hover_color", Color("#f43f5e"))
 	var close_style := StyleBoxFlat.new()
@@ -14014,7 +14014,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	sub_lbl.text = subtitle_text
 	sub_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-	sub_lbl.add_theme_font_size_override("font_size", 24)
+	sub_lbl.add_theme_font_size_override("font_size", 28)
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	main_vbox.add_child(sub_lbl)
 
@@ -14066,11 +14066,11 @@ func _create_cyber_button(btn_text: String, border_col: Color, on_click: Callabl
 	btn.set_meta("reference_part", true)
 	btn.set_meta("market_button", true)
 	btn.text = btn_text
-	btn.custom_minimum_size.y = 68
+	btn.custom_minimum_size.y = 82
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	btn.add_theme_font_size_override("font_size", 26)
+	btn.add_theme_font_size_override("font_size", 30)
 	if center_align:
 		btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn.set_meta("center_text", true)
@@ -14086,10 +14086,10 @@ func _create_cyber_button(btn_text: String, border_col: Color, on_click: Callabl
 	normal_sb.shadow_color = Color(0, 0, 0, 0.28)
 	normal_sb.shadow_size = 4
 	normal_sb.shadow_offset = Vector2(0, 3)
-	normal_sb.content_margin_left = 22
-	normal_sb.content_margin_right = 22
-	normal_sb.content_margin_top = 12
-	normal_sb.content_margin_bottom = 12
+	normal_sb.content_margin_left = 26
+	normal_sb.content_margin_right = 26
+	normal_sb.content_margin_top = 14
+	normal_sb.content_margin_bottom = 14
 	btn.add_theme_stylebox_override("normal", normal_sb)
 
 	var hover_sb := normal_sb.duplicate() as StyleBoxFlat
@@ -14135,11 +14135,11 @@ func _create_disabled_cyber_button(btn_text: String, reason: String = "", center
 	else:
 		btn.text = "🔒 %s\n%s" % [clean_btn, clean_reason]
 
-	btn.custom_minimum_size.y = 64
+	btn.custom_minimum_size.y = 78
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	btn.add_theme_font_size_override("font_size", 26)
+	btn.add_theme_font_size_override("font_size", 30)
 	btn.disabled = true
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
@@ -14148,10 +14148,10 @@ func _create_disabled_cyber_button(btn_text: String, reason: String = "", center
 	disabled_sb.border_color = Color("#cbd5e1" if is_light else "#475569")
 	disabled_sb.set_border_width_all(2)
 	disabled_sb.set_corner_radius_all(10)
-	disabled_sb.content_margin_left = 22
-	disabled_sb.content_margin_right = 22
-	disabled_sb.content_margin_top = 12
-	disabled_sb.content_margin_bottom = 12
+	disabled_sb.content_margin_left = 26
+	disabled_sb.content_margin_right = 26
+	disabled_sb.content_margin_top = 14
+	disabled_sb.content_margin_bottom = 14
 	btn.add_theme_stylebox_override("disabled", disabled_sb)
 	btn.add_theme_stylebox_override("normal", disabled_sb)
 
@@ -14326,7 +14326,7 @@ func _show_gym_modal() -> void:
 	var stat_title := Label.new()
 	stat_title.text = "💪 PHYSICAL PROFILE & HEALTH VITALS"
 	stat_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stat_title.add_theme_font_size_override("font_size", 32)
+	stat_title.add_theme_font_size_override("font_size", 36)
 	stat_title.add_theme_color_override("font_color", Color("#34d399"))
 	sv.add_child(stat_title)
 
@@ -14337,7 +14337,7 @@ func _show_gym_modal() -> void:
 		PlayerData.happiness
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vitals_lbl.add_theme_font_size_override("font_size", 29)
+	vitals_lbl.add_theme_font_size_override("font_size", 33)
 	vitals_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 	sv.add_child(vitals_lbl)
 
@@ -14347,7 +14347,7 @@ func _show_gym_modal() -> void:
 		PlayerData.money
 	]
 	bank_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	bank_lbl.add_theme_font_size_override("font_size", 27)
+	bank_lbl.add_theme_font_size_override("font_size", 31)
 	bank_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	sv.add_child(bank_lbl)
 
@@ -14371,7 +14371,7 @@ func _show_gym_modal() -> void:
 	var mem_title := Label.new()
 	mem_title.text = "💳 ALL-INCLUSIVE ANNUAL GYM MEMBERSHIP"
 	mem_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mem_title.add_theme_font_size_override("font_size", 32)
+	mem_title.add_theme_font_size_override("font_size", 36)
 	mem_title.add_theme_color_override("font_color", Color("#38bdf8"))
 	mv.add_child(mem_title)
 
@@ -14383,7 +14383,7 @@ func _show_gym_modal() -> void:
 		mem_desc.text = "STATUS: NON-MEMBER ❌\nAnnual Fee: $%d/year (debited directly from your bank account yearly).\nBENEFIT: Unlocks 100%% FREE unlimited access to all workouts, swimming laps, spin classes, and boxing. Never pay individual day passes again!" % PlayerData.gym_membership_annual_fee
 		mem_desc.add_theme_color_override("font_color", Color("#e2e8f0"))
 	mem_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	mem_desc.add_theme_font_size_override("font_size", 27)
+	mem_desc.add_theme_font_size_override("font_size", 31)
 	mv.add_child(mem_desc)
 
 	if not PlayerData.has_gym_membership:
@@ -14418,7 +14418,7 @@ Stop annual auto-debit payments (Visits will revert to standard day-pass fees)",
 You have already pushed your limits at the gym for Age %d.
 To avoid muscle strain and allow adequate recovery, training options are locked until next year. Advance age (+1 Year) to train again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 24)
+		ll.add_theme_font_size_override("font_size", 28)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -14527,7 +14527,7 @@ func _show_meditation_modal() -> void:
 	var stat_title := Label.new()
 	stat_title.text = "🧘 MENTAL WELLNESS & SPIRITUAL ALIGNMENT"
 	stat_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stat_title.add_theme_font_size_override("font_size", 32)
+	stat_title.add_theme_font_size_override("font_size", 36)
 	stat_title.add_theme_color_override("font_color", Color("#c084fc"))
 	sv.add_child(stat_title)
 
@@ -14539,14 +14539,14 @@ func _show_meditation_modal() -> void:
 		PlayerData.smarts
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vitals_lbl.add_theme_font_size_override("font_size", 29)
+	vitals_lbl.add_theme_font_size_override("font_size", 33)
 	vitals_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 	sv.add_child(vitals_lbl)
 
 	var benefit_lbl := Label.new()
 	benefit_lbl.text = "Mindfulness Impact: Regular meditation cleanses mental fatigue, sharpens focus, reduces existential anxiety, and brings deep spiritual clarity."
 	benefit_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	benefit_lbl.add_theme_font_size_override("font_size", 27)
+	benefit_lbl.add_theme_font_size_override("font_size", 31)
 	benefit_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	sv.add_child(benefit_lbl)
 
@@ -14567,7 +14567,7 @@ func _show_meditation_modal() -> void:
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL MINDFULNESS SESSION COMPLETED\nYou have already completed your meditation session for Age %d.\nMindfulness and meditation sessions are complete for this year. Advance age (+1 Year) to meditate again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 27)
+		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -14677,7 +14677,7 @@ func _show_mind_and_body_modal() -> void:
 
 	var stat_title := Label.new()
 	stat_title.text = "✨ WELLNESS & VITALITY PROFILE"
-	stat_title.add_theme_font_size_override("font_size", 32)
+	stat_title.add_theme_font_size_override("font_size", 36)
 	stat_title.add_theme_color_override("font_color", Color("#34d399"))
 	sv.add_child(stat_title)
 
@@ -14689,7 +14689,7 @@ func _show_mind_and_body_modal() -> void:
 		PlayerData.smarts
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vitals_lbl.add_theme_font_size_override("font_size", 28)
+	vitals_lbl.add_theme_font_size_override("font_size", 32)
 	vitals_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 	sv.add_child(vitals_lbl)
 
@@ -14700,7 +14700,7 @@ func _show_mind_and_body_modal() -> void:
 		_show_gym_modal()
 	)
 	gym_btn.custom_minimum_size.y = 96
-	gym_btn.add_theme_font_size_override("font_size", 28)
+	gym_btn.add_theme_font_size_override("font_size", 32)
 	list.add_child(gym_btn)
 
 	var salon_btn := _create_cyber_button("💇 Luxe Hair & Beauty Salon\nStyling, designer haircuts, beard grooming, manicures, and aesthetic beauty pampering.", Color("#ec4899"), func():
@@ -14708,7 +14708,7 @@ func _show_mind_and_body_modal() -> void:
 		_show_salon_modal()
 	)
 	salon_btn.custom_minimum_size.y = 96
-	salon_btn.add_theme_font_size_override("font_size", 28)
+	salon_btn.add_theme_font_size_override("font_size", 32)
 	list.add_child(salon_btn)
 
 	var spa_btn := _create_cyber_button("🧖 Oasis Luxury Day Spa & Thermal Baths\nVolcanic hot springs, deep tissue massages, eucalyptus saunas, mud facials, and VIP retreats.", Color("#06b6d4"), func():
@@ -14716,7 +14716,7 @@ func _show_mind_and_body_modal() -> void:
 		_show_spa_modal()
 	)
 	spa_btn.custom_minimum_size.y = 96
-	spa_btn.add_theme_font_size_override("font_size", 28)
+	spa_btn.add_theme_font_size_override("font_size", 32)
 	list.add_child(spa_btn)
 
 	var med_btn := _create_cyber_button("🧘 Nirvana Mindfulness & Meditation\nBreathwork, hatha yoga, singing sound baths, chakra balancing, and transcendental retreats.", Color("#a855f7"), func():
@@ -14724,7 +14724,7 @@ func _show_mind_and_body_modal() -> void:
 		_show_meditation_modal()
 	)
 	med_btn.custom_minimum_size.y = 96
-	med_btn.add_theme_font_size_override("font_size", 28)
+	med_btn.add_theme_font_size_override("font_size", 32)
 	list.add_child(med_btn)
 
 	mind_body_modal_overlay.visible = true
@@ -14756,7 +14756,7 @@ func _show_salon_modal() -> void:
 		_format_number(PlayerData.money + PlayerData.bank_savings)
 	]
 	profile_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	profile_lbl.add_theme_font_size_override("font_size", 28)
+	profile_lbl.add_theme_font_size_override("font_size", 32)
 	profile_lbl.add_theme_color_override("font_color", Color("#fdf2f8"))
 	sv.add_child(profile_lbl)
 	list.add_child(summary_card)
@@ -14775,7 +14775,7 @@ func _show_salon_modal() -> void:
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL SALON VISIT COMPLETED\nYou have already received styling and grooming services for Age %d.\nStyling and aesthetic pampering are complete for this year. Advance age (+1 Year) to visit the salon again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 27)
+		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -14813,7 +14813,7 @@ func _show_salon_modal() -> void:
 				salon_modal_overlay.queue_free()
 			)
 			btn.custom_minimum_size.y = 88
-			btn.add_theme_font_size_override("font_size", 27)
+			btn.add_theme_font_size_override("font_size", 31)
 			list.add_child(btn)
 
 	salon_modal_overlay.visible = true
@@ -14845,7 +14845,7 @@ func _show_spa_modal() -> void:
 		_format_number(PlayerData.money + PlayerData.bank_savings)
 	]
 	profile_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	profile_lbl.add_theme_font_size_override("font_size", 28)
+	profile_lbl.add_theme_font_size_override("font_size", 32)
 	profile_lbl.add_theme_color_override("font_color", Color("#ecfeff"))
 	sv.add_child(profile_lbl)
 	list.add_child(summary_card)
@@ -14864,7 +14864,7 @@ func _show_spa_modal() -> void:
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL SPA RETREAT COMPLETED\nYou have already enjoyed luxury spa therapy for Age %d.\nHydrotherapy, thermal soaks, and massages are complete for this year. Advance age (+1 Year) to visit the spa again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 27)
+		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -14903,7 +14903,7 @@ func _show_spa_modal() -> void:
 				spa_modal_overlay.queue_free()
 			)
 			btn.custom_minimum_size.y = 88
-			btn.add_theme_font_size_override("font_size", 27)
+			btn.add_theme_font_size_override("font_size", 31)
 			list.add_child(btn)
 
 	spa_modal_overlay.visible = true
@@ -14931,7 +14931,7 @@ func _show_mental_institution_hub_modal() -> void:
 
 	var title_lbl := Label.new()
 	title_lbl.text = "🧘 PSYCHOLOGICAL & NEURAL PROFILE"
-	title_lbl.add_theme_font_size_override("font_size", 30)
+	title_lbl.add_theme_font_size_override("font_size", 34)
 	title_lbl.add_theme_color_override("font_color", Color("#c4b5fd"))
 	sv.add_child(title_lbl)
 
@@ -14956,7 +14956,7 @@ func _show_mental_institution_hub_modal() -> void:
 	var status_lbl := Label.new()
 	status_lbl.text = "Mental State: %d%%  —  %s" % [PlayerData.mental_state, eval_text]
 	status_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status_lbl.add_theme_font_size_override("font_size", 26)
+	status_lbl.add_theme_font_size_override("font_size", 30)
 	status_lbl.add_theme_color_override("font_color", eval_color)
 	sv.add_child(status_lbl)
 
@@ -14968,13 +14968,13 @@ func _show_mental_institution_hub_modal() -> void:
 		PlayerData.smarts
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vitals_lbl.add_theme_font_size_override("font_size", 24)
+	vitals_lbl.add_theme_font_size_override("font_size", 28)
 	vitals_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	sv.add_child(vitals_lbl)
 
 	var funds_lbl := Label.new()
 	funds_lbl.text = "💳 Available Capital: $%s" % _format_number(PlayerData.get_available_funds())
-	funds_lbl.add_theme_font_size_override("font_size", 24)
+	funds_lbl.add_theme_font_size_override("font_size", 28)
 	funds_lbl.add_theme_color_override("font_color", Color("#f0fdf4"))
 	sv.add_child(funds_lbl)
 
@@ -14985,7 +14985,7 @@ func _show_mental_institution_hub_modal() -> void:
 		_show_psychologist_modal()
 	)
 	psych_btn.custom_minimum_size.y = 96
-	psych_btn.add_theme_font_size_override("font_size", 27)
+	psych_btn.add_theme_font_size_override("font_size", 31)
 	list.add_child(psych_btn)
 
 	var psych_med_btn := _create_cyber_button("💊 Psychiatrist (Clinical Prescriptions)\nBoard-certified neurochemical evaluations, SSRIs, mood stabilizers, and prescription mental medication.", Color("#ec4899"), func():
@@ -14993,7 +14993,7 @@ func _show_mental_institution_hub_modal() -> void:
 		_show_psychiatrist_modal()
 	)
 	psych_med_btn.custom_minimum_size.y = 96
-	psych_med_btn.add_theme_font_size_override("font_size", 27)
+	psych_med_btn.add_theme_font_size_override("font_size", 31)
 	list.add_child(psych_med_btn)
 
 	var asylum_btn := _create_cyber_button("🏥 Submit Self to Asylum (Voluntary Inpatient)\nVoluntary 2-year inpatient admission ($15,000/yr). Strict isolation from outside activities & assets with full mental recovery.", Color("#e11d48"), func():
@@ -15001,7 +15001,7 @@ func _show_mental_institution_hub_modal() -> void:
 		_show_asylum_commitment_modal()
 	)
 	asylum_btn.custom_minimum_size.y = 96
-	asylum_btn.add_theme_font_size_override("font_size", 27)
+	asylum_btn.add_theme_font_size_override("font_size", 31)
 	list.add_child(asylum_btn)
 
 	mental_institution_modal_overlay.visible = true
@@ -15018,7 +15018,7 @@ func _show_psychologist_modal() -> void:
 		_show_mental_institution_hub_modal()
 	)
 	return_btn.custom_minimum_size.y = 66
-	return_btn.add_theme_font_size_override("font_size", 25)
+	return_btn.add_theme_font_size_override("font_size", 29)
 	list.add_child(return_btn)
 
 	var info_lbl := Label.new()
@@ -15028,7 +15028,7 @@ func _show_psychologist_modal() -> void:
 		_format_number(PlayerData.get_available_funds())
 	]
 	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_lbl.add_theme_font_size_override("font_size", 25)
+	info_lbl.add_theme_font_size_override("font_size", 29)
 	info_lbl.add_theme_color_override("font_color", Color("#bae6fd"))
 	list.add_child(info_lbl)
 
@@ -15086,7 +15086,7 @@ func _show_psychologist_modal() -> void:
 			_show_psychologist_modal()
 		)
 		btn.custom_minimum_size.y = 96
-		btn.add_theme_font_size_override("font_size", 26)
+		btn.add_theme_font_size_override("font_size", 30)
 		list.add_child(btn)
 
 	mental_institution_modal_overlay.visible = true
@@ -15103,7 +15103,7 @@ func _show_psychiatrist_modal() -> void:
 		_show_mental_institution_hub_modal()
 	)
 	return_btn.custom_minimum_size.y = 66
-	return_btn.add_theme_font_size_override("font_size", 25)
+	return_btn.add_theme_font_size_override("font_size", 29)
 	list.add_child(return_btn)
 
 	var info_lbl := Label.new()
@@ -15113,7 +15113,7 @@ func _show_psychiatrist_modal() -> void:
 		_format_number(PlayerData.get_available_funds())
 	]
 	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	info_lbl.add_theme_font_size_override("font_size", 25)
+	info_lbl.add_theme_font_size_override("font_size", 29)
 	info_lbl.add_theme_color_override("font_color", Color("#fbcfe8"))
 	list.add_child(info_lbl)
 
@@ -15170,7 +15170,7 @@ func _show_psychiatrist_modal() -> void:
 			_show_psychiatrist_modal()
 		)
 		btn.custom_minimum_size.y = 96
-		btn.add_theme_font_size_override("font_size", 26)
+		btn.add_theme_font_size_override("font_size", 30)
 		list.add_child(btn)
 
 	mental_institution_modal_overlay.visible = true
@@ -15197,7 +15197,7 @@ func _show_asylum_commitment_modal() -> void:
 
 	var warn_title := Label.new()
 	warn_title.text = "⚠️ ADMISSION DISCLAIMER & INPATIENT SPECIFICATIONS ⚠️"
-	warn_title.add_theme_font_size_override("font_size", 28)
+	warn_title.add_theme_font_size_override("font_size", 32)
 	warn_title.add_theme_color_override("font_color", Color("#fda4af"))
 	nv.add_child(warn_title)
 
@@ -15213,7 +15213,7 @@ func _show_asylum_commitment_modal() -> void:
 		"• CLINICAL REHABILITATION:\n" + \
 		"  Intensive medical therapy, psychiatric stability, and calm routine restore +25% Mental State per year."
 	disc_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	disc_text.add_theme_font_size_override("font_size", 25)
+	disc_text.add_theme_font_size_override("font_size", 29)
 	disc_text.add_theme_color_override("font_color", Color("#f8fafc"))
 	nv.add_child(disc_text)
 
@@ -15222,7 +15222,7 @@ func _show_asylum_commitment_modal() -> void:
 		PlayerData.mental_state,
 		_format_number(PlayerData.get_available_funds())
 	]
-	current_status.add_theme_font_size_override("font_size", 24)
+	current_status.add_theme_font_size_override("font_size", 28)
 	current_status.add_theme_color_override("font_color", Color("#fbbf24"))
 	nv.add_child(current_status)
 
@@ -15240,7 +15240,7 @@ func _show_asylum_commitment_modal() -> void:
 		SaveManager.save_game()
 	)
 	confirm_btn.custom_minimum_size.y = 96
-	confirm_btn.add_theme_font_size_override("font_size", 27)
+	confirm_btn.add_theme_font_size_override("font_size", 31)
 	list.add_child(confirm_btn)
 
 	var cancel_btn := _create_cyber_button("↩ CANCEL & RETURN TO HUB\nDecide against admission and return to the main mental health menu.", Color("#64748b"), func():
@@ -15248,7 +15248,7 @@ func _show_asylum_commitment_modal() -> void:
 		_show_mental_institution_hub_modal()
 	)
 	cancel_btn.custom_minimum_size.y = 72
-	cancel_btn.add_theme_font_size_override("font_size", 25)
+	cancel_btn.add_theme_font_size_override("font_size", 29)
 	list.add_child(cancel_btn)
 
 	mental_institution_modal_overlay.visible = true
@@ -15274,7 +15274,7 @@ func _show_shopping_modal() -> void:
 		back_btn.text = "← Back"
 		back_btn.custom_minimum_size = Vector2(110, 58)
 		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		back_btn.add_theme_font_size_override("font_size", 22)
+		back_btn.add_theme_font_size_override("font_size", 26)
 		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 		back_btn.add_theme_color_override("font_hover_color", Color("#38bdf8"))
 
@@ -15330,7 +15330,7 @@ func _show_shopping_modal() -> void:
 		_format_number(total_avail)
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	funds_lbl.add_theme_font_size_override("font_size", 28)
+	funds_lbl.add_theme_font_size_override("font_size", 32)
 	funds_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#f0f9ff"))
 	sv.add_child(funds_lbl)
 	list.add_child(summary_card)
@@ -15412,7 +15412,7 @@ func _show_shopping_modal() -> void:
 			_open_asset_marketplace_modal(cat_id)
 		)
 		btn.custom_minimum_size.y = 100
-		btn.add_theme_font_size_override("font_size", 26)
+		btn.add_theme_font_size_override("font_size", 30)
 		list.add_child(btn)
 
 	shopping_modal_overlay.visible = true
@@ -15452,7 +15452,7 @@ func _show_social_media_modal() -> void:
 		PlayerData.age
 	]
 	stat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stat_lbl.add_theme_font_size_override("font_size", 28)
+	stat_lbl.add_theme_font_size_override("font_size", 32)
 	stat_lbl.add_theme_color_override("font_color", Color("#f0f9ff"))
 	sv.add_child(stat_lbl)
 	list.add_child(summary_card)
@@ -15483,14 +15483,14 @@ func _show_social_media_modal() -> void:
 		if not has_acc:
 			var head_lbl := Label.new()
 			head_lbl.text = "%s %s" % [p_icon, p_name]
-			head_lbl.add_theme_font_size_override("font_size", 30)
+			head_lbl.add_theme_font_size_override("font_size", 34)
 			head_lbl.add_theme_color_override("font_color", p_color)
 			cv.add_child(head_lbl)
 
 			var d_lbl := Label.new()
 			d_lbl.text = "%s (Tracks %s)" % [p_desc, metric]
 			d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			d_lbl.add_theme_font_size_override("font_size", 24)
+			d_lbl.add_theme_font_size_override("font_size", 28)
 			d_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 			cv.add_child(d_lbl)
 
@@ -15507,7 +15507,7 @@ func _show_social_media_modal() -> void:
 			btn_create.icon = preload("res://scripts/ui/social_platform_icons.gd").icon(p_key)
 			btn_create.set_meta("action_emoji", "")
 			btn_create.custom_minimum_size.y = 68
-			btn_create.add_theme_font_size_override("font_size", 26)
+			btn_create.add_theme_font_size_override("font_size", 30)
 			cv.add_child(btn_create)
 		else:
 			var acc_data: Dictionary = SocialMediaManager.get_account(PlayerData, p_key)
@@ -15522,7 +15522,7 @@ func _show_social_media_modal() -> void:
 			var title_lbl := Label.new()
 			title_lbl.text = "%s %s • %s%s" % [p_icon, p_name, handle, verif_badge]
 			title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			title_lbl.add_theme_font_size_override("font_size", 30)
+			title_lbl.add_theme_font_size_override("font_size", 34)
 			title_lbl.add_theme_color_override("font_color", p_color)
 			head_h.add_child(title_lbl)
 
@@ -15533,7 +15533,7 @@ func _show_social_media_modal() -> void:
 				int(acc_data.get("posts_count", 0))
 			]
 			stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			stats_lbl.add_theme_font_size_override("font_size", 26)
+			stats_lbl.add_theme_font_size_override("font_size", 30)
 			stats_lbl.add_theme_color_override("font_color", Color("#4ade80"))
 			cv.add_child(stats_lbl)
 
@@ -15557,7 +15557,7 @@ func _show_social_media_modal() -> void:
 			)
 			btn_post.custom_minimum_size = Vector2(120, 64)
 			btn_post.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			btn_post.add_theme_font_size_override("font_size", 26)
+			btn_post.add_theme_font_size_override("font_size", 30)
 			if has_posted_this_year:
 				btn_post.disabled = true
 				btn_post.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -15573,7 +15573,7 @@ func _show_social_media_modal() -> void:
 			)
 			btn_verif.custom_minimum_size = Vector2(120, 64)
 			btn_verif.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			btn_verif.add_theme_font_size_override("font_size", 26)
+			btn_verif.add_theme_font_size_override("font_size", 30)
 			if is_verif:
 				btn_verif.disabled = true
 				btn_verif.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -15591,7 +15591,7 @@ func _show_social_media_modal() -> void:
 			)
 			btn_buy_foll.custom_minimum_size = Vector2(120, 64)
 			btn_buy_foll.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			btn_buy_foll.add_theme_font_size_override("font_size", 26)
+			btn_buy_foll.add_theme_font_size_override("font_size", 30)
 			if has_ad_this_year:
 				btn_buy_foll.disabled = true
 				btn_buy_foll.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -15610,7 +15610,7 @@ func _show_social_media_modal() -> void:
 			)
 			btn_troll.custom_minimum_size = Vector2(120, 64)
 			btn_troll.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			btn_troll.add_theme_font_size_override("font_size", 26)
+			btn_troll.add_theme_font_size_override("font_size", 30)
 			if has_trolled_this_year:
 				btn_troll.disabled = true
 				btn_troll.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -15625,7 +15625,7 @@ func _show_social_media_modal() -> void:
 			)
 			btn_delete.custom_minimum_size = Vector2(120, 64)
 			btn_delete.alignment = HORIZONTAL_ALIGNMENT_CENTER
-			btn_delete.add_theme_font_size_override("font_size", 26)
+			btn_delete.add_theme_font_size_override("font_size", 30)
 			cv.add_child(btn_delete)
 
 		list.add_child(p_card)
@@ -15661,7 +15661,7 @@ func _show_pet_adoption_modal() -> void:
 		_format_number(total_funds)
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	funds_lbl.add_theme_font_size_override("font_size", 28)
+	funds_lbl.add_theme_font_size_override("font_size", 32)
 	funds_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#f0fdf4"))
 	sv.add_child(funds_lbl)
 	list.add_child(summary_card)
@@ -15680,7 +15680,7 @@ func _show_pet_adoption_modal() -> void:
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL PET ADOPTION COMPLETED\nYou have already adopted a companion pet for Age %d.\nGive your new companion time to settle into their home. Advance age (+1 Year) to adopt another pet!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ll.add_theme_font_size_override("font_size", 27)
+		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
@@ -15747,7 +15747,7 @@ func _show_pet_adoption_modal() -> void:
 						_show_pet_ranch_modal()
 			)
 			btn.custom_minimum_size.y = 96
-			btn.add_theme_font_size_override("font_size", 28)
+			btn.add_theme_font_size_override("font_size", 32)
 			list.add_child(btn)
 
 	pet_adoption_modal_overlay.visible = true
@@ -15773,7 +15773,7 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 		back_btn.text = "← Centers"
 		back_btn.custom_minimum_size = Vector2(110, 58)
 		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		back_btn.add_theme_font_size_override("font_size", 22)
+		back_btn.add_theme_font_size_override("font_size", 26)
 		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 		back_btn.add_theme_color_override("font_hover_color", border_color)
 
@@ -15823,7 +15823,7 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [a["icon"], a["breed"], a["age_str"]]
-		head_lbl.add_theme_font_size_override("font_size", 28)
+		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
 
@@ -15859,7 +15859,7 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 			a["happiness"],
 			a["upkeep"]
 		]
-		stats_lbl.add_theme_font_size_override("font_size", 24)
+		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
@@ -15877,7 +15877,7 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 				show_tab("timeline")
 		)
 		btn_adopt.custom_minimum_size.y = 64
-		btn_adopt.add_theme_font_size_override("font_size", 26)
+		btn_adopt.add_theme_font_size_override("font_size", 30)
 		if has_adopted_this_year:
 			btn_adopt.disabled = true
 			btn_adopt.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -15909,7 +15909,7 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 		back_btn.text = "← Centers"
 		back_btn.custom_minimum_size = Vector2(110, 58)
 		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		back_btn.add_theme_font_size_override("font_size", 22)
+		back_btn.add_theme_font_size_override("font_size", 26)
 		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 		back_btn.add_theme_color_override("font_hover_color", border_color)
 
@@ -15959,7 +15959,7 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s Purebred %s • %s" % [a["icon"], a["breed"], a["age_str"]]
-		head_lbl.add_theme_font_size_override("font_size", 28)
+		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
 
@@ -15997,7 +15997,7 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 			_format_number(upkeep),
 			a["health"]
 		]
-		stats_lbl.add_theme_font_size_override("font_size", 24)
+		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
@@ -16016,7 +16016,7 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 				show_tab("timeline")
 		)
 		btn_buy.custom_minimum_size.y = 64
-		btn_buy.add_theme_font_size_override("font_size", 26)
+		btn_buy.add_theme_font_size_override("font_size", 30)
 		if has_adopted_this_year:
 			btn_buy.disabled = true
 			btn_buy.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16047,7 +16047,7 @@ func _show_pet_store_modal() -> void:
 		back_btn.text = "← Centers"
 		back_btn.custom_minimum_size = Vector2(110, 58)
 		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		back_btn.add_theme_font_size_override("font_size", 22)
+		back_btn.add_theme_font_size_override("font_size", 26)
 		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 		back_btn.add_theme_color_override("font_hover_color", Color("#8b5cf6"))
 
@@ -16097,7 +16097,7 @@ func _show_pet_store_modal() -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [a["icon"], a["species"], a["age_str"]]
-		head_lbl.add_theme_font_size_override("font_size", 28)
+		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
 
@@ -16109,7 +16109,7 @@ func _show_pet_store_modal() -> void:
 			_format_number(upkeep),
 			a["lifespan"]
 		]
-		stats_lbl.add_theme_font_size_override("font_size", 24)
+		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
@@ -16128,7 +16128,7 @@ func _show_pet_store_modal() -> void:
 				show_tab("timeline")
 		)
 		btn_buy.custom_minimum_size.y = 64
-		btn_buy.add_theme_font_size_override("font_size", 26)
+		btn_buy.add_theme_font_size_override("font_size", 30)
 		if has_adopted_this_year:
 			btn_buy.disabled = true
 			btn_buy.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16159,7 +16159,7 @@ func _show_pet_ranch_modal() -> void:
 		back_btn.text = "← Centers"
 		back_btn.custom_minimum_size = Vector2(110, 58)
 		back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-		back_btn.add_theme_font_size_override("font_size", 22)
+		back_btn.add_theme_font_size_override("font_size", 26)
 		back_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 		back_btn.add_theme_color_override("font_hover_color", Color("#38bdf8"))
 
@@ -16209,7 +16209,7 @@ func _show_pet_ranch_modal() -> void:
 
 		var head_lbl := Label.new()
 		head_lbl.text = "%s %s • %s" % [h["icon"], h["breed"], h["age_str"]]
-		head_lbl.add_theme_font_size_override("font_size", 28)
+		head_lbl.add_theme_font_size_override("font_size", 32)
 		head_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		cv.add_child(head_lbl)
 
@@ -16221,7 +16221,7 @@ func _show_pet_ranch_modal() -> void:
 			_format_number(upkeep),
 			h["health"]
 		]
-		stats_lbl.add_theme_font_size_override("font_size", 24)
+		stats_lbl.add_theme_font_size_override("font_size", 28)
 		stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		cv.add_child(stats_lbl)
 
@@ -16240,7 +16240,7 @@ func _show_pet_ranch_modal() -> void:
 				show_tab("timeline")
 		)
 		btn_buy.custom_minimum_size.y = 64
-		btn_buy.add_theme_font_size_override("font_size", 26)
+		btn_buy.add_theme_font_size_override("font_size", 30)
 		if has_adopted_this_year:
 			btn_buy.disabled = true
 			btn_buy.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16289,7 +16289,7 @@ func _show_will_modal() -> void:
 		PlayerData.owned_assets.size()
 	]
 	val_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	val_lbl.add_theme_font_size_override("font_size", 28)
+	val_lbl.add_theme_font_size_override("font_size", 32)
 	val_lbl.add_theme_color_override("font_color", Color("#fef3c7"))
 	sv.add_child(val_lbl)
 
@@ -16306,7 +16306,7 @@ func _show_will_modal() -> void:
 
 	var cur_lbl := Label.new()
 	cur_lbl.text = "📜 Current Active Beneficiary: %s" % cur_name
-	cur_lbl.add_theme_font_size_override("font_size", 28)
+	cur_lbl.add_theme_font_size_override("font_size", 32)
 	cur_lbl.add_theme_color_override("font_color", Color("#34d399"))
 	sv.add_child(cur_lbl)
 	list.add_child(summary_card)
@@ -16357,7 +16357,7 @@ func _show_will_modal() -> void:
 			_show_will_modal()
 		)
 		btn.custom_minimum_size.y = 96
-		btn.add_theme_font_size_override("font_size", 28)
+		btn.add_theme_font_size_override("font_size", 32)
 		if is_selected:
 			btn.modulate = Color(0.8, 1.0, 0.8, 1.0)
 		list.add_child(btn)
@@ -16393,7 +16393,7 @@ func _show_charity_modal() -> void:
 		_format_number(total_avail)
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	funds_lbl.add_theme_font_size_override("font_size", 28)
+	funds_lbl.add_theme_font_size_override("font_size", 32)
 	funds_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	sv.add_child(funds_lbl)
 
@@ -16414,7 +16414,7 @@ func _show_charity_modal() -> void:
 		spiritual_state
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	vitals_lbl.add_theme_font_size_override("font_size", 27)
+	vitals_lbl.add_theme_font_size_override("font_size", 31)
 	vitals_lbl.add_theme_color_override("font_color", Color("#a7f3d0"))
 	sv.add_child(vitals_lbl)
 
@@ -16425,7 +16425,7 @@ func _show_charity_modal() -> void:
 			PlayerData.charity_donations_count
 		]
 		stat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		stat_lbl.add_theme_font_size_override("font_size", 25)
+		stat_lbl.add_theme_font_size_override("font_size", 29)
 		stat_lbl.add_theme_color_override("font_color", Color("#fde047"))
 		sv.add_child(stat_lbl)
 
@@ -16471,14 +16471,14 @@ func _show_charity_modal() -> void:
 		var name_lbl := Label.new()
 		name_lbl.text = "%s %s" % [c_icon, c_name]
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		name_lbl.add_theme_font_size_override("font_size", 29)
+		name_lbl.add_theme_font_size_override("font_size", 33)
 		name_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		top_row.add_child(name_lbl)
 
 		var amt_lbl := Label.new()
 		amt_lbl.text = "$%s" % _format_number(amount)
-		amt_lbl.add_theme_font_size_override("font_size", 32)
+		amt_lbl.add_theme_font_size_override("font_size", 36)
 		amt_lbl.add_theme_color_override("font_color", Color("#34d399"))
 		amt_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		top_row.add_child(amt_lbl)
@@ -16487,7 +16487,7 @@ func _show_charity_modal() -> void:
 		var desc_lbl := Label.new()
 		desc_lbl.text = desc
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_lbl.add_theme_font_size_override("font_size", 24)
+		desc_lbl.add_theme_font_size_override("font_size", 28)
 		desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
@@ -16499,7 +16499,7 @@ func _show_charity_modal() -> void:
 		var karma_lbl := Label.new()
 		karma_lbl.text = "💫 Spiritual Impact: Elevates your karma and boosts happiness (+%d%% Happiness)." % hap_gain
 		karma_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		karma_lbl.add_theme_font_size_override("font_size", 23)
+		karma_lbl.add_theme_font_size_override("font_size", 27)
 		karma_lbl.add_theme_color_override("font_color", Color("#a7f3d0"))
 		perk_box.add_child(karma_lbl)
 
@@ -16568,7 +16568,7 @@ func _show_finance_hub_modal() -> void:
 
 	var title_lbl := Label.new()
 	title_lbl.text = "PORTFOLIO & CAPITAL OVERVIEW"
-	title_lbl.add_theme_font_size_override("font_size", 26)
+	title_lbl.add_theme_font_size_override("font_size", 30)
 	title_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(title_lbl)
 
@@ -16589,13 +16589,13 @@ func _show_finance_hub_modal() -> void:
 	var _add_stat_row = func(label_text: String, value_text: String, val_color: Color):
 		var lbl_name := Label.new()
 		lbl_name.text = label_text
-		lbl_name.add_theme_font_size_override("font_size", 24)
+		lbl_name.add_theme_font_size_override("font_size", 28)
 		lbl_name.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		stats_grid.add_child(lbl_name)
 
 		var lbl_val := Label.new()
 		lbl_val.text = value_text
-		lbl_val.add_theme_font_size_override("font_size", 24)
+		lbl_val.add_theme_font_size_override("font_size", 28)
 		lbl_val.add_theme_color_override("font_color", val_color)
 		stats_grid.add_child(lbl_val)
 
@@ -16611,7 +16611,7 @@ func _show_finance_hub_modal() -> void:
 	# 2. Section Heading
 	var hubs_heading := Label.new()
 	hubs_heading.text = "SELECT FINANCIAL DIVISION"
-	hubs_heading.add_theme_font_size_override("font_size", 24)
+	hubs_heading.add_theme_font_size_override("font_size", 28)
 	hubs_heading.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	list.add_child(hubs_heading)
 
@@ -16702,21 +16702,21 @@ func _show_finance_hub_modal() -> void:
 
 		var div_title := Label.new()
 		div_title.text = div["title"]
-		div_title.add_theme_font_size_override("font_size", 26)
+		div_title.add_theme_font_size_override("font_size", 30)
 		div_title.add_theme_color_override("font_color", div["color"].darkened(0.25) if is_light else div["color"])
 		div_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		head_row.add_child(div_title)
 
 		var tag_lbl := Label.new()
 		tag_lbl.text = div["tag"]
-		tag_lbl.add_theme_font_size_override("font_size", 20)
+		tag_lbl.add_theme_font_size_override("font_size", 24)
 		tag_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		head_row.add_child(tag_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = div["desc"]
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc_lbl.add_theme_font_size_override("font_size", 22)
+		desc_lbl.add_theme_font_size_override("font_size", 26)
 		desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
@@ -16759,7 +16759,7 @@ func _show_crypto_exchange_modal() -> void:
 	)
 	pulse_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
 	pulse_btn.custom_minimum_size = Vector2(210, 46)
-	pulse_btn.add_theme_font_size_override("font_size", 22)
+	pulse_btn.add_theme_font_size_override("font_size", 26)
 	top_action_row.add_child(pulse_btn)
 
 	# 2. Breaking Crypto Wire / Market News
@@ -16780,7 +16780,7 @@ func _show_crypto_exchange_modal() -> void:
 		var news_lbl := Label.new()
 		news_lbl.text = "📰 Crypto Wire: " + " • ".join(crypto_news)
 		news_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		news_lbl.add_theme_font_size_override("font_size", 21)
+		news_lbl.add_theme_font_size_override("font_size", 25)
 		news_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fde68a"))
 		news_box.add_child(news_lbl)
 		list.add_child(news_box)
@@ -16806,7 +16806,7 @@ func _show_crypto_exchange_modal() -> void:
 
 		var ob_title := Label.new()
 		ob_title.text = "🐋 LIVE WHALE & NPC ORDER FLOW (REAL-TIME)"
-		ob_title.add_theme_font_size_override("font_size", 20)
+		ob_title.add_theme_font_size_override("font_size", 24)
 		ob_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		ob_vbox.add_child(ob_title)
 
@@ -16823,7 +16823,7 @@ func _show_crypto_exchange_modal() -> void:
 		var ob_lbl := Label.new()
 		ob_lbl.text = " • ".join(trade_strings)
 		ob_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ob_lbl.add_theme_font_size_override("font_size", 19)
+		ob_lbl.add_theme_font_size_override("font_size", 23)
 		ob_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		ob_vbox.add_child(ob_lbl)
 		list.add_child(order_box)
@@ -16844,7 +16844,7 @@ func _show_crypto_exchange_modal() -> void:
 		var n_lbl := Label.new()
 		n_lbl.text = crypto_status_notice
 		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		n_lbl.add_theme_font_size_override("font_size", 22)
+		n_lbl.add_theme_font_size_override("font_size", 26)
 		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#a7f3d0"))
 		notice_card.add_child(n_lbl)
 		list.add_child(notice_card)
@@ -16876,14 +16876,14 @@ func _show_crypto_exchange_modal() -> void:
 
 	var port_title := Label.new()
 	port_title.text = "CRYPTO WALLET VALUE"
-	port_title.add_theme_font_size_override("font_size", 24)
+	port_title.add_theme_font_size_override("font_size", 28)
 	port_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	port_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	port_row.add_child(port_title)
 
 	var sent_badge := Label.new()
 	sent_badge.text = str(sentiment.get("label", "MARKET"))
-	sent_badge.add_theme_font_size_override("font_size", 22)
+	sent_badge.add_theme_font_size_override("font_size", 26)
 	var sent_col := Color(str(sentiment.get("color", "#f59e0b")))
 	sent_badge.add_theme_color_override("font_color", sent_col)
 	port_row.add_child(sent_badge)
@@ -16894,7 +16894,7 @@ func _show_crypto_exchange_modal() -> void:
 
 	var val_lbl := Label.new()
 	val_lbl.text = "$%s" % _format_number(int(round(current_val)))
-	val_lbl.add_theme_font_size_override("font_size", 38)
+	val_lbl.add_theme_font_size_override("font_size", 42)
 	val_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	val_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	val_row.add_child(val_lbl)
@@ -16902,14 +16902,14 @@ func _show_crypto_exchange_modal() -> void:
 	var pnl_lbl := Label.new()
 	var pnl_sign := "+" if pnl_val >= 0.0 else ""
 	pnl_lbl.text = "Net P&L: %s$%s (%s%.2f%%)" % [pnl_sign, _format_number(int(round(pnl_val))), pnl_sign, pnl_pct]
-	pnl_lbl.add_theme_font_size_override("font_size", 24)
+	pnl_lbl.add_theme_font_size_override("font_size", 28)
 	pnl_lbl.add_theme_color_override("font_color", Color("#16a34a" if is_light else "#22c55e") if pnl_val >= 0.0 else Color("#dc2626" if is_light else "#f43f5e"))
 	val_row.add_child(pnl_lbl)
 
 	var sent_desc := Label.new()
 	sent_desc.text = "Cycle: %s — %s" % [str(sentiment.get("label", "")), str(sentiment.get("desc", ""))]
 	sent_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sent_desc.add_theme_font_size_override("font_size", 20)
+	sent_desc.add_theme_font_size_override("font_size", 24)
 	sent_desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	sv.add_child(sent_desc)
 
@@ -16920,7 +16920,7 @@ func _show_crypto_exchange_modal() -> void:
 		_format_number(PlayerData.money),
 		_format_number(PlayerData.bank_savings)
 	]
-	liquid_funds_lbl.add_theme_font_size_override("font_size", 20)
+	liquid_funds_lbl.add_theme_font_size_override("font_size", 24)
 	liquid_funds_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(liquid_funds_lbl)
 
@@ -16929,7 +16929,7 @@ func _show_crypto_exchange_modal() -> void:
 	# 6. Spot Market Assets Heading
 	var assets_head := Label.new()
 	assets_head.text = "SPOT DIGITAL ASSETS"
-	assets_head.add_theme_font_size_override("font_size", 24)
+	assets_head.add_theme_font_size_override("font_size", 28)
 	assets_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	list.add_child(assets_head)
 
@@ -16966,7 +16966,7 @@ func _show_crypto_exchange_modal() -> void:
 
 		var name_lbl := Label.new()
 		name_lbl.text = "%s %s (%s)  %s" % [str(c.get("icon", "🪙")), str(c.get("name", "")), str(c.get("symbol", "")), str(c.get("sparkline", ""))]
-		name_lbl.add_theme_font_size_override("font_size", 26)
+		name_lbl.add_theme_font_size_override("font_size", 30)
 		name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		top_row.add_child(name_lbl)
@@ -16980,7 +16980,7 @@ func _show_crypto_exchange_modal() -> void:
 			price_lbl.text = "$%s" % _format_number(int(round(price))) if price >= 1000.0 else "$%.2f" % price
 		else:
 			price_lbl.text = "$%.4f" % price
-		price_lbl.add_theme_font_size_override("font_size", 26)
+		price_lbl.add_theme_font_size_override("font_size", 30)
 		price_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		price_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		pr_col.add_child(price_lbl)
@@ -16988,7 +16988,7 @@ func _show_crypto_exchange_modal() -> void:
 		var chg_lbl := Label.new()
 		var sign_str := "+" if change >= 0.0 else ""
 		chg_lbl.text = "%s%.2f%%" % [sign_str, change]
-		chg_lbl.add_theme_font_size_override("font_size", 21)
+		chg_lbl.add_theme_font_size_override("font_size", 25)
 		chg_lbl.add_theme_color_override("font_color", Color("#16a34a" if is_light else "#22c55e") if change >= 0.0 else Color("#dc2626" if is_light else "#f43f5e"))
 		chg_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		pr_col.add_child(chg_lbl)
@@ -16997,7 +16997,7 @@ func _show_crypto_exchange_modal() -> void:
 		var desc := Label.new()
 		desc.text = str(c.get("description", ""))
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		desc.add_theme_font_size_override("font_size", 20)
+		desc.add_theme_font_size_override("font_size", 24)
 		desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		cv.add_child(desc)
 
@@ -17007,7 +17007,7 @@ func _show_crypto_exchange_modal() -> void:
 			var cat_lbl := Label.new()
 			cat_lbl.text = "⚡ %s" % cat_text
 			cat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-			cat_lbl.add_theme_font_size_override("font_size", 19)
+			cat_lbl.add_theme_font_size_override("font_size", 23)
 			cat_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 			cv.add_child(cat_lbl)
 
@@ -17030,7 +17030,7 @@ func _show_crypto_exchange_modal() -> void:
 		flow_lbl.text = "24h Vol: %s • 🟢 Buys: %s • 🔴 Sells: %s • ATH: %s • ATL: %s" % [
 			vol_str, _format_number(npc_b), _format_number(npc_s), ath_str, atl_str
 		]
-		flow_lbl.add_theme_font_size_override("font_size", 18)
+		flow_lbl.add_theme_font_size_override("font_size", 22)
 		flow_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		flow_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		flow_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -17064,7 +17064,7 @@ func _show_crypto_exchange_modal() -> void:
 		else:
 			h_lbl.text = "Holdings: 0.00 %s ($0.00)" % str(c.get("symbol", ""))
 			h_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		h_lbl.add_theme_font_size_override("font_size", 20)
+		h_lbl.add_theme_font_size_override("font_size", 24)
 		h_box.add_child(h_lbl)
 		cv.add_child(h_box)
 
@@ -17134,20 +17134,20 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 			symbol,
 			held_usd
 		]
-	info_lbl.add_theme_font_size_override("font_size", 22)
+	info_lbl.add_theme_font_size_override("font_size", 26)
 	info_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	list.add_child(info_lbl)
 
 	# Input row
 	var input_lbl := Label.new()
 	input_lbl.text = "Enter USD Amount to Invest:" if is_buy else "Enter %s Units to Sell:" % symbol
-	input_lbl.add_theme_font_size_override("font_size", 22)
+	input_lbl.add_theme_font_size_override("font_size", 26)
 	input_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	list.add_child(input_lbl)
 
 	var input_box := LineEdit.new()
 	input_box.custom_minimum_size.y = 64
-	input_box.add_theme_font_size_override("font_size", 26)
+	input_box.add_theme_font_size_override("font_size", 30)
 	input_box.placeholder_text = "e.g. 1000" if is_buy else ("e.g. %.4f" % (owned_amount * 0.5))
 	MobileKeyboardManager.attach_to_input(input_box)
 	list.add_child(input_box)
@@ -17178,7 +17178,7 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 	# Estimation row
 	var est_lbl := Label.new()
 	est_lbl.text = "Estimated Net After 0.5% Exchange Fee: $0.00"
-	est_lbl.add_theme_font_size_override("font_size", 21)
+	est_lbl.add_theme_font_size_override("font_size", 25)
 	est_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 
 	var _update_estimate = func(txt: String):
@@ -17202,7 +17202,7 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 		p_btn.text = str(p.get("label", ""))
 		p_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		p_btn.custom_minimum_size.y = 54
-		p_btn.add_theme_font_size_override("font_size", 21)
+		p_btn.add_theme_font_size_override("font_size", 25)
 		var p_style := StyleBoxFlat.new()
 		p_style.bg_color = Color("#e2e8f0") if is_light else Color("#1e293b")
 		p_style.border_color = accent_col
@@ -17310,14 +17310,14 @@ func _show_pension_account_modal() -> void:
 
 	var policy_title := Label.new()
 	policy_title.text = "🔒 INHERITANCE POLICY: CANNOT BE INHERITED"
-	policy_title.add_theme_font_size_override("font_size", 24)
+	policy_title.add_theme_font_size_override("font_size", 28)
 	policy_title.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#fca5a5"))
 	pv.add_child(policy_title)
 
 	var policy_desc := Label.new()
 	policy_desc.text = "Under statutory retirement regulations, this account provides personal lifetime retirement security. The balance CANNOT BE INHERITED by your children or next generation. Upon death, remaining funds revert to the plan trust. Use the Savings Account for transferable generational wealth."
 	policy_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	policy_desc.add_theme_font_size_override("font_size", 20)
+	policy_desc.add_theme_font_size_override("font_size", 24)
 	policy_desc.add_theme_color_override("font_color", Color("#450a0a") if is_light else Color("#fecaca"))
 	pv.add_child(policy_desc)
 	list.add_child(policy_card)
@@ -17335,7 +17335,7 @@ func _show_pension_account_modal() -> void:
 		var n_lbl := Label.new()
 		n_lbl.text = pension_status_notice
 		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		n_lbl.add_theme_font_size_override("font_size", 22)
+		n_lbl.add_theme_font_size_override("font_size", 26)
 		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 		nm.add_child(n_lbl)
 		list.add_child(not_card)
@@ -17364,13 +17364,13 @@ func _show_pension_account_modal() -> void:
 
 	var bal_head := Label.new()
 	bal_head.text = "RETIREMENT FUND BALANCE"
-	bal_head.add_theme_font_size_override("font_size", 22)
+	bal_head.add_theme_font_size_override("font_size", 26)
 	bal_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	ov.add_child(bal_head)
 
 	var bal_val := Label.new()
 	bal_val.text = "$%s" % _format_number(p_bal)
-	bal_val.add_theme_font_size_override("font_size", 42)
+	bal_val.add_theme_font_size_override("font_size", 46)
 	bal_val.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
 	ov.add_child(bal_val)
 
@@ -17384,12 +17384,12 @@ func _show_pension_account_modal() -> void:
 	var _add_row = func(k: String, v: String, c: Color):
 		var kl := Label.new()
 		kl.text = k
-		kl.add_theme_font_size_override("font_size", 21)
+		kl.add_theme_font_size_override("font_size", 25)
 		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		grid.add_child(kl)
 		var vl := Label.new()
 		vl.text = v
-		vl.add_theme_font_size_override("font_size", 21)
+		vl.add_theme_font_size_override("font_size", 25)
 		vl.add_theme_color_override("font_color", c)
 		grid.add_child(vl)
 
@@ -17421,13 +17421,13 @@ func _show_pension_account_modal() -> void:
 
 	var rate_title := Label.new()
 	rate_title.text = "AUTOMATIC ANNUAL SALARY CONTRIBUTION"
-	rate_title.add_theme_font_size_override("font_size", 22)
+	rate_title.add_theme_font_size_override("font_size", 26)
 	rate_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
 	rv.add_child(rate_title)
 
 	var rate_desc := Label.new()
 	rate_desc.text = "Select percentage of your salary automatically deducted and invested each year (Current: %d%%):" % int(round(c_pct * 100.0))
-	rate_desc.add_theme_font_size_override("font_size", 20)
+	rate_desc.add_theme_font_size_override("font_size", 24)
 	rate_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rate_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	rv.add_child(rate_desc)
@@ -17448,7 +17448,7 @@ func _show_pension_account_modal() -> void:
 		, true)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size.y = 54
-		b.add_theme_font_size_override("font_size", 21)
+		b.add_theme_font_size_override("font_size", 25)
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		b.set_meta("center_text", true)
 		rate_btn_row.add_child(b)
@@ -17471,13 +17471,13 @@ func _show_pension_account_modal() -> void:
 
 	var dep_title := Label.new()
 	dep_title.text = "DEPOSIT LIQUID CAPITAL INTO PENSION"
-	dep_title.add_theme_font_size_override("font_size", 22)
+	dep_title.add_theme_font_size_override("font_size", 26)
 	dep_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	dv.add_child(dep_title)
 
 	var avail_lbl := Label.new()
 	avail_lbl.text = "Available Capital (Cash + Bank): $%s" % _format_number(PlayerData.get_available_funds())
-	avail_lbl.add_theme_font_size_override("font_size", 20)
+	avail_lbl.add_theme_font_size_override("font_size", 24)
 	avail_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	dv.add_child(avail_lbl)
 
@@ -17495,7 +17495,7 @@ func _show_pension_account_modal() -> void:
 		, true)
 		d_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		d_btn.custom_minimum_size.y = 56
-		d_btn.add_theme_font_size_override("font_size", 21)
+		d_btn.add_theme_font_size_override("font_size", 25)
 		d_btn.disabled = PlayerData.get_available_funds() < amt
 		d_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		d_btn.set_meta("center_text", true)
@@ -17511,7 +17511,7 @@ func _show_pension_account_modal() -> void:
 	, true)
 	d_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	d_all.custom_minimum_size.y = 56
-	d_all.add_theme_font_size_override("font_size", 21)
+	d_all.add_theme_font_size_override("font_size", 25)
 	d_all.disabled = PlayerData.money <= 0
 	d_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	d_all.set_meta("center_text", true)
@@ -17535,7 +17535,7 @@ func _show_pension_account_modal() -> void:
 
 	var with_title := Label.new()
 	with_title.text = "WITHDRAW RETIREMENT CAPITAL"
-	with_title.add_theme_font_size_override("font_size", 22)
+	with_title.add_theme_font_size_override("font_size", 26)
 	with_title.add_theme_color_override("font_color", Color("#be123c") if is_light else Color("#fb7185"))
 	wv.add_child(with_title)
 
@@ -17547,7 +17547,7 @@ func _show_pension_account_modal() -> void:
 		with_warning.text = "⚠️ Warning: You are under age 60. Early withdrawals trigger a 20% statutory penalty fee."
 		with_warning.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#fca5a5"))
 	with_warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	with_warning.add_theme_font_size_override("font_size", 20)
+	with_warning.add_theme_font_size_override("font_size", 24)
 	wv.add_child(with_warning)
 
 	var with_btn_row := HBoxContainer.new()
@@ -17564,7 +17564,7 @@ func _show_pension_account_modal() -> void:
 		, true)
 		w_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		w_btn.custom_minimum_size.y = 56
-		w_btn.add_theme_font_size_override("font_size", 21)
+		w_btn.add_theme_font_size_override("font_size", 25)
 		w_btn.disabled = p_bal < amt
 		w_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		w_btn.set_meta("center_text", true)
@@ -17579,7 +17579,7 @@ func _show_pension_account_modal() -> void:
 	, true)
 	w_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	w_all.custom_minimum_size.y = 56
-	w_all.add_theme_font_size_override("font_size", 21)
+	w_all.add_theme_font_size_override("font_size", 25)
 	w_all.disabled = p_bal <= 0
 	w_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	w_all.set_meta("center_text", true)
@@ -17604,14 +17604,14 @@ func _show_pension_account_modal() -> void:
 
 		var ann_title := Label.new()
 		ann_title.text = "RETIREMENT ANNUITY PAYOUT MODE"
-		ann_title.add_theme_font_size_override("font_size", 22)
+		ann_title.add_theme_font_size_override("font_size", 26)
 		ann_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		anv.add_child(ann_title)
 
 		var ann_desc := Label.new()
 		ann_desc.text = "When active, your pension fund will automatically disburse an 8% annual distribution directly into your cash balance each year for comfortable retirement living."
 		ann_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		ann_desc.add_theme_font_size_override("font_size", 20)
+		ann_desc.add_theme_font_size_override("font_size", 24)
 		ann_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		anv.add_child(ann_desc)
 
@@ -17624,7 +17624,7 @@ func _show_pension_account_modal() -> void:
 				_show_pension_account_modal()
 		, true)
 		ann_toggle_btn.custom_minimum_size.y = 58
-		ann_toggle_btn.add_theme_font_size_override("font_size", 22)
+		ann_toggle_btn.add_theme_font_size_override("font_size", 26)
 		anv.add_child(ann_toggle_btn)
 
 		list.add_child(ann_card)
@@ -17675,14 +17675,14 @@ func _show_savings_account_modal() -> void:
 
 	var g_title := Label.new()
 	g_title.text = "🛡️ INHERITANCE POLICY: 100% INHERITABLE TO NEXT GENERATION"
-	g_title.add_theme_font_size_override("font_size", 24)
+	g_title.add_theme_font_size_override("font_size", 28)
 	g_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	gv.add_child(g_title)
 
 	var g_desc := Label.new()
 	g_desc.text = "This High-Yield Savings Account is fully designated as generational family wealth. 100% of this account's capital will be safely transferred to your children and next-generation heirs upon estate succession, preserving compounding family prosperity."
 	g_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	g_desc.add_theme_font_size_override("font_size", 20)
+	g_desc.add_theme_font_size_override("font_size", 24)
 	g_desc.add_theme_color_override("font_color", Color("#064e3b") if is_light else Color("#a7f3d0"))
 	gv.add_child(g_desc)
 	list.add_child(guarantee_card)
@@ -17700,7 +17700,7 @@ func _show_savings_account_modal() -> void:
 		var n_lbl := Label.new()
 		n_lbl.text = savings_status_notice
 		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		n_lbl.add_theme_font_size_override("font_size", 22)
+		n_lbl.add_theme_font_size_override("font_size", 26)
 		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 		nm.add_child(n_lbl)
 		list.add_child(not_card)
@@ -17727,13 +17727,13 @@ func _show_savings_account_modal() -> void:
 
 	var bal_head := Label.new()
 	bal_head.text = "GENERATIONAL SAVINGS BALANCE"
-	bal_head.add_theme_font_size_override("font_size", 22)
+	bal_head.add_theme_font_size_override("font_size", 26)
 	bal_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	ov.add_child(bal_head)
 
 	var bal_val := Label.new()
 	bal_val.text = "$%s" % _format_number(s_bal)
-	bal_val.add_theme_font_size_override("font_size", 42)
+	bal_val.add_theme_font_size_override("font_size", 46)
 	bal_val.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 	ov.add_child(bal_val)
 
@@ -17747,12 +17747,12 @@ func _show_savings_account_modal() -> void:
 	var _add_row = func(k: String, v: String, c: Color):
 		var kl := Label.new()
 		kl.text = k
-		kl.add_theme_font_size_override("font_size", 21)
+		kl.add_theme_font_size_override("font_size", 25)
 		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		grid.add_child(kl)
 		var vl := Label.new()
 		vl.text = v
-		vl.add_theme_font_size_override("font_size", 21)
+		vl.add_theme_font_size_override("font_size", 25)
 		vl.add_theme_color_override("font_color", c)
 		grid.add_child(vl)
 
@@ -17779,13 +17779,13 @@ func _show_savings_account_modal() -> void:
 
 	var dep_title := Label.new()
 	dep_title.text = "DEPOSIT FUNDS INTO SAVINGS"
-	dep_title.add_theme_font_size_override("font_size", 22)
+	dep_title.add_theme_font_size_override("font_size", 26)
 	dep_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	dv.add_child(dep_title)
 
 	var avail_lbl := Label.new()
 	avail_lbl.text = "Available Capital (Cash + Bank): $%s" % _format_number(PlayerData.get_available_funds())
-	avail_lbl.add_theme_font_size_override("font_size", 20)
+	avail_lbl.add_theme_font_size_override("font_size", 24)
 	avail_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	dv.add_child(avail_lbl)
 
@@ -17803,7 +17803,7 @@ func _show_savings_account_modal() -> void:
 		, true)
 		d_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		d_btn.custom_minimum_size.y = 56
-		d_btn.add_theme_font_size_override("font_size", 21)
+		d_btn.add_theme_font_size_override("font_size", 25)
 		d_btn.disabled = PlayerData.get_available_funds() < amt
 		d_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		d_btn.set_meta("center_text", true)
@@ -17819,7 +17819,7 @@ func _show_savings_account_modal() -> void:
 	, true)
 	d_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	d_all.custom_minimum_size.y = 56
-	d_all.add_theme_font_size_override("font_size", 21)
+	d_all.add_theme_font_size_override("font_size", 25)
 	d_all.disabled = PlayerData.money <= 0
 	d_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	d_all.set_meta("center_text", true)
@@ -17843,13 +17843,13 @@ func _show_savings_account_modal() -> void:
 
 	var with_title := Label.new()
 	with_title.text = "WITHDRAW FUNDS TO CASH"
-	with_title.add_theme_font_size_override("font_size", 22)
+	with_title.add_theme_font_size_override("font_size", 26)
 	with_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	wv.add_child(with_title)
 
 	var with_sub := Label.new()
 	with_sub.text = "Withdraw funds anytime with 0% penalty. Cash will be immediately added to your wallet."
-	with_sub.add_theme_font_size_override("font_size", 20)
+	with_sub.add_theme_font_size_override("font_size", 24)
 	with_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	wv.add_child(with_sub)
 
@@ -17867,7 +17867,7 @@ func _show_savings_account_modal() -> void:
 		, true)
 		w_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		w_btn.custom_minimum_size.y = 56
-		w_btn.add_theme_font_size_override("font_size", 21)
+		w_btn.add_theme_font_size_override("font_size", 25)
 		w_btn.disabled = s_bal < amt
 		w_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		w_btn.set_meta("center_text", true)
@@ -17882,7 +17882,7 @@ func _show_savings_account_modal() -> void:
 	, true)
 	w_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	w_all.custom_minimum_size.y = 56
-	w_all.add_theme_font_size_override("font_size", 21)
+	w_all.add_theme_font_size_override("font_size", 25)
 	w_all.disabled = s_bal <= 0
 	w_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	w_all.set_meta("center_text", true)
@@ -17930,7 +17930,7 @@ func _show_doctor_modal() -> void:
 
 	var health_lbl := Label.new()
 	health_lbl.text = "Current Health: %d%%   •   Cash: $%s   •   Bank: $%s" % [PlayerData.health, _format_number(PlayerData.money), _format_number(PlayerData.bank_savings)]
-	health_lbl.add_theme_font_size_override("font_size", 32)
+	health_lbl.add_theme_font_size_override("font_size", 36)
 	health_lbl.add_theme_color_override("font_color", Color("#22c55e") if PlayerData.health > 40 else Color("#f87171"))
 	stat_v.add_child(health_lbl)
 
@@ -17942,7 +17942,7 @@ func _show_doctor_modal() -> void:
 	else:
 		illness_lbl.text = "Medical Status: No active malignant illnesses detected."
 		illness_lbl.add_theme_color_override("font_color", Color("#1e293b") if is_light else Color("#94a3b8"))
-	illness_lbl.add_theme_font_size_override("font_size", 28)
+	illness_lbl.add_theme_font_size_override("font_size", 32)
 	stat_v.add_child(illness_lbl)
 
 	list.add_child(stat_card)
@@ -17963,13 +17963,13 @@ func _show_doctor_modal() -> void:
 
 	var ins_head := Label.new()
 	ins_head.text = "🛡️ HEALTH INSURANCE POLICY"
-	ins_head.add_theme_font_size_override("font_size", 30)
+	ins_head.add_theme_font_size_override("font_size", 34)
 	ins_head.add_theme_color_override("font_color", Color("#312e81") if is_light else Color("#a5b4fc"))
 	ins_v.add_child(ins_head)
 
 	var ins_status := Label.new()
 	ins_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ins_status.add_theme_font_size_override("font_size", 26)
+	ins_status.add_theme_font_size_override("font_size", 30)
 
 	match PlayerData.health_insurance:
 		"platinum":
@@ -18268,7 +18268,7 @@ func _show_crime_modal() -> void:
 		var info_lbl := Label.new()
 		info_lbl.text = "You are currently incarcerated. Your criminal record stripped your job and credentials.\nAge up to advance your sentence years."
 		info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		info_lbl.add_theme_font_size_override("font_size", 26)
+		info_lbl.add_theme_font_size_override("font_size", 30)
 		info_lbl.add_theme_color_override("font_color", Color("#f87171"))
 		p_list.add_child(info_lbl)
 
@@ -18338,7 +18338,7 @@ func _show_crime_modal() -> void:
 	var list: VBoxContainer = modal.list
 	var status := Label.new()
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	status.add_theme_font_size_override("font_size", 30)
+	status.add_theme_font_size_override("font_size", 34)
 	status.add_theme_color_override("font_color", Color("#c4b5fd"))
 	var joined := bool(PlayerData.underground_progress.get("joined", false))
 	status.text = UndergroundProgression.summary(PlayerData) if joined else "UNAFFILIATED\nJoin the underground as an Alley Ghost. Successful activities build your rank and unlock new opportunities."
@@ -18356,7 +18356,7 @@ func _show_crime_modal() -> void:
 	var warning := Label.new()
 	warning.text = "Only successful activities count toward rank. Each attempt uses one of your %d yearly opportunities. Arrest ends your job and resets its tenure; underground reputation remains. Job seniority and syndicate rank are separate." % int(UndergroundProgression.catalog().attempts_per_year)
 	warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	warning.add_theme_font_size_override("font_size", 26)
+	warning.add_theme_font_size_override("font_size", 30)
 	warning.add_theme_color_override("font_color", Color("#fbbf24"))
 	list.add_child(warning)
 	var ranks: Array = UndergroundProgression.catalog().ranks
@@ -18498,13 +18498,13 @@ func _show_casino_modal() -> void:
 
 	var scratch_title := Label.new()
 	scratch_title.text = "🎟️ LUCKY CYBER SCRATCHCARD ($25)"
-	scratch_title.add_theme_font_size_override("font_size", 30)
+	scratch_title.add_theme_font_size_override("font_size", 34)
 	scratch_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	v_scratch.add_child(scratch_title)
 
 	casino_scratch_result_lbl = Label.new()
 	casino_scratch_result_lbl.text = "Reveal 3 matching symbols to win up to $500!"
-	casino_scratch_result_lbl.add_theme_font_size_override("font_size", 26)
+	casino_scratch_result_lbl.add_theme_font_size_override("font_size", 30)
 	casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_scratch.add_child(casino_scratch_result_lbl)
 
@@ -18566,20 +18566,20 @@ func _show_casino_modal() -> void:
 
 	var slots_title := Label.new()
 	slots_title.text = "🎰 NEON 3-REEL SLOT MACHINE ($50 / SPIN)"
-	slots_title.add_theme_font_size_override("font_size", 30)
+	slots_title.add_theme_font_size_override("font_size", 34)
 	slots_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	v_slots.add_child(slots_title)
 
 	casino_slots_display_lbl = Label.new()
 	casino_slots_display_lbl.text = "[ 🎰 | 🎰 | 🎰 ]"
 	casino_slots_display_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	casino_slots_display_lbl.add_theme_font_size_override("font_size", 46)
+	casino_slots_display_lbl.add_theme_font_size_override("font_size", 50)
 	casino_slots_display_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	v_slots.add_child(casino_slots_display_lbl)
 
 	casino_slots_result_lbl = Label.new()
 	casino_slots_result_lbl.text = "Payouts: 7️⃣7️⃣7️⃣ = $5,000  •  💎💎💎 = $1,200  •  🔔🔔🔔 = $450  •  🍒🍒🍒 = $180"
-	casino_slots_result_lbl.add_theme_font_size_override("font_size", 24)
+	casino_slots_result_lbl.add_theme_font_size_override("font_size", 28)
 	casino_slots_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_slots.add_child(casino_slots_result_lbl)
 
@@ -18659,20 +18659,20 @@ func _show_casino_modal() -> void:
 
 	var dice_title := Label.new()
 	dice_title.text = "🎲 HIGH-STAKES CRAPS & DICE ROLL"
-	dice_title.add_theme_font_size_override("font_size", 30)
+	dice_title.add_theme_font_size_override("font_size", 34)
 	dice_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	v_dice.add_child(dice_title)
 
 	casino_dice_display_lbl = Label.new()
 	casino_dice_display_lbl.text = "🎲 [ ? ] + 🎲 [ ? ] = ?"
 	casino_dice_display_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	casino_dice_display_lbl.add_theme_font_size_override("font_size", 42)
+	casino_dice_display_lbl.add_theme_font_size_override("font_size", 46)
 	casino_dice_display_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	v_dice.add_child(casino_dice_display_lbl)
 
 	casino_dice_result_lbl = Label.new()
 	casino_dice_result_lbl.text = "Choose your wager amount and place your prediction:"
-	casino_dice_result_lbl.add_theme_font_size_override("font_size", 25)
+	casino_dice_result_lbl.add_theme_font_size_override("font_size", 29)
 	casino_dice_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_dice.add_child(casino_dice_result_lbl)
 
@@ -18690,7 +18690,7 @@ func _show_casino_modal() -> void:
 		btn_b.set_meta("bet_amount", amt)
 		btn_b.custom_minimum_size.y = 58
 		btn_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_b.add_theme_font_size_override("font_size", 26)
+		btn_b.add_theme_font_size_override("font_size", 30)
 		btn_b.pressed.connect(func():
 			_trigger_haptic(20)
 			current_dice_bet_amount = amt
@@ -18849,7 +18849,7 @@ func _show_death_screen(cause: String) -> void:
 	flatline_lbl.set_meta("reference_part", true)
 	flatline_lbl.text = "─────── 💔 FLATLINED • PULSE CEASED ───────"
 	flatline_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	flatline_lbl.add_theme_font_size_override("font_size", 24)
+	flatline_lbl.add_theme_font_size_override("font_size", 28)
 	flatline_lbl.add_theme_color_override("font_color", Color("#b91c1c"))
 	main_v.add_child(flatline_lbl)
 
@@ -18857,7 +18857,7 @@ func _show_death_screen(cause: String) -> void:
 	title_lbl.set_meta("reference_part", true)
 	title_lbl.text = "IN MEMORIAM • PASSING INTO SILENCE"
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_lbl.add_theme_font_size_override("font_size", 38)
+	title_lbl.add_theme_font_size_override("font_size", 42)
 	title_lbl.add_theme_color_override("font_color", Color("#ef4444"))
 	main_v.add_child(title_lbl)
 
@@ -18866,7 +18866,7 @@ func _show_death_screen(cause: String) -> void:
 	sub_lbl.text = "\"The heartbeat has stilled. All worldly triumphs and regrets fade into the quiet void.\""
 	sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sub_lbl.add_theme_font_size_override("font_size", 23)
+	sub_lbl.add_theme_font_size_override("font_size", 27)
 	sub_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	main_v.add_child(sub_lbl)
 
@@ -18910,7 +18910,7 @@ func _show_death_screen(cause: String) -> void:
 	var rec_header := Label.new()
 	rec_header.set_meta("reference_part", true)
 	rec_header.text = "🪦 MEMORIAL RECORD OF THE DECEASED"
-	rec_header.add_theme_font_size_override("font_size", 24)
+	rec_header.add_theme_font_size_override("font_size", 28)
 	rec_header.add_theme_color_override("font_color", Color("#ef4444"))
 	stats_v.add_child(rec_header)
 
@@ -18918,7 +18918,7 @@ func _show_death_screen(cause: String) -> void:
 	name_lbl.set_meta("reference_part", true)
 	name_lbl.text = "Identity: %s   •   Birthplace: %s" % [PlayerData.first_name, PlayerData.birthplace]
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_lbl.add_theme_font_size_override("font_size", 30)
+	name_lbl.add_theme_font_size_override("font_size", 34)
 	name_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 	stats_v.add_child(name_lbl)
 
@@ -18930,7 +18930,7 @@ func _show_death_screen(cause: String) -> void:
 	age_cause_lbl.set_meta("reference_part", true)
 	age_cause_lbl.text = "Age of Demise: %d years\nCause of Death: %s" % [PlayerData.age, clean_cause]
 	age_cause_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	age_cause_lbl.add_theme_font_size_override("font_size", 28)
+	age_cause_lbl.add_theme_font_size_override("font_size", 32)
 	age_cause_lbl.add_theme_color_override("font_color", Color("#f87171"))
 	stats_v.add_child(age_cause_lbl)
 
@@ -18950,14 +18950,14 @@ func _show_death_screen(cause: String) -> void:
 		wealth_lbl.text = "Final Worldly Wealth: $%s" % _format_number(net_worth)
 		wealth_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	wealth_lbl.add_theme_font_size_override("font_size", 28)
+	wealth_lbl.add_theme_font_size_override("font_size", 32)
 	stats_v.add_child(wealth_lbl)
 
 	var career_str := "%s at %s" % [PlayerData.job_title, PlayerData.job_company] if PlayerData.job_title != "" else "Unemployed"
 	var career_lbl := Label.new()
 	career_lbl.set_meta("reference_part", true)
 	career_lbl.text = "Last Worldly Calling: %s" % career_str
-	career_lbl.add_theme_font_size_override("font_size", 28)
+	career_lbl.add_theme_font_size_override("font_size", 32)
 	career_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	stats_v.add_child(career_lbl)
 
@@ -18989,7 +18989,7 @@ func _show_death_screen(cause: String) -> void:
 	var coroner_header := Label.new()
 	coroner_header.set_meta("reference_part", true)
 	coroner_header.text = "📋 OFFICIAL CORONER'S CERTIFICATE"
-	coroner_header.add_theme_font_size_override("font_size", 24)
+	coroner_header.add_theme_font_size_override("font_size", 28)
 	coroner_header.add_theme_color_override("font_color", Color("#ef4444"))
 	cp_v.add_child(coroner_header)
 
@@ -18997,14 +18997,14 @@ func _show_death_screen(cause: String) -> void:
 	death_desc_lbl.set_meta("reference_part", true)
 	death_desc_lbl.text = _generate_death_narrative(clean_cause)
 	death_desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	death_desc_lbl.add_theme_font_size_override("font_size", 25)
+	death_desc_lbl.add_theme_font_size_override("font_size", 29)
 	death_desc_lbl.add_theme_color_override("font_color", Color("#e2e8f0"))
 	cp_v.add_child(death_desc_lbl)
 
 	var eulogy_header := Label.new()
 	eulogy_header.set_meta("reference_part", true)
 	eulogy_header.text = "MEMORIAL EPITAPH:"
-	eulogy_header.add_theme_font_size_override("font_size", 22)
+	eulogy_header.add_theme_font_size_override("font_size", 26)
 	eulogy_header.add_theme_color_override("font_color", Color("#f87171"))
 	cp_v.add_child(eulogy_header)
 
@@ -19019,7 +19019,7 @@ func _show_death_screen(cause: String) -> void:
 		eulogy = "\"Taken far too soon at age %d by tragic misfortune, %s's life was a fragile ember extinguished before its dawn.\"" % [PlayerData.age, PlayerData.first_name]
 	epitaph_lbl.text = eulogy
 	epitaph_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	epitaph_lbl.add_theme_font_size_override("font_size", 24)
+	epitaph_lbl.add_theme_font_size_override("font_size", 28)
 	epitaph_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	cp_v.add_child(epitaph_lbl)
 
@@ -19051,7 +19051,7 @@ func _show_death_screen(cause: String) -> void:
 	var will_exec_header := Label.new()
 	will_exec_header.set_meta("reference_part", true)
 	will_exec_header.text = "⚖️ LAST WILL & TESTAMENT ESTATE EXECUTION"
-	will_exec_header.add_theme_font_size_override("font_size", 26)
+	will_exec_header.add_theme_font_size_override("font_size", 30)
 	will_exec_header.add_theme_color_override("font_color", Color("#ef4444"))
 	wp_v.add_child(will_exec_header)
 
@@ -19081,7 +19081,7 @@ func _show_death_screen(cause: String) -> void:
 		will_recip_str
 	]
 	will_exec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	will_exec_desc.add_theme_font_size_override("font_size", 24)
+	will_exec_desc.add_theme_font_size_override("font_size", 28)
 	will_exec_desc.add_theme_color_override("font_color", Color("#cbd5e1"))
 	wp_v.add_child(will_exec_desc)
 
@@ -19119,7 +19119,7 @@ func _show_death_screen(cause: String) -> void:
 		bad_header.set_meta("reference_part", true)
 		bad_header.text = "⛓️ KUKURUDU • TRIBUNAL SUMMONS"
 		bad_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		bad_header.add_theme_font_size_override("font_size", 26)
+		bad_header.add_theme_font_size_override("font_size", 30)
 		bad_header.add_theme_color_override("font_color", Color("#ef4444"))
 		bv.add_child(bad_header)
 
@@ -19128,7 +19128,7 @@ func _show_death_screen(cause: String) -> void:
 		bad_desc.text = "Your mortal lifetime was burdened by heavy karmic debt and unforgiven deeds. The cosmic scales cannot be avoided. Worldly succession is denied; the Astral Arbiter demands your immediate presence for judgment."
 		bad_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		bad_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		bad_desc.add_theme_font_size_override("font_size", 23)
+		bad_desc.add_theme_font_size_override("font_size", 27)
 		bad_desc.add_theme_color_override("font_color", Color("#fca5a5"))
 		bv.add_child(bad_desc)
 
@@ -19138,7 +19138,7 @@ func _show_death_screen(cause: String) -> void:
 		btn_afterlife.set_meta("theme_exempt", true)
 		btn_afterlife.text = "⚖️ DESCEND TO THE AFTERLIFE FOR JUDGMENT"
 		btn_afterlife.custom_minimum_size.y = 100
-		btn_afterlife.add_theme_font_size_override("font_size", 30)
+		btn_afterlife.add_theme_font_size_override("font_size", 34)
 		var afterlife_style := StyleBoxFlat.new()
 		afterlife_style.bg_color = Color("#7f1d1d")
 		afterlife_style.border_color = Color("#ef4444")
@@ -19178,7 +19178,7 @@ func _show_death_screen(cause: String) -> void:
 		g_header.set_meta("reference_part", true)
 		g_header.text = "🕯️ THE PARTING CROSSING • REST IN PEACE"
 		g_header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		g_header.add_theme_font_size_override("font_size", 26)
+		g_header.add_theme_font_size_override("font_size", 30)
 		g_header.add_theme_color_override("font_color", Color("#ef4444"))
 		gv.add_child(g_header)
 
@@ -19187,7 +19187,7 @@ func _show_death_screen(cause: String) -> void:
 		g_desc.text = "Your earthly days have come to an end. Even as grief echoes in the silence left behind, you may choose how your legacy or spirit shall journey onward."
 		g_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		g_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		g_desc.add_theme_font_size_override("font_size", 23)
+		g_desc.add_theme_font_size_override("font_size", 27)
 		g_desc.add_theme_color_override("font_color", Color("#cbd5e1"))
 		gv.add_child(g_desc)
 
@@ -19203,7 +19203,7 @@ func _show_death_screen(cause: String) -> void:
 		var btn_inherit := Button.new()
 		btn_inherit.set_meta("theme_exempt", true)
 		btn_inherit.custom_minimum_size.y = 90
-		btn_inherit.add_theme_font_size_override("font_size", 27)
+		btn_inherit.add_theme_font_size_override("font_size", 31)
 		var inh_style := StyleBoxFlat.new()
 		inh_style.bg_color = Color("#18060a") if has_kids else Color("#0f0709")
 		inh_style.border_color = Color("#b91c1c") if has_kids else Color("#450a0a")
@@ -19229,7 +19229,7 @@ func _show_death_screen(cause: String) -> void:
 		btn_afterlife.set_meta("theme_exempt", true)
 		btn_afterlife.text = "🌟 ASCEND TO THE CELESTIAL AFTERLIFE"
 		btn_afterlife.custom_minimum_size.y = 90
-		btn_afterlife.add_theme_font_size_override("font_size", 27)
+		btn_afterlife.add_theme_font_size_override("font_size", 31)
 		var alt_style := StyleBoxFlat.new()
 		alt_style.bg_color = Color("#15050b")
 		alt_style.border_color = Color("#dc2626")
@@ -19248,7 +19248,7 @@ func _show_death_screen(cause: String) -> void:
 		btn_new_life.set_meta("theme_exempt", true)
 		btn_new_life.text = "🕊️ BEGIN A NEW MORTAL STORY"
 		btn_new_life.custom_minimum_size.y = 90
-		btn_new_life.add_theme_font_size_override("font_size", 27)
+		btn_new_life.add_theme_font_size_override("font_size", 31)
 		var new_life_style := StyleBoxFlat.new()
 		new_life_style.bg_color = Color("#0b0305")
 		new_life_style.border_color = Color("#991b1b")
@@ -19341,7 +19341,7 @@ func _show_inheritance_selection_modal() -> void:
 
 	var e_title := Label.new()
 	e_title.text = "🏛️ TOTAL BEQUEATHABLE ESTATE BREAKDOWN"
-	e_title.add_theme_font_size_override("font_size", 25)
+	e_title.add_theme_font_size_override("font_size", 29)
 	e_title.add_theme_color_override("font_color", Color("#38bdf8"))
 	e_vbox.add_child(e_title)
 
@@ -19366,13 +19366,13 @@ func _show_inheritance_selection_modal() -> void:
 
 	var e_details := Label.new()
 	e_details.text = "\n".join(breakdown_lines)
-	e_details.add_theme_font_size_override("font_size", 22)
+	e_details.add_theme_font_size_override("font_size", 26)
 	e_details.add_theme_color_override("font_color", Color("#e2e8f0"))
 	e_vbox.add_child(e_details)
 
 	var e_note := Label.new()
 	e_note.text = "Cryptocurrency token holdings, properties, and business equity will be transferred directly to your chosen heir intact."
-	e_note.add_theme_font_size_override("font_size", 20)
+	e_note.add_theme_font_size_override("font_size", 24)
 	e_note.add_theme_color_override("font_color", Color("#94a3b8"))
 	e_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	e_vbox.add_child(e_note)
@@ -19402,7 +19402,7 @@ func _show_inheritance_selection_modal() -> void:
 		var empty_lbl := Label.new()
 		empty_lbl.text = "You have no surviving partner, children, or siblings to bequeath your estate to."
 		empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty_lbl.add_theme_font_size_override("font_size", 26)
+		empty_lbl.add_theme_font_size_override("font_size", 30)
 		empty_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 		list.add_child(empty_lbl)
 
@@ -19456,20 +19456,20 @@ func _show_inheritance_selection_modal() -> void:
 		else:
 			name_lbl.text = "%s (%s, Age %d)" % [h_name, "Daughter" if h_gender == "FEMALE" else "Son", h_age]
 			name_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
-		name_lbl.add_theme_font_size_override("font_size", 28)
+		name_lbl.add_theme_font_size_override("font_size", 32)
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(name_lbl)
 
 		var occ_lbl := Label.new()
 		occ_lbl.text = NpcLifeProgress.get_occupation_display(heir)
-		occ_lbl.add_theme_font_size_override("font_size", 24)
+		occ_lbl.add_theme_font_size_override("font_size", 28)
 		occ_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 		occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(occ_lbl)
 
 		var edu_lbl := Label.new()
 		edu_lbl.text = NpcLifeProgress.get_education_display(heir)
-		edu_lbl.add_theme_font_size_override("font_size", 23)
+		edu_lbl.add_theme_font_size_override("font_size", 27)
 		edu_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 		edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(edu_lbl)
@@ -19478,14 +19478,14 @@ func _show_inheritance_selection_modal() -> void:
 		if not biz_str.is_empty():
 			var biz_lbl := Label.new()
 			biz_lbl.text = biz_str
-			biz_lbl.add_theme_font_size_override("font_size", 23)
+			biz_lbl.add_theme_font_size_override("font_size", 27)
 			biz_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 			biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			info_v.add_child(biz_lbl)
 
 		var wealth_lbl := Label.new()
 		wealth_lbl.text = NpcLifeProgress.get_finances_display(heir)
-		wealth_lbl.add_theme_font_size_override("font_size", 23)
+		wealth_lbl.add_theme_font_size_override("font_size", 27)
 		wealth_lbl.add_theme_color_override("font_color", Color("#34d399"))
 		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(wealth_lbl)
@@ -19493,14 +19493,14 @@ func _show_inheritance_selection_modal() -> void:
 		var rel_lbl := Label.new()
 		var rel_target := "partner" if is_partner else ("sibling" if is_sibling else "parent")
 		rel_lbl.text = "Relationship with late %s: %d%%" % [rel_target, h_rel]
-		rel_lbl.add_theme_font_size_override("font_size", 22)
+		rel_lbl.add_theme_font_size_override("font_size", 26)
 		rel_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 		info_v.add_child(rel_lbl)
 
 		var pick_btn := Button.new()
 		pick_btn.text = "👑 Bequeath Estate & Continue as %s" % h_name
 		pick_btn.custom_minimum_size.y = 68
-		pick_btn.add_theme_font_size_override("font_size", 26)
+		pick_btn.add_theme_font_size_override("font_size", 30)
 		var bs := StyleBoxFlat.new()
 		if is_partner:
 			bs.bg_color = Color("#9f1239")
@@ -19660,7 +19660,7 @@ func _configure_creation() -> void:
 	var gender_label := Label.new()
 	gender_label.name = "GenderLabel"
 	gender_label.text = "GENDER"
-	gender_label.add_theme_font_size_override("font_size", 28)
+	gender_label.add_theme_font_size_override("font_size", 32)
 	content.add_child(gender_label)
 	content.move_child(gender_label, birthplace_input.get_index() + 1)
 
@@ -19675,7 +19675,7 @@ func _configure_creation() -> void:
 	var avatar_title := Label.new()
 	avatar_title.name = "AvatarSectionLabel"
 	avatar_title.text = "APPEARANCE"
-	avatar_title.add_theme_font_size_override("font_size", 28)
+	avatar_title.add_theme_font_size_override("font_size", 32)
 	content.add_child(avatar_title)
 	content.move_child(avatar_title, gender_input.get_index() + 1)
 
@@ -19691,7 +19691,7 @@ func _configure_creation() -> void:
 	prev_avatar_btn.text = " ◀ "
 	prev_avatar_btn.custom_minimum_size = Vector2(94, 94)
 	prev_avatar_btn.add_theme_font_override("font", preload("res://assets/fonts/app_font_bold.tres"))
-	prev_avatar_btn.add_theme_font_size_override("font_size", 32)
+	prev_avatar_btn.add_theme_font_size_override("font_size", 36)
 	var arrow_style := StyleBoxFlat.new()
 	arrow_style.bg_color = Color("#1e293b")
 	arrow_style.border_color = Color("#38bdf8")
@@ -19729,7 +19729,7 @@ func _configure_creation() -> void:
 	next_avatar_btn.text = " ▶ "
 	next_avatar_btn.custom_minimum_size = Vector2(94, 94)
 	next_avatar_btn.add_theme_font_override("font", preload("res://assets/fonts/app_font_bold.tres"))
-	next_avatar_btn.add_theme_font_size_override("font_size", 32)
+	next_avatar_btn.add_theme_font_size_override("font_size", 36)
 	next_avatar_btn.add_theme_stylebox_override("normal", arrow_style)
 	next_avatar_btn.add_theme_stylebox_override("hover", arrow_hover)
 	next_avatar_btn.add_theme_stylebox_override("pressed", arrow_hover)
@@ -19741,7 +19741,7 @@ func _configure_creation() -> void:
 	creation_avatar_desc.name = "AvatarDescLabel"
 	creation_avatar_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	creation_avatar_desc.add_theme_color_override("font_color", Color("#bae6fd"))
-	creation_avatar_desc.add_theme_font_size_override("font_size", 26)
+	creation_avatar_desc.add_theme_font_size_override("font_size", 30)
 	content.add_child(creation_avatar_desc)
 	content.move_child(creation_avatar_desc, avatar_row.get_index() + 1)
 
@@ -19825,13 +19825,13 @@ func _update_creation_theme() -> void:
 			if child is Label:
 				if child.name == "NewGameTitle":
 					child.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#00f0ff"))
-					child.add_theme_font_size_override("font_size", 42)
+					child.add_theme_font_size_override("font_size", 46)
 				elif child == validation_label:
 					child.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#f87171"))
-					child.add_theme_font_size_override("font_size", 26)
+					child.add_theme_font_size_override("font_size", 30)
 				else:
 					child.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#bae6fd"))
-					child.add_theme_font_size_override("font_size", 28)
+					child.add_theme_font_size_override("font_size", 32)
 
 		if creation_avatar_desc != null and is_instance_valid(creation_avatar_desc):
 			creation_avatar_desc.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#bae6fd"))
@@ -19912,7 +19912,7 @@ func _update_creation_theme() -> void:
 			start_btn.add_theme_color_override("font_color", Color.WHITE)
 			start_btn.add_theme_color_override("font_hover_color", Color.WHITE)
 			start_btn.add_theme_color_override("font_pressed_color", Color.WHITE)
-			start_btn.add_theme_font_size_override("font_size", 34)
+			start_btn.add_theme_font_size_override("font_size", 38)
 
 	# Input field styling
 	var field_style := StyleBoxFlat.new()
@@ -19938,7 +19938,7 @@ func _update_creation_theme() -> void:
 			field.add_theme_stylebox_override("focus", field_focus)
 			field.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color.WHITE)
 			field.add_theme_color_override("font_hover_color", Color("#0f172a") if is_light else Color.WHITE)
-			field.add_theme_font_size_override("font_size", 30)
+			field.add_theme_font_size_override("font_size", 34)
 
 	if name_input != null and is_instance_valid(name_input):
 		name_input.add_theme_color_override("font_placeholder_color", Color("#64748b") if is_light else Color("#94a3b8"))
@@ -19977,7 +19977,7 @@ func _update_creation_theme() -> void:
 			g_hi.set_corner_radius_all(10)
 			gp.add_theme_stylebox_override("hover", g_hi)
 			gp.add_theme_font_override("font", gender_input.get_theme_font("font"))
-			gp.add_theme_font_size_override("font_size", 30)
+			gp.add_theme_font_size_override("font_size", 34)
 			gp.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#d9efff"))
 			gp.add_theme_color_override("font_hover_color", Color("#0284c7") if is_light else Color("#64e6ff"))
 			gp.add_theme_color_override("font_focus_color", Color("#0284c7") if is_light else Color("#64e6ff"))
@@ -20168,9 +20168,9 @@ func _configure_stat_bars() -> void:
 			label.add_theme_font_size_override("font_size", 26)
 
 	if grades_progress_bar != null:
-		grades_progress_bar.custom_minimum_size.y = 32
+		grades_progress_bar.custom_minimum_size.y = 36
 		grades_progress_bar.show_percentage = true
-		grades_progress_bar.add_theme_font_size_override("font_size", 22)
+		grades_progress_bar.add_theme_font_size_override("font_size", 26)
 		grades_progress_bar.add_theme_color_override("font_color", Color("#ffffff"))
 		grades_progress_bar.add_theme_color_override("font_outline_color", Color("#000000"))
 		grades_progress_bar.add_theme_constant_override("outline_size", 4)

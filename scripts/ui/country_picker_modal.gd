@@ -131,15 +131,15 @@ static func open(parent: Node, target_option_button: OptionButton = null, on_sel
 	title_lbl.text = custom_title
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#00f0ff"))
-	title_lbl.add_theme_font_size_override("font_size", 28)
+	title_lbl.add_theme_font_size_override("font_size", 32)
 	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	header.add_child(title_lbl)
 
 	var close_btn := Button.new()
 	close_btn.text = "✕"
-	close_btn.custom_minimum_size = Vector2(68, 58)
+	close_btn.custom_minimum_size = Vector2(80, 68)
 	close_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
-	close_btn.add_theme_font_size_override("font_size", 26)
+	close_btn.add_theme_font_size_override("font_size", 30)
 	close_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#ffffff"))
 	var close_sb := StyleBoxFlat.new()
 	close_sb.bg_color = Color("#e2e8f0") if is_light else Color("#1e293b")
@@ -154,7 +154,7 @@ static func open(parent: Node, target_option_button: OptionButton = null, on_sel
 	var sub_lbl := Label.new()
 	sub_lbl.text = "Select your country of origin from the global sovereign registry."
 	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-	sub_lbl.add_theme_font_size_override("font_size", 22)
+	sub_lbl.add_theme_font_size_override("font_size", 26)
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vbox.add_child(sub_lbl)
 
@@ -162,8 +162,8 @@ static func open(parent: Node, target_option_button: OptionButton = null, on_sel
 	var search_input := LineEdit.new()
 	search_input.name = "CountrySearchInput"
 	search_input.placeholder_text = "🔍 Search country..."
-	search_input.custom_minimum_size.y = 66
-	search_input.add_theme_font_size_override("font_size", 24)
+	search_input.custom_minimum_size.y = 78
+	search_input.add_theme_font_size_override("font_size", 28)
 	search_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_DEFAULT
 	search_input.virtual_keyboard_enabled = true
 
@@ -215,17 +215,17 @@ static func open(parent: Node, target_option_button: OptionButton = null, on_sel
 		var btn := Button.new()
 		btn.name = "Country_" + c_name.replace(" ", "_")
 		btn.text = "   " + c_name + ("  ✓" if is_selected else "")
-		btn.custom_minimum_size.y = 76
+		btn.custom_minimum_size.y = 90
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.add_theme_font_size_override("font_size", 26)
+		btn.add_theme_font_size_override("font_size", 30)
 		btn.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 
 		var flag_icon: Texture2D = CreationOptionsRef.flag_texture(col, row) if CreationOptionsRef != null else null
 		if flag_icon != null:
 			btn.icon = flag_icon
 			btn.expand_icon = true
-			btn.add_theme_constant_override("icon_max_width", 66)
+			btn.add_theme_constant_override("icon_max_width", 78)
 
 		# Styling
 		var sb_btn_normal := StyleBoxFlat.new()
