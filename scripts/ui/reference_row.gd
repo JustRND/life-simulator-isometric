@@ -290,7 +290,7 @@ func _sync() -> void:
 	var accent_ink: Color
 	if target.has_meta("bank_standout"):
 		ink = Color("#065f46") if light else Color("#ecfdf5")
-		accent_ink = Color("#059669") if light else Color("#34d399")
+		accent_ink = Color("#047857") if light else Color("#34d399")
 		secondary = accent_ink
 		if target.disabled:
 			ink = Color(0.2, 0.4, 0.3, 0.6)

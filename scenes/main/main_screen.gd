@@ -7495,6 +7495,8 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	for child in list.get_children():
 		child.queue_free()
 
+	var is_light: bool = LifeLibrary.data.theme == "light"
+
 	if PlayerData.has_partner():
 		var warn_card := PanelContainer.new()
 		warn_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
@@ -7514,7 +7516,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 		wtitle.custom_minimum_size = Vector2(1, 0)
 		wtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		wtitle.add_theme_font_size_override("font_size", 30)
-		wtitle.add_theme_color_override("font_color", Color("#fbbf24"))
+		wtitle.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		wv.add_child(wtitle)
 
 		var wdesc := Label.new()
@@ -7525,7 +7527,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 		wdesc.custom_minimum_size = Vector2(1, 0)
 		wdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		wdesc.add_theme_font_size_override("font_size", 28)
-		wdesc.add_theme_color_override("font_color", Color("#f1f5f9"))
+		wdesc.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
 		wv.add_child(wdesc)
 
 		list.add_child(warn_card)
@@ -7550,6 +7552,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 	# Avatar & Primary Info Row
 	var ph := HBoxContainer.new()
+	ph.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ph.add_theme_constant_override("separation", 24)
 	pv.add_child(ph)
 
@@ -7574,7 +7577,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	name_lbl.custom_minimum_size = Vector2(1, 0)
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_lbl.add_theme_font_size_override("font_size", 42)
-	name_lbl.add_theme_color_override("font_color", Color("#f43f5e"))
+	name_lbl.add_theme_color_override("font_color", Color("#e11d48") if is_light else Color("#f43f5e"))
 	info_vbox.add_child(name_lbl)
 	if not str(cand.get("nationality", "")).is_empty():
 		var nationality := Label.new()
@@ -7582,7 +7585,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 		nationality.custom_minimum_size = Vector2(1, 0)
 		nationality.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		nationality.add_theme_font_size_override("font_size", 30)
-		nationality.add_theme_color_override("font_color", Color("#aee4f5"))
+		nationality.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#aee4f5"))
 		info_vbox.add_child(nationality)
 
 	var match_lbl := Label.new()
@@ -7590,7 +7593,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	match_lbl.custom_minimum_size = Vector2(1, 0)
 	match_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	match_lbl.add_theme_font_size_override("font_size", 30)
-	match_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
+	match_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	info_vbox.add_child(match_lbl)
 
 	var job_lbl := Label.new()
@@ -7598,7 +7601,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	job_lbl.custom_minimum_size = Vector2(1, 0)
 	job_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	job_lbl.add_theme_font_size_override("font_size", 32)
-	job_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+	job_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	info_vbox.add_child(job_lbl)
 
 	var edu_lbl := Label.new()
@@ -7606,7 +7609,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	edu_lbl.custom_minimum_size = Vector2(1, 0)
 	edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	edu_lbl.add_theme_font_size_override("font_size", 28)
-	edu_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+	edu_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	info_vbox.add_child(edu_lbl)
 
 	var biz_str := NpcLifeProgress.get_business_display(cand)
@@ -7616,7 +7619,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 		biz_lbl.custom_minimum_size = Vector2(1, 0)
 		biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		biz_lbl.add_theme_font_size_override("font_size", 28)
-		biz_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
+		biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		info_vbox.add_child(biz_lbl)
 
 	# Hobbies Section
@@ -7625,7 +7628,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	hob_title.custom_minimum_size = Vector2(1, 0)
 	hob_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hob_title.add_theme_font_size_override("font_size", 28)
-	hob_title.add_theme_color_override("font_color", Color("#34d399"))
+	hob_title.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 	pv.add_child(hob_title)
 
 	var hobs: Array = cand["hobbies"]
@@ -7634,13 +7637,15 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	hob_lbl.custom_minimum_size = Vector2(1, 0)
 	hob_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hob_lbl.add_theme_font_size_override("font_size", 30)
-	hob_lbl.add_theme_color_override("font_color", Color("#ffffff"))
+	hob_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#ffffff"))
 	pv.add_child(hob_lbl)
 
 	# Bio Quote Box
 	var bio_box := PanelContainer.new()
 	var bio_style := StyleBoxFlat.new()
-	bio_style.bg_color = Color("#1e293b")
+	bio_style.bg_color = Color("#f1f5f9") if is_light else Color("#1e293b")
+	bio_style.border_color = Color("#cbd5e1") if is_light else Color("#334155")
+	bio_style.set_border_width_all(1)
 	bio_style.set_corner_radius_all(6)
 	bio_box.add_theme_stylebox_override("panel", bio_style)
 
@@ -7656,7 +7661,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	bio_lbl.custom_minimum_size = Vector2(1, 0)
 	bio_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bio_lbl.add_theme_font_size_override("font_size", 28)
-	bio_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+	bio_lbl.add_theme_color_override("font_color", Color("#1e293b") if is_light else Color("#cbd5e1"))
 	bm.add_child(bio_lbl)
 	pv.add_child(bio_box)
 
@@ -7679,7 +7684,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 		ll.custom_minimum_size = Vector2(1, 0)
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 31)
-		ll.add_theme_color_override("font_color", Color("#fbbf24"))
+		ll.add_theme_color_override("font_color", Color("#92400e") if is_light else Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
 
@@ -14330,7 +14335,7 @@ func _execute_meditation(p: Dictionary) -> bool:
 
 
 func _show_gym_modal() -> void:
-
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal := _refresh_cyber_modal(gym_modal_overlay, "🏋️ TITAN CYBER GYM & FITNESS", "Strength Training, Athletics, Aquatics & Annual Memberships", Color("#10b981"))
 	gym_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
@@ -14353,7 +14358,7 @@ func _show_gym_modal() -> void:
 	stat_title.text = "💪 PHYSICAL PROFILE & HEALTH VITALS"
 	stat_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stat_title.add_theme_font_size_override("font_size", 36)
-	stat_title.add_theme_color_override("font_color", Color("#34d399"))
+	stat_title.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 	sv.add_child(stat_title)
 
 	var vitals_lbl := Label.new()
@@ -14364,7 +14369,7 @@ func _show_gym_modal() -> void:
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vitals_lbl.add_theme_font_size_override("font_size", 33)
-	vitals_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+	vitals_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	sv.add_child(vitals_lbl)
 
 	var bank_lbl := Label.new()
@@ -14374,7 +14379,7 @@ func _show_gym_modal() -> void:
 	]
 	bank_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bank_lbl.add_theme_font_size_override("font_size", 31)
-	bank_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+	bank_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	sv.add_child(bank_lbl)
 
 	list.add_child(summary_card)
@@ -14398,29 +14403,27 @@ func _show_gym_modal() -> void:
 	mem_title.text = "💳 ALL-INCLUSIVE ANNUAL GYM MEMBERSHIP"
 	mem_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mem_title.add_theme_font_size_override("font_size", 36)
-	mem_title.add_theme_color_override("font_color", Color("#38bdf8"))
+	mem_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	mv.add_child(mem_title)
 
 	var mem_desc := Label.new()
 	if PlayerData.has_gym_membership:
 		mem_desc.text = "STATUS: ACTIVE MEMBER ✅\nAnnual Fee: $%d/year (automatically debited from your bank account every year).\nPERK: ALL gym visits, classes, weight rooms, and athletic tracks are 100%% FREE!" % PlayerData.gym_membership_annual_fee
-		mem_desc.add_theme_color_override("font_color", Color("#34d399"))
+		mem_desc.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
 	else:
 		mem_desc.text = "STATUS: NON-MEMBER ❌\nAnnual Fee: $%d/year (debited directly from your bank account yearly).\nBENEFIT: Unlocks 100%% FREE unlimited access to all workouts, swimming laps, spin classes, and boxing. Never pay individual day passes again!" % PlayerData.gym_membership_annual_fee
-		mem_desc.add_theme_color_override("font_color", Color("#e2e8f0"))
+		mem_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#e2e8f0"))
 	mem_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mem_desc.add_theme_font_size_override("font_size", 31)
 	mv.add_child(mem_desc)
 
 	if not PlayerData.has_gym_membership:
-		var buy_btn := _create_cyber_button("💳 ACTIVATE GYM MEMBERSHIP ($300/yr Auto-Debit)
-Start enjoying 100% free visits across all facilities", Color("#10b981"), func():
+		var buy_btn := _create_cyber_button("💳 ACTIVATE GYM MEMBERSHIP ($300/yr Auto-Debit)\nStart enjoying 100% free visits across all facilities", Color("#10b981"), func():
 			_purchase_gym_membership()
 		)
 		mv.add_child(buy_btn)
 	else:
-		var cancel_btn := _create_cyber_button("❌ CANCEL GYM MEMBERSHIP
-Stop annual auto-debit payments (Visits will revert to standard day-pass fees)", Color("#ef4444"), func():
+		var cancel_btn := _create_cyber_button("❌ CANCEL GYM MEMBERSHIP\nStop annual auto-debit payments (Visits will revert to standard day-pass fees)", Color("#ef4444"), func():
 			_cancel_gym_membership()
 		)
 		mv.add_child(cancel_btn)
@@ -14440,12 +14443,10 @@ Stop annual auto-debit payments (Visits will revert to standard day-pass fees)",
 		lock_banner.add_child(lm)
 
 		var ll := Label.new()
-		ll.text = "⏳ ANNUAL WORKOUT COMPLETED
-You have already pushed your limits at the gym for Age %d.
-To avoid muscle strain and allow adequate recovery, training options are locked until next year. Advance age (+1 Year) to train again!" % PlayerData.age
+		ll.text = "⏳ ANNUAL WORKOUT COMPLETED\nYou have already pushed your limits at the gym for Age %d.\nTo avoid muscle strain and allow adequate recovery, training options are locked until next year. Advance age (+1 Year) to train again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 28)
-		ll.add_theme_color_override("font_color", Color("#fbbf24"))
+		ll.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
 
@@ -14531,7 +14532,7 @@ To avoid muscle strain and allow adequate recovery, training options are locked 
 
 
 func _show_meditation_modal() -> void:
-
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal := _refresh_cyber_modal(meditation_modal_overlay, "🧘 NIRVANA MINDFULNESS & MEDITATION", "Breathwork, Yoga, Acoustic Sound Baths & Spiritual Healing", Color("#a855f7"))
 	meditation_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
@@ -14554,7 +14555,7 @@ func _show_meditation_modal() -> void:
 	stat_title.text = "🧘 MENTAL WELLNESS & SPIRITUAL ALIGNMENT"
 	stat_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stat_title.add_theme_font_size_override("font_size", 36)
-	stat_title.add_theme_color_override("font_color", Color("#c084fc"))
+	stat_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
 	sv.add_child(stat_title)
 
 	var mood_desc := "Serene & Blissful" if PlayerData.happiness >= 80 else ("Content" if PlayerData.happiness >= 60 else ("Stressed" if PlayerData.happiness >= 40 else "Depressed & Exhausted"))
@@ -14566,14 +14567,14 @@ func _show_meditation_modal() -> void:
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vitals_lbl.add_theme_font_size_override("font_size", 33)
-	vitals_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+	vitals_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	sv.add_child(vitals_lbl)
 
 	var benefit_lbl := Label.new()
 	benefit_lbl.text = "Mindfulness Impact: Regular meditation cleanses mental fatigue, sharpens focus, reduces existential anxiety, and brings deep spiritual clarity."
 	benefit_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	benefit_lbl.add_theme_font_size_override("font_size", 31)
-	benefit_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+	benefit_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	sv.add_child(benefit_lbl)
 
 	list.add_child(summary_card)
@@ -14594,7 +14595,7 @@ func _show_meditation_modal() -> void:
 		ll.text = "⏳ ANNUAL MINDFULNESS SESSION COMPLETED\nYou have already completed your meditation session for Age %d.\nMindfulness and meditation sessions are complete for this year. Advance age (+1 Year) to meditate again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 31)
-		ll.add_theme_color_override("font_color", Color("#fbbf24"))
+		ll.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
 
@@ -14683,7 +14684,7 @@ func _show_meditation_modal() -> void:
 
 
 func _show_mind_and_body_modal() -> void:
-
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal := _refresh_cyber_modal(mind_body_modal_overlay, "🧘 MIND & BODY WELLNESS", "Fitness, Grooming, Spa Rejuvenation & Mental Serenity", Color("#10b981"))
 	mind_body_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
@@ -14704,7 +14705,7 @@ func _show_mind_and_body_modal() -> void:
 	var stat_title := Label.new()
 	stat_title.text = "✨ WELLNESS & VITALITY PROFILE"
 	stat_title.add_theme_font_size_override("font_size", 36)
-	stat_title.add_theme_color_override("font_color", Color("#34d399"))
+	stat_title.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 	sv.add_child(stat_title)
 
 	var vitals_lbl := Label.new()
@@ -14716,7 +14717,7 @@ func _show_mind_and_body_modal() -> void:
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vitals_lbl.add_theme_font_size_override("font_size", 32)
-	vitals_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+	vitals_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	sv.add_child(vitals_lbl)
 
 	list.add_child(summary_card)
@@ -14775,6 +14776,7 @@ func _show_salon_modal() -> void:
 	sv.add_theme_constant_override("separation", 10)
 	sm.add_child(sv)
 
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var profile_lbl := Label.new()
 	profile_lbl.text = "✨ Current Looks: %d%%   •   😊 Happiness: %d%%   •   💵 Funds: $%s" % [
 		PlayerData.looks,
@@ -14783,7 +14785,7 @@ func _show_salon_modal() -> void:
 	]
 	profile_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	profile_lbl.add_theme_font_size_override("font_size", 32)
-	profile_lbl.add_theme_color_override("font_color", Color("#fdf2f8"))
+	profile_lbl.add_theme_color_override("font_color", Color("#9d174d") if is_light else Color("#fdf2f8"))
 	sv.add_child(profile_lbl)
 	list.add_child(summary_card)
 
@@ -14802,7 +14804,7 @@ func _show_salon_modal() -> void:
 		ll.text = "⏳ ANNUAL SALON VISIT COMPLETED\nYou have already received styling and grooming services for Age %d.\nStyling and aesthetic pampering are complete for this year. Advance age (+1 Year) to visit the salon again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 31)
-		ll.add_theme_color_override("font_color", Color("#fbbf24"))
+		ll.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
 
@@ -14864,6 +14866,7 @@ func _show_spa_modal() -> void:
 	sv.add_theme_constant_override("separation", 10)
 	sm.add_child(sv)
 
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var profile_lbl := Label.new()
 	profile_lbl.text = "❤️ Health: %d%%   •   😊 Happiness: %d%%   •   💵 Funds: $%s" % [
 		PlayerData.health,
@@ -14872,7 +14875,7 @@ func _show_spa_modal() -> void:
 	]
 	profile_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	profile_lbl.add_theme_font_size_override("font_size", 32)
-	profile_lbl.add_theme_color_override("font_color", Color("#ecfeff"))
+	profile_lbl.add_theme_color_override("font_color", Color("#0e7490") if is_light else Color("#ecfeff"))
 	sv.add_child(profile_lbl)
 	list.add_child(summary_card)
 
@@ -14891,7 +14894,7 @@ func _show_spa_modal() -> void:
 		ll.text = "⏳ ANNUAL SPA RETREAT COMPLETED\nYou have already enjoyed luxury spa therapy for Age %d.\nHydrotherapy, thermal soaks, and massages are complete for this year. Advance age (+1 Year) to visit the spa again!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 31)
-		ll.add_theme_color_override("font_color", Color("#fbbf24"))
+		ll.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
 
@@ -14941,6 +14944,7 @@ func _show_mental_institution_hub_modal() -> void:
 	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "🏥 MENTAL INSTITUTION & PSYCHIATRIC CARE", "Psychological Consultations, Clinical Psychiatry & Inpatient Commitment", Color("#8b5cf6"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var summary_card := PanelContainer.new()
 	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
@@ -14958,26 +14962,26 @@ func _show_mental_institution_hub_modal() -> void:
 	var title_lbl := Label.new()
 	title_lbl.text = "🧘 PSYCHOLOGICAL & NEURAL PROFILE"
 	title_lbl.add_theme_font_size_override("font_size", 34)
-	title_lbl.add_theme_color_override("font_color", Color("#c4b5fd"))
+	title_lbl.add_theme_color_override("font_color", Color("#6d28d9") if is_light else Color("#c4b5fd"))
 	sv.add_child(title_lbl)
 
 	var eval_text := ""
-	var eval_color := Color("#c4b5fd")
+	var eval_color := Color("#6d28d9") if is_light else Color("#c4b5fd")
 	if PlayerData.mental_state >= 80:
 		eval_text = "🌟 Flourishing & Resilient: Your psyche is grounded, calm, and clear."
-		eval_color = Color("#34d399")
+		eval_color = Color("#059669") if is_light else Color("#34d399")
 	elif PlayerData.mental_state >= 60:
 		eval_text = "⚖️ Stable Equilibrium: Coping adequately with minor emotional stresses."
-		eval_color = Color("#38bdf8")
+		eval_color = Color("#0284c7") if is_light else Color("#38bdf8")
 	elif PlayerData.mental_state >= 40:
 		eval_text = "⚠️ Vulnerable & Fatigued: Internal stress is accumulating. Therapy or consultation recommended."
-		eval_color = Color("#fbbf24")
+		eval_color = Color("#b45309") if is_light else Color("#fbbf24")
 	elif PlayerData.mental_state >= 20:
 		eval_text = "🚨 Severely Depressed & Distressed: High acute strain. Clinical psychiatry or therapy advised."
-		eval_color = Color("#f87171")
+		eval_color = Color("#dc2626") if is_light else Color("#f87171")
 	else:
 		eval_text = "⚡ Acute Psychological Crisis: Critical breakdown. Voluntary inpatient admission strongly urged."
-		eval_color = Color("#ef4444")
+		eval_color = Color("#b91c1c") if is_light else Color("#ef4444")
 
 	var status_lbl := Label.new()
 	status_lbl.text = "Mental State: %d%%  —  %s" % [PlayerData.mental_state, eval_text]
@@ -14995,13 +14999,13 @@ func _show_mental_institution_hub_modal() -> void:
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vitals_lbl.add_theme_font_size_override("font_size", 28)
-	vitals_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+	vitals_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	sv.add_child(vitals_lbl)
 
 	var funds_lbl := Label.new()
 	funds_lbl.text = "💳 Available Capital: $%s" % _format_number(PlayerData.get_available_funds())
 	funds_lbl.add_theme_font_size_override("font_size", 28)
-	funds_lbl.add_theme_color_override("font_color", Color("#f0fdf4"))
+	funds_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#f0fdf4"))
 	sv.add_child(funds_lbl)
 
 	list.add_child(summary_card)
@@ -15038,6 +15042,7 @@ func _show_psychologist_modal() -> void:
 	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "🧠 CLINICAL PSYCHOLOGIST", "Therapeutic Consultations & Evidence-Based Cognitive Restructuring", Color("#38bdf8"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var return_btn := _create_cyber_button("↩ Return to Mental Health Hub", Color("#64748b"), func():
 		mental_institution_modal_overlay.queue_free()
@@ -15055,7 +15060,7 @@ func _show_psychologist_modal() -> void:
 	]
 	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_lbl.add_theme_font_size_override("font_size", 29)
-	info_lbl.add_theme_color_override("font_color", Color("#bae6fd"))
+	info_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#bae6fd"))
 	list.add_child(info_lbl)
 
 	var treatments := [
@@ -15123,6 +15128,7 @@ func _show_psychiatrist_modal() -> void:
 	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "💊 CLINICAL PSYCHIATRIST", "Neurochemical Evaluations & Clinical Psychiatric Regimens", Color("#ec4899"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var return_btn := _create_cyber_button("↩ Return to Mental Health Hub", Color("#64748b"), func():
 		mental_institution_modal_overlay.queue_free()
@@ -15140,7 +15146,7 @@ func _show_psychiatrist_modal() -> void:
 	]
 	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_lbl.add_theme_font_size_override("font_size", 29)
-	info_lbl.add_theme_color_override("font_color", Color("#fbcfe8"))
+	info_lbl.add_theme_color_override("font_color", Color("#be185d") if is_light else Color("#fbcfe8"))
 	list.add_child(info_lbl)
 
 	var meds := [
@@ -15207,6 +15213,7 @@ func _show_asylum_commitment_modal() -> void:
 	var modal := _refresh_cyber_modal(mental_institution_modal_overlay, "🏥 ASYLUM VOLUNTARY COMMITMENT", "St. Jude Psychiatric Institution - Inpatient Program", Color("#e11d48"))
 	mental_institution_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var notice_card := PanelContainer.new()
 	notice_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#e11d48")))
@@ -15224,7 +15231,7 @@ func _show_asylum_commitment_modal() -> void:
 	var warn_title := Label.new()
 	warn_title.text = "⚠️ ADMISSION DISCLAIMER & INPATIENT SPECIFICATIONS ⚠️"
 	warn_title.add_theme_font_size_override("font_size", 32)
-	warn_title.add_theme_color_override("font_color", Color("#fda4af"))
+	warn_title.add_theme_color_override("font_color", Color("#be123c") if is_light else Color("#fda4af"))
 	nv.add_child(warn_title)
 
 	var disc_text := Label.new()
@@ -15240,7 +15247,7 @@ func _show_asylum_commitment_modal() -> void:
 		"  Intensive medical therapy, psychiatric stability, and calm routine restore +25% Mental State per year."
 	disc_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	disc_text.add_theme_font_size_override("font_size", 29)
-	disc_text.add_theme_color_override("font_color", Color("#f8fafc"))
+	disc_text.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	nv.add_child(disc_text)
 
 	var current_status := Label.new()
@@ -15249,7 +15256,7 @@ func _show_asylum_commitment_modal() -> void:
 		_format_number(PlayerData.get_available_funds())
 	]
 	current_status.add_theme_font_size_override("font_size", 28)
-	current_status.add_theme_color_override("font_color", Color("#fbbf24"))
+	current_status.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	nv.add_child(current_status)
 
 	list.add_child(notice_card)
@@ -15449,6 +15456,7 @@ func _show_social_media_modal() -> void:
 	var modal := _refresh_cyber_modal(social_media_modal_overlay, "📱 SOCIAL MEDIA & CONTENT CREATION", "Manage Online Presence, Go Viral, Build Fanbases & Monetize", Color("#38bdf8"))
 	social_media_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var summary_card := PanelContainer.new()
 	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
@@ -15479,7 +15487,7 @@ func _show_social_media_modal() -> void:
 	]
 	stat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	stat_lbl.add_theme_font_size_override("font_size", 32)
-	stat_lbl.add_theme_color_override("font_color", Color("#f0f9ff"))
+	stat_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#f0f9ff"))
 	sv.add_child(stat_lbl)
 	list.add_child(summary_card)
 
@@ -15517,7 +15525,7 @@ func _show_social_media_modal() -> void:
 			d_lbl.text = "%s (Tracks %s)" % [p_desc, metric]
 			d_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			d_lbl.add_theme_font_size_override("font_size", 28)
-			d_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+			d_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 			cv.add_child(d_lbl)
 
 			var btn_create := _create_cyber_button("Launch New %s Account" % p_name, p_color, func():
@@ -15560,7 +15568,7 @@ func _show_social_media_modal() -> void:
 			]
 			stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			stats_lbl.add_theme_font_size_override("font_size", 30)
-			stats_lbl.add_theme_color_override("font_color", Color("#4ade80"))
+			stats_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 			cv.add_child(stats_lbl)
 
 			var act_grid := GridContainer.new()
@@ -15707,7 +15715,7 @@ func _show_pet_adoption_modal() -> void:
 		ll.text = "⏳ ANNUAL PET ADOPTION COMPLETED\nYou have already adopted a companion pet for Age %d.\nGive your new companion time to settle into their home. Advance age (+1 Year) to adopt another pet!" % PlayerData.age
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 31)
-		ll.add_theme_color_override("font_color", Color("#fbbf24"))
+		ll.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		lm.add_child(ll)
 		list.add_child(lock_banner)
 
@@ -16287,6 +16295,7 @@ func _show_will_modal() -> void:
 	var modal := _refresh_cyber_modal(will_modal_overlay, "⚖️ LAST WILL & TESTAMENT", "Estate Planning, Asset Distribution & Inheritance Beneficiaries", Color("#f59e0b"))
 	will_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	var summary_card := PanelContainer.new()
 	summary_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
@@ -16316,7 +16325,7 @@ func _show_will_modal() -> void:
 	]
 	val_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	val_lbl.add_theme_font_size_override("font_size", 32)
-	val_lbl.add_theme_color_override("font_color", Color("#fef3c7"))
+	val_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#fef3c7"))
 	sv.add_child(val_lbl)
 
 	var cur_beneficiary: String = PlayerData.get("will_recipient")
@@ -16333,7 +16342,7 @@ func _show_will_modal() -> void:
 	var cur_lbl := Label.new()
 	cur_lbl.text = "📜 Current Active Beneficiary: %s" % cur_name
 	cur_lbl.add_theme_font_size_override("font_size", 32)
-	cur_lbl.add_theme_color_override("font_color", Color("#34d399"))
+	cur_lbl.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
 	sv.add_child(cur_lbl)
 	list.add_child(summary_card)
 
@@ -16392,7 +16401,7 @@ func _show_will_modal() -> void:
 
 
 func _show_charity_modal() -> void:
-
+	var is_light: bool = LifeLibrary.data.theme == "light"
 	var modal := _refresh_cyber_modal(charity_modal_overlay, "🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Boost Karma & Happiness (Once Per Year)", Color("#10b981"))
 	charity_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
@@ -16420,7 +16429,7 @@ func _show_charity_modal() -> void:
 	]
 	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	funds_lbl.add_theme_font_size_override("font_size", 32)
-	funds_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
+	funds_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(funds_lbl)
 
 	# Vitals and Spiritual State (Karma numbers are strictly HIDDEN)
@@ -16441,7 +16450,7 @@ func _show_charity_modal() -> void:
 	]
 	vitals_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	vitals_lbl.add_theme_font_size_override("font_size", 31)
-	vitals_lbl.add_theme_color_override("font_color", Color("#a7f3d0"))
+	vitals_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#a7f3d0"))
 	sv.add_child(vitals_lbl)
 
 	if PlayerData.total_donated_charity > 0:
@@ -16452,7 +16461,7 @@ func _show_charity_modal() -> void:
 		]
 		stat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		stat_lbl.add_theme_font_size_override("font_size", 29)
-		stat_lbl.add_theme_color_override("font_color", Color("#fde047"))
+		stat_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fde047"))
 		sv.add_child(stat_lbl)
 
 	list.add_child(summary_card)
@@ -16468,14 +16477,7 @@ func _show_charity_modal() -> void:
 		var hap_gain: int = int(c.get("happiness_boost", 15))
 
 		var card := PanelContainer.new()
-		var card_style := StyleBoxFlat.new()
-		card_style.bg_color = Color("#071318")
-		card_style.border_color = Color("#059669")
-		card_style.set_border_width_all(2)
-		card_style.set_corner_radius_all(14)
-		card_style.shadow_color = Color(0, 0, 0, 0.45)
-		card_style.shadow_size = 6
-		card.add_theme_stylebox_override("panel", card_style)
+		card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#059669")))
 		list.add_child(card)
 
 		var cm := MarginContainer.new()
@@ -16498,14 +16500,14 @@ func _show_charity_modal() -> void:
 		name_lbl.text = "%s %s" % [c_icon, c_name]
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		name_lbl.add_theme_font_size_override("font_size", 33)
-		name_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+		name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		top_row.add_child(name_lbl)
 
 		var amt_lbl := Label.new()
 		amt_lbl.text = "$%s" % _format_number(amount)
 		amt_lbl.add_theme_font_size_override("font_size", 36)
-		amt_lbl.add_theme_color_override("font_color", Color("#34d399"))
+		amt_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 		amt_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		top_row.add_child(amt_lbl)
 
@@ -16514,7 +16516,7 @@ func _show_charity_modal() -> void:
 		desc_lbl.text = desc
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc_lbl.add_theme_font_size_override("font_size", 28)
-		desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+		desc_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
 		# Spiritual Impact row (Karma & Happiness boosts, NO permanent blessings)
@@ -16526,7 +16528,7 @@ func _show_charity_modal() -> void:
 		karma_lbl.text = "💫 Spiritual Impact: Elevates your karma and boosts happiness (+%d%% Happiness)." % hap_gain
 		karma_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		karma_lbl.add_theme_font_size_override("font_size", 27)
-		karma_lbl.add_theme_color_override("font_color", Color("#a7f3d0"))
+		karma_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#a7f3d0"))
 		perk_box.add_child(karma_lbl)
 
 		# Button / Gating
@@ -16607,29 +16609,33 @@ func _show_finance_hub_modal() -> void:
 	var savings_bal: int = int(PlayerData.savings_account.get("balance", 0))
 	var net_worth: int = PlayerData.get_net_worth()
 
-	var stats_grid := GridContainer.new()
-	stats_grid.columns = 2
-	stats_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stats_grid.add_theme_constant_override("h_separation", 24)
-	stats_grid.add_theme_constant_override("v_separation", 8)
-	sv.add_child(stats_grid)
+	var stats_vbox := VBoxContainer.new()
+	stats_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stats_vbox.add_theme_constant_override("separation", 10)
+	sv.add_child(stats_vbox)
 
 	var _add_stat_row = func(label_text: String, value_text: String, val_color: Color):
+		var row := HBoxContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_theme_constant_override("separation", 16)
+
 		var lbl_name := Label.new()
 		lbl_name.text = label_text
-		lbl_name.custom_minimum_size = Vector2(1, 0)
+		lbl_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		lbl_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lbl_name.add_theme_font_size_override("font_size", 28)
 		lbl_name.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
-		stats_grid.add_child(lbl_name)
+		row.add_child(lbl_name)
 
 		var lbl_val := Label.new()
 		lbl_val.text = value_text
-		lbl_val.custom_minimum_size = Vector2(1, 0)
-		lbl_val.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		lbl_val.size_flags_horizontal = Control.SIZE_SHRINK_END
+		lbl_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		lbl_val.add_theme_font_size_override("font_size", 28)
 		lbl_val.add_theme_color_override("font_color", val_color)
-		stats_grid.add_child(lbl_val)
+		row.add_child(lbl_val)
+
+		stats_vbox.add_child(row)
 
 	_add_stat_row.call("Liquid Funds (Cash + Bank):", "$%s" % _format_number(liquid_total), Color("#0f172a") if is_light else Color("#f8fafc"))
 	_add_stat_row.call("Public Equities Value:", "$%s" % _format_number(equities_val), Color("#0284c7") if is_light else Color("#38bdf8"))
@@ -16965,7 +16971,8 @@ func _show_crypto_exchange_modal() -> void:
 	var pnl_lbl := Label.new()
 	var pnl_sign := "+" if pnl_val >= 0.0 else ""
 	pnl_lbl.text = "Net P&L: %s$%s (%s%.2f%%)" % [pnl_sign, _format_number(int(round(pnl_val))), pnl_sign, pnl_pct]
-	pnl_lbl.custom_minimum_size = Vector2(1, 0)
+	pnl_lbl.size_flags_horizontal = Control.SIZE_SHRINK_END
+	pnl_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	pnl_lbl.add_theme_font_size_override("font_size", 28)
 	pnl_lbl.add_theme_color_override("font_color", Color("#16a34a" if is_light else "#22c55e") if pnl_val >= 0.0 else Color("#dc2626" if is_light else "#f43f5e"))
 	val_row.add_child(pnl_lbl)
@@ -17469,28 +17476,33 @@ func _show_pension_account_modal() -> void:
 	bal_val.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
 	ov.add_child(bal_val)
 
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 20)
-	grid.add_theme_constant_override("v_separation", 6)
-	ov.add_child(grid)
+	var rows_vbox := VBoxContainer.new()
+	rows_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows_vbox.add_theme_constant_override("separation", 8)
+	ov.add_child(rows_vbox)
 
 	var _add_row = func(k: String, v: String, c: Color):
+		var row := HBoxContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_theme_constant_override("separation", 16)
+
 		var kl := Label.new()
 		kl.text = k
-		kl.custom_minimum_size = Vector2(1, 0)
+		kl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		kl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		kl.add_theme_font_size_override("font_size", 25)
 		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		grid.add_child(kl)
+		row.add_child(kl)
+
 		var vl := Label.new()
 		vl.text = v
-		vl.custom_minimum_size = Vector2(1, 0)
-		vl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vl.size_flags_horizontal = Control.SIZE_SHRINK_END
+		vl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		vl.add_theme_font_size_override("font_size", 25)
 		vl.add_theme_color_override("font_color", c)
-		grid.add_child(vl)
+		row.add_child(vl)
+
+		rows_vbox.add_child(row)
 
 	_add_row.call("Compounding Growth:", "6.5% APR Annual Return", Color("#15803d") if is_light else Color("#4ade80"))
 	_add_row.call("Total Contributed:", "$%s" % _format_number(p_contributed), Color("#0f172a") if is_light else Color("#f8fafc"))
@@ -17857,28 +17869,33 @@ func _show_savings_account_modal() -> void:
 	bal_val.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 	ov.add_child(bal_val)
 
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 20)
-	grid.add_theme_constant_override("v_separation", 6)
-	ov.add_child(grid)
+	var rows_vbox := VBoxContainer.new()
+	rows_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows_vbox.add_theme_constant_override("separation", 8)
+	ov.add_child(rows_vbox)
 
 	var _add_row = func(k: String, v: String, c: Color):
+		var row := HBoxContainer.new()
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_theme_constant_override("separation", 16)
+
 		var kl := Label.new()
 		kl.text = k
-		kl.custom_minimum_size = Vector2(1, 0)
+		kl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		kl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		kl.add_theme_font_size_override("font_size", 25)
 		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		grid.add_child(kl)
+		row.add_child(kl)
+
 		var vl := Label.new()
 		vl.text = v
-		vl.custom_minimum_size = Vector2(1, 0)
-		vl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		vl.size_flags_horizontal = Control.SIZE_SHRINK_END
+		vl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		vl.add_theme_font_size_override("font_size", 25)
 		vl.add_theme_color_override("font_color", c)
-		grid.add_child(vl)
+		row.add_child(vl)
+
+		rows_vbox.add_child(row)
 
 	_add_row.call("Annual APY Return:", "4.2% APY Compounding", Color("#15803d") if is_light else Color("#4ade80"))
 	_add_row.call("Est. Next Year Yield:", "+$%s" % _format_number(next_year_est), Color("#0284c7") if is_light else Color("#38bdf8"))
@@ -19032,6 +19049,7 @@ func _show_casino_modal() -> void:
 	casino_modal_overlay = modal.overlay
 	casino_subtitle_lbl = modal.subtitle
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	# GAME 1: Cyber Scratchcard ($25)
 	var card_scratch := PanelContainer.new()
@@ -19052,7 +19070,7 @@ func _show_casino_modal() -> void:
 	scratch_title.custom_minimum_size = Vector2(1, 0)
 	scratch_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	scratch_title.add_theme_font_size_override("font_size", 34)
-	scratch_title.add_theme_color_override("font_color", Color("#fbbf24"))
+	scratch_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	v_scratch.add_child(scratch_title)
 
 	casino_scratch_result_lbl = Label.new()
@@ -19060,7 +19078,7 @@ func _show_casino_modal() -> void:
 	casino_scratch_result_lbl.custom_minimum_size = Vector2(1, 0)
 	casino_scratch_result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	casino_scratch_result_lbl.add_theme_font_size_override("font_size", 30)
-	casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+	casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	v_scratch.add_child(casino_scratch_result_lbl)
 
 	casino_scratch_btn = _create_cyber_button("🎟️ Scratch Ticket ($25)", Color("#f59e0b"), func():
@@ -19124,14 +19142,14 @@ func _show_casino_modal() -> void:
 	slots_title.custom_minimum_size = Vector2(1, 0)
 	slots_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	slots_title.add_theme_font_size_override("font_size", 34)
-	slots_title.add_theme_color_override("font_color", Color("#fbbf24"))
+	slots_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	v_slots.add_child(slots_title)
 
 	casino_slots_display_lbl = Label.new()
 	casino_slots_display_lbl.text = "[ 🎰 | 🎰 | 🎰 ]"
 	casino_slots_display_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	casino_slots_display_lbl.add_theme_font_size_override("font_size", 50)
-	casino_slots_display_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
+	casino_slots_display_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	v_slots.add_child(casino_slots_display_lbl)
 
 	casino_slots_result_lbl = Label.new()
@@ -19139,7 +19157,7 @@ func _show_casino_modal() -> void:
 	casino_slots_result_lbl.custom_minimum_size = Vector2(1, 0)
 	casino_slots_result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	casino_slots_result_lbl.add_theme_font_size_override("font_size", 28)
-	casino_slots_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+	casino_slots_result_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	v_slots.add_child(casino_slots_result_lbl)
 
 	casino_slots_btn = _create_cyber_button("🎰 Spin Reels ($50)", Color("#f59e0b"), func():
@@ -19221,14 +19239,14 @@ func _show_casino_modal() -> void:
 	dice_title.custom_minimum_size = Vector2(1, 0)
 	dice_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dice_title.add_theme_font_size_override("font_size", 34)
-	dice_title.add_theme_color_override("font_color", Color("#fbbf24"))
+	dice_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	v_dice.add_child(dice_title)
 
 	casino_dice_display_lbl = Label.new()
 	casino_dice_display_lbl.text = "🎲 [ ? ] + 🎲 [ ? ] = ?"
 	casino_dice_display_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	casino_dice_display_lbl.add_theme_font_size_override("font_size", 46)
-	casino_dice_display_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
+	casino_dice_display_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	v_dice.add_child(casino_dice_display_lbl)
 
 	casino_dice_result_lbl = Label.new()
@@ -19236,7 +19254,7 @@ func _show_casino_modal() -> void:
 	casino_dice_result_lbl.custom_minimum_size = Vector2(1, 0)
 	casino_dice_result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	casino_dice_result_lbl.add_theme_font_size_override("font_size", 29)
-	casino_dice_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+	casino_dice_result_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	v_dice.add_child(casino_dice_result_lbl)
 
 	# Bet Amount Selector Row
@@ -19879,6 +19897,7 @@ func _show_inheritance_selection_modal() -> void:
 
 	var modal := _create_cyber_modal("📜 ESTATE INHERITANCE & SUCCESSION", "Net Worth: $%s  •  Select an heir to continue lineage" % _format_number(PlayerData.get_net_worth()), Color("#eab308"))
 	var list: VBoxContainer = modal.list
+	var is_light: bool = LifeLibrary.data.theme == "light"
 
 	# Estate Asset Breakdown Card
 	var crypto_val: int = CryptoMarket.portfolio_value(PlayerData)
@@ -19905,7 +19924,7 @@ func _show_inheritance_selection_modal() -> void:
 	var e_title := Label.new()
 	e_title.text = "🏛️ TOTAL BEQUEATHABLE ESTATE BREAKDOWN"
 	e_title.add_theme_font_size_override("font_size", 29)
-	e_title.add_theme_color_override("font_color", Color("#38bdf8"))
+	e_title.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
 	e_vbox.add_child(e_title)
 
 	var prop_val: int = PlayerData.get_total_asset_value()
@@ -19930,13 +19949,13 @@ func _show_inheritance_selection_modal() -> void:
 	var e_details := Label.new()
 	e_details.text = "\n".join(breakdown_lines)
 	e_details.add_theme_font_size_override("font_size", 26)
-	e_details.add_theme_color_override("font_color", Color("#e2e8f0"))
+	e_details.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#e2e8f0"))
 	e_vbox.add_child(e_details)
 
 	var e_note := Label.new()
 	e_note.text = "Cryptocurrency token holdings, properties, and business equity will be transferred directly to your chosen heir intact."
 	e_note.add_theme_font_size_override("font_size", 24)
-	e_note.add_theme_color_override("font_color", Color("#94a3b8"))
+	e_note.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	e_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	e_vbox.add_child(e_note)
 
@@ -19966,7 +19985,7 @@ func _show_inheritance_selection_modal() -> void:
 		empty_lbl.text = "You have no surviving partner, children, or siblings to bequeath your estate to."
 		empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty_lbl.add_theme_font_size_override("font_size", 30)
-		empty_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		list.add_child(empty_lbl)
 
 	for heir in heirs:
@@ -20011,14 +20030,14 @@ func _show_inheritance_selection_modal() -> void:
 		var name_lbl := Label.new()
 		if is_partner:
 			name_lbl.text = "%s (%s, Age %d)" % [h_name, PlayerData.get_partner_status(), h_age]
-			name_lbl.add_theme_color_override("font_color", Color("#f43f5e"))
+			name_lbl.add_theme_color_override("font_color", Color("#e11d48") if is_light else Color("#f43f5e"))
 		elif is_sibling:
 			var s_rel: String = str(heir.get("relation", "Sibling"))
 			name_lbl.text = "%s (%s, Age %d)" % [h_name, s_rel, h_age]
-			name_lbl.add_theme_color_override("font_color", Color("#818cf8"))
+			name_lbl.add_theme_color_override("font_color", Color("#4338ca") if is_light else Color("#818cf8"))
 		else:
 			name_lbl.text = "%s (%s, Age %d)" % [h_name, "Daughter" if h_gender == "FEMALE" else "Son", h_age]
-			name_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
+			name_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 		name_lbl.add_theme_font_size_override("font_size", 32)
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(name_lbl)
@@ -20026,14 +20045,14 @@ func _show_inheritance_selection_modal() -> void:
 		var occ_lbl := Label.new()
 		occ_lbl.text = NpcLifeProgress.get_occupation_display(heir)
 		occ_lbl.add_theme_font_size_override("font_size", 28)
-		occ_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
+		occ_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		occ_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(occ_lbl)
 
 		var edu_lbl := Label.new()
 		edu_lbl.text = NpcLifeProgress.get_education_display(heir)
 		edu_lbl.add_theme_font_size_override("font_size", 27)
-		edu_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+		edu_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(edu_lbl)
 
@@ -20042,14 +20061,14 @@ func _show_inheritance_selection_modal() -> void:
 			var biz_lbl := Label.new()
 			biz_lbl.text = biz_str
 			biz_lbl.add_theme_font_size_override("font_size", 27)
-			biz_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
+			biz_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 			biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			info_v.add_child(biz_lbl)
 
 		var wealth_lbl := Label.new()
 		wealth_lbl.text = NpcLifeProgress.get_finances_display(heir)
 		wealth_lbl.add_theme_font_size_override("font_size", 27)
-		wealth_lbl.add_theme_color_override("font_color", Color("#34d399"))
+		wealth_lbl.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
 		wealth_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		info_v.add_child(wealth_lbl)
 
@@ -20057,7 +20076,7 @@ func _show_inheritance_selection_modal() -> void:
 		var rel_target := "partner" if is_partner else ("sibling" if is_sibling else "parent")
 		rel_lbl.text = "Relationship with late %s: %d%%" % [rel_target, h_rel]
 		rel_lbl.add_theme_font_size_override("font_size", 26)
-		rel_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+		rel_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		info_v.add_child(rel_lbl)
 
 		var pick_btn := Button.new()

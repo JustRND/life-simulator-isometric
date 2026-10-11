@@ -229,6 +229,9 @@ func _exchange(list: VBoxContainer) -> void:
 	reg_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	var avg_badge := label(r_top, "Exchange Avg: %s%.1f%%" % ["+" if is_mkt_up else "", avg_change], 22, Color(reg_info.get("color", Color("#10b981"))))
+	avg_badge.autowrap_mode = TextServer.AUTOWRAP_OFF
+	avg_badge.custom_minimum_size = Vector2(0, 0)
+	avg_badge.size_flags_horizontal = Control.SIZE_SHRINK_END
 
 	label(rv, str(reg_info.get("desc", "")), 19, Color("#334155" if is_light else "#cbd5e1"))
 
@@ -336,8 +339,7 @@ func _exchange(list: VBoxContainer) -> void:
 
 		var trend_lbl := Label.new()
 		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
-		trend_lbl.custom_minimum_size = Vector2(1, 0)
-		trend_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		trend_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
 		trend_lbl.add_theme_font_size_override("font_size", 29)
 		var text_col: Color
 		if is_crash:
