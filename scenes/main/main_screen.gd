@@ -4001,7 +4001,11 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		row_name_price.add_child(item_name_lbl)
 
 		var price_label := Label.new()
+		price_label.name = "MarketplacePrice"
+		price_label.set_meta("keep_horizontal_text", true)
 		price_label.text = "$%s" % _format_number(price)
+		price_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+		price_label.size_flags_horizontal = Control.SIZE_SHRINK_END
 		price_label.add_theme_font_size_override("font_size", 38)
 		price_label.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		price_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -4044,7 +4048,11 @@ func _open_asset_marketplace_modal(category: String) -> void:
 				perk_word = "Historical"
 
 		var perk_lbl := Label.new()
+		perk_lbl.name = "MarketplaceLifestyle"
+		perk_lbl.set_meta("keep_horizontal_text", true)
 		perk_lbl.text = "%s Lifestyle Asset" % perk_word
+		perk_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		perk_lbl.size_flags_horizontal = Control.SIZE_SHRINK_END
 		perk_lbl.add_theme_font_size_override("font_size", 30)
 		perk_lbl.add_theme_color_override("font_color", Color("#db2777") if is_light else Color("#f472b6"))
 		perk_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -4430,7 +4438,10 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 
 		var o_ann_total := Label.new()
 		o_ann_total.text = "$%s/mo" % _format_number(m_pay)
-		o_ann_total.custom_minimum_size = Vector2(1, 0)
+		o_ann_total.set_meta("keep_horizontal_text", true)
+		o_ann_total.custom_minimum_size = Vector2(210, 0)
+		o_ann_total.autowrap_mode = TextServer.AUTOWRAP_OFF
+		o_ann_total.size_flags_horizontal = Control.SIZE_SHRINK_END
 		o_ann_total.add_theme_font_size_override("font_size", 32)
 		o_ann_total.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		o_header.add_child(o_ann_total)
@@ -15028,8 +15039,6 @@ func _ensure_no_clipping_recursive(node: Node) -> void:
 		if node.autowrap_mode == TextServer.AUTOWRAP_OFF and not node.has_meta("keep_horizontal_text"):
 			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-		if not node.has_meta("keep_fixed_size"):
-			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	elif node is RichTextLabel:
 		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
@@ -17897,6 +17906,9 @@ func _show_finance_hub_modal() -> void:
 
 		var lbl_val := Label.new()
 		lbl_val.text = value_text
+		lbl_val.set_meta("keep_horizontal_text", true)
+		lbl_val.custom_minimum_size.x = 150
+		lbl_val.autowrap_mode = TextServer.AUTOWRAP_OFF
 		lbl_val.size_flags_horizontal = Control.SIZE_SHRINK_END
 		lbl_val.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		lbl_val.add_theme_font_size_override("font_size", 28)
@@ -18764,6 +18776,8 @@ func _show_pension_account_modal() -> void:
 
 		var vl := Label.new()
 		vl.text = v
+		vl.custom_minimum_size.x = 150
+		vl.autowrap_mode = TextServer.AUTOWRAP_WORD
 		vl.size_flags_horizontal = Control.SIZE_SHRINK_END
 		vl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		vl.add_theme_font_size_override("font_size", 25)
@@ -19158,6 +19172,8 @@ func _show_savings_account_modal() -> void:
 
 		var vl := Label.new()
 		vl.text = v
+		vl.custom_minimum_size.x = 150
+		vl.autowrap_mode = TextServer.AUTOWRAP_WORD
 		vl.size_flags_horizontal = Control.SIZE_SHRINK_END
 		vl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		vl.add_theme_font_size_override("font_size", 25)

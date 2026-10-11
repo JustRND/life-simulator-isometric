@@ -10,6 +10,7 @@ func _ready() -> void:
 	print("===================================================================")
 	print("🔍 RUNNING AUDIT: VERTICAL TEXT WRAPPING, PANEL CLIPPING & CONTRAST")
 	print("===================================================================")
+	get_window().size = Vector2i(390, 844)
 
 	PlayerData.has_started_game = true
 	PlayerData.age = 35
@@ -93,6 +94,27 @@ func _ready() -> void:
 				_audit_open_modal(screen, modal_name, theme_mode)
 				_close_all_modals(screen)
 				await get_tree().process_frame
+
+		var marketplace_categories: Array[String] = [
+			AssetCatalog.CATEGORY_BICYCLES,
+			AssetCatalog.CATEGORY_CARS,
+			AssetCatalog.CATEGORY_MOTORCYCLES,
+			AssetCatalog.CATEGORY_JEWELRY,
+			AssetCatalog.CATEGORY_INSTRUMENTS,
+			AssetCatalog.CATEGORY_PROPERTIES,
+			AssetCatalog.CATEGORY_AIRCRAFT,
+			AssetCatalog.CATEGORY_YACHTS,
+			AssetCatalog.CATEGORY_FIREARMS,
+			AssetCatalog.CATEGORY_ART,
+			AssetCatalog.CATEGORY_ANTIQUES
+		]
+		for category in marketplace_categories:
+			screen._open_asset_marketplace_modal(category)
+			await get_tree().process_frame
+			await get_tree().process_frame
+			_audit_open_modal(screen, "Marketplace: %s" % category, theme_mode)
+			_close_all_modals(screen)
+			await get_tree().process_frame
 
 		# Audit Mortgage Panel
 		var prop_item: Dictionary = AssetCatalog.get_item("prop_house")
