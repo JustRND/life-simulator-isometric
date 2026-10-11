@@ -2479,6 +2479,7 @@ func show_new_game_screen() -> void:
 	if validation_label != null:
 		validation_label.text = ""
 
+	_adjust_safe_area()
 	_update_creation_theme()
 	new_game_panel.visible = true
 
@@ -22031,9 +22032,12 @@ func _configure_creation() -> void:
 	var update_card_bounds = func():
 		if is_instance_valid(card):
 			var vp_size: Vector2 = get_viewport_rect().size
-			var max_w: float = minf(980.0, maxf(640.0, vp_size.x * 0.94))
-			var max_h: float = minf(1600.0, maxf(560.0, vp_size.y * 0.92))
+			var max_w: float = minf(920.0, maxf(600.0, vp_size.x - 48.0))
+			var max_h: float = minf(1550.0, maxf(560.0, (vp_size.y - current_safe_top_m - current_safe_bottom_m) * 0.92))
 			card.custom_minimum_size = Vector2(max_w, max_h)
+			var s := card.get_node_or_null("CreationScroll") as Control
+			if is_instance_valid(s):
+				s.custom_minimum_size = Vector2(1, max_h - 60.0)
 
 	update_card_bounds.call()
 	get_viewport().size_changed.connect(update_card_bounds)
