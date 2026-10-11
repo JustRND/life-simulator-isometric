@@ -1861,7 +1861,7 @@ theme_override_font_sizes/font_size = 38
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
-text = "🥪  PANTRY & GROCERIES"
+text = "🥪  Pantry & Groceries"
 alignment = 0
 
 [node name="ShoppingActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=1870605856]
@@ -2001,7 +2001,7 @@ theme_override_font_sizes/font_size = 38
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
-text = "🏠  RENT A HOUSE"
+text = "🏠  Rent a House"
 alignment = 0
 
 [node name="HouseholdActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213461]
@@ -2015,7 +2015,7 @@ theme_override_font_sizes/font_size = 38
 theme_override_styles/normal = SubResource("card_button_normal")
 theme_override_styles/pressed = SubResource("card_button_pressed")
 theme_override_styles/hover = SubResource("card_button_hover")
-text = "🏡  HOUSEHOLD INTERACTIONS"
+text = "🏡  Household Interactions"
 alignment = 0
 
 [node name="ActListBottomSpacer" type="Control" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213462]
