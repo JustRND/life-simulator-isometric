@@ -39,12 +39,13 @@ func install_button(row: HBoxContainer) -> void:
 func open_shop() -> void:
 	_status.text = "Preview shop • Sample prices • No real purchases"
 	show()
-	_close.grab_focus()
+	if _close.focus_mode != Control.FOCUS_NONE:
+		_close.grab_focus()
 
 func close_shop() -> void:
 	preload("res://scripts/ui/panel_close.gd").dismiss(self, false, func():
 		closed.emit()
-		if is_instance_valid(_shop_button):
+		if is_instance_valid(_shop_button) and _shop_button.focus_mode != Control.FOCUS_NONE:
 			_shop_button.grab_focus()
 	)
 

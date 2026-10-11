@@ -165,12 +165,14 @@ func _show_page(heading: String) -> void:
 		source_button = get_viewport().gui_get_focus_owner() as Button
 	title.text = heading
 	page.show()
-	page.find_children("*", "Button", true, false)[0].grab_focus()
+	var first_button := page.find_children("*", "Button", true, false)[0] as Control
+	if first_button.focus_mode != Control.FOCUS_NONE:
+		first_button.grab_focus()
 
 func _close_page() -> void:
 	_clear_credentials()
 	preload("res://scripts/ui/panel_close.gd").dismiss(page, false, func():
-		if is_instance_valid(source_button):
+		if is_instance_valid(source_button) and source_button.focus_mode != Control.FOCUS_NONE:
 			source_button.grab_focus()
 	)
 
