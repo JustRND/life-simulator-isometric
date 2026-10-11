@@ -257,6 +257,9 @@ func _ready() -> void:
 
 	# Configure translucent, sleek scroll indicators on every page and scroll container
 	_setup_all_translucent_scrollbars()
+	_apply_anti_clipping_to_all_panels()
+	if not get_tree().node_added.is_connected(_on_global_node_added):
+		get_tree().node_added.connect(_on_global_node_added)
 	_adjust_safe_area()
 	get_viewport().size_changed.connect(_adjust_safe_area)
 	if age_button != null:
@@ -882,7 +885,7 @@ func _update_time_and_age_labels() -> void:
 	var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
 	if time_counter_label != null:
 		if PlayerData.is_time_paused:
-			time_counter_label.text = "⏸️ PAUSED (%s)" % date_str
+			time_counter_label.text = "⏸️ %s (PAUSED)" % date_str
 		else:
 			time_counter_label.text = "📅 %s" % date_str
 	if pause_time_button != null:
@@ -1789,6 +1792,44 @@ func _adjust_safe_area() -> void:
 				m_node.add_theme_constant_override("margin_bottom", int(maxf(b_bot, b_bot + bottom_m)))
 				if top_m > 0.0:
 					m_node.add_theme_constant_override("margin_top", int(maxf(b_top, top_m + 8.0)))
+	# Responsive horizontal bounds for floating overlay cards (EventPanel, ConfirmCard, CreationCard, DisclaimerCard)
+	var vp_w: float = get_viewport_rect().size.x
+	if vp_w <= 0.0:
+		vp_w = 1080.0
+
+	var ev_panel := get_node_or_null("EventOverlay/EventPanel") as Control
+	if is_instance_valid(ev_panel):
+		var target_w: float = minf(840.0, vp_w - 32.0)
+		var half_w: float = target_w * 0.5
+		ev_panel.anchor_left = 0.5
+		ev_panel.anchor_right = 0.5
+		ev_panel.anchor_top = 0.5
+		ev_panel.anchor_bottom = 0.5
+		ev_panel.offset_left = -half_w
+		ev_panel.offset_right = half_w
+		ev_panel.offset_top = 0.0
+		ev_panel.offset_bottom = 0.0
+		ev_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		ev_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+		ev_panel.custom_minimum_size = Vector2(1, 0)
+
+	var conf_card := get_node_or_null("ResetConfirmationOverlay/ConfirmCard") as Control
+	if is_instance_valid(conf_card):
+		var target_w: float = minf(740.0, vp_w - 32.0)
+		var half_w: float = target_w * 0.5
+		conf_card.anchor_left = 0.5
+		conf_card.anchor_right = 0.5
+		conf_card.offset_left = -half_w
+		conf_card.offset_right = half_w
+		conf_card.custom_minimum_size = Vector2(1, 0)
+
+	var creat_card := get_node_or_null("NewGamePanel/CenterContainer/CreationCard") as Control
+	if is_instance_valid(creat_card):
+		creat_card.custom_minimum_size = Vector2(minf(820.0, vp_w - 32.0), 0)
+
+	var disc_card := get_node_or_null("DisclaimerScreen/CenterContainer/DisclaimerCard") as Control
+	if is_instance_valid(disc_card):
+		disc_card.custom_minimum_size = Vector2(minf(640.0, vp_w - 32.0), 0)
 
 
 func trigger_event() -> void:
@@ -1937,23 +1978,37 @@ func show_event_popup() -> void:
 	event_description.text = get_event_text(current_event) + "\n\nWhat do you do?"
 	event_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	event_description.fit_content = true
-	event_description.custom_minimum_size = Vector2(1, 80)
+	event_description.custom_minimum_size = Vector2(1, 40)
+	event_description.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	event_description.add_theme_font_size_override("normal_font_size", 28)
 	event_description.add_theme_color_override("default_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	var desc_inset := StyleBoxEmpty.new()
-	desc_inset.content_margin_left = 32
-	desc_inset.content_margin_right = 32
-	desc_inset.content_margin_top = 16
-	desc_inset.content_margin_bottom = 16
+	desc_inset.content_margin_left = 6
+	desc_inset.content_margin_right = 6
+	desc_inset.content_margin_top = 8
+	desc_inset.content_margin_bottom = 8
 	event_description.add_theme_stylebox_override("normal", desc_inset)
 
-	# Ensure EventPanel is anchored at its resting center position before fading in
+	# Ensure EventPanel is anchored with responsive bounds before fading in
 	var event_panel := event_overlay.get_node_or_null("EventPanel") as Control
 	if event_panel != null:
-		event_panel.offset_left = -440.0
-		event_panel.offset_top = -540.0
-		event_panel.offset_right = 440.0
-		event_panel.offset_bottom = 540.0
+		var vp_w: float = event_overlay.size.x if event_overlay.size.x > 100.0 else get_viewport_rect().size.x
+		if vp_w <= 0.0:
+			vp_w = 1080.0
+		var target_w: float = minf(840.0, vp_w - 32.0)
+		var half_w: float = target_w * 0.5
+		event_panel.anchor_left = 0.5
+		event_panel.anchor_right = 0.5
+		event_panel.anchor_top = 0.5
+		event_panel.anchor_bottom = 0.5
+		event_panel.offset_left = -half_w
+		event_panel.offset_right = half_w
+		event_panel.offset_top = 0.0
+		event_panel.offset_bottom = 0.0
+		event_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		event_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+		event_panel.custom_minimum_size = Vector2(1, 0)
+		_ensure_no_clipping_recursive(event_panel)
 
 	var buttons: Array[Button] = []
 	for button in [event_choice_1, event_choice_2, event_choice_3, event_choice_4]:
@@ -3119,6 +3174,9 @@ func _render_assets_list() -> void:
 
 	var stitle := Label.new()
 	stitle.text = "🛍️ COMMERCIAL SHOPPING & BROKERAGES"
+	stitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stitle.custom_minimum_size = Vector2(1, 0)
+	stitle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stitle.add_theme_font_size_override("font_size", 34)
 	stitle.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(stitle)
@@ -3178,8 +3236,12 @@ func _render_assets_list() -> void:
 
 func _render_owned_assets_section(title_text: String, categories: Array, theme_color: Color) -> void:
 	var section_card := PanelContainer.new()
+	section_card.custom_minimum_size = Vector2(1, 0)
+	section_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	section_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(theme_color))
 	var sm := MarginContainer.new()
+	sm.custom_minimum_size = Vector2(1, 0)
+	sm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sm.add_theme_constant_override("margin_left", 20)
 	sm.add_theme_constant_override("margin_right", 20)
 	sm.add_theme_constant_override("margin_top", 18)
@@ -3187,6 +3249,8 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 	section_card.add_child(sm)
 
 	var sv := VBoxContainer.new()
+	sv.custom_minimum_size = Vector2(1, 0)
+	sv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sv.add_theme_constant_override("separation", 14)
 	sm.add_child(sv)
 
@@ -3198,6 +3262,9 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 
 	var title_lbl := Label.new()
 	title_lbl.text = "%s (%d)" % [title_text, matching_items.size()]
+	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_lbl.custom_minimum_size = Vector2(1, 0)
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_lbl.add_theme_font_size_override("font_size", 32)
 	var tc: Color = theme_color.darkened(0.35) if (is_light and theme_color.get_luminance() > 0.35) else theme_color
 	title_lbl.add_theme_color_override("font_color", tc)
@@ -9139,8 +9206,12 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 
 	# Current Employment Status Card
 	var cur_card := PanelContainer.new()
+	cur_card.custom_minimum_size = Vector2(1, 0)
+	cur_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cur_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
 	var cur_m := MarginContainer.new()
+	cur_m.custom_minimum_size = Vector2(1, 0)
+	cur_m.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cur_m.add_theme_constant_override("margin_left", 20)
 	cur_m.add_theme_constant_override("margin_right", 20)
 	cur_m.add_theme_constant_override("margin_top", 16)
@@ -9148,17 +9219,23 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 	cur_card.add_child(cur_m)
 
 	var cur_v := VBoxContainer.new()
+	cur_v.custom_minimum_size = Vector2(1, 0)
+	cur_v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cur_v.add_theme_constant_override("separation", 8)
 	cur_m.add_child(cur_v)
 
 	var cur_title := Label.new()
 	cur_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cur_title.custom_minimum_size = Vector2(1, 0)
+	cur_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cur_title.add_theme_font_size_override("font_size", 32)
 	cur_title.add_theme_color_override("font_color", Color("#38bdf8"))
 
 	var cur_desc := Label.new()
 	cur_desc.add_theme_font_size_override("font_size", 30)
 	cur_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cur_desc.custom_minimum_size = Vector2(1, 0)
+	cur_desc.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	if PlayerData.job_title != "":
 		cur_title.text = "CURRENT PRIMARY OCCUPATION"
@@ -9392,9 +9469,11 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 	# EMPLOYMENT NAVIGATION TABS (5 MODES)
 	# -------------------------------------------------------------------------
 	var tabs_grid := GridContainer.new()
+	tabs_grid.custom_minimum_size = Vector2(1, 0)
+	tabs_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tabs_grid.columns = 3
-	tabs_grid.add_theme_constant_override("h_separation", 8)
-	tabs_grid.add_theme_constant_override("v_separation", 8)
+	tabs_grid.add_theme_constant_override("h_separation", 6)
+	tabs_grid.add_theme_constant_override("v_separation", 6)
 
 	var tab_defs: Array[Dictionary] = [
 		{"id": "careers", "label": "🏢 Careers", "color": Color("#38bdf8")},
@@ -9416,8 +9495,14 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			else:
 				_show_jobs_modal(t_id)
 		)
-		tab_btn.custom_minimum_size.y = 70
-		tab_btn.add_theme_font_size_override("font_size", 28)
+		tab_btn.custom_minimum_size = Vector2(1, 56)
+		tab_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab_btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		tab_btn.add_theme_font_size_override("font_size", 22)
+		var tab_sb = tab_btn.get_theme_stylebox("normal")
+		if tab_sb is StyleBoxFlat:
+			tab_sb.content_margin_left = 6
+			tab_sb.content_margin_right = 6
 		tabs_grid.add_child(tab_btn)
 
 	list.add_child(tabs_grid)
@@ -9495,6 +9580,9 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 
 			var cat_lbl := Label.new()
 			cat_lbl.text = "%s %s" % [str(d_cat.get("icon")), str(d_cat.get("name")).to_upper()]
+			cat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			cat_lbl.custom_minimum_size = Vector2(1, 0)
+			cat_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			cat_lbl.add_theme_font_size_override("font_size", 30)
 			cat_lbl.add_theme_color_override("font_color", Color("#f59e0b"))
 			list.add_child(cat_lbl)
@@ -9614,6 +9702,9 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 		if gigs.is_empty():
 			var no_gigs_lbl := Label.new()
 			no_gigs_lbl.text = "No gigs currently available for your age. Entry gigs unlock starting at age 12!"
+			no_gigs_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			no_gigs_lbl.custom_minimum_size = Vector2(1, 0)
+			no_gigs_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			no_gigs_lbl.add_theme_font_size_override("font_size", 28)
 			no_gigs_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 			list.add_child(no_gigs_lbl)
@@ -9732,6 +9823,9 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 
 		var log_title := Label.new()
 		log_title.text = "RECENT SHIFTS & ASSIGNMENTS:"
+		log_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		log_title.custom_minimum_size = Vector2(1, 0)
+		log_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		log_title.add_theme_font_size_override("font_size", 30)
 		log_title.add_theme_color_override("font_color", Color("#38bdf8"))
 		list.add_child(log_title)
@@ -9739,6 +9833,9 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 		if recent_logs.is_empty():
 			var empty_lbl := Label.new()
 			empty_lbl.text = "No daily wage shifts or gigs logged yet this year. Accept assignments to begin earning!"
+			empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			empty_lbl.custom_minimum_size = Vector2(1, 0)
+			empty_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			empty_lbl.add_theme_font_size_override("font_size", 28)
 			empty_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 			list.add_child(empty_lbl)
@@ -14764,6 +14861,72 @@ func _show_text_input_popup(options: Dictionary) -> Control:
 	return MobileKeyboardManager.show_input_popup(options)
 
 
+func _ensure_no_clipping_recursive(node: Node) -> void:
+	if not is_instance_valid(node):
+		return
+	if node is Label:
+		if node.autowrap_mode == TextServer.AUTOWRAP_OFF:
+			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+		if not node.has_meta("keep_fixed_size"):
+			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	elif node is RichTextLabel:
+		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+		if not node.has_meta("keep_fixed_size"):
+			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	elif node is Button:
+		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		if not node.has_meta("keep_fixed_width") and not node.has_meta("keep_fixed_size"):
+			node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	elif node is ScrollContainer:
+		node.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+		if not node.has_meta("keep_fixed_size"):
+			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	elif node is Container or node is Control:
+		if not node.has_meta("keep_fixed_width") and not node.has_meta("keep_fixed_size"):
+			node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	for child in node.get_children():
+		_ensure_no_clipping_recursive(child)
+
+
+func _on_global_node_added(node: Node) -> void:
+	if not is_instance_valid(node):
+		return
+	if node is Label:
+		if node.autowrap_mode == TextServer.AUTOWRAP_OFF:
+			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+	elif node is ScrollContainer:
+		node.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
+		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
+
+
+func _apply_anti_clipping_to_all_panels() -> void:
+	var panels_to_protect := [
+		get_node_or_null("SafeArea"),
+		get_node_or_null("CharacterPanel"),
+		get_node_or_null("InfantPanel"),
+		get_node_or_null("AssetsPanel"),
+		get_node_or_null("BankPanel"),
+		get_node_or_null("RelationshipsPanel"),
+		get_node_or_null("ActivitiesPanel"),
+		get_node_or_null("SettingsOverlay"),
+		get_node_or_null("ResetConfirmationOverlay"),
+		get_node_or_null("NewGamePanel"),
+		get_node_or_null("DisclaimerScreen"),
+		get_node_or_null("EventOverlay")
+	]
+	for p in panels_to_protect:
+		if p != null and is_instance_valid(p):
+			_ensure_no_clipping_recursive(p)
+			if p is Control:
+				p.custom_minimum_size = Vector2(1, 0)
+
+
 func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color, use_fade_in: bool = false) -> Dictionary:
 	var overlay := ColorRect.new()
 	overlay.set_meta("theme_exempt", true)
@@ -14790,6 +14953,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	margin_outer.offset_bottom = 0.0
 	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
+	margin_outer.custom_minimum_size = Vector2(1, 0)
 	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var top_m: int = int(maxf(64.0, current_safe_top_m))
 	var bottom_m: int = int(maxf(64.0, current_safe_bottom_m))
@@ -14814,6 +14978,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	var card := PanelContainer.new()
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card.custom_minimum_size = Vector2(1, 0)
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.clip_contents = true
 	var card_style := StyleBoxFlat.new()
@@ -14836,6 +15001,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	margin.set_meta("reference_edge", true)
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	margin.custom_minimum_size = Vector2(1, 0)
 	margin.add_theme_constant_override("margin_left", 20)
 	margin.add_theme_constant_override("margin_right", 20)
 	margin.add_theme_constant_override("margin_top", 16)
@@ -14845,6 +15011,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	var main_vbox := VBoxContainer.new()
 	main_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	main_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	main_vbox.custom_minimum_size = Vector2(1, 0)
 	main_vbox.add_theme_constant_override("separation", 14)
 	margin.add_child(main_vbox)
 
@@ -14907,8 +15074,9 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.custom_minimum_size = Vector2(1, 0)
 	scroll.clip_contents = true
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_apply_translucent_scrollbar_to_node(scroll)
 	main_vbox.add_child(scroll)
@@ -14917,6 +15085,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	scroll_margin.set_meta("reference_edge", true)
 	scroll_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_margin.custom_minimum_size = Vector2(1, 0)
 	scroll_margin.add_theme_constant_override("margin_left", 4)
 	scroll_margin.add_theme_constant_override("margin_right", 16)
 	scroll_margin.add_theme_constant_override("margin_top", 4)
@@ -14926,8 +15095,14 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	var content_list := VBoxContainer.new()
 	content_list.set_meta("reference_menu", true)
 	content_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	content_list.custom_minimum_size = Vector2(1, 0)
 	content_list.add_theme_constant_override("separation", 20)
 	scroll_margin.add_child(content_list)
+
+	var _ensure_anti_clip := func(n: Node):
+		_ensure_no_clipping_recursive(n)
+	content_list.child_entered_tree.connect(_ensure_anti_clip)
+	main_vbox.child_entered_tree.connect(_ensure_anti_clip)
 
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(overlay)
@@ -22681,14 +22856,18 @@ func _show_social_venues_modal() -> void:
 
 	var funds_lbl := Label.new()
 	funds_lbl.text = "💵 Funds: $%s" % _format_number(PlayerData.get_available_funds())
-	funds_lbl.add_theme_font_size_override("font_size", 28)
+	funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	funds_lbl.custom_minimum_size = Vector2(1, 0)
+	funds_lbl.add_theme_font_size_override("font_size", 26)
 	funds_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 	funds_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stat_row.add_child(funds_lbl)
 
 	var needs_lbl := Label.new()
 	needs_lbl.text = "🥪 Hunger: %d%%  •  💧 Thirst: %d%%" % [int(round(PlayerData.hunger)), int(round(PlayerData.thirst))]
-	needs_lbl.add_theme_font_size_override("font_size", 28)
+	needs_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	needs_lbl.custom_minimum_size = Vector2(1, 0)
+	needs_lbl.add_theme_font_size_override("font_size", 26)
 	needs_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	stat_row.add_child(needs_lbl)
 
@@ -23006,7 +23185,8 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 		current_venue_patrons.clear()
 		_show_social_venues_modal()
 	)
-	back_btn.custom_minimum_size = Vector2(300, 54)
+	back_btn.custom_minimum_size = Vector2(1, 54)
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	back_btn.add_theme_font_size_override("font_size", 24)
 	back_row.add_child(back_btn)
 
@@ -23027,6 +23207,8 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 	var title_lbl := Label.new()
 	title_lbl.text = "%s %s" % [v_icon, v_name]
 	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title_lbl.custom_minimum_size = Vector2(1, 0)
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_lbl.add_theme_font_size_override("font_size", 34)
 	title_lbl.add_theme_color_override("font_color", v_color.darkened(0.2) if is_light else v_color.lightened(0.2))
 	hv.add_child(title_lbl)
@@ -23034,6 +23216,8 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 	var desc_lbl := Label.new()
 	desc_lbl.text = "%s  •  Visiting %s" % [v_tagline, "Solo" if venue_companion_mode == "solo" else ("with " + (player_get_companion_name(selected_friend)))]
 	desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_lbl.custom_minimum_size = Vector2(1, 0)
+	desc_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	desc_lbl.add_theme_font_size_override("font_size", 24)
 	desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 	hv.add_child(desc_lbl)
@@ -23043,6 +23227,9 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 	# SECTION 1: FOOD & DRINKS MENU
 	var menu_hdr := Label.new()
 	menu_hdr.text = "🍽️ FOOD & DRINK SELECTIONS"
+	menu_hdr.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	menu_hdr.custom_minimum_size = Vector2(1, 0)
+	menu_hdr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	menu_hdr.add_theme_font_size_override("font_size", 28)
 	menu_hdr.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	list.add_child(menu_hdr)
@@ -23160,6 +23347,9 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 	# SECTION 2: ACTIVITIES & ENTERTAINMENT
 	var act_hdr := Label.new()
 	act_hdr.text = "🎉 AVAILABLE ACTIVITIES"
+	act_hdr.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	act_hdr.custom_minimum_size = Vector2(1, 0)
+	act_hdr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	act_hdr.add_theme_font_size_override("font_size", 28)
 	act_hdr.add_theme_color_override("font_color", Color("#d946ef") if is_light else Color("#f472b6"))
 	list.add_child(act_hdr)

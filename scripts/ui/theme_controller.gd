@@ -111,13 +111,13 @@ func _apply_node(node: Variant) -> void:
 		return
 
 	var is_light: bool = LifeLibrary.data.theme == "light"
-	if modern_navigation.handles(node):
+	if modern_navigation != null and modern_navigation.handles(node):
 		modern_navigation.apply(node, is_light)
 		return
-	if stats_hud.handles(node):
+	if stats_hud != null and stats_hud.handles(node):
 		stats_hud.apply(node, is_light)
 		return
-	if reference_theme.handles(node, root):
+	if reference_theme != null and reference_theme.handles(node, root):
 		reference_theme.apply(node, is_light)
 		return
 	if node.has_meta("reference_part") or node.has_meta("market_button") or node.has_meta("event_choice"):

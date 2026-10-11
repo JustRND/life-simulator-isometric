@@ -119,10 +119,10 @@ func apply(node: Control, light: bool) -> void:
 				node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if (node is RichTextLabel or node is Label) and (node.name == "EventDescription" or (node.get_parent() != null and node.get_parent().name == "EventContent")):
 			var inset := StyleBoxEmpty.new()
-			inset.content_margin_left = 32
-			inset.content_margin_right = 32
-			inset.content_margin_top = 18
-			inset.content_margin_bottom = 18
+			inset.content_margin_left = 6
+			inset.content_margin_right = 6
+			inset.content_margin_top = 4
+			inset.content_margin_bottom = 4
 			node.add_theme_stylebox_override("normal", inset)
 		elif node is Label and node.get_parent() is VBoxContainer and not node.has_meta("reference_section"):
 			var inset := StyleBoxEmpty.new()
@@ -137,7 +137,7 @@ func apply(node: Control, light: bool) -> void:
 		node.add_theme_stylebox_override("panel", style)
 		if node.name == "EventPanel":
 			style.set_corner_radius_all(24)
-			node.clip_children = CanvasItem.CLIP_CHILDREN_AND_DRAW
+			node.clip_children = CanvasItem.CLIP_CHILDREN_DISABLED
 	if node is VBoxContainer:
 		# Lists also contain explanatory text and tab bars, not just menu rows.
 		# Keep a real gap so button shadows cannot cover the following label.
