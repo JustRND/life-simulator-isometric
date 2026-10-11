@@ -900,6 +900,10 @@ static func sell(player_data: Node, symbol: String, coins_to_sell: Variant) -> D
 	var new_invested: float = maxf(0.0, old_invested * (1.0 - portion_sold))
 	var basis: float = (new_invested / rem_amt) if rem_amt > 0.000001 else 0.0
 
+	var sold_cost: float = old_invested * portion_sold
+	var net_crypto_gain: int = int(round(float(net_cash) - sold_cost))
+	TaxSystem.record_capital_gain(p, net_crypto_gain, "crypto")
+
 	coins[sym] = {
 		"amount": rem_amt if rem_amt > 0.000001 else 0.0,
 		"cost_basis": basis,

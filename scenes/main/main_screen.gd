@@ -134,6 +134,7 @@ var salon_modal_overlay: Control = null
 var spa_modal_overlay: Control = null
 var mental_institution_modal_overlay: Control = null
 var household_modal_overlay: Control = null
+var tax_service_modal_overlay: Control = null
 var _pending_move_out_on_purchase: bool = false
 var _pending_move_out_on_lease: bool = false
 
@@ -808,37 +809,6 @@ func age_up() -> void:
 					_format_number(PlayerData.get_total_debt())
 				], "finance")
 
-		# Taxes: Realistic progressive brackets with $12,000 standard deduction (harder tax bite)
-		var tax_due: int = 0
-		if PlayerData.job_salary > 12000:
-			var taxable: int = PlayerData.job_salary - 12000
-			if taxable <= 35000:
-				tax_due = int(taxable * 0.14)
-			elif taxable <= 95000:
-				tax_due = int(35000 * 0.14 + (taxable - 35000) * 0.24)
-			elif taxable <= 200000:
-				tax_due = int(35000 * 0.14 + 60000 * 0.24 + (taxable - 95000) * 0.35)
-			else:
-				tax_due = int(35000 * 0.14 + 60000 * 0.24 + 105000 * 0.35 + (taxable - 200000) * 0.45)
-
-		if tax_due > 0:
-			var total_avail_tax: int = PlayerData.money + PlayerData.bank_savings
-			if total_avail_tax >= tax_due:
-				PlayerData.debit_funds(tax_due)
-				add_life_event("You paid your annual income tax of $%s." % _format_number(tax_due), "finance")
-			else:
-				var paid_tax: int = total_avail_tax
-				var unpaid_tax: int = tax_due - paid_tax
-				PlayerData.money = 0
-				PlayerData.bank_savings = 0
-				PlayerData.tax_debt += unpaid_tax
-				PlayerData.modify_credit_score(-35)
-				add_life_event("⚠️ TAX AUDIT: You couldn't afford your annual income tax of $%s! The unpaid $%s has been added to your debt (Total Debt: $%s)." % [
-					_format_number(tax_due),
-					_format_number(unpaid_tax),
-					_format_number(PlayerData.get_total_debt())
-				], "finance")
-
 	# Completed service promotes the current job; higher pay begins next year.
 	var promotion := CareerProgression.advance_year(PlayerData, spent_year_in_prison)
 	if not promotion.is_empty():
@@ -971,6 +941,11 @@ func age_up() -> void:
 	var pet_logs := PetManager.process_yearly_pets(PlayerData)
 	for p_log in pet_logs:
 		add_life_event(p_log, "relationship")
+
+	# 7h. Annual Tax Filing (Consolidates Income Tax, Capital Gains Tax, Property Tax & Corporate Tax via TaxSystem)
+	var tax_filing_res := TaxSystem.file_annual_taxes(PlayerData)
+	for t_log in tax_filing_res.get("logs", []):
+		add_life_event(t_log, "finance")
 
 	# 8. Education Lifecycle Progression (Kindergarten @ 3, Primary @ 6, Middle @ 11, High @ 14, Grad @ 18)
 	if PlayerData.age == 3:
@@ -16702,6 +16677,11 @@ func _show_finance_hub_modal() -> void:
 		finance_hub_modal_overlay = null
 		_show_savings_account_modal()
 
+	var _open_taxes = func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(finance_hub_modal_overlay, false)
+		finance_hub_modal_overlay = null
+		_show_tax_service_modal()
+
 	var divisions := [
 		{
 			"title": "📈  FINANCE MARKET",
@@ -16737,6 +16717,13 @@ func _show_finance_hub_modal() -> void:
 			"desc": "High-yield 4.2% APY savings account for family wealth. 100% guaranteed to transfer to your children and next-generation heirs upon succession.",
 			"color": Color("#10b981"),
 			"action": _open_savings
+		},
+		{
+			"title": "🏛️  TAX OFFICE & FILINGS",
+			"tag": "INTERNAL REVENUE & COMPLIANCE",
+			"desc": "Annual tax return declarations, progressive income, capital gains, property tax, and corporate tax compliance.",
+			"color": Color("#0d9488"),
+			"action": _open_taxes
 		}
 	]
 
@@ -18036,6 +18023,425 @@ func _show_savings_account_modal() -> void:
 	list.add_child(with_card)
 
 	savings_modal_overlay.visible = true
+
+
+func _show_tax_service_modal() -> void:
+	var is_light: bool = LifeLibrary.data.theme == "light"
+	var modal := _refresh_cyber_modal(tax_service_modal_overlay, "🏛️ TAX OFFICE & FILINGS", "Internal Revenue & Compliance • Progressive Income, Capital Gains, Property & Corporate Taxes", Color("#0d9488"))
+	tax_service_modal_overlay = modal.overlay
+	var list: VBoxContainer = modal.list
+	list.add_theme_constant_override("separation", 18)
+
+	var tax_return: Dictionary = TaxSystem.calculate_tax_return(PlayerData)
+	var age: int = PlayerData.age
+
+	# 1. Top Navigation & Action Row
+	var nav_row := HBoxContainer.new()
+	nav_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	nav_row.add_theme_constant_override("separation", 12)
+	list.add_child(nav_row)
+
+	var back_btn := _create_cyber_button("← Back to Finance Hub", Color("#64748b"), func():
+		preload("res://scripts/ui/panel_close.gd").dismiss(tax_service_modal_overlay, false)
+		tax_service_modal_overlay = null
+		_show_finance_hub_modal()
+	)
+	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	back_btn.custom_minimum_size = Vector2(1, 56)
+	nav_row.add_child(back_btn)
+
+	var refresh_btn := _create_cyber_button("🔄 Refresh Estimate", Color("#0d9488"), func():
+		_show_tax_service_modal()
+	)
+	refresh_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	refresh_btn.custom_minimum_size = Vector2(210, 56)
+	refresh_btn.add_theme_font_size_override("font_size", 26)
+	nav_row.add_child(refresh_btn)
+
+	# 2. Executive Tax Overview Card
+	var overview_card := PanelContainer.new()
+	overview_card.custom_minimum_size = Vector2(1, 0)
+	overview_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	overview_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0d9488")))
+	list.add_child(overview_card)
+
+	var om := MarginContainer.new()
+	om.custom_minimum_size = Vector2(1, 0)
+	om.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	om.add_theme_constant_override("margin_left", 22)
+	om.add_theme_constant_override("margin_right", 22)
+	om.add_theme_constant_override("margin_top", 18)
+	om.add_theme_constant_override("margin_bottom", 18)
+	overview_card.add_child(om)
+
+	var ov := VBoxContainer.new()
+	ov.custom_minimum_size = Vector2(1, 0)
+	ov.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	ov.add_theme_constant_override("separation", 10)
+	om.add_child(ov)
+
+	var ot := Label.new()
+	ot.text = "🏛️ ANNUAL TAX RETURN ESTIMATE (AGE %d)" % age
+	ot.custom_minimum_size = Vector2(1, 0)
+	ot.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ot.add_theme_font_size_override("font_size", 32)
+	ot.add_theme_color_override("font_color", Color("#0d9488").darkened(0.2) if is_light else Color("#2dd4bf"))
+	ov.add_child(ot)
+
+	var p_due: int = int(tax_return.get("personal_taxes_due", 0))
+	var c_due: int = int(tax_return.get("corporate_taxes_due", 0))
+	var g_due: int = int(tax_return.get("grand_total_taxes", 0))
+	var t_paid: int = PlayerData.taxes_paid_lifetime
+	var t_debt: int = PlayerData.tax_debt
+
+	var o_summary := Label.new()
+	o_summary.text = "• Est. Personal Taxes Due (Age-Up): $%s\n• Est. Corporate Taxes Due (Treasury): $%s\n• Grand Total Estimated Taxes: $%s\n• Lifetime Taxes Contributed: $%s" % [
+		_format_number(p_due),
+		_format_number(c_due),
+		_format_number(g_due),
+		_format_number(t_paid)
+	]
+	o_summary.custom_minimum_size = Vector2(1, 0)
+	o_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	o_summary.add_theme_font_size_override("font_size", 26)
+	o_summary.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
+	ov.add_child(o_summary)
+
+	var debt_status := Label.new()
+	if t_debt > 0:
+		debt_status.text = "⚠️ OUTSTANDING TAX DEBT: $%s (Accruing -20 pts Credit Penalty!)" % _format_number(t_debt)
+		debt_status.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#f87171"))
+	else:
+		debt_status.text = "✔ TAX COMPLIANCE: In Good Standing (Zero Outstanding Tax Debt)"
+		debt_status.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
+	debt_status.custom_minimum_size = Vector2(1, 0)
+	debt_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	debt_status.add_theme_font_size_override("font_size", 26)
+	ov.add_child(debt_status)
+
+	# 2b. Outstanding Tax Debt Settlement Actions (if debt exists)
+	if t_debt > 0:
+		var debt_card := PanelContainer.new()
+		debt_card.custom_minimum_size = Vector2(1, 0)
+		debt_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		debt_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#ef4444")))
+		list.add_child(debt_card)
+
+		var dm := MarginContainer.new()
+		dm.custom_minimum_size = Vector2(1, 0)
+		dm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		dm.add_theme_constant_override("margin_left", 20)
+		dm.add_theme_constant_override("margin_right", 20)
+		dm.add_theme_constant_override("margin_top", 16)
+		dm.add_theme_constant_override("margin_bottom", 16)
+		debt_card.add_child(dm)
+
+		var dv := VBoxContainer.new()
+		dv.custom_minimum_size = Vector2(1, 0)
+		dv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		dv.add_theme_constant_override("separation", 10)
+		dm.add_child(dv)
+
+		var dt := Label.new()
+		dt.text = "🚨 SETTLE OUTSTANDING TAX DEBT"
+		dt.custom_minimum_size = Vector2(1, 0)
+		dt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		dt.add_theme_font_size_override("font_size", 28)
+		dt.add_theme_color_override("font_color", Color("#ef4444"))
+		dv.add_child(dt)
+
+		var dd := Label.new()
+		dd.text = "Pay delinquent taxes using available cash and bank savings ($%s available). Eliminating tax debt restores credit score." % _format_number(PlayerData.get_available_funds())
+		dd.custom_minimum_size = Vector2(1, 0)
+		dd.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		dd.add_theme_font_size_override("font_size", 24)
+		dd.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
+		dv.add_child(dd)
+
+		var debt_btn_row := HBoxContainer.new()
+		debt_btn_row.custom_minimum_size = Vector2(1, 0)
+		debt_btn_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		debt_btn_row.add_theme_constant_override("separation", 8)
+		dv.add_child(debt_btn_row)
+
+		var pay_amounts := [1000, 5000, 25000]
+		for p_amt in pay_amounts:
+			var btn_p := _create_cyber_button("Pay $%s" % _format_number(p_amt), Color("#ef4444"), func():
+				var res = TaxSystem.pay_tax_debt(PlayerData, p_amt)
+				add_life_event(str(res.get("message", "")), "finance")
+				update_ui()
+				SaveManager.save_game()
+				_show_tax_service_modal()
+			, true)
+			btn_p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn_p.custom_minimum_size = Vector2(1, 56)
+			btn_p.add_theme_font_size_override("font_size", 24)
+			btn_p.disabled = PlayerData.get_available_funds() < p_amt or t_debt < p_amt
+			debt_btn_row.add_child(btn_p)
+
+		var btn_all_debt := _create_cyber_button("Pay Full Tax Debt ($%s)" % _format_number(t_debt), Color("#10b981"), func():
+			var res = TaxSystem.pay_tax_debt(PlayerData, t_debt)
+			add_life_event(str(res.get("message", "")), "finance")
+			update_ui()
+			SaveManager.save_game()
+			_show_tax_service_modal()
+		, true)
+		btn_all_debt.custom_minimum_size = Vector2(1, 56)
+		btn_all_debt.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn_all_debt.add_theme_font_size_override("font_size", 25)
+		btn_all_debt.disabled = PlayerData.get_available_funds() < t_debt
+		dv.add_child(btn_all_debt)
+
+	# 3. CARD 1: PROGRESSIVE INCOME TAX
+	var inc_data: Dictionary = tax_return.get("income_tax", {})
+	var inc_card := PanelContainer.new()
+	inc_card.custom_minimum_size = Vector2(1, 0)
+	inc_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	inc_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#0284c7")))
+	list.add_child(inc_card)
+
+	var im := MarginContainer.new()
+	im.custom_minimum_size = Vector2(1, 0)
+	im.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	im.add_theme_constant_override("margin_left", 20)
+	im.add_theme_constant_override("margin_right", 20)
+	im.add_theme_constant_override("margin_top", 16)
+	im.add_theme_constant_override("margin_bottom", 16)
+	inc_card.add_child(im)
+
+	var iv := VBoxContainer.new()
+	iv.custom_minimum_size = Vector2(1, 0)
+	iv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	iv.add_theme_constant_override("separation", 8)
+	im.add_child(iv)
+
+	var it := Label.new()
+	it.text = "💼 PROGRESSIVE INCOME TAX"
+	it.custom_minimum_size = Vector2(1, 0)
+	it.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	it.add_theme_font_size_override("font_size", 28)
+	it.add_theme_color_override("font_color", Color("#0284c7").darkened(0.2) if is_light else Color("#38bdf8"))
+	iv.add_child(it)
+
+	var gross_inc: int = int(inc_data.get("gross_income", 0))
+	var std_ded: int = int(inc_data.get("standard_deduction", 0))
+	var item_ded: int = int(inc_data.get("itemized_deductions", 0))
+	var tax_inc: int = int(inc_data.get("taxable_income", 0))
+	var inc_tax_due: int = int(inc_data.get("tax_due", 0))
+	var inc_eff: float = float(inc_data.get("effective_rate", 0.0))
+
+	var idesc := Label.new()
+	idesc.text = "• Gross Income: $%s (Salary: $%s • Freelance: $%s)\n• Standard Deduction: -$%s\n• Pre-Tax Deductions (Pension & Charity): -$%s\n• Net Taxable Income: $%s\n• Effective Tax Rate: %.1f%%\n• Estimated Income Tax: $%s" % [
+		_format_number(gross_inc),
+		_format_number(PlayerData.job_salary),
+		_format_number(PlayerData.freelance_earnings_this_year),
+		_format_number(std_ded),
+		_format_number(item_ded),
+		_format_number(tax_inc),
+		inc_eff * 100.0,
+		_format_number(inc_tax_due)
+	]
+	idesc.custom_minimum_size = Vector2(1, 0)
+	idesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	idesc.add_theme_font_size_override("font_size", 24)
+	idesc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	iv.add_child(idesc)
+
+	# 4. CARD 2: PROGRESSIVE CAPITAL GAINS TAX
+	var cap_data: Dictionary = tax_return.get("capital_gains_tax", {})
+	var cap_card := PanelContainer.new()
+	cap_card.custom_minimum_size = Vector2(1, 0)
+	cap_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cap_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
+	list.add_child(cap_card)
+
+	var cm := MarginContainer.new()
+	cm.custom_minimum_size = Vector2(1, 0)
+	cm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cm.add_theme_constant_override("margin_left", 20)
+	cm.add_theme_constant_override("margin_right", 20)
+	cm.add_theme_constant_override("margin_top", 16)
+	cm.add_theme_constant_override("margin_bottom", 16)
+	cap_card.add_child(cm)
+
+	var cv := VBoxContainer.new()
+	cv.custom_minimum_size = Vector2(1, 0)
+	cv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	cv.add_theme_constant_override("separation", 8)
+	cm.add_child(cv)
+
+	var ct := Label.new()
+	ct.text = "📈 PROGRESSIVE CAPITAL GAINS TAX"
+	ct.custom_minimum_size = Vector2(1, 0)
+	ct.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ct.add_theme_font_size_override("font_size", 28)
+	ct.add_theme_color_override("font_color", Color("#d97706") if is_light else Color("#fbbf24"))
+	cv.add_child(ct)
+
+	var cap_gains: int = int(cap_data.get("realized_gains", 0))
+	var cap_losses: int = int(cap_data.get("realized_losses", 0))
+	var cap_net: int = int(cap_data.get("net_gains", 0))
+	var cap_exempt: int = int(cap_data.get("exemption", 0))
+	var cap_taxable: int = int(cap_data.get("taxable_gains", 0))
+	var cap_tax_due: int = int(cap_data.get("tax_due", 0))
+	var cap_eff: float = float(cap_data.get("effective_rate", 0.0))
+
+	var cdesc := Label.new()
+	cdesc.text = "• Realized Capital Gains (Stocks, Crypto, Real Estate): $%s\n• Realized Capital Losses (Harvested): -$%s\n• Net Realized Capital Gains: $%s\n• Small Investor Exemption: -$%s (0%% Tax Threshold)\n• Taxable Capital Gains: $%s\n• Effective Capital Gains Rate: %.1f%%\n• Estimated Capital Gains Tax: $%s" % [
+		_format_number(cap_gains),
+		_format_number(cap_losses),
+		_format_number(cap_net),
+		_format_number(cap_exempt),
+		_format_number(cap_taxable),
+		cap_eff * 100.0,
+		_format_number(cap_tax_due)
+	]
+	cdesc.custom_minimum_size = Vector2(1, 0)
+	cdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	cdesc.add_theme_font_size_override("font_size", 24)
+	cdesc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	cv.add_child(cdesc)
+
+	# 5. CARD 3: PROGRESSIVE PROPERTY TAX
+	var prop_data: Dictionary = tax_return.get("property_tax", {})
+	var prop_card := PanelContainer.new()
+	prop_card.custom_minimum_size = Vector2(1, 0)
+	prop_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	prop_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+	list.add_child(prop_card)
+
+	var pm := MarginContainer.new()
+	pm.custom_minimum_size = Vector2(1, 0)
+	pm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pm.add_theme_constant_override("margin_left", 20)
+	pm.add_theme_constant_override("margin_right", 20)
+	pm.add_theme_constant_override("margin_top", 16)
+	pm.add_theme_constant_override("margin_bottom", 16)
+	prop_card.add_child(pm)
+
+	var pv := VBoxContainer.new()
+	pv.custom_minimum_size = Vector2(1, 0)
+	pv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pv.add_theme_constant_override("separation", 8)
+	pm.add_child(pv)
+
+	var pt := Label.new()
+	pt.text = "🏡 PROGRESSIVE PROPERTY TAX"
+	pt.custom_minimum_size = Vector2(1, 0)
+	pt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pt.add_theme_font_size_override("font_size", 28)
+	pt.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
+	pv.add_child(pt)
+
+	var prop_count: int = int(prop_data.get("property_count", 0))
+	var prop_val: int = int(prop_data.get("total_assessed_value", 0))
+	var prop_tax_due: int = int(prop_data.get("tax_due", 0))
+	var prop_eff: float = float(prop_data.get("effective_rate", 0.0))
+
+	var pdesc := Label.new()
+	pdesc.text = "• Real Estate Portfolio: %d properties owned\n• Total Assessed Valuation: $%s\n• Progressive Millage (0.8%% – 2.5%% with multi-home surcharge)\n• Effective Property Tax Rate: %.2f%%\n• Estimated Annual Property Tax: $%s%s" % [
+		prop_count,
+		_format_number(prop_val),
+		prop_eff * 100.0,
+		_format_number(prop_tax_due),
+		" (Minor under 18 exempt)" if age < 18 else ""
+	]
+	pdesc.custom_minimum_size = Vector2(1, 0)
+	pdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	pdesc.add_theme_font_size_override("font_size", 24)
+	pdesc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	pv.add_child(pdesc)
+
+	# 6. CARD 4: PROGRESSIVE BUSINESS & CORPORATE TAX
+	var biz_data: Dictionary = tax_return.get("business_tax", {})
+	var biz_card := PanelContainer.new()
+	biz_card.custom_minimum_size = Vector2(1, 0)
+	biz_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	biz_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#8b5cf6")))
+	list.add_child(biz_card)
+
+	var bm := MarginContainer.new()
+	bm.custom_minimum_size = Vector2(1, 0)
+	bm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bm.add_theme_constant_override("margin_left", 20)
+	bm.add_theme_constant_override("margin_right", 20)
+	bm.add_theme_constant_override("margin_top", 16)
+	bm.add_theme_constant_override("margin_bottom", 16)
+	biz_card.add_child(bm)
+
+	var bv := VBoxContainer.new()
+	bv.custom_minimum_size = Vector2(1, 0)
+	bv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bv.add_theme_constant_override("separation", 8)
+	bm.add_child(bv)
+
+	var bt := Label.new()
+	bt.text = "🏢 PROGRESSIVE BUSINESS & CORPORATE TAX"
+	bt.custom_minimum_size = Vector2(1, 0)
+	bt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bt.add_theme_font_size_override("font_size", 28)
+	bt.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#a78bfa"))
+	bv.add_child(bt)
+
+	var biz_count: int = int(biz_data.get("business_count", 0))
+	var biz_rev: int = int(biz_data.get("total_revenue", 0))
+	var biz_prof: int = int(biz_data.get("total_net_profit", 0))
+	var biz_tax_due: int = int(biz_data.get("tax_due", 0))
+	var biz_eff: float = float(biz_data.get("effective_rate", 0.0))
+
+	var bdesc := Label.new()
+	bdesc.text = "• Commercial Enterprises: %d owned\n• Total Corporate Revenue: $%s\n• Aggregate Net Profits: $%s\n• Progressive Rates (15%% – 38%% + Conglomerate Scale Surcharge)\n• Effective Corporate Rate: %.1f%%\n• Estimated Corporate Taxes: $%s (Paid via Corporate Treasuries)" % [
+		biz_count,
+		_format_number(biz_rev),
+		_format_number(biz_prof),
+		biz_eff * 100.0,
+		_format_number(biz_tax_due)
+	]
+	bdesc.custom_minimum_size = Vector2(1, 0)
+	bdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bdesc.add_theme_font_size_override("font_size", 24)
+	bdesc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
+	bv.add_child(bdesc)
+
+	# 7. TAX OPTIMIZATION & STRATEGY TIPS CARD
+	var tips_card := PanelContainer.new()
+	tips_card.custom_minimum_size = Vector2(1, 0)
+	tips_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tips_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#64748b")))
+	list.add_child(tips_card)
+
+	var tm := MarginContainer.new()
+	tm.custom_minimum_size = Vector2(1, 0)
+	tm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tm.add_theme_constant_override("margin_left", 20)
+	tm.add_theme_constant_override("margin_right", 20)
+	tm.add_theme_constant_override("margin_top", 16)
+	tm.add_theme_constant_override("margin_bottom", 16)
+	tips_card.add_child(tm)
+
+	var tv := VBoxContainer.new()
+	tv.custom_minimum_size = Vector2(1, 0)
+	tv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tv.add_theme_constant_override("separation", 8)
+	tm.add_child(tv)
+
+	var tt := Label.new()
+	tt.text = "💡 TAX STRATEGY & LEGAL OPTIMIZATION TIPS"
+	tt.custom_minimum_size = Vector2(1, 0)
+	tt.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tt.add_theme_font_size_override("font_size", 28)
+	tt.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f1f5f9"))
+	tv.add_child(tt)
+
+	var tdesc := Label.new()
+	tdesc.text = "• Pension Shelter: Salary contributions to your Pension Account reduce gross taxable income dollar-for-dollar.\n• Charitable Deductions: Philanthropic contributions reduce taxable income.\n• Tax-Loss Harvesting: Realized losses in equities and cryptocurrencies directly offset capital gains.\n• Primary Residence Shield: Your first property is assessed at base millage without multi-property progressive surcharges."
+	tdesc.custom_minimum_size = Vector2(1, 0)
+	tdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	tdesc.add_theme_font_size_override("font_size", 24)
+	tdesc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
+	tv.add_child(tdesc)
+
+	tax_service_modal_overlay.visible = true
 
 
 # --- 1. DOCTOR MODAL ---

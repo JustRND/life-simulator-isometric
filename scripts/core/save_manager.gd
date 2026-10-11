@@ -55,6 +55,10 @@ func capture_data() -> Dictionary:
 		"savings_account": PlayerData.savings_account,
 		"debt": PlayerData.debt,
 		"tax_debt": PlayerData.tax_debt,
+		"capital_gains_this_year": PlayerData.capital_gains_this_year,
+		"capital_losses_this_year": PlayerData.capital_losses_this_year,
+		"taxes_paid_lifetime": PlayerData.taxes_paid_lifetime,
+		"last_tax_return": PlayerData.last_tax_return.duplicate(true),
 		"loan_balance": PlayerData.loan_balance,
 		"loan_interest_rate": PlayerData.loan_interest_rate,
 		"credit_score": PlayerData.credit_score,
@@ -315,6 +319,10 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.debt = int(data.get("debt", 0))
 	# Legacy mixed debt stays in general debt; do not invent an unpaid tax amount.
 	PlayerData.tax_debt = maxi(0, int(data.get("tax_debt", 0)))
+	PlayerData.capital_gains_this_year = int(data.get("capital_gains_this_year", 0))
+	PlayerData.capital_losses_this_year = int(data.get("capital_losses_this_year", 0))
+	PlayerData.taxes_paid_lifetime = int(data.get("taxes_paid_lifetime", 0))
+	PlayerData.last_tax_return = Dictionary(data.get("last_tax_return", {}))
 	PlayerData.loan_balance = int(data.get("loan_balance", 0))
 	PlayerData.loan_interest_rate = float(data.get("loan_interest_rate", 0.08))
 	PlayerData.credit_score = int(data.get("credit_score", 650))

@@ -131,6 +131,13 @@ var pension_account: Dictionary = {}
 var savings_account: Dictionary = {}
 var debt: int = 0
 var tax_debt: int = 0
+var capital_gains_this_year: int = 0
+var capital_losses_this_year: int = 0
+var freelance_earnings_this_year: int = 0
+var social_media_earnings_this_year: int = 0
+var charity_donations_this_year: int = 0
+var taxes_paid_lifetime: int = 0
+var last_tax_return: Dictionary = {}
 var loan_balance: int = 0
 var loan_interest_rate: float = 0.08
 var credit_score: int = 650
@@ -308,6 +315,13 @@ func reset_player() -> void:
 	preload("res://scripts/economy/pension_and_savings_manager.gd").ensure(self)
 	debt = 0
 	tax_debt = 0
+	capital_gains_this_year = 0
+	capital_losses_this_year = 0
+	freelance_earnings_this_year = 0
+	social_media_earnings_this_year = 0
+	charity_donations_this_year = 0
+	taxes_paid_lifetime = 0
+	last_tax_return.clear()
 	loan_balance = 0
 	loan_interest_rate = 0.08
 	credit_score = 650
@@ -869,14 +883,21 @@ func repay_bank_loan(amount: int) -> int:
 	return paid
 
 
-func pay_outstanding_tax() -> int:
-	if tax_debt <= 0 or not can_afford(tax_debt):
+func pay_outstanding_tax(amount: int = -1) -> int:
+	if tax_debt <= 0 or not can_afford(1):
 		return 0
-	var paid := tax_debt
-	debit_funds(paid)
-	tax_debt = 0
-	modify_credit_score(15)
-	return paid
+	var to_pay := tax_debt if (amount <= 0 or amount > tax_debt) else amount
+	to_pay = mini(to_pay, get_available_funds())
+	if to_pay <= 0:
+		return 0
+	debit_funds(to_pay)
+	tax_debt -= to_pay
+	taxes_paid_lifetime += to_pay
+	if tax_debt == 0:
+		modify_credit_score(25)
+	else:
+		modify_credit_score(10)
+	return to_pay
 
 
 func modify_credit_score(delta: int) -> void:

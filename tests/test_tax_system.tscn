@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://test_tax_system_001"]
+
+[ext_resource type="Script" path="res://tests/test_tax_system.gd" id="1_test"]
+
+[node name="TestTaxSystem" type="Node"]
+script = ExtResource("1_test")

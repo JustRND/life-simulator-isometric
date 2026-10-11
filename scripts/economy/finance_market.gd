@@ -205,8 +205,10 @@ static func trade(p: Node, uid: String, quantity: int, buying: bool) -> String:
 		position.quantity = int(position.quantity) - quantity
 		p.bank_savings += gross - fee
 		c.available = int(c.available) + quantity
-		p.finance_market.realized = int(p.finance_market.realized) + gross - fee - basis
+		var net_trade_gain: int = (gross - fee) - basis
+		p.finance_market.realized = int(p.finance_market.realized) + net_trade_gain
 		p.finance_market.cash_flow = int(p.finance_market.cash_flow) - (gross - fee)
+		TaxSystem.record_capital_gain(p, net_trade_gain, "stocks")
 	if int(position.quantity) == 0:
 		holdings.erase(uid)
 	else:

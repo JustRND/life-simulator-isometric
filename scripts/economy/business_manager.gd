@@ -5,19 +5,11 @@ const CORPORATE_TAX_RATE: float = 0.30
 const BUSINESS_LOAN_INTEREST_RATE: float = 0.085
 
 
-## Progressive corporate tax rate scaling with portfolio scale and net profit
+## Progressive corporate tax rate scaling with portfolio scale and net profit via TaxSystem
 static func get_corporate_tax_rate(total_businesses: int, net_profit: int = 0) -> float:
-	# Base corporate tax starts at 30%
-	# Each additional business owned increases corporate tax rate by +5%
-	# (1 biz: 30%, 2 biz: 35%, 3 biz: 40%, 4 biz: 45%, 5 biz: 50%, 6+ biz: 55%+)
-	var rate: float = 0.30 + (maxi(0, total_businesses - 1) * 0.05)
-	if net_profit > 1000000:
-		rate += 0.12
-	elif net_profit > 500000:
-		rate += 0.08
-	elif net_profit > 250000:
-		rate += 0.04
-	return clampf(rate, 0.30, 0.65)
+	var dummy := {"annual_revenue": net_profit, "annual_opex": 0}
+	var res := TaxSystem.calculate_business_tax(dummy, total_businesses)
+	return float(res.get("effective_rate", 0.25))
 
 const CATEGORIES: Array[Dictionary] = [
 	{
@@ -1232,12 +1224,12 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		var loan_interest: int = int(float(loan_bal) * float(b.get("loan_interest_rate", BUSINESS_LOAN_INTEREST_RATE)))
 		var extra_facility: int = maxi(0, facility_tier - 1) * 14000
 		var total_opex: int = int((base_opex + extra_payroll + extra_facility) * scale) + mkt + loan_interest
-
 		var net_profit: int = generated_revenue - total_opex
 
-		# Progressive Conglomerate & Portfolio Tax Calculation (the more businesses you have the more tax you pay)
-		var tax_rate := get_corporate_tax_rate(total_businesses, net_profit)
-		var tax_accrued: int = 0
+		# Progressive Corporate Tax Calculation via TaxSystem
+		var tax_info: Dictionary = TaxSystem.calculate_business_tax({"annual_revenue": generated_revenue, "annual_opex": total_opex}, total_businesses)
+		var tax_rate: float = float(tax_info.get("effective_rate", 0.20))
+		var tax_accrued: int = int(tax_info.get("tax_due", 0))
 		var player_payout: int = 0
 		if net_profit > 0:
 			tax_accrued = int(float(net_profit) * tax_rate)

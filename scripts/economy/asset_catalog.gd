@@ -1620,6 +1620,11 @@ static func sell_asset(player_data: Node, instance_id: String) -> Dictionary:
 			if cash_proceeds > 0:
 				player_data.money += cash_proceeds
 
+			if str(asset.get("category", "")) == CATEGORY_PROPERTIES:
+				var orig_purchase: int = int(asset.get("purchase_price", total_value))
+				var prop_net_gain: int = total_value - orig_purchase
+				TaxSystem.record_capital_gain(player_data, prop_net_gain, "real_estate")
+
 			player_data.owned_assets.remove_at(i)
 
 			var msg: String = ""
