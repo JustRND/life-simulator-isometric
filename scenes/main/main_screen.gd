@@ -76,6 +76,15 @@ var _timeline_drawer_tween: Tween = null
 @onready var disclaimer_screen: Control = get_node_or_null("DisclaimerScreen") as Control
 @onready var age_button: Button = get_node_or_null("SafeArea/MainColumn/AgeButton") as Button
 var day_timer: float = 0.0
+var _last_displayed_age: int = -1
+var _last_displayed_month: int = -1
+var _last_displayed_day: int = -1
+var _cached_display_date: String = ""
+var _last_displayed_pause_state: bool = false
+var _has_displayed_pause_state: bool = false
+var _pause_button_visuals_initialized: bool = false
+var _pause_button_was_paused: bool = false
+var _pause_button_was_light: bool = false
 @onready var safe_area: Control = $SafeArea
 @onready var top_bar: PanelContainer = $TopBar
 @onready var profile_strip: PanelContainer = $ProfileStrip
@@ -414,8 +423,6 @@ func _connect_runtime_signals() -> void:
 			GameClock.year_changed.connect(_on_clock_year_changed)
 		if not GameClock.birthday.is_connected(_on_clock_birthday):
 			GameClock.birthday.connect(_on_clock_birthday)
-		if not GameClock.time_ticked.is_connected(_on_clock_time_ticked):
-			GameClock.time_ticked.connect(_on_clock_time_ticked)
 		GameClock.external_progression_check = Callable(self, "is_time_progression_active")
 
 
@@ -431,8 +438,6 @@ func _exit_tree() -> void:
 			GameClock.year_changed.disconnect(_on_clock_year_changed)
 		if GameClock.birthday.is_connected(_on_clock_birthday):
 			GameClock.birthday.disconnect(_on_clock_birthday)
-		if GameClock.time_ticked.is_connected(_on_clock_time_ticked):
-			GameClock.time_ticked.disconnect(_on_clock_time_ticked)
 
 
 
@@ -897,28 +902,46 @@ func _process(delta: float) -> void:
 
 
 func _update_time_and_age_labels() -> void:
-	if age_label != null:
+	var age_changed: bool = PlayerData.age != _last_displayed_age
+	if age_label != null and age_changed:
 		age_label.text = "Age: %d" % PlayerData.age
+	_last_displayed_age = PlayerData.age
 	var m_num: int = GameClock.month if GameClock != null else PlayerData.in_game_month
 	var d_num: int = GameClock.day if GameClock != null else PlayerData.in_game_day
-	var date_str := "Month %d, Day %d" % [m_num, d_num]
+	var date_changed: bool = m_num != _last_displayed_month or d_num != _last_displayed_day
+	if date_changed:
+		_cached_display_date = "Month %d, Day %d" % [m_num, d_num]
+		_last_displayed_month = m_num
+		_last_displayed_day = d_num
+	var pause_state_changed: bool = not _has_displayed_pause_state or PlayerData.is_time_paused != _last_displayed_pause_state
+	if pause_state_changed:
+		_last_displayed_pause_state = PlayerData.is_time_paused
+		_has_displayed_pause_state = true
 	if time_counter_label != null:
-		time_counter_label.visible = true
-		if PlayerData.is_time_paused:
-			time_counter_label.text = "⏸️ %s (PAUSED)" % date_str
-		else:
-			time_counter_label.text = "📅 %s" % date_str
+		if not time_counter_label.visible:
+			time_counter_label.visible = true
+		if date_changed or pause_state_changed:
+			if PlayerData.is_time_paused:
+				time_counter_label.text = "⏸️ %s (PAUSED)" % _cached_display_date
+			else:
+				time_counter_label.text = "📅 %s" % _cached_display_date
 	if pause_time_button != null:
 		_update_pause_button_visuals()
-	if age_button != null:
-		age_button.tooltip_text = "%s • Age %d" % [date_str, PlayerData.age]
+	if age_button != null and (date_changed or age_changed):
+		age_button.tooltip_text = "%s • Age %d" % [_cached_display_date, PlayerData.age]
 
 
 func _update_pause_button_visuals() -> void:
 	if pause_time_button == null:
 		return
 	var is_light: bool = LifeLibrary.data.theme == "light" if (LifeLibrary != null and LifeLibrary.data != null) else false
-	if PlayerData.is_time_paused:
+	var is_paused: bool = PlayerData.is_time_paused
+	if _pause_button_visuals_initialized and is_paused == _pause_button_was_paused and is_light == _pause_button_was_light:
+		return
+	_pause_button_visuals_initialized = true
+	_pause_button_was_paused = is_paused
+	_pause_button_was_light = is_light
+	if is_paused:
 		pause_time_button.text = "▶️ Resume"
 		pause_time_button.tooltip_text = "Time is paused. Click or press Spacebar to resume."
 		var style_paused := StyleBoxFlat.new()
@@ -981,11 +1004,6 @@ func _on_clock_year_changed(_year: int) -> void:
 
 func _on_clock_birthday(new_age: int) -> void:
 	_on_character_birthday(new_age)
-
-
-func _on_clock_time_ticked(_day_progress: float) -> void:
-	pass
-
 
 
 func _advance_in_game_month(target_year: int = -1, target_month: int = -1) -> void:
