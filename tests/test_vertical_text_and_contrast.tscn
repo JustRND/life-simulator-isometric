@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://cb47s9a1m5k8q"]
+[gd_scene format=3 uid="uid://cb47taa1m5k8q"]
 
 [ext_resource type="Script" path="res://tests/test_vertical_text_and_contrast.gd" id="1_vert"]
 

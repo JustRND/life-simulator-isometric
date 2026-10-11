@@ -3379,52 +3379,28 @@ func _render_owned_pets_section() -> void:
 				btn_vet.tooltip_text = "Completed for Age %d (Wait until next year)" % PlayerData.age
 			act_h.add_child(btn_vet)
 
-			var rename_box := VBoxContainer.new()
-			rename_box.visible = false
-			rename_box.add_theme_constant_override("separation", 6)
-
-			var rename_edit := LineEdit.new()
-			rename_edit.text = p_name
-			rename_edit.placeholder_text = "Enter new pet name..."
-			rename_edit.custom_minimum_size.y = 54
-			rename_edit.add_theme_font_size_override("font_size", 27)
-			if has_node("OptionsMenu"):
-				get_node("OptionsMenu")._style_input(rename_edit)
-			MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % p_name)
-			rename_box.add_child(rename_edit)
-
-			var rename_btn_row := HBoxContainer.new()
-			rename_btn_row.add_theme_constant_override("separation", 8)
-			var btn_save_name := _create_cyber_button("💾 Save Name", Color("#10b981"), func():
-				var new_n := rename_edit.text.strip_edges()
-				if new_n != "":
-					var r := PetManager.rename_pet(PlayerData, pet_id, new_n)
-					if bool(r.get("success", false)):
-						add_life_event(str(r.get("message", "Pet renamed.")), "relationship")
-						update_ui()
-						SaveManager.save_game()
-						update_assets_panel()
-			)
-			btn_save_name.custom_minimum_size.y = 40
-			btn_save_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			btn_save_name.add_theme_font_size_override("font_size", 25)
-			rename_btn_row.add_child(btn_save_name)
-
-			var btn_cancel_name := _create_cyber_button("✖ Cancel", Color("#64748b"), func():
-				rename_box.visible = false
-			)
-			btn_cancel_name.custom_minimum_size.y = 40
-			btn_cancel_name.add_theme_font_size_override("font_size", 25)
-			rename_btn_row.add_child(btn_cancel_name)
-			rename_box.add_child(rename_btn_row)
-			pv.add_child(rename_box)
-
 			var sec_h := HBoxContainer.new()
 			sec_h.add_theme_constant_override("separation", 10)
 			pv.add_child(sec_h)
 
 			var btn_rename := _create_cyber_button("✏️ Rename Pet", Color("#8b5cf6"), func():
-				rename_box.visible = not rename_box.visible
+				MobileKeyboardManager.show_input_popup({
+					"title": "RENAME PET",
+					"subtitle": "Enter a new name for your pet companion %s:" % p_name,
+					"initial_value": p_name,
+					"placeholder": "Enter pet name...",
+					"confirm_text": "💾 Save Name",
+					"confirm_color": Color("#10b981"),
+					"on_confirm": func(new_n: String):
+						var trimmed := new_n.strip_edges()
+						if trimmed != "":
+							var r := PetManager.rename_pet(PlayerData, pet_id, trimmed)
+							if bool(r.get("success", false)):
+								add_life_event(str(r.get("message", "Pet renamed.")), "relationship")
+								update_ui()
+								SaveManager.save_game()
+								update_assets_panel()
+				})
 			)
 			btn_rename.custom_minimum_size.y = 40
 			btn_rename.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -10211,53 +10187,24 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		var actions_row := HBoxContainer.new()
 		actions_row.add_theme_constant_override("separation", 8)
 
-		var rename_box := VBoxContainer.new()
-		rename_box.visible = false
-		rename_box.add_theme_constant_override("separation", 6)
-
-		var rename_edit := LineEdit.new()
-		rename_edit.text = b_name
-		rename_edit.placeholder_text = "Enter new enterprise name..."
-		rename_edit.custom_minimum_size.y = 58
-		rename_edit.add_theme_font_size_override("font_size", 28)
-		get_node("OptionsMenu")._style_input(rename_edit)
-		MobileKeyboardManager.attach_to_input(rename_edit, "Enter new name for %s:" % b_name)
-		rename_box.add_child(rename_edit)
-
-		var rename_btn_row := HBoxContainer.new()
-		rename_btn_row.add_theme_constant_override("separation", 8)
-		var btn_save_name := _create_cyber_button("💾 Save", Color("#10b981"), func():
-			var new_n := rename_edit.text.strip_edges()
-			if new_n != "":
-				var r := BusinessManager.rename_business(uid, new_n)
-				if bool(r.get("success", false)):
-					add_life_event(str(r.get("message", "Enterprise name updated.")), "activity")
-					update_ui()
-					SaveManager.save_game()
-					_show_business_modal("enterprises", uid, true)
-		)
-		btn_save_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_save_name.custom_minimum_size.y = 54
-		btn_save_name.add_theme_font_size_override("font_size", 26)
-		btn_save_name.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn_save_name.set_meta("center_text", true)
-		rename_btn_row.add_child(btn_save_name)
-
-		var btn_cancel_name := _create_cyber_button("Cancel", Color("#64748b"), func():
-			rename_box.visible = false
-		)
-		btn_cancel_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_cancel_name.custom_minimum_size.y = 54
-		btn_cancel_name.add_theme_font_size_override("font_size", 26)
-		btn_cancel_name.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn_cancel_name.set_meta("center_text", true)
-		rename_btn_row.add_child(btn_cancel_name)
-		rename_box.add_child(rename_btn_row)
-
 		var btn_rename := _create_cyber_button("✏️ Rename", Color("#3b82f6"), func():
-			rename_box.visible = not rename_box.visible
-			if rename_box.visible:
-				rename_edit.grab_focus()
+			MobileKeyboardManager.show_input_popup({
+				"title": "RENAME ENTERPRISE",
+				"subtitle": "Enter a new commercial name for %s:" % b_name,
+				"initial_value": b_name,
+				"placeholder": "Enter enterprise name...",
+				"confirm_text": "💾 Save Name",
+				"confirm_color": Color("#10b981"),
+				"on_confirm": func(new_n: String):
+					var trimmed := new_n.strip_edges()
+					if trimmed != "":
+						var r := BusinessManager.rename_business(uid, trimmed)
+						if bool(r.get("success", false)):
+							add_life_event(str(r.get("message", "Enterprise name updated.")), "activity")
+							update_ui()
+							SaveManager.save_game()
+							_show_business_modal("enterprises", uid, true)
+			})
 		)
 		btn_rename.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rename.custom_minimum_size.y = 58
@@ -10295,7 +10242,6 @@ func _render_business_tab_enterprises(list: VBoxContainer) -> void:
 		actions_row.add_child(btn_sell)
 
 		cv.add_child(actions_row)
-		cv.add_child(rename_box)
 		list.add_child(card)
 
 
@@ -10799,12 +10745,26 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		btn_rep_all.disabled = treasury < cur_loan
 		repay_row.add_child(btn_rep_all)
 
-		var inline_repay_box := VBoxContainer.new()
-		inline_repay_box.visible = false
-		inline_repay_box.add_theme_constant_override("separation", 8)
-
 		var btn_rep_custom := _create_cyber_button("💳 Repay Custom", Color("#10b981"), func():
-			inline_repay_box.visible = not inline_repay_box.visible
+			MobileKeyboardManager.show_input_popup({
+				"title": "REPAY COMMERCIAL LOAN",
+				"subtitle": "Commercial Loan: $%s  •  Corporate Treasury: $%s" % [_format_number(cur_loan), _format_number(treasury)],
+				"placeholder": "Enter whole dollars (Max: $%s)" % _format_number(mini(cur_loan, treasury)),
+				"keyboard_type": LineEdit.KEYBOARD_TYPE_NUMBER,
+				"confirm_text": "💳 Submit Repayment",
+				"confirm_color": Color("#10b981"),
+				"on_confirm": func(val_str: String):
+					var req := _parse_loan_payment(val_str)
+					if req > 0 and req <= cur_loan and req <= treasury:
+						var r := BusinessManager.repay_business_loan(target_biz, req)
+						if bool(r.get("success", false)):
+							add_life_event(str(r.get("message", "Repaid $%s commercial loan." % _format_number(req))), "finance")
+							update_ui()
+							SaveManager.save_game()
+							_show_business_modal("treasury", cur_uid, true)
+					else:
+						add_life_event("⚠️ Enter an amount between $1 and max repayable ($%s)." % _format_number(mini(cur_loan, treasury)), "warning")
+			})
 		, true)
 		btn_rep_custom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn_rep_custom.custom_minimum_size.y = 64
@@ -10814,49 +10774,6 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 		repay_row.add_child(btn_rep_custom)
 
 		lv.add_child(repay_row)
-
-		# Custom Repay Inline Controls
-		var repay_input := LineEdit.new()
-		repay_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
-		repay_input.placeholder_text = "Enter whole dollars (Max: $%s)" % _format_number(mini(cur_loan, treasury))
-		repay_input.custom_minimum_size.y = 58
-		repay_input.add_theme_font_size_override("font_size", 28)
-		get_node("OptionsMenu")._style_input(repay_input)
-		MobileKeyboardManager.attach_to_input(repay_input, "Enter custom repayment amount:")
-		inline_repay_box.add_child(repay_input)
-
-		var repay_btn_row := HBoxContainer.new()
-		repay_btn_row.add_theme_constant_override("separation", 8)
-
-		var btn_sub_repay := _create_cyber_button("💳 Submit Repayment", Color("#10b981"), func():
-			var req := _parse_loan_payment(repay_input.text)
-			if req > 0 and req <= cur_loan and req <= treasury:
-				var r := BusinessManager.repay_business_loan(target_biz, req)
-				if bool(r.get("success", false)):
-					add_life_event(str(r.get("message", "Repaid $%s commercial loan." % _format_number(req))), "finance")
-					update_ui()
-					SaveManager.save_game()
-					_show_business_modal("treasury", cur_uid, true)
-		, true)
-		btn_sub_repay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_sub_repay.custom_minimum_size.y = 56
-		btn_sub_repay.add_theme_font_size_override("font_size", 26)
-		btn_sub_repay.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn_sub_repay.set_meta("center_text", true)
-		repay_btn_row.add_child(btn_sub_repay)
-
-		var btn_can_repay := _create_cyber_button("Cancel", Color("#64748b"), func():
-			inline_repay_box.visible = false
-		, true)
-		btn_can_repay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_can_repay.custom_minimum_size.y = 56
-		btn_can_repay.add_theme_font_size_override("font_size", 26)
-		btn_can_repay.alignment = HORIZONTAL_ALIGNMENT_CENTER
-		btn_can_repay.set_meta("center_text", true)
-		repay_btn_row.add_child(btn_can_repay)
-
-		inline_repay_box.add_child(repay_btn_row)
-		lv.add_child(inline_repay_box)
 
 	list.add_child(loan_card)
 
@@ -10935,69 +10852,49 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	custom_eq_row.add_theme_constant_override("separation", 8)
 	custom_eq_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-	var inline_custom_box := VBoxContainer.new()
-	inline_custom_box.visible = false
-	inline_custom_box.add_theme_constant_override("separation", 8)
-
-	var custom_input := LineEdit.new()
-	custom_input.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER
-	custom_input.placeholder_text = "Enter amount in whole dollars..."
-	custom_input.custom_minimum_size.y = 58
-	custom_input.add_theme_font_size_override("font_size", 28)
-	get_node("OptionsMenu")._style_input(custom_input)
-	MobileKeyboardManager.attach_to_input(custom_input, "Enter custom transfer amount:")
-	inline_custom_box.add_child(custom_input)
-
-	var custom_act_row := HBoxContainer.new()
-	custom_act_row.add_theme_constant_override("separation", 8)
-
-	var btn_do_custom_div := _create_cyber_button("💰 Withdraw Dividend", Color("#10b981"), func():
-		var req := _parse_loan_payment(custom_input.text)
-		if req > 0 and req <= treasury:
-			var r := BusinessManager.withdraw_owner_dividend(target_biz, req)
-			if bool(r.get("success", false)):
-				add_life_event(str(r.get("message", "Withdrew $%s dividend." % _format_number(req))), "finance")
-				update_ui()
-				SaveManager.save_game()
-				_show_business_modal("treasury", cur_uid, true)
-	, true)
-	btn_do_custom_div.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_do_custom_div.custom_minimum_size.y = 56
-	btn_do_custom_div.add_theme_font_size_override("font_size", 26)
-	btn_do_custom_div.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_do_custom_div.set_meta("center_text", true)
-	custom_act_row.add_child(btn_do_custom_div)
-
-	var btn_do_custom_inj := _create_cyber_button("💵 Inject Capital", Color("#0284c7"), func():
-		var req := _parse_loan_payment(custom_input.text)
-		if req > 0 and req <= PlayerData.get_available_funds():
-			var r := BusinessManager.deposit_owner_capital(target_biz, req)
-			if bool(r.get("success", false)):
-				add_life_event(str(r.get("message", "Injected $%s capital." % _format_number(req))), "finance")
-				update_ui()
-				SaveManager.save_game()
-				_show_business_modal("treasury", cur_uid, true)
-	, true)
-	btn_do_custom_inj.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_do_custom_inj.custom_minimum_size.y = 56
-	btn_do_custom_inj.add_theme_font_size_override("font_size", 26)
-	btn_do_custom_inj.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_do_custom_inj.set_meta("center_text", true)
-	custom_act_row.add_child(btn_do_custom_inj)
-
-	var btn_can_custom := _create_cyber_button("Cancel", Color("#64748b"), func():
-		inline_custom_box.visible = false
-	, true)
-	btn_can_custom.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_can_custom.custom_minimum_size.y = 56
-	btn_can_custom.add_theme_font_size_override("font_size", 26)
-	btn_can_custom.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_can_custom.set_meta("center_text", true)
-	custom_act_row.add_child(btn_can_custom)
-	inline_custom_box.add_child(custom_act_row)
-
 	var btn_custom_toggle := _create_cyber_button("⚙️ Custom Dividend / Capital Transfer", Color("#10b981"), func():
-		inline_custom_box.visible = not inline_custom_box.visible
+		var withdraw_cb := func(val_str: String):
+			var req := _parse_loan_payment(val_str)
+			if req > 0 and req <= treasury:
+				var r := BusinessManager.withdraw_owner_dividend(target_biz, req)
+				if bool(r.get("success", false)):
+					add_life_event(str(r.get("message", "Withdrew $%s dividend." % _format_number(req))), "finance")
+					update_ui()
+					SaveManager.save_game()
+					_show_business_modal("treasury", cur_uid, true)
+			else:
+				add_life_event("⚠️ Withdrawal must be between $1 and treasury ($%s available)." % _format_number(treasury), "warning")
+
+		var inject_cb := func(val_str: String):
+			var req := _parse_loan_payment(val_str)
+			if req > 0 and req <= PlayerData.get_available_funds():
+				var r := BusinessManager.deposit_owner_capital(target_biz, req)
+				if bool(r.get("success", false)):
+					add_life_event(str(r.get("message", "Injected $%s capital." % _format_number(req))), "finance")
+					update_ui()
+					SaveManager.save_game()
+					_show_business_modal("treasury", cur_uid, true)
+			else:
+				add_life_event("⚠️ Capital injection must be between $1 and available personal funds ($%s)." % _format_number(PlayerData.get_available_funds()), "warning")
+
+		MobileKeyboardManager.show_input_popup({
+			"title": "CORPORATE TREASURY TRANSFER",
+			"subtitle": "Corporate Treasury: $%s  •  Personal Cash: $%s" % [_format_number(treasury), _format_number(PlayerData.get_available_funds())],
+			"placeholder": "Enter amount in whole dollars...",
+			"keyboard_type": LineEdit.KEYBOARD_TYPE_NUMBER,
+			"custom_actions": [
+				{
+					"label": "💰 Withdraw Dividend",
+					"color": Color("#10b981"),
+					"callback": withdraw_cb
+				},
+				{
+					"label": "💵 Inject Capital",
+					"color": Color("#0284c7"),
+					"callback": inject_cb
+				}
+			]
+		})
 	, true)
 	btn_custom_toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn_custom_toggle.custom_minimum_size.y = 60
@@ -11007,7 +10904,6 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	custom_eq_row.add_child(btn_custom_toggle)
 
 	ev.add_child(custom_eq_row)
-	ev.add_child(inline_custom_box)
 	list.add_child(equity_card)
 
 	# 6. Corporate Treasury Expansion & Growth Operations with Inline Branch Creation
@@ -11038,55 +10934,29 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	exp_desc.add_theme_color_override("font_color", Color("#bae6fd"))
 	exp_v.add_child(exp_desc)
 
-	# Branch Expansion Button & Inline Box
+	# Branch Expansion Button
 	var next_branch_cost := BusinessManager.get_branch_expansion_cost(target_biz)
-	var branch_box := VBoxContainer.new()
-	branch_box.visible = false
-	branch_box.add_theme_constant_override("separation", 8)
-
-	var branch_input := LineEdit.new()
-	branch_input.text = "%s - Branch %d" % [b_name, branches + 1]
-	branch_input.placeholder_text = "Enter branch name..."
-	branch_input.custom_minimum_size.y = 58
-	branch_input.add_theme_font_size_override("font_size", 28)
-	get_node("OptionsMenu")._style_input(branch_input)
-	MobileKeyboardManager.attach_to_input(branch_input, "Enter branch name for %s:" % b_name)
-	branch_box.add_child(branch_input)
-
-	var branch_btn_row := HBoxContainer.new()
-	branch_btn_row.add_theme_constant_override("separation", 8)
-
-	var btn_sub_branch := _create_cyber_button("🏢 Deploy $%s & Establish Branch" % _format_number(next_branch_cost), Color("#0284c7"), func():
-		var br_name := branch_input.text.strip_edges()
-		if br_name != "" and treasury >= next_branch_cost:
-			var r := BusinessManager.open_business_branch(target_biz, br_name)
-			if bool(r.get("success", false)):
-				add_life_event(str(r.get("message", "Branch established!")), "milestone")
-				update_ui()
-				SaveManager.save_game()
-				var new_uid: String = str(r.get("branch", {}).get("uid", cur_uid))
-				_show_business_modal("treasury", new_uid, true)
-	, true)
-	btn_sub_branch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_sub_branch.custom_minimum_size.y = 58
-	btn_sub_branch.add_theme_font_size_override("font_size", 26)
-	btn_sub_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_sub_branch.set_meta("center_text", true)
-	branch_btn_row.add_child(btn_sub_branch)
-
-	var btn_can_branch := _create_cyber_button("Cancel", Color("#64748b"), func():
-		branch_box.visible = false
-	, true)
-	btn_can_branch.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	btn_can_branch.custom_minimum_size.y = 58
-	btn_can_branch.add_theme_font_size_override("font_size", 26)
-	btn_can_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	btn_can_branch.set_meta("center_text", true)
-	branch_btn_row.add_child(btn_can_branch)
-	branch_box.add_child(branch_btn_row)
-
 	var btn_branch := _create_cyber_button("🏢 Open Branch #%d (Deploy $%s Treasury Funds)" % [branches + 1, _format_number(next_branch_cost)], Color("#0284c7"), func():
-		branch_box.visible = not branch_box.visible
+		MobileKeyboardManager.show_input_popup({
+			"title": "ESTABLISH NEW BRANCH",
+			"subtitle": "Corporate Treasury: $%s  •  Expansion Cost: $%s" % [_format_number(treasury), _format_number(next_branch_cost)],
+			"initial_value": "%s - Branch %d" % [b_name, branches + 1],
+			"placeholder": "Enter branch name...",
+			"confirm_text": "🏢 Deploy $%s & Establish Branch" % _format_number(next_branch_cost),
+			"confirm_color": Color("#0284c7"),
+			"on_confirm": func(val_str: String):
+				var br_name := val_str.strip_edges()
+				if br_name != "" and treasury >= next_branch_cost:
+					var r := BusinessManager.open_business_branch(target_biz, br_name)
+					if bool(r.get("success", false)):
+						add_life_event(str(r.get("message", "Branch established!")), "milestone")
+						update_ui()
+						SaveManager.save_game()
+						var new_uid: String = str(r.get("branch", {}).get("uid", cur_uid))
+						_show_business_modal("treasury", new_uid, true)
+				else:
+					add_life_event("⚠️ Please enter a valid branch name.", "warning")
+		})
 	, true)
 	btn_branch.custom_minimum_size.y = 64
 	btn_branch.add_theme_font_size_override("font_size", 28)
@@ -11094,7 +10964,6 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	btn_branch.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	btn_branch.set_meta("center_text", true)
 	exp_v.add_child(btn_branch)
-	exp_v.add_child(branch_box)
 
 	# Facility Upgrade Button
 	var fac_cost := BusinessManager.get_facility_upgrade_cost(target_biz)
@@ -13904,6 +13773,10 @@ func _refresh_cyber_modal(existing: Variant, title_text: String, subtitle_text: 
 			view.card.add_theme_stylebox_override("panel", card_style)
 		return view
 	return _create_cyber_modal(title_text, subtitle_text, border_color)
+
+
+func _show_text_input_popup(options: Dictionary) -> Control:
+	return MobileKeyboardManager.show_input_popup(options)
 
 
 func _create_cyber_modal(title_text: String, subtitle_text: String, border_color: Color, use_fade_in: bool = false) -> Dictionary:
