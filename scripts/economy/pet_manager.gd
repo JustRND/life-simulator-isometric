@@ -355,10 +355,8 @@ static func adopt_pet(
 		var last_adopt_year = player_data.get("last_pet_adoption_year")
 		var last_adopt_age = player_data.get("last_pet_adoption_age")
 		if last_adopt_month != null and last_adopt_year != null and int(last_adopt_month) > 0 and int(last_adopt_year) > 0:
-			if int(last_adopt_month) == cur_m and int(last_adopt_year) == cur_y and int(last_adopt_age) == cur_a:
-				return {"success": false, "message": "Monthly Adoption Limit (Annual Adoption Limit): You have already adopted a companion pet this month! Advance time to adopt another pet next month."}
-		elif last_adopt_age != null and int(last_adopt_age) == cur_a:
-			return {"success": false, "message": "Monthly Adoption Limit (Annual Adoption Limit): You have already adopted a companion pet for Age %d! Advance age (+1 Year) to adopt another pet." % player_data.age}
+			if int(last_adopt_month) == cur_m and int(last_adopt_year) == cur_y:
+				return {"success": false, "message": "Monthly Adoption Limit: You have already adopted a companion pet this month! Advance time to adopt another pet next month."}
 
 	var price: int = int(pet_spec.get("price", 0))
 	var total_funds: int = player_data.money + player_data.bank_savings
@@ -482,7 +480,7 @@ static func interact_pet(player_data: Node, pet_id: String, action: String) -> D
 			var p_y: int = int(pet.get(act_field_year, -1))
 			var p_a: int = int(pet.get(act_field_age, -1))
 
-			if (p_m == cur_m and p_y == cur_y and p_a == cur_a) or (p_m < 0 and p_a == cur_a):
+			if p_m > 0 and p_y > 0 and p_m == cur_m and p_y == cur_y:
 				var verb: String = "played with" if action == "play" else ("walked" if action == "walk" else ("given treats to" if action == "treat" else "taken to the vet"))
 				return {"success": false, "message": "Already done for this month! You have already %s %s this month. Available again next month!" % [verb, pet_name]}
 

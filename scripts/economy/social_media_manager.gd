@@ -145,8 +145,8 @@ static func create_post(player_data: Node, platform: String) -> Dictionary:
 	var last_p_year: int = int(account.get("last_post_year", -1))
 	var last_p_age: int = int(account.get("last_post_age", -1))
 
-	if (last_p_month == cur_m and last_p_year == cur_y and last_p_age == cur_a) or (last_p_month < 0 and last_p_age == cur_a):
-		return {"success": false, "message": "Monthly Post Limit (Annual Post Limit): You have already shared a post on %s this month. Followers await fresh content next month!" % p_info.name}
+	if last_p_month > 0 and last_p_year > 0 and last_p_month == cur_m and last_p_year == cur_y:
+		return {"success": false, "message": "Monthly Post Limit: You have already shared a post on %s this month. Followers await fresh content next month!" % p_info.name}
 
 	account["posts_count"] = int(account.get("posts_count", 0)) + 1
 	account["last_post_age"] = cur_a
@@ -264,8 +264,8 @@ static func buy_followers(player_data: Node, platform: String, tier: int) -> Dic
 	var last_ad_year: int = int(account.get("last_ad_year", -1))
 	var last_ad_age: int = int(account.get("last_ad_age", -1))
 
-	if (last_ad_month == cur_m and last_ad_year == cur_y and last_ad_age == cur_a) or (last_ad_month < 0 and last_ad_age == cur_a):
-		return {"success": false, "message": "Monthly Campaign Limit (Annual Campaign Limit): You have already run a promotional campaign on %s this month. Ad algorithms need time to recalibrate before next month!" % p_info.name}
+	if last_ad_month > 0 and last_ad_year > 0 and last_ad_month == cur_m and last_ad_year == cur_y:
+		return {"success": false, "message": "Monthly Campaign Limit: You have already run a promotional campaign on %s this month. Ad algorithms need time to recalibrate before next month!" % p_info.name}
 
 	var tiers := [
 		{"amount": 1000, "cost": 150},
@@ -346,8 +346,8 @@ static func troll_someone(player_data: Node, platform: String) -> Dictionary:
 	var last_troll_year: int = int(account.get("last_troll_year", -1))
 	var last_troll_age: int = int(account.get("last_troll_age", -1))
 
-	if (last_troll_month == cur_m and last_troll_year == cur_y and last_troll_age == cur_a) or (last_troll_month < 0 and last_troll_age == cur_a):
-		return {"success": false, "message": "Internet Cooldown: You have already engaged in online drama on %s this month. Moderation algorithms are watching until next month (or next year)!" % p_info.name}
+	if last_troll_month > 0 and last_troll_year > 0 and last_troll_month == cur_m and last_troll_year == cur_y:
+		return {"success": false, "message": "Internet Cooldown: You have already engaged in online drama on %s this month. Moderation algorithms are watching until next month!" % p_info.name}
 
 	account["last_troll_age"] = cur_a
 	account["last_troll_month"] = cur_m

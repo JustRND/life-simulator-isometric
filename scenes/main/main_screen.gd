@@ -1617,6 +1617,8 @@ func update_ui() -> void:
 		update_relationships_panel()
 	if character_panel.visible:
 		update_character_panel()
+	if assets_panel != null and assets_panel.visible:
+		update_assets_panel()
 
 
 func _on_age_button_pressed() -> void:
@@ -3308,8 +3310,8 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 
 			var cat: String = str(item.get("category", ""))
 			var is_minor_property: bool = (cat == AssetCatalog.CATEGORY_PROPERTIES and PlayerData.age < 18)
-			var is_used: bool = int(item.get("last_used_age", -1)) == PlayerData.age
-			var use_text := "Used This Year" if is_used else "Interact"
+			var is_used: bool = PlayerData.is_activity_used_this_month(int(item.get("last_used_month", -1)), int(item.get("last_used_year", -1)), int(item.get("last_used_age", -1)))
+			var use_text := "Used This Month" if is_used else "Interact"
 			match cat:
 				AssetCatalog.CATEGORY_CARS, AssetCatalog.CATEGORY_MOTORCYCLES, AssetCatalog.CATEGORY_BICYCLES:
 					use_text = "Joyride (Used)" if is_used else "🏎️ Joyride"
@@ -3330,7 +3332,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 				AssetCatalog.CATEGORY_ANTIQUES:
 					use_text = "Inspected (Used)" if is_used else "🏺 Inspect Relic"
 				_:
-					use_text = "Used This Year" if is_used else "✨ Enjoy Asset"
+					use_text = "Used This Month" if is_used else "✨ Enjoy Asset"
 
 			var instance_id: String = str(item.get("instance_id", ""))
 			var btn_use := _create_cyber_button(use_text, Color("#0284c7"), func():
@@ -3348,6 +3350,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			btn_use.add_theme_font_size_override("font_size", 26)
 			if is_used:
 				btn_use.disabled = true
+				btn_use.tooltip_text = "Already enjoyed this month. Available again next month."
 				btn_use.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			act_row.add_child(btn_use)
 
@@ -3531,8 +3534,8 @@ func _render_owned_pets_section() -> void:
 			pv.add_child(act_h)
 
 			var pet_id: String = str(pet.get("id", ""))
-			var has_played_this_year: bool = int(pet.get("last_play_age", -1)) == PlayerData.age
-			var btn_play := _create_cyber_button("🎾 Play (Used)" if has_played_this_year else "🎾 Play", Color("#38bdf8"), func():
+			var has_played_this_month: bool = PlayerData.is_activity_used_this_month(int(pet.get("last_play_month", -1)), int(pet.get("last_play_year", -1)), int(pet.get("last_play_age", -1)))
+			var btn_play := _create_cyber_button("🎾 Play (Used)" if has_played_this_month else "🎾 Play", Color("#38bdf8"), func():
 				var res := PetManager.interact_pet(PlayerData, pet_id, "play")
 				add_life_event(res["message"], "relationship")
 				update_ui()
@@ -3541,14 +3544,14 @@ func _render_owned_pets_section() -> void:
 			btn_play.custom_minimum_size.y = 58
 			btn_play.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn_play.add_theme_font_size_override("font_size", 26)
-			if has_played_this_year:
+			if has_played_this_month:
 				btn_play.disabled = true
 				btn_play.modulate = Color(0.6, 0.6, 0.6, 0.7)
-				btn_play.tooltip_text = "Completed for Age %d (Wait until next year)" % PlayerData.age
+				btn_play.tooltip_text = "Completed for this month (Available again next month)"
 			act_h.add_child(btn_play)
 
-			var has_walked_this_year: bool = int(pet.get("last_walk_age", -1)) == PlayerData.age
-			var btn_walk := _create_cyber_button("🦮 Walk (Used)" if has_walked_this_year else "🦮 Walk", Color("#10b981"), func():
+			var has_walked_this_month: bool = PlayerData.is_activity_used_this_month(int(pet.get("last_walk_month", -1)), int(pet.get("last_walk_year", -1)), int(pet.get("last_walk_age", -1)))
+			var btn_walk := _create_cyber_button("🦮 Walk (Used)" if has_walked_this_month else "🦮 Walk", Color("#10b981"), func():
 				var res := PetManager.interact_pet(PlayerData, pet_id, "walk")
 				add_life_event(res["message"], "relationship")
 				update_ui()
@@ -3557,14 +3560,14 @@ func _render_owned_pets_section() -> void:
 			btn_walk.custom_minimum_size.y = 58
 			btn_walk.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn_walk.add_theme_font_size_override("font_size", 26)
-			if has_walked_this_year:
+			if has_walked_this_month:
 				btn_walk.disabled = true
 				btn_walk.modulate = Color(0.6, 0.6, 0.6, 0.7)
-				btn_walk.tooltip_text = "Completed for Age %d (Wait until next year)" % PlayerData.age
+				btn_walk.tooltip_text = "Completed for this month (Available again next month)"
 			act_h.add_child(btn_walk)
 
-			var has_treated_this_year: bool = int(pet.get("last_treat_age", -1)) == PlayerData.age
-			var btn_treat := _create_cyber_button("🍖 Treat (Used)" if has_treated_this_year else "🍖 Treat", Color("#f59e0b"), func():
+			var has_treated_this_month: bool = PlayerData.is_activity_used_this_month(int(pet.get("last_treat_month", -1)), int(pet.get("last_treat_year", -1)), int(pet.get("last_treat_age", -1)))
+			var btn_treat := _create_cyber_button("🍖 Treat (Used)" if has_treated_this_month else "🍖 Treat", Color("#f59e0b"), func():
 				var res := PetManager.interact_pet(PlayerData, pet_id, "treat")
 				add_life_event(res["message"], "relationship")
 				update_ui()
@@ -3573,14 +3576,14 @@ func _render_owned_pets_section() -> void:
 			btn_treat.custom_minimum_size.y = 58
 			btn_treat.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn_treat.add_theme_font_size_override("font_size", 26)
-			if has_treated_this_year:
+			if has_treated_this_month:
 				btn_treat.disabled = true
 				btn_treat.modulate = Color(0.6, 0.6, 0.6, 0.7)
-				btn_treat.tooltip_text = "Completed for Age %d (Wait until next year)" % PlayerData.age
+				btn_treat.tooltip_text = "Completed for this month (Available again next month)"
 			act_h.add_child(btn_treat)
 
-			var has_vetted_this_year: bool = int(pet.get("last_vet_age", -1)) == PlayerData.age
-			var btn_vet := _create_cyber_button("🩺 Vet (Used)" if has_vetted_this_year else "🩺 Vet Checkup", Color("#f43f5e"), func():
+			var has_vetted_this_month: bool = PlayerData.is_activity_used_this_month(int(pet.get("last_vet_month", -1)), int(pet.get("last_vet_year", -1)), int(pet.get("last_vet_age", -1)))
+			var btn_vet := _create_cyber_button("🩺 Vet (Used)" if has_vetted_this_month else "🩺 Vet Checkup", Color("#f43f5e"), func():
 				var res := PetManager.interact_pet(PlayerData, pet_id, "vet")
 				add_life_event(res["message"], "relationship")
 				update_ui()
@@ -3589,10 +3592,10 @@ func _render_owned_pets_section() -> void:
 			btn_vet.custom_minimum_size.y = 58
 			btn_vet.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			btn_vet.add_theme_font_size_override("font_size", 26)
-			if has_vetted_this_year:
+			if has_vetted_this_month:
 				btn_vet.disabled = true
 				btn_vet.modulate = Color(0.6, 0.6, 0.6, 0.7)
-				btn_vet.tooltip_text = "Completed for Age %d (Wait until next year)" % PlayerData.age
+				btn_vet.tooltip_text = "Completed for this month (Available again next month)"
 			act_h.add_child(btn_vet)
 
 			var sec_h := HBoxContainer.new()
@@ -5661,47 +5664,50 @@ func _setup_parent_action_row(vbox: VBoxContainer, parent_type: String) -> void:
 		btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 		var act_key: String = act[1]
-		var is_used_this_year := false
+		var is_used_this_month := false
 		if act_key == "spend_time":
 			if is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_mother_spend_time_month, PlayerData.last_mother_spend_time_year, PlayerData.last_mother_spend_time_age):
-				is_used_this_year = true
+				is_used_this_month = true
 			elif not is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_father_spend_time_month, PlayerData.last_father_spend_time_year, PlayerData.last_father_spend_time_age):
-				is_used_this_year = true
+				is_used_this_month = true
 		elif act_key == "compliment":
 			if is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_mother_compliment_month, PlayerData.last_mother_compliment_year, PlayerData.last_mother_compliment_age):
-				is_used_this_year = true
+				is_used_this_month = true
 			elif not is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_father_compliment_month, PlayerData.last_father_compliment_year, PlayerData.last_father_compliment_age):
-				is_used_this_year = true
+				is_used_this_month = true
 		elif act_key == "ask_money":
 			if is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_mother_ask_money_month, PlayerData.last_mother_ask_money_year, PlayerData.last_mother_ask_money_age):
-				is_used_this_year = true
+				is_used_this_month = true
 			elif not is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_father_ask_money_month, PlayerData.last_father_ask_money_year, PlayerData.last_father_ask_money_age):
-				is_used_this_year = true
+				is_used_this_month = true
 		elif act_key == "pay_medication":
 			if is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_mother_pay_meds_month, PlayerData.last_mother_pay_meds_year, PlayerData.last_mother_pay_meds_age):
-				is_used_this_year = true
+				is_used_this_month = true
 			elif not is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_father_pay_meds_month, PlayerData.last_father_pay_meds_year, PlayerData.last_father_pay_meds_age):
-				is_used_this_year = true
+				is_used_this_month = true
 		elif act_key == "doctor_checkup":
 			if is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_mother_doctor_checkup_month, PlayerData.last_mother_doctor_checkup_year, PlayerData.last_mother_doctor_checkup_age):
-				is_used_this_year = true
+				is_used_this_month = true
 			elif not is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_father_doctor_checkup_month, PlayerData.last_father_doctor_checkup_year, PlayerData.last_father_doctor_checkup_age):
-				is_used_this_year = true
+				is_used_this_month = true
 		elif act_key == "doctor_vitamin_shot":
 			if is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_mother_vitamin_shot_month, PlayerData.last_mother_vitamin_shot_year, PlayerData.last_mother_vitamin_shot_age):
-				is_used_this_year = true
+				is_used_this_month = true
 			elif not is_mother and PlayerData.is_activity_used_this_month(PlayerData.last_father_vitamin_shot_month, PlayerData.last_father_vitamin_shot_year, PlayerData.last_father_vitamin_shot_age):
-				is_used_this_year = true
+				is_used_this_month = true
 
 		var col := Color(act[2])
 		var is_light: bool = LifeLibrary.data.theme == "light"
 		btn.set_meta("reference_part", true)
 		btn.set_meta("market_button", true)
 
-		if is_used_this_year:
+		if is_used_this_month:
 			btn.text = act[0] + " (Used)"
 			btn.disabled = true
-			btn.tooltip_text = "Already used with your %s this month. Available again next month." % ("mother" if is_mother else "father")
+			if act_key == "ask_money":
+				btn.tooltip_text = "Already asked your %s for money this month. Available again next month." % ("mother" if is_mother else "father")
+			else:
+				btn.tooltip_text = "Already used with your %s this month. Available again next month." % ("mother" if is_mother else "father")
 			var disabled_sb := StyleBoxFlat.new()
 			disabled_sb.bg_color = Color("#94a3b8" if is_light else "#334155")
 			disabled_sb.border_color = Color("#cbd5e1" if is_light else "#475569")
@@ -9159,15 +9165,16 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 		if str(PlayerData.job_payment_type) != DailyJobsCatalogScript.PAYMENT_TYPE_DAILY_WAGE:
 			cur_v.add_child(_create_cyber_button("View career ladder", Color("#38bdf8"), func(): _show_career_ladder()))
 
-			var ot_used: bool = (PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age)
+			var ot_used: bool = PlayerData.is_activity_used_this_month(PlayerData.last_overtime_month, PlayerData.last_overtime_year, PlayerData.last_overtime_age)
 			var m_sal_ot: int = int(round(float(PlayerData.job_salary) / 12.0))
 			var ot_bonus: int = maxi(100, int(round(float(m_sal_ot) * 0.50)))
-			var ot_text := "⏱️ Work Overtime (Used)\nMonthly overtime limit reached for Month %d. Available again next month." % PlayerData.in_game_month if ot_used else "⏱️ Work Overtime\nPut in extra hours at %s. +$%s Bonus" % [PlayerData.job_company, _format_number(ot_bonus)]
+			var ot_text := "⏱️ Work Overtime (Used)\nMonthly overtime limit reached for %s. Available again next month." % GameClock.get_month_name(PlayerData.in_game_month) if ot_used else "⏱️ Work Overtime\nPut in extra hours at %s. +$%s Bonus" % [PlayerData.job_company, _format_number(ot_bonus)]
 			var btn_ot := _create_cyber_button(ot_text, Color("#38bdf8"), func():
-				if PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age:
+				if PlayerData.is_activity_used_this_month(PlayerData.last_overtime_month, PlayerData.last_overtime_year, PlayerData.last_overtime_age):
 					return
 				PlayerData.last_overtime_age = PlayerData.age
 				PlayerData.last_overtime_month = PlayerData.in_game_month
+				PlayerData.last_overtime_year = PlayerData.in_game_year
 				PlayerData.money += ot_bonus
 				PlayerData.happiness = maxi(5, PlayerData.happiness - 5)
 				add_life_event("You worked late overtime at %s. Earned a hard-work bonus of $%s!" % [PlayerData.job_company, _format_number(ot_bonus)], "job")
@@ -9242,15 +9249,16 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 		cur_v.add_child(cur_title)
 		cur_v.add_child(cur_desc)
 
-		var gig_used: bool = (PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age)
+		var gig_used: bool = PlayerData.is_activity_used_this_month(PlayerData.last_childhood_gig_month, PlayerData.last_childhood_gig_year, PlayerData.last_childhood_gig_age)
 
 		if PlayerData.age < 4:
 			var toy_text := "🍼 Toy Cash Register & Play Coins (Used)" if gig_used else "🍼 Toy Cash Register & Play Coins\nPlay with pretend cash and count plastic coins."
 			var btn_toy := _create_cyber_button(toy_text, Color("#38bdf8"), func():
-				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.is_activity_used_this_month(PlayerData.last_childhood_gig_month, PlayerData.last_childhood_gig_year, PlayerData.last_childhood_gig_age):
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
 				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
+				PlayerData.last_childhood_gig_year = PlayerData.in_game_year
 				PlayerData.smarts = mini(100, PlayerData.smarts + 2)
 				PlayerData.happiness = mini(100, PlayerData.happiness + 4)
 				add_life_event("You had fun ringing up items on your toy cash register! 'Beep beep!' (+Smarts, +Happiness)", "activity")
@@ -9261,15 +9269,16 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			if gig_used:
 				btn_toy.disabled = true
 				btn_toy.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_toy.tooltip_text = "Activity completed for Month %d (Available again next month)." % PlayerData.in_game_month
+				btn_toy.tooltip_text = "Activity completed for %s (Available again next month)." % GameClock.get_month_name(PlayerData.in_game_month)
 			cur_v.add_child(btn_toy)
 		elif PlayerData.age < 10:
 			var chores_text := "🧹 Help Parents with Household Chores ($15 Cash) (Used)" if gig_used else "🧹 Help Parents with Household Chores ($15 Cash)\nClean your room and organize the kitchen with your family."
 			var btn_chores := _create_cyber_button(chores_text, Color("#10b981"), func():
-				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.is_activity_used_this_month(PlayerData.last_childhood_gig_month, PlayerData.last_childhood_gig_year, PlayerData.last_childhood_gig_age):
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
 				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
+				PlayerData.last_childhood_gig_year = PlayerData.in_game_year
 				PlayerData.money += 15
 				PlayerData.happiness = mini(100, PlayerData.happiness + 3)
 				if PlayerData.mother_relationship > 0:
@@ -9284,15 +9293,16 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			if gig_used:
 				btn_chores.disabled = true
 				btn_chores.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_chores.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
+				btn_chores.tooltip_text = "Completed for %s (Available again next month)." % GameClock.get_month_name(PlayerData.in_game_month)
 			cur_v.add_child(btn_chores)
 
 			var comics_text := "🎨 Draw & Sell Hand-Drawn Comics ($10 Cash) (Used)" if gig_used else "🎨 Draw & Sell Hand-Drawn Comics ($10 Cash)\nSketch mini comic strips and sell them to school friends."
 			var btn_comics := _create_cyber_button(comics_text, Color("#f59e0b"), func():
-				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.is_activity_used_this_month(PlayerData.last_childhood_gig_month, PlayerData.last_childhood_gig_year, PlayerData.last_childhood_gig_age):
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
 				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
+				PlayerData.last_childhood_gig_year = PlayerData.in_game_year
 				PlayerData.money += 10
 				PlayerData.smarts = mini(100, PlayerData.smarts + 3)
 				PlayerData.happiness = mini(100, PlayerData.happiness + 4)
@@ -9304,15 +9314,16 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			if gig_used:
 				btn_comics.disabled = true
 				btn_comics.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_comics.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
+				btn_comics.tooltip_text = "Completed for %s (Available again next month)." % GameClock.get_month_name(PlayerData.in_game_month)
 			cur_v.add_child(btn_comics)
 		else:
 			var lemonade_text := "🍋 Run a Neighborhood Lemonade Stand ($35 Cash) (Used)" if gig_used else "🍋 Run a Neighborhood Lemonade Stand ($35 Cash)\nMix fresh lemonade and sell cups on the sidewalk."
 			var btn_lemonade := _create_cyber_button(lemonade_text, Color("#f59e0b"), func():
-				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.is_activity_used_this_month(PlayerData.last_childhood_gig_month, PlayerData.last_childhood_gig_year, PlayerData.last_childhood_gig_age):
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
 				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
+				PlayerData.last_childhood_gig_year = PlayerData.in_game_year
 				PlayerData.money += 35
 				PlayerData.smarts = mini(100, PlayerData.smarts + 3)
 				PlayerData.happiness = mini(100, PlayerData.happiness + 6)
@@ -9324,15 +9335,16 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			if gig_used:
 				btn_lemonade.disabled = true
 				btn_lemonade.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_lemonade.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
+				btn_lemonade.tooltip_text = "Completed for %s (Available again next month)." % GameClock.get_month_name(PlayerData.in_game_month)
 			cur_v.add_child(btn_lemonade)
 
 			var mow_text := "🌱 Mow Lawns & Rake Leaves for Neighbors ($45 Cash) (Used)" if gig_used else "🌱 Mow Lawns & Rake Leaves for Neighbors ($45 Cash)\nOffer yard work services to neighbors on weekends."
 			var btn_mow := _create_cyber_button(mow_text, Color("#10b981"), func():
-				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.is_activity_used_this_month(PlayerData.last_childhood_gig_month, PlayerData.last_childhood_gig_year, PlayerData.last_childhood_gig_age):
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
 				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
+				PlayerData.last_childhood_gig_year = PlayerData.in_game_year
 				PlayerData.money += 45
 				PlayerData.health = mini(100, PlayerData.health + 4)
 				PlayerData.karma += 3
@@ -14538,7 +14550,7 @@ func _show_education_minigame_results() -> void:
 	if is_course:
 		rdesc.text = "Congratulations! Your course certification is complete.\n\n• Official credentials certified for career & university qualification"
 	else:
-		rdesc.text = "Great effort! Your test results have been registered into your academic transcript:\n\n• Annual academic maintenance fulfilled (grades protected from degradation)"
+		rdesc.text = "Great effort! Your test results have been registered into your academic transcript:\n\n• Monthly academic maintenance fulfilled (grades protected from degradation)"
 	rdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rdesc.add_theme_font_size_override("font_size", 32)
 	rdesc.add_theme_color_override("font_color", Color("#cbd5e1"))
@@ -15923,16 +15935,23 @@ func _show_psychologist_modal() -> void:
 		}
 	]
 
+	var psych_used: bool = PlayerData.is_activity_used_this_month(PlayerData.last_psychologist_month, PlayerData.last_psychologist_year, PlayerData.last_psychologist_age)
+
 	for t in treatments:
 		var cost: int = int(t["cost"])
-		var btn_text := "🛋️ %s ($%s)\n%s" % [t["title"], _format_number(cost), t["desc"]]
+		var btn_text := "🛋️ %s ($%s)%s\n%s" % [t["title"], _format_number(cost), " (Used)" if psych_used else "", t["desc"]]
 		var btn := _create_cyber_button(btn_text, Color("#38bdf8"), func():
+			if PlayerData.is_activity_used_this_month(PlayerData.last_psychologist_month, PlayerData.last_psychologist_year, PlayerData.last_psychologist_age):
+				return
 			if PlayerData.get_available_funds() < cost:
 				add_life_event("💸 INSUFFICIENT FUNDS: The %s costs $%s, but you lack sufficient capital." % [t["title"], _format_number(cost)], "finance")
 				show_tab("timeline")
 				mental_institution_modal_overlay.queue_free()
 				return
 			PlayerData.debit_funds(cost)
+			PlayerData.last_psychologist_month = PlayerData.in_game_month
+			PlayerData.last_psychologist_year = PlayerData.in_game_year
+			PlayerData.last_psychologist_age = PlayerData.age
 			PlayerData.mental_state = mini(100, PlayerData.mental_state + int(t["mental"]))
 			PlayerData.happiness = mini(100, PlayerData.happiness + int(t["happy"]))
 			add_life_event("🧠 PSYCHOTHERAPY: You attended a %s with a clinical psychologist ($%s). Your mental state improved (+%d%%) and happiness rose (+%d%%)." % [
@@ -15947,6 +15966,10 @@ func _show_psychologist_modal() -> void:
 		)
 		btn.custom_minimum_size.y = 96
 		btn.add_theme_font_size_override("font_size", 30)
+		if psych_used:
+			btn.disabled = true
+			btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			btn.tooltip_text = "Monthly consultation completed for %s. Available again next month." % GameClock.get_month_name(PlayerData.in_game_month)
 		list.add_child(btn)
 
 	mental_institution_modal_overlay.visible = true
@@ -16009,16 +16032,23 @@ func _show_psychiatrist_modal() -> void:
 		}
 	]
 
+	var psych_med_used: bool = PlayerData.is_activity_used_this_month(PlayerData.last_psychiatrist_month, PlayerData.last_psychiatrist_year, PlayerData.last_psychiatrist_age)
+
 	for m in meds:
 		var cost: int = int(m["cost"])
-		var btn_text := "💊 %s ($%s)\n%s" % [m["title"], _format_number(cost), m["desc"]]
+		var btn_text := "💊 %s ($%s)%s\n%s" % [m["title"], _format_number(cost), " (Used)" if psych_med_used else "", m["desc"]]
 		var btn := _create_cyber_button(btn_text, Color("#ec4899"), func():
+			if PlayerData.is_activity_used_this_month(PlayerData.last_psychiatrist_month, PlayerData.last_psychiatrist_year, PlayerData.last_psychiatrist_age):
+				return
 			if PlayerData.get_available_funds() < cost:
 				add_life_event("💸 INSUFFICIENT FUNDS: The %s prescription costs $%s, but you lack sufficient capital." % [m["title"], _format_number(cost)], "finance")
 				show_tab("timeline")
 				mental_institution_modal_overlay.queue_free()
 				return
 			PlayerData.debit_funds(cost)
+			PlayerData.last_psychiatrist_month = PlayerData.in_game_month
+			PlayerData.last_psychiatrist_year = PlayerData.in_game_year
+			PlayerData.last_psychiatrist_age = PlayerData.age
 			PlayerData.mental_state = mini(100, PlayerData.mental_state + int(m["mental"]))
 			PlayerData.happiness = mini(100, PlayerData.happiness + int(m["happy"]))
 			add_life_event("💊 PSYCHIATRIC MEDICATION: Prescribed %s by clinical psychiatrist ($%s). Your mental state surged (+%d%%)." % [
@@ -16032,6 +16062,10 @@ func _show_psychiatrist_modal() -> void:
 		)
 		btn.custom_minimum_size.y = 96
 		btn.add_theme_font_size_override("font_size", 30)
+		if psych_med_used:
+			btn.disabled = true
+			btn.modulate = Color(0.6, 0.6, 0.6, 0.65)
+			btn.tooltip_text = "Monthly psychiatric evaluation completed for %s. Available again next month." % GameClock.get_month_name(PlayerData.in_game_month)
 		list.add_child(btn)
 
 	mental_institution_modal_overlay.visible = true
@@ -17273,7 +17307,7 @@ func _show_will_modal() -> void:
 
 func _show_charity_modal() -> void:
 	var is_light: bool = LifeLibrary.data.theme == "light"
-	var modal := _refresh_cyber_modal(charity_modal_overlay, "🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Boost Karma & Happiness (Once Per Year)", Color("#10b981"))
+	var modal := _refresh_cyber_modal(charity_modal_overlay, "🤝 PHILANTHROPY & CHARITY", "Donate to Worthy Causes • Boost Karma & Happiness (Once Per Month)", Color("#10b981"))
 	charity_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
 

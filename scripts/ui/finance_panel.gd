@@ -868,13 +868,13 @@ func _businesses(list: VBoxContainer) -> void:
 
 
 func open_learning(notice: String = "") -> void:
-	var view: Dictionary = main._refresh_cyber_modal(learning_overlay, "LEARNING & SMARTS", "Each activity is available once per year. Any activity protects smarts from annual decay. Gains taper above 85 smarts.", Color("#38bdf8"))
+	var view: Dictionary = main._refresh_cyber_modal(learning_overlay, "LEARNING & SMARTS", "Each activity is available once per month. Any activity protects smarts from decay. Gains taper above 85 smarts.", Color("#38bdf8"))
 	learning_overlay = view.overlay
 	label(view.list, "Smarts: %d • Funds: %s" % [PlayerData.smarts, _money(PlayerData.get_available_funds())], 28)
 	if not notice.is_empty():
 		label(view.list, notice, 26, Color("#10b981"))
 	for activity in BalanceRules.LEARNING:
-		var used: bool = int(PlayerData.learning_activities.get(activity.id, -1)) == PlayerData.age
+		var used: bool = BalanceRules.is_learning_activity_used_this_month(PlayerData, activity.id)
 		var title: String = "%s\nCost: %s • Age %d+" % [
 			activity.name,
 			_money(activity.cost),

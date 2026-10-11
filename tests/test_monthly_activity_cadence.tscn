@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btp4w1qk7s2y9"]
+
+[ext_resource type="Script" path="res://tests/test_monthly_activity_cadence.gd" id="1_test"]
+
+[node name="TestMonthlyActivityCadence" type="Node"]
+script = ExtResource("1_test")

@@ -262,6 +262,12 @@ func capture_data() -> Dictionary:
 		"last_therapy_age": PlayerData.last_therapy_age,
 		"last_therapy_month": PlayerData.last_therapy_month,
 		"last_therapy_year": PlayerData.last_therapy_year,
+		"last_psychologist_age": PlayerData.last_psychologist_age,
+		"last_psychologist_month": PlayerData.last_psychologist_month,
+		"last_psychologist_year": PlayerData.last_psychologist_year,
+		"last_psychiatrist_age": PlayerData.last_psychiatrist_age,
+		"last_psychiatrist_month": PlayerData.last_psychiatrist_month,
+		"last_psychiatrist_year": PlayerData.last_psychiatrist_year,
 		"last_er_age": PlayerData.last_er_age,
 		"last_er_month": PlayerData.last_er_month,
 		"last_er_year": PlayerData.last_er_year,
@@ -676,6 +682,12 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.last_therapy_age = int(data.get("last_therapy_age", -1))
 	PlayerData.last_therapy_month = int(data.get("last_therapy_month", -1))
 	PlayerData.last_therapy_year = int(data.get("last_therapy_year", -1))
+	PlayerData.last_psychologist_age = int(data.get("last_psychologist_age", -1))
+	PlayerData.last_psychologist_month = int(data.get("last_psychologist_month", -1))
+	PlayerData.last_psychologist_year = int(data.get("last_psychologist_year", -1))
+	PlayerData.last_psychiatrist_age = int(data.get("last_psychiatrist_age", -1))
+	PlayerData.last_psychiatrist_month = int(data.get("last_psychiatrist_month", -1))
+	PlayerData.last_psychiatrist_year = int(data.get("last_psychiatrist_year", -1))
 	PlayerData.last_er_age = int(data.get("last_er_age", -1))
 	PlayerData.last_er_month = int(data.get("last_er_month", -1))
 	PlayerData.last_er_year = int(data.get("last_er_year", -1))

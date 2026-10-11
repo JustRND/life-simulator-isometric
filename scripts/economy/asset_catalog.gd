@@ -1685,7 +1685,7 @@ static func use_asset(player_data: Node, instance_id: String) -> Dictionary:
 			var last_y: int = int(asset.get("last_used_year", -1))
 			var last_a: int = int(asset.get("last_used_age", -1))
 
-			if (last_m == cur_m and last_y == cur_y and last_a == cur_a) or (last_m < 0 and last_a == cur_a):
+			if last_m > 0 and last_y > 0 and last_m == cur_m and last_y == cur_y:
 				return {
 					"success": false,
 					"message": "You already enjoyed your %s this month. Available again next month!" % asset.get("name", "asset")

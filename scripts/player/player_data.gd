@@ -183,6 +183,12 @@ var last_chemo_year: int = -1
 var last_therapy_age: int = -1
 var last_therapy_month: int = -1
 var last_therapy_year: int = -1
+var last_psychologist_age: int = -1
+var last_psychologist_month: int = -1
+var last_psychologist_year: int = -1
+var last_psychiatrist_age: int = -1
+var last_psychiatrist_month: int = -1
+var last_psychiatrist_year: int = -1
 var last_er_age: int = -1
 var last_er_month: int = -1
 var last_er_year: int = -1
@@ -466,6 +472,12 @@ func reset_player() -> void:
 	last_therapy_age = -1
 	last_therapy_month = -1
 	last_therapy_year = -1
+	last_psychologist_age = -1
+	last_psychologist_month = -1
+	last_psychologist_year = -1
+	last_psychiatrist_age = -1
+	last_psychiatrist_month = -1
+	last_psychiatrist_year = -1
 	last_er_age = -1
 	last_er_month = -1
 	last_er_year = -1
@@ -2613,13 +2625,9 @@ func process_monthly_neural_implants() -> Array[String]:
 	return logs
 
 
-func is_activity_used_this_month(action_month: int, action_year: int, action_age: int = -1) -> bool:
+func is_activity_used_this_month(action_month: int, action_year: int, _action_age: int = -1) -> bool:
 	if action_month > 0 and action_year > 0:
-		if action_age >= 0:
-			return action_month == in_game_month and action_year == in_game_year and action_age == age
 		return action_month == in_game_month and action_year == in_game_year
-	if action_age >= 0:
-		return action_age == age
 	return false
 
 

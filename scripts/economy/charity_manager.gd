@@ -85,9 +85,7 @@ static func has_donated_this_month(player_data: Node) -> bool:
 	var l_a = player_data.get("last_charity_donation_age")
 
 	if l_m != null and l_y != null and int(l_m) > 0 and int(l_y) > 0:
-		return int(l_m) == cur_m and int(l_y) == cur_y and int(l_a) == cur_a
-	elif l_a != null:
-		return int(l_a) == cur_a
+		return int(l_m) == cur_m and int(l_y) == cur_y
 	return false
 
 static func can_donate(player_data: Node, charity_id: String) -> Dictionary:
@@ -106,7 +104,7 @@ static func can_donate(player_data: Node, charity_id: String) -> Dictionary:
 	if has_donated_this_month(player_data):
 		return {
 			"allowed": false,
-			"reason": "Monthly Donation Made (Annual Donation Made): You can only donate once per month (Age %d). Contributions reset next month (or next year)." % player_data.age
+			"reason": "Monthly Donation Made: You can only donate once per month (Age %d). Contributions reset next month." % player_data.age
 		}
 
 	var cost: int = int(def.get("donation_amount", 100))

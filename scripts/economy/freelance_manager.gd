@@ -335,7 +335,7 @@ static func pitch_gig(job_id: String) -> Dictionary:
 	var last_pitch_y: int = int(PlayerData.last_freelance_pitch_year.get(job_id, -1))
 	var last_pitch_a: int = int(PlayerData.last_freelance_pitch_age.get(job_id, -1))
 
-	if (last_pitch_m == cur_m and last_pitch_y == cur_y and last_pitch_a == cur_age) or (last_pitch_m < 0 and last_pitch_a == cur_age):
+	if last_pitch_m > 0 and last_pitch_y > 0 and last_pitch_m == cur_m and last_pitch_y == cur_y:
 		return {"success": false, "message": "You have already pitched client contracts for this profession this month. Available again next month!"}
 
 	PlayerData.last_freelance_pitch_age[job_id] = cur_age

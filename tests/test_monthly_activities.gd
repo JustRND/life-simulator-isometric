@@ -53,9 +53,9 @@ func test_monthly_cooldown_helper() -> void:
 	# Used previous year (Month 3, 2025)
 	assert_check(not PlayerData.is_activity_used_this_month(3, 2025, 14), "Used in Month 3 of previous year reports NOT used this month")
 
-	# Legacy save migration fallback (month=-1, year=-1, age matches current age)
-	assert_check(PlayerData.is_activity_used_this_month(-1, -1, 15), "Legacy save fallback (month -1, age 15) reports used for current age")
-	assert_check(not PlayerData.is_activity_used_this_month(-1, -1, 14), "Legacy save fallback (month -1, age 14) reports not used for current age 15")
+	# Unset month or legacy save (-1) should not lock activity for the year
+	assert_check(not PlayerData.is_activity_used_this_month(-1, -1, 15), "Unset month (-1) does not lock activity for current age")
+	assert_check(not PlayerData.is_activity_used_this_month(-1, -1, 14), "Unset month (-1) reports not used")
 
 
 func test_social_media_monthly_cycle() -> void:
