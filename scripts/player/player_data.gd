@@ -297,8 +297,21 @@ var job_id: String = ""
 var job_title: String = ""
 var job_company: String = ""
 var job_salary: int = 0
+var job_payment_type: String = "MONTHLY_SALARY"
 var career_progress: Dictionary = {}
 var underground_progress: Dictionary = {}
+
+# Daily Wage & Gig Employment System
+var part_time_job: Dictionary = {}
+var daily_wage_last_paid: Dictionary = {"year": 0, "month": 0, "day": 0}
+var daily_wage_earnings_this_year: int = 0
+var taxable_daily_wages_this_year: int = 0
+var gig_earnings_this_year: int = 0
+var gigs_completed_today: int = 0
+var last_gig_date: Dictionary = {"year": 0, "month": 0, "day": 0}
+var gig_reputation: Dictionary = {}
+var gig_history: Array = []
+var daily_earnings_log: Array = []
 
 var illnesses: Array = []
 var is_dead: bool = false
@@ -577,8 +590,19 @@ func reset_player() -> void:
 	job_title = ""
 	job_company = ""
 	job_salary = 0
+	job_payment_type = "MONTHLY_SALARY"
 	career_progress = {}
 	underground_progress = {}
+	part_time_job = {}
+	daily_wage_last_paid = {"year": 0, "month": 0, "day": 0}
+	daily_wage_earnings_this_year = 0
+	taxable_daily_wages_this_year = 0
+	gig_earnings_this_year = 0
+	gigs_completed_today = 0
+	last_gig_date = {"year": 0, "month": 0, "day": 0}
+	gig_reputation = {}
+	gig_history.clear()
+	daily_earnings_log.clear()
 
 	illnesses.clear()
 	is_dead = false
@@ -2597,4 +2621,36 @@ func is_activity_used_this_month(action_month: int, action_year: int, action_age
 	if action_age >= 0:
 		return action_age == age
 	return false
+
+
+# -----------------------------------------------------------------------------
+# DAILY WAGE & PART-TIME EMPLOYMENT HELPERS
+# -----------------------------------------------------------------------------
+
+func has_part_time_job() -> bool:
+	return not part_time_job.is_empty()
+
+
+func get_part_time_job() -> Dictionary:
+	return part_time_job
+
+
+func assign_part_time_job(job_def: Dictionary, company_name: String = "") -> bool:
+	if job_def.is_empty():
+		return false
+	var job_copy := job_def.duplicate(true)
+	if company_name != "":
+		job_copy["company"] = company_name
+	part_time_job = job_copy
+	return true
+
+
+func quit_part_time_job() -> void:
+	part_time_job.clear()
+
+
+func process_daily_employment_tick(y: int, m: int, d: int) -> Dictionary:
+	var dw_manager = preload("res://scripts/economy/daily_wage_manager.gd")
+	return dw_manager.process_daily_wages(self, y, m, d)
+
 

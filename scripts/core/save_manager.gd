@@ -154,8 +154,19 @@ func capture_data() -> Dictionary:
 		"job_title": PlayerData.job_title,
 		"job_company": PlayerData.job_company,
 		"job_salary": PlayerData.job_salary,
+		"job_payment_type": PlayerData.job_payment_type,
 		"career_progress": PlayerData.career_progress,
 		"underground_progress": PlayerData.underground_progress,
+		"part_time_job": PlayerData.part_time_job.duplicate(true),
+		"daily_wage_last_paid": PlayerData.daily_wage_last_paid.duplicate(true),
+		"daily_wage_earnings_this_year": PlayerData.daily_wage_earnings_this_year,
+		"taxable_daily_wages_this_year": PlayerData.taxable_daily_wages_this_year,
+		"gig_earnings_this_year": PlayerData.gig_earnings_this_year,
+		"gigs_completed_today": PlayerData.gigs_completed_today,
+		"last_gig_date": PlayerData.last_gig_date.duplicate(true),
+		"gig_reputation": PlayerData.gig_reputation.duplicate(true),
+		"gig_history": PlayerData.gig_history.duplicate(true),
+		"daily_earnings_log": PlayerData.daily_earnings_log.duplicate(true),
 		"illnesses": PlayerData.illnesses,
 		"is_dead": PlayerData.is_dead,
 		"cause_of_death": PlayerData.cause_of_death,
@@ -684,8 +695,19 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.job_title = str(data.get("job_title", ""))
 	PlayerData.job_company = str(data.get("job_company", ""))
 	PlayerData.job_salary = int(data.get("job_salary", 0))
+	PlayerData.job_payment_type = str(data.get("job_payment_type", "MONTHLY_SALARY"))
 	PlayerData.career_progress = Dictionary(data.get("career_progress", {}))
 	PlayerData.underground_progress = Dictionary(data.get("underground_progress", {}))
+	PlayerData.part_time_job = Dictionary(data.get("part_time_job", {})).duplicate(true)
+	PlayerData.daily_wage_last_paid = Dictionary(data.get("daily_wage_last_paid", {"year": 0, "month": 0, "day": 0})).duplicate(true)
+	PlayerData.daily_wage_earnings_this_year = int(data.get("daily_wage_earnings_this_year", 0))
+	PlayerData.taxable_daily_wages_this_year = int(data.get("taxable_daily_wages_this_year", 0))
+	PlayerData.gig_earnings_this_year = int(data.get("gig_earnings_this_year", 0))
+	PlayerData.gigs_completed_today = int(data.get("gigs_completed_today", 0))
+	PlayerData.last_gig_date = Dictionary(data.get("last_gig_date", {"year": 0, "month": 0, "day": 0})).duplicate(true)
+	PlayerData.gig_reputation = Dictionary(data.get("gig_reputation", {})).duplicate(true)
+	PlayerData.gig_history = Array(data.get("gig_history", [])).duplicate(true)
+	PlayerData.daily_earnings_log = Array(data.get("daily_earnings_log", [])).duplicate(true)
 	preload("res://scripts/economy/career_progression.gd").normalize(PlayerData)
 	preload("res://scripts/economy/underground_progression.gd").normalize(PlayerData)
 

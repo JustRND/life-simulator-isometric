@@ -153,6 +153,8 @@ func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
 			process_daily_needs(pd, 1)
 			if pd.has_method("process_daily_venues_and_intoxication"):
 				pd.process_daily_venues_and_intoxication()
+			if pd.has_method("process_daily_employment_tick"):
+				pd.process_daily_employment_tick(_year, _month, _day)
 
 
 # -----------------------------------------------------------------------------

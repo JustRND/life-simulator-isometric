@@ -357,7 +357,9 @@ static func calculate_tax_return(player_data: Node) -> Dictionary:
 	if "pension_account" in player_data and player_data.pension_account is Dictionary:
 		pension_annuity = int(player_data.pension_account.get("last_annuity_payout", 0))
 
-	var gross_personal_income: int = job_salary + freelance_income + social_income + pension_annuity
+	var daily_wage_income: int = int(player_data.get("daily_wage_earnings_this_year")) if "daily_wage_earnings_this_year" in player_data else 0
+	var gig_income: int = int(player_data.get("gig_earnings_this_year")) if "gig_earnings_this_year" in player_data else 0
+	var gross_personal_income: int = job_salary + freelance_income + social_income + pension_annuity + daily_wage_income + gig_income
 
 	# Deductions: Pension retirement contributions + Charity donations made this year
 	var pension_deduction: int = 0
@@ -553,6 +555,9 @@ static func reconcile_annual_taxes(player_data: Node) -> Dictionary:
 		if "charity_donations_this_year" in player_data: player_data.charity_donations_this_year = 0
 		if "taxes_withheld_this_year" in player_data: player_data.taxes_withheld_this_year = 0
 		if "cumulative_salary_paid_this_year" in player_data: player_data.cumulative_salary_paid_this_year = 0
+		if "daily_wage_earnings_this_year" in player_data: player_data.daily_wage_earnings_this_year = 0
+		if "taxable_daily_wages_this_year" in player_data: player_data.taxable_daily_wages_this_year = 0
+		if "gig_earnings_this_year" in player_data: player_data.gig_earnings_this_year = 0
 		return {"reconciled": true, "refund": 0, "balance_due": 0, "logs": logs}
 
 	var tax_return: Dictionary = calculate_tax_return(player_data)
@@ -602,6 +607,9 @@ static func reconcile_annual_taxes(player_data: Node) -> Dictionary:
 	if "charity_donations_this_year" in player_data: player_data.charity_donations_this_year = 0
 	if "taxes_withheld_this_year" in player_data: player_data.taxes_withheld_this_year = 0
 	if "cumulative_salary_paid_this_year" in player_data: player_data.cumulative_salary_paid_this_year = 0
+	if "daily_wage_earnings_this_year" in player_data: player_data.daily_wage_earnings_this_year = 0
+	if "taxable_daily_wages_this_year" in player_data: player_data.taxable_daily_wages_this_year = 0
+	if "gig_earnings_this_year" in player_data: player_data.gig_earnings_this_year = 0
 	player_data.last_tax_return = tax_return
 
 	return {

@@ -2,6 +2,11 @@ extends Node
 
 const JOBS_FILE_PATH := "res://data/economy/jobs.json"
 
+const PAYMENT_TYPE_MONTHLY_SALARY := "MONTHLY_SALARY"
+const PAYMENT_TYPE_DAILY_WAGE     := "DAILY_WAGE"
+const PAYMENT_TYPE_PER_TASK       := "PER_TASK"
+const PAYMENT_TYPE_PER_PROJECT    := "PER_PROJECT"
+
 var categories: Array = []
 var jobs: Array = []
 var _jobs_by_id: Dictionary = {}
@@ -35,9 +40,26 @@ func load_jobs() -> void:
 	for job in jobs:
 		if job is Dictionary and job.has("id"):
 			job["salary"] = preload("res://scripts/economy/balance_rules.gd").salary(int(job.get("salary", 0)), str(job.get("category", "")))
+			if not job.has("payment_type"):
+				job["payment_type"] = PAYMENT_TYPE_MONTHLY_SALARY
+			if not job.has("job_type"):
+				job["job_type"] = "full_time"
 			_jobs_by_id[str(job["id"])] = job
 
 	print("Loaded %d jobs across %d categories." % [jobs.size(), categories.size()])
+
+
+func get_payment_type(job: Dictionary) -> String:
+	return str(job.get("payment_type", PAYMENT_TYPE_MONTHLY_SALARY))
+
+
+func is_daily_wage_job(job: Dictionary) -> bool:
+	return get_payment_type(job) == PAYMENT_TYPE_DAILY_WAGE
+
+
+func is_monthly_salary_job(job: Dictionary) -> bool:
+	return get_payment_type(job) == PAYMENT_TYPE_MONTHLY_SALARY
+
 
 
 func get_all_jobs() -> Array:

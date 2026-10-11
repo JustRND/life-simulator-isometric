@@ -126,7 +126,8 @@ static func process_monthly_settlement(player_data: Node, year: int, month: int)
 	var job_id: String = str(player_data.get("job_id"))
 	var job_sal: int = int(player_data.get("job_salary"))
 	var in_prison: bool = bool(player_data.get("is_in_prison"))
-	var is_employed: bool = not in_prison and job_title != "" and job_id != "" and job_sal > 0
+	var p_type: String = str(player_data.get("job_payment_type")) if player_data.get("job_payment_type") != null else "MONTHLY_SALARY"
+	var is_employed: bool = not in_prison and job_title != "" and job_id != "" and job_sal > 0 and p_type != "DAILY_WAGE"
 
 	var m_salary: int = 0
 	if is_employed:

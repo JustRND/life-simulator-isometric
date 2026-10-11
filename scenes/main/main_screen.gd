@@ -122,6 +122,7 @@ var background_music: Node = null
 @onready var filter_unique_btn: Button = get_node_or_null("InfantPanel/InfantMargin/InfantContent/HistoryFilterRow/FilterUniqueButton") as Button
 
 var overview_history_filter: String = "all"
+var active_employment_tab: String = "careers"
 
 # Activities Modals
 var jobs_modal_overlay: Control = null
@@ -2966,6 +2967,7 @@ func apply_for_job(job_id: String) -> void:
 	PlayerData.job_title = str(job.get("title", ""))
 	PlayerData.job_company = str(job.get("workplace", ""))
 	PlayerData.job_salary = int(job.get("salary", 0))
+	PlayerData.job_payment_type = str(job.get("payment_type", "MONTHLY_SALARY"))
 	CareerProgression.begin(PlayerData)
 	if job.get("category", "") == "underworld_crime":
 		UndergroundProgression.join(PlayerData)
@@ -2990,6 +2992,7 @@ func quit_job() -> void:
 	PlayerData.job_title = ""
 	PlayerData.job_company = ""
 	PlayerData.job_salary = 0
+	PlayerData.job_payment_type = "MONTHLY_SALARY"
 	PlayerData.career_progress = {}
 
 	add_life_event("You resigned from your position as %s. You are now unemployed." % old_title, "job")
@@ -9051,11 +9054,16 @@ func _show_career_ladder() -> void:
 		list.add_child(label)
 
 
-func _show_jobs_modal() -> void:
+func _show_jobs_modal(target_tab: String = "") -> void:
+	if target_tab != "":
+		active_employment_tab = target_tab
 
-	var modal := _refresh_cyber_modal(jobs_modal_overlay, "💼 CAREERS & OCCUPATION", "Browse Opportunities, Apply for Roles & Manage Employment", Color("#38bdf8"))
+	var modal := _refresh_cyber_modal(jobs_modal_overlay, "💼 CAREERS & EMPLOYMENT", "Browse Opportunities, Daily Wages, Gigs & Manage Employment", Color("#38bdf8"))
 	jobs_modal_overlay = modal.overlay
 	var list: VBoxContainer = modal.list
+
+	var DailyJobsCatalogScript = preload("res://scripts/economy/daily_jobs_catalog.gd")
+	var GigManagerScript = preload("res://scripts/economy/gig_manager.gd")
 
 	# Current Employment Status Card
 	var cur_card := PanelContainer.new()
@@ -9081,44 +9089,110 @@ func _show_jobs_modal() -> void:
 	cur_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	if PlayerData.job_title != "":
-		cur_title.text = "CURRENT OCCUPATION"
-		var m_sal: int = int(round(float(PlayerData.job_salary) / 12.0))
-		cur_desc.text = "%s  •  %s\n💰 Monthly Salary: $%s / mo ($%s / yr)" % [PlayerData.job_title, PlayerData.job_company, _format_number(m_sal), _format_number(PlayerData.job_salary)]
+		cur_title.text = "CURRENT PRIMARY OCCUPATION"
+		if str(PlayerData.job_payment_type) == DailyJobsCatalogScript.PAYMENT_TYPE_DAILY_WAGE:
+			var daily_rate: int = int(round(float(PlayerData.job_salary) / 260.0))
+			cur_desc.text = "%s  •  %s\n💵 Daily Wage: $%s / day (Paid on scheduled days worked)\nEstimated Monthly: ~$%s / mo" % [
+				PlayerData.job_title,
+				PlayerData.job_company,
+				_format_number(daily_rate),
+				_format_number(int(round(float(daily_rate * 5) * 4.33)))
+			]
+		else:
+			var m_sal: int = int(round(float(PlayerData.job_salary) / 12.0))
+			cur_desc.text = "%s  •  %s\n💰 Monthly Salary: $%s / mo ($%s / yr)" % [
+				PlayerData.job_title,
+				PlayerData.job_company,
+				_format_number(m_sal),
+				_format_number(PlayerData.job_salary)
+			]
 		cur_desc.text += "\n" + CareerProgression.summary(PlayerData)
 		cur_desc.add_theme_color_override("font_color", Color("#34d399"))
 		cur_v.add_child(cur_title)
 		cur_v.add_child(cur_desc)
-		cur_v.add_child(_create_cyber_button("View career ladder", Color("#38bdf8"), func(): _show_career_ladder()))
 
-		var ot_used: bool = (PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age)
-		var ot_bonus: int = maxi(100, int(round(float(m_sal) * 0.50)))
-		var ot_text := "⏱️ Work Overtime (Used)\nMonthly overtime limit reached for Month %d. Available again next month." % PlayerData.in_game_month if ot_used else "⏱️ Work Overtime\nPut in extra hours at %s. +$%s Bonus" % [PlayerData.job_company, _format_number(ot_bonus)]
-		var btn_ot := _create_cyber_button(ot_text, Color("#38bdf8"), func():
-			if PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age:
-				return
-			PlayerData.last_overtime_age = PlayerData.age
-			PlayerData.last_overtime_month = PlayerData.in_game_month
-			PlayerData.money += ot_bonus
-			PlayerData.happiness = maxi(5, PlayerData.happiness - 5)
-			add_life_event("You worked late overtime at %s. Earned a hard-work bonus of $%s!" % [PlayerData.job_company, _format_number(ot_bonus)], "job")
-			update_ui()
-			SaveManager.save_game()
-			_show_jobs_modal()
-		)
-		if ot_used:
-			btn_ot.disabled = true
-			btn_ot.modulate = Color(0.6, 0.6, 0.6, 0.65)
-			btn_ot.tooltip_text = "Already worked overtime this month. Available again next month."
-		cur_v.add_child(btn_ot)
+		if str(PlayerData.job_payment_type) != DailyJobsCatalogScript.PAYMENT_TYPE_DAILY_WAGE:
+			cur_v.add_child(_create_cyber_button("View career ladder", Color("#38bdf8"), func(): _show_career_ladder()))
+
+			var ot_used: bool = (PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age)
+			var m_sal_ot: int = int(round(float(PlayerData.job_salary) / 12.0))
+			var ot_bonus: int = maxi(100, int(round(float(m_sal_ot) * 0.50)))
+			var ot_text := "⏱️ Work Overtime (Used)\nMonthly overtime limit reached for Month %d. Available again next month." % PlayerData.in_game_month if ot_used else "⏱️ Work Overtime\nPut in extra hours at %s. +$%s Bonus" % [PlayerData.job_company, _format_number(ot_bonus)]
+			var btn_ot := _create_cyber_button(ot_text, Color("#38bdf8"), func():
+				if PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age:
+					return
+				PlayerData.last_overtime_age = PlayerData.age
+				PlayerData.last_overtime_month = PlayerData.in_game_month
+				PlayerData.money += ot_bonus
+				PlayerData.happiness = maxi(5, PlayerData.happiness - 5)
+				add_life_event("You worked late overtime at %s. Earned a hard-work bonus of $%s!" % [PlayerData.job_company, _format_number(ot_bonus)], "job")
+				update_ui()
+				SaveManager.save_game()
+				_show_jobs_modal()
+			)
+			if ot_used:
+				btn_ot.disabled = true
+				btn_ot.modulate = Color(0.6, 0.6, 0.6, 0.65)
+				btn_ot.tooltip_text = "Already worked overtime this month. Available again next month."
+			cur_v.add_child(btn_ot)
 
 		var btn_quit := _create_cyber_button("🚪 Resign / Quit Job", Color("#ef4444"), func():
 			quit_job()
 			_show_jobs_modal()
 		)
 		cur_v.add_child(btn_quit)
+
+		# Also display part-time job if player has one
+		if PlayerData.has_part_time_job():
+			var pt_info: Dictionary = PlayerData.get_part_time_job()
+			var pt_title_str: String = str(pt_info.get("title", "Part-Time Job"))
+			var pt_comp_str: String = str(pt_info.get("company", "Employer"))
+			var pt_wage: int = int(pt_info.get("daily_wage", 80))
+			var pt_sched: String = DailyJobsCatalogScript.format_schedule(pt_info)
+
+			var pt_lbl := Label.new()
+			pt_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			pt_lbl.add_theme_font_size_override("font_size", 28)
+			pt_lbl.text = "⏱️ SECONDARY PART-TIME JOB:\n%s at %s  •  $%d/day  •  %s" % [pt_title_str, pt_comp_str, pt_wage, pt_sched]
+			pt_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
+			cur_v.add_child(pt_lbl)
+
+			var btn_pt_quit := _create_cyber_button("🚪 Resign Part-Time Job", Color("#f87171"), func():
+				PlayerData.quit_part_time_job()
+				add_life_event("You resigned from your part-time job as %s." % pt_title_str, "job")
+				update_ui()
+				SaveManager.save_game()
+				_show_jobs_modal()
+			)
+			cur_v.add_child(btn_pt_quit)
+
+	elif PlayerData.has_part_time_job():
+		var pt_info: Dictionary = PlayerData.get_part_time_job()
+		var pt_title_str: String = str(pt_info.get("title", "Part-Time Job"))
+		var pt_comp_str: String = str(pt_info.get("company", "Employer"))
+		var pt_wage: int = int(pt_info.get("daily_wage", 80))
+		var pt_sched: String = DailyJobsCatalogScript.format_schedule(pt_info)
+
+		cur_title.text = "CURRENT OCCUPATION: PART-TIME"
+		cur_desc.text = "%s  •  %s\n💵 Daily Wage: $%s / day (Paid on scheduled days worked)\nSchedule: %s  •  Estimated: ~$%s / mo" % [
+			pt_title_str, pt_comp_str, _format_number(pt_wage), pt_sched, _format_number(DailyJobsCatalogScript.estimate_monthly_earnings(pt_info))
+		]
+		cur_desc.add_theme_color_override("font_color", Color("#fbbf24"))
+		cur_v.add_child(cur_title)
+		cur_v.add_child(cur_desc)
+
+		var btn_pt_quit := _create_cyber_button("🚪 Resign Part-Time Job", Color("#f87171"), func():
+			PlayerData.quit_part_time_job()
+			add_life_event("You resigned from your part-time job as %s." % pt_title_str, "job")
+			update_ui()
+			SaveManager.save_game()
+			_show_jobs_modal()
+		)
+		cur_v.add_child(btn_pt_quit)
+
 	elif PlayerData.age < 14:
 		cur_title.text = "OCCUPATIONAL STATUS: STUDENT / MINOR (Age %d)" % PlayerData.age
-		cur_desc.text = "👶 Child Labor Regulations: Formal employment opens at age 12-14 for odd jobs (Newspaper Courier, Babysitting, Lawn Care) and age 16 for standard careers. Childhood earnings and helper activities are available below:"
+		cur_desc.text = "👶 Child Labor Regulations: Formal employment opens at age 12-14 for odd jobs and daily wage work, and age 16 for standard careers. Childhood earnings and helper activities are available below:"
 		cur_desc.add_theme_color_override("font_color", Color("#93c5fd"))
 		cur_v.add_child(cur_title)
 		cur_v.add_child(cur_desc)
@@ -9229,51 +9303,393 @@ func _show_jobs_modal() -> void:
 			cur_v.add_child(btn_mow)
 	else:
 		cur_title.text = "CURRENT OCCUPATION"
-		cur_desc.text = "Status: Currently Unemployed\nBrowse the open positions below and apply for jobs you qualify for!"
+		cur_desc.text = "Status: Currently Unemployed\nBrowse the employment opportunities below and apply for positions you qualify for!"
 		cur_desc.add_theme_color_override("font_color", Color("#94a3b8"))
 		cur_v.add_child(cur_title)
 		cur_v.add_child(cur_desc)
 
 	list.add_child(cur_card)
 
-	# Career Hubs & Occupational Sectors
-	var sec_header := VBoxContainer.new()
-	sec_header.add_theme_constant_override("separation", 4)
+	# -------------------------------------------------------------------------
+	# EMPLOYMENT NAVIGATION TABS (5 MODES)
+	# -------------------------------------------------------------------------
+	var tabs_grid := GridContainer.new()
+	tabs_grid.columns = 3
+	tabs_grid.add_theme_constant_override("h_separation", 8)
+	tabs_grid.add_theme_constant_override("v_separation", 8)
 
-	var sec_title := Label.new()
-	sec_title.text = "🏢 CAREER SECTORS & OCCUPATIONAL HUBS"
-	sec_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sec_title.add_theme_font_size_override("font_size", 32)
-	sec_title.add_theme_color_override("font_color", Color("#38bdf8"))
-	sec_header.add_child(sec_title)
+	var tab_defs: Array[Dictionary] = [
+		{"id": "careers", "label": "🏢 Careers", "color": Color("#38bdf8")},
+		{"id": "daily", "label": "⏱️ Daily / Part-Time", "color": Color("#fbbf24")},
+		{"id": "gigs", "label": "⚡ Gig Work", "color": Color("#10b981")},
+		{"id": "freelance", "label": "📜 Freelance", "color": Color("#a855f7")},
+		{"id": "history", "label": "📊 Earnings Log", "color": Color("#06b6d4")}
+	]
 
-	var sec_desc := Label.new()
-	sec_desc.text = "Select an industry sector to view open positions, salary packages, and qualification requirements."
-	sec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sec_desc.add_theme_font_size_override("font_size", 28)
-	sec_desc.add_theme_color_override("font_color", Color("#94a3b8"))
-	sec_header.add_child(sec_desc)
-
-	list.add_child(sec_header)
-
-	var all_categories: Array = JobManager.get_categories()
-	for cat in all_categories:
-		if cat is not Dictionary:
-			continue
-		var cat_id: String = str(cat.get("id", ""))
-		var cat_name: String = str(cat.get("name", "Category"))
-		var cat_icon: String = str(cat.get("icon", "💼"))
-		var cat_desc_text: String = str(cat.get("description", ""))
-		var cat_color: Color = Color(cat.get("color", "#38bdf8"))
-		var cat_jobs: Array = JobManager.get_jobs_in_category(cat_id)
-
-		var btn_label := "%s %s (%d Positions)\n%s" % [cat_icon, cat_name, cat_jobs.size(), cat_desc_text]
-		var cat_btn := _create_cyber_button(btn_label, cat_color, func():
-			_show_job_category_modal(cat_id)
+	for t in tab_defs:
+		var t_id: String = str(t["id"])
+		var is_active: bool = (active_employment_tab == t_id)
+		var t_color: Color = Color(t["color"]) if is_active else Color("#475569")
+		var tab_btn := _create_cyber_button(str(t["label"]), t_color, func():
+			if t_id == "freelance":
+				if is_instance_valid(jobs_modal_overlay):
+					jobs_modal_overlay.queue_free()
+				_show_freelance_modal()
+			else:
+				_show_jobs_modal(t_id)
 		)
-		cat_btn.custom_minimum_size.y = 96
-		cat_btn.add_theme_font_size_override("font_size", 32)
-		list.add_child(cat_btn)
+		tab_btn.custom_minimum_size.y = 70
+		tab_btn.add_theme_font_size_override("font_size", 28)
+		tabs_grid.add_child(tab_btn)
+
+	list.add_child(tabs_grid)
+
+	# -------------------------------------------------------------------------
+	# TAB 1: FULL-TIME CAREERS (MONTHLY SALARY)
+	# -------------------------------------------------------------------------
+	if active_employment_tab == "careers":
+		var sec_header := VBoxContainer.new()
+		sec_header.add_theme_constant_override("separation", 4)
+
+		var sec_title := Label.new()
+		sec_title.text = "🏢 FULL-TIME CAREER SECTORS"
+		sec_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_title.add_theme_font_size_override("font_size", 32)
+		sec_title.add_theme_color_override("font_color", Color("#38bdf8"))
+		sec_header.add_child(sec_title)
+
+		var sec_desc := Label.new()
+		sec_desc.text = "Salaried careers paid monthly via corporate payroll. Select a sector to browse openings:"
+		sec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_desc.add_theme_font_size_override("font_size", 28)
+		sec_desc.add_theme_color_override("font_color", Color("#94a3b8"))
+		sec_header.add_child(sec_desc)
+
+		list.add_child(sec_header)
+
+		var all_categories: Array = JobManager.get_categories()
+		for cat in all_categories:
+			if cat is not Dictionary:
+				continue
+			var cat_id: String = str(cat.get("id", ""))
+			var cat_name: String = str(cat.get("name", "Category"))
+			var cat_icon: String = str(cat.get("icon", "💼"))
+			var cat_desc_text: String = str(cat.get("description", ""))
+			var cat_color: Color = Color(cat.get("color", "#38bdf8"))
+			var cat_jobs: Array = JobManager.get_jobs_in_category(cat_id)
+
+			var btn_label := "%s %s (%d Positions)\n%s" % [cat_icon, cat_name, cat_jobs.size(), cat_desc_text]
+			var cat_btn := _create_cyber_button(btn_label, cat_color, func():
+				_show_job_category_modal(cat_id)
+			)
+			cat_btn.custom_minimum_size.y = 96
+			cat_btn.add_theme_font_size_override("font_size", 32)
+			list.add_child(cat_btn)
+
+	# -------------------------------------------------------------------------
+	# TAB 2: DAILY WAGE & PART-TIME POSITIONS
+	# -------------------------------------------------------------------------
+	elif active_employment_tab == "daily":
+		var sec_header := VBoxContainer.new()
+		sec_header.add_theme_constant_override("separation", 4)
+
+		var sec_title := Label.new()
+		sec_title.text = "⏱️ DAILY WAGE & PART-TIME EMPLOYMENT"
+		sec_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_title.add_theme_font_size_override("font_size", 32)
+		sec_title.add_theme_color_override("font_color", Color("#fbbf24"))
+		sec_header.add_child(sec_title)
+
+		var sec_desc := Label.new()
+		sec_desc.text = "Paid on eligible days worked. Shifts: 5-8 hrs. Compatible with side gigs and education."
+		sec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_desc.add_theme_font_size_override("font_size", 28)
+		sec_desc.add_theme_color_override("font_color", Color("#94a3b8"))
+		sec_header.add_child(sec_desc)
+
+		list.add_child(sec_header)
+
+		var daily_categories := DailyJobsCatalogScript.get_categories()
+		for d_cat in daily_categories:
+			var c_id: String = str(d_cat.get("id"))
+			if c_id == DailyJobsCatalogScript.CATEGORY_GIG:
+				continue # Gigs have their own dedicated tab
+
+			var cat_lbl := Label.new()
+			cat_lbl.text = "%s %s" % [str(d_cat.get("icon")), str(d_cat.get("name")).to_upper()]
+			cat_lbl.add_theme_font_size_override("font_size", 30)
+			cat_lbl.add_theme_color_override("font_color", Color("#f59e0b"))
+			list.add_child(cat_lbl)
+
+			var jobs_in_cat := DailyJobsCatalogScript.get_jobs_by_category(c_id)
+			for job in jobs_in_cat:
+				var card := PanelContainer.new()
+				card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f59e0b")))
+
+				var m := MarginContainer.new()
+				m.add_theme_constant_override("margin_left", 20)
+				m.add_theme_constant_override("margin_right", 20)
+				m.add_theme_constant_override("margin_top", 16)
+				m.add_theme_constant_override("margin_bottom", 16)
+				card.add_child(m)
+
+				var vbox := VBoxContainer.new()
+				vbox.add_theme_constant_override("separation", 6)
+				m.add_child(vbox)
+
+				var title_lbl := Label.new()
+				title_lbl.text = "%s (%s)" % [str(job.get("title")), str(job.get("job_type", "part_time")).replace("_", " ").capitalize()]
+				title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				title_lbl.add_theme_font_size_override("font_size", 34)
+				title_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
+				vbox.add_child(title_lbl)
+
+				var daily_pay: int = int(job.get("daily_wage", 80))
+				var sched_str := DailyJobsCatalogScript.format_schedule(job)
+				var est_m := DailyJobsCatalogScript.estimate_monthly_earnings(job)
+
+				var pay_lbl := Label.new()
+				pay_lbl.text = "💵 Daily Wage: $%d / day   •   Schedule: %s\nEstimated Monthly: ~$%s / mo   •   Min Age: %d+" % [
+					daily_pay, sched_str, _format_number(est_m), int(job.get("min_age", 16))
+				]
+				pay_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				pay_lbl.add_theme_font_size_override("font_size", 28)
+				pay_lbl.add_theme_color_override("font_color", Color("#34d399"))
+				vbox.add_child(pay_lbl)
+
+				var desc_lbl := Label.new()
+				desc_lbl.text = str(job.get("description", ""))
+				desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				desc_lbl.add_theme_font_size_override("font_size", 28)
+				desc_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+				vbox.add_child(desc_lbl)
+
+				var check := DailyJobsCatalogScript.can_apply(job, PlayerData)
+				var is_allowed: bool = bool(check.get("allowed", false))
+				var j_id: String = str(job.get("id"))
+				var is_current: bool = (PlayerData.job_id == j_id or (PlayerData.has_part_time_job() and str(PlayerData.part_time_job.get("id")) == j_id))
+
+				var apply_btn: Button
+				if is_current:
+					apply_btn = _create_disabled_cyber_button("✓ CURRENT POSITION", "You are already working this position.")
+				elif is_allowed:
+					var has_primary: bool = (str(PlayerData.job_title) != "")
+					var btn_caption := "Accept Part-Time Position" if has_primary else "Apply for Daily Wage Position"
+					apply_btn = _create_cyber_button(btn_caption, Color("#10b981"), func():
+						var pools: Array = job.get("company_pool", ["Local Business"])
+						var chosen_comp: String = str(pools.pick_random())
+						if str(PlayerData.job_title) == "":
+							PlayerData.job_id = j_id
+							PlayerData.job_title = str(job.get("title"))
+							PlayerData.job_company = chosen_comp
+							PlayerData.job_salary = int(job.get("daily_wage", 80)) * 260
+							PlayerData.job_payment_type = DailyJobsCatalogScript.PAYMENT_TYPE_DAILY_WAGE
+							PlayerData.career_progress = {}
+						else:
+							PlayerData.assign_part_time_job(job, chosen_comp)
+						add_life_event("You accepted employment as %s at %s ($%d/day)!" % [str(job.get("title")), chosen_comp, int(job.get("daily_wage", 80))], "job")
+						update_ui()
+						SaveManager.save_game()
+						_show_jobs_modal("daily")
+					)
+				else:
+					apply_btn = _create_disabled_cyber_button("🔒 %s" % str(check.get("reason", "Ineligible")), "")
+
+				apply_btn.custom_minimum_size.y = 80
+				apply_btn.add_theme_font_size_override("font_size", 30)
+				vbox.add_child(apply_btn)
+
+				list.add_child(card)
+
+	# -------------------------------------------------------------------------
+	# TAB 3: GIG WORK & ON-DEMAND ASSIGNMENTS
+	# -------------------------------------------------------------------------
+	elif active_employment_tab == "gigs":
+		var sec_header := VBoxContainer.new()
+		sec_header.add_theme_constant_override("separation", 4)
+
+		var sec_title := Label.new()
+		sec_title.text = "⚡ ON-DEMAND GIG WORK & ASSIGNMENTS"
+		sec_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_title.add_theme_font_size_override("font_size", 32)
+		sec_title.add_theme_color_override("font_color", Color("#10b981"))
+		sec_header.add_child(sec_title)
+
+		var cap: int = GigManagerScript.get_daily_capacity(PlayerData)
+		var done: int = GigManagerScript.get_gigs_completed_today(PlayerData)
+		var rem: int = GigManagerScript.get_remaining_capacity(PlayerData)
+		var rep_total: int = GigManagerScript.get_reputation_points(PlayerData)
+		var tier_info := GigManagerScript.get_reputation_tier(rep_total)
+
+		var sec_desc := Label.new()
+		sec_desc.text = "Instant per-task payout upon completion. Daily Capacity: %d/%d remaining today.\nReputation Tier: %s %s (%d Rep Pts • %.2fx Pay Multiplier)" % [
+			rem, cap, str(tier_info.get("badge")), str(tier_info.get("title")), rep_total, float(tier_info.get("pay_mult"))
+		]
+		sec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_desc.add_theme_font_size_override("font_size", 28)
+		sec_desc.add_theme_color_override("font_color", Color("#94a3b8"))
+		sec_header.add_child(sec_desc)
+
+		list.add_child(sec_header)
+
+		var gigs := GigManagerScript.generate_available_gigs(PlayerData)
+		if gigs.is_empty():
+			var no_gigs_lbl := Label.new()
+			no_gigs_lbl.text = "No gigs currently available for your age. Entry gigs unlock starting at age 12!"
+			no_gigs_lbl.add_theme_font_size_override("font_size", 28)
+			no_gigs_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+			list.add_child(no_gigs_lbl)
+
+		for g in gigs:
+			var card := PanelContainer.new()
+			card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
+
+			var m := MarginContainer.new()
+			m.add_theme_constant_override("margin_left", 20)
+			m.add_theme_constant_override("margin_right", 20)
+			m.add_theme_constant_override("margin_top", 16)
+			m.add_theme_constant_override("margin_bottom", 16)
+			card.add_child(m)
+
+			var vbox := VBoxContainer.new()
+			vbox.add_theme_constant_override("separation", 6)
+			m.add_child(vbox)
+
+			var title_lbl := Label.new()
+			title_lbl.text = "%s  •  Client: %s" % [str(g.get("title")), str(g.get("client_name"))]
+			title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			title_lbl.add_theme_font_size_override("font_size", 34)
+			title_lbl.add_theme_color_override("font_color", Color("#34d399"))
+			vbox.add_child(title_lbl)
+
+			var payout_lbl := Label.new()
+			payout_lbl.text = "💵 Payout: $%d / assignment (Instant)   •   Min Age: %d+" % [
+				int(g.get("payout")), int(g.get("min_age"))
+			]
+			payout_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			payout_lbl.add_theme_font_size_override("font_size", 28)
+			payout_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
+			vbox.add_child(payout_lbl)
+
+			var task_lbl := Label.new()
+			task_lbl.text = str(g.get("task_description"))
+			task_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			task_lbl.add_theme_font_size_override("font_size", 28)
+			task_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
+			vbox.add_child(task_lbl)
+
+			var cap_check := GigManagerScript.can_accept_gig(PlayerData)
+			var can_do: bool = bool(cap_check.get("allowed", false))
+
+			var gig_btn: Button
+			if can_do:
+				gig_btn = _create_cyber_button("⚡ Accept & Complete Gig ($%d Payout)" % int(g.get("payout")), Color("#10b981"), func():
+					var res := GigManagerScript.complete_gig(PlayerData, g)
+					if bool(res.get("success", false)):
+						add_life_event("⚡ Completed gig '%s' for %s! Earned $%d net (+$%d Rep)." % [
+							str(res.get("title")), str(res.get("client")), int(res.get("earned_net")), int(res.get("reputation_gained"))
+						], "finance")
+					else:
+						add_life_event("Gig assignment failed: %s" % str(res.get("reason")), "activity")
+					update_ui()
+					SaveManager.save_game()
+					_show_jobs_modal("gigs")
+				)
+			else:
+				gig_btn = _create_disabled_cyber_button("🔒 %s" % str(cap_check.get("reason")), "")
+
+			gig_btn.custom_minimum_size.y = 80
+			gig_btn.add_theme_font_size_override("font_size", 30)
+			vbox.add_child(gig_btn)
+
+			list.add_child(card)
+
+	# -------------------------------------------------------------------------
+	# TAB 5: EARNINGS & TAX WITHHOLDING HISTORY
+	# -------------------------------------------------------------------------
+	elif active_employment_tab == "history":
+		var sec_header := VBoxContainer.new()
+		sec_header.add_theme_constant_override("separation", 4)
+
+		var sec_title := Label.new()
+		sec_title.text = "📊 EMPLOYMENT EARNINGS & TAX HISTORY"
+		sec_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		sec_title.add_theme_font_size_override("font_size", 32)
+		sec_title.add_theme_color_override("font_color", Color("#06b6d4"))
+		sec_header.add_child(sec_title)
+
+		var d_earn: int = int(PlayerData.daily_wage_earnings_this_year) if "daily_wage_earnings_this_year" in PlayerData else 0
+		var g_earn: int = int(PlayerData.gig_earnings_this_year) if "gig_earnings_this_year" in PlayerData else 0
+		var m_earn: int = int(PlayerData.cumulative_salary_paid_this_year) if "cumulative_salary_paid_this_year" in PlayerData else 0
+		var t_with: int = int(PlayerData.taxes_withheld_this_year) if "taxes_withheld_this_year" in PlayerData else 0
+
+		var stats_card := PanelContainer.new()
+		stats_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#06b6d4")))
+		var sm := MarginContainer.new()
+		sm.add_theme_constant_override("margin_left", 20)
+		sm.add_theme_constant_override("margin_right", 20)
+		sm.add_theme_constant_override("margin_top", 16)
+		sm.add_theme_constant_override("margin_bottom", 16)
+		stats_card.add_child(sm)
+
+		var stats_lbl := Label.new()
+		stats_lbl.text = "ANNUAL FISCAL TOTALS (Age %d):\n💵 Daily Wage Earnings: $%s\n⚡ Gig Earnings: $%s\n💰 Salaried Earnings: $%s\n🏛️ Taxes Withheld This Year: $%s" % [
+			PlayerData.age, _format_number(d_earn), _format_number(g_earn), _format_number(m_earn), _format_number(t_with)
+		]
+		stats_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		stats_lbl.add_theme_font_size_override("font_size", 28)
+		stats_lbl.add_theme_color_override("font_color", Color("#e2e8f0"))
+		sm.add_child(stats_lbl)
+		sec_header.add_child(stats_card)
+
+		list.add_child(sec_header)
+
+		var recent_logs: Array = []
+		if "daily_earnings_log" in PlayerData and PlayerData.daily_earnings_log is Array:
+			for item in PlayerData.daily_earnings_log:
+				recent_logs.append(item)
+		if "gig_history" in PlayerData and PlayerData.gig_history is Array:
+			for item in PlayerData.gig_history:
+				recent_logs.append(item)
+
+		var log_title := Label.new()
+		log_title.text = "RECENT SHIFTS & ASSIGNMENTS:"
+		log_title.add_theme_font_size_override("font_size", 30)
+		log_title.add_theme_color_override("font_color", Color("#38bdf8"))
+		list.add_child(log_title)
+
+		if recent_logs.is_empty():
+			var empty_lbl := Label.new()
+			empty_lbl.text = "No daily wage shifts or gigs logged yet this year. Accept assignments to begin earning!"
+			empty_lbl.add_theme_font_size_override("font_size", 28)
+			empty_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
+			list.add_child(empty_lbl)
+		else:
+			for i in range(mini(20, recent_logs.size())):
+				var log_item: Dictionary = recent_logs[recent_logs.size() - 1 - i]
+				var l_card := PanelContainer.new()
+				l_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#334155")))
+				var lm := MarginContainer.new()
+				lm.add_theme_constant_override("margin_left", 16)
+				lm.add_theme_constant_override("margin_right", 16)
+				lm.add_theme_constant_override("margin_top", 12)
+				lm.add_theme_constant_override("margin_bottom", 12)
+				l_card.add_child(lm)
+
+				var l_lbl := Label.new()
+				var title_str: String = str(log_item.get("job_title", log_item.get("title", "Shift")))
+				var gross: int = int(log_item.get("gross_pay", 0))
+				var tax: int = int(log_item.get("tax_withheld", 0))
+				var net: int = int(log_item.get("net_pay", 0))
+				var d_str: String = str(log_item.get("date", "Recent"))
+				l_lbl.text = "%s  •  %s\nGross: $%d  |  Withheld Tax: $%d  |  Net Pay: $%d" % [
+					d_str, title_str, gross, tax, net
+				]
+				l_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+				l_lbl.add_theme_font_size_override("font_size", 26)
+				l_lbl.add_theme_color_override("font_color", Color("#e2e8f0"))
+				lm.add_child(l_lbl)
+				list.add_child(l_card)
 
 	jobs_modal_overlay.visible = true
 
