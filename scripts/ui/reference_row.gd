@@ -361,6 +361,10 @@ func _sync() -> void:
 			target.custom_minimum_size.y = 172.0
 		else:
 			target.custom_minimum_size.y = 216.0
+		# The first sync can run before the VBoxContainer has assigned the
+		# heading its final width.  Re-measure after layout so wrapped event
+		# choices get enough height for every rendered line.
+		call_deferred("_sync_event_height")
 	elif is_options:
 		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
 		if not has_desc:
@@ -389,4 +393,29 @@ func _sync() -> void:
 		var has_desc: bool = (description != null and description.visible and not description.text.is_empty())
 		var min_h := 146.0 if has_desc else (86.0 if is_colored else 96.0)
 		target.custom_minimum_size.y = min_h
+
+
+func _sync_event_height() -> void:
+	if target == null or heading == null or not is_instance_valid(target):
+		return
+	var is_event := target.name.begins_with("EventChoice") or (target.get_parent() != null and target.get_parent().name == "EventChoices") or target.has_meta("event_choice")
+	if not is_event or not is_visible_in_tree():
+		return
+	# A deferred pass runs after the containers have assigned the real row
+	# width.  Label minimum size then reflects the same wrapping used to draw
+	# the text, instead of an estimate based on the pre-layout width.
+	if heading.size.x <= 1.0:
+		call_deferred("_sync_event_height")
+		return
+	var real_lines := heading.get_line_count()
+	if real_lines <= 0:
+		call_deferred("_sync_event_height")
+		return
+	# Keep the existing visual rhythm while sizing from the label's actual
+	# post-layout line count.  This avoids both clipping and giant minimum
+	# sizes from asking a wrapped label for its minimum height too early.
+	var line_count := clampi(real_lines, 1, 4)
+	var required_height: float = [96.0, 132.0, 172.0, 216.0][line_count - 1]
+	if absf(target.custom_minimum_size.y - required_height) > 1.0:
+		target.custom_minimum_size.y = required_height
 
