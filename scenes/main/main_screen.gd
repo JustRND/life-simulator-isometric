@@ -1812,9 +1812,13 @@ func _adjust_safe_area() -> void:
 				m_node.add_theme_constant_override("margin_bottom", int(b_bot))
 				m_node.add_theme_constant_override("margin_top", int(maxf(b_top, top_m + 16.0)))
 	# Responsive horizontal bounds for floating overlay cards (EventPanel, ConfirmCard, CreationCard, DisclaimerCard)
-	var vp_w: float = get_viewport_rect().size.x
+	var vp_rect := get_viewport_rect()
+	var vp_w: float = vp_rect.size.x
 	if vp_w <= 0.0:
 		vp_w = 1080.0
+	var vp_h: float = vp_rect.size.y
+	if vp_h <= 0.0:
+		vp_h = 1920.0
 
 	var ev_panel := get_node_or_null("EventOverlay/EventPanel") as Control
 	if is_instance_valid(ev_panel):
@@ -1844,7 +1848,12 @@ func _adjust_safe_area() -> void:
 
 	var creat_card := get_node_or_null("NewGamePanel/CenterContainer/CreationCard") as Control
 	if is_instance_valid(creat_card):
-		creat_card.custom_minimum_size = Vector2(minf(820.0, vp_w - 32.0), 0)
+		var target_w: float = minf(920.0, maxf(600.0, vp_w - 48.0))
+		var target_h: float = minf(1550.0, maxf(560.0, (vp_h - top_m - bottom_m) * 0.92))
+		creat_card.custom_minimum_size = Vector2(target_w, target_h)
+		var creat_scroll := creat_card.get_node_or_null("CreationScroll") as Control
+		if is_instance_valid(creat_scroll):
+			creat_scroll.custom_minimum_size = Vector2(1, target_h - 60.0)
 
 	var disc_card := get_node_or_null("DisclaimerScreen/CenterContainer/DisclaimerCard") as Control
 	if is_instance_valid(disc_card):
