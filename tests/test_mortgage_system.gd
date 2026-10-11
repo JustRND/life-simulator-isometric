@@ -66,7 +66,9 @@ func test_property_maintenance_and_depreciation() -> void:
 	var expected_upkeep: int = int(round(float(initial_val) * 0.02))
 	var funds_before = PlayerData.money + PlayerData.bank_savings
 
-	# Process 1 year
+	# Process 1 year (12 monthly upkeep cycles + annual asset depreciation)
+	for m in range(1, 13):
+		AssetCatalog.process_monthly_assets(PlayerData, m)
 	var logs = AssetCatalog.process_yearly_assets(PlayerData)
 	var funds_after = PlayerData.money + PlayerData.bank_savings
 	var actual_upkeep_paid = funds_before - funds_after
@@ -244,7 +246,7 @@ func test_ui_scene_elements() -> void:
 	# Verify Alpha v0.1.2 badge
 	var alpha_label = main_scene.get_node_or_null("TopBar/Row/AlphaVersionMargin/AlphaBadge/AlphaBadgeMargin/AlphaVersionLabel")
 	assert(alpha_label != null, "AlphaVersionLabel must exist in TopBar")
-	assert("0.2" in alpha_label.text or "0.1.3" in alpha_label.text or "0.1.2" in alpha_label.text, "Alpha version badge must show valid version, got: %s" % alpha_label.text)
+	assert("0.3" in alpha_label.text or "0.2" in alpha_label.text or "0.1.3" in alpha_label.text or "0.1.2" in alpha_label.text, "Alpha version badge must show valid version, got: %s" % alpha_label.text)
 
 	# Verify Rent a House button in Activities tab
 	var rent_btn = main_scene.get_node_or_null("ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/RentHouseActItem")

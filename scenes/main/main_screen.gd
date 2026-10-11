@@ -14,6 +14,7 @@ const MortgageManager = preload("res://scripts/economy/mortgage_manager.gd")
 const RentalManager = preload("res://scripts/economy/rental_manager.gd")
 const CryptoMarket = preload("res://scripts/economy/crypto_market.gd")
 const NeuralCatalog = preload("res://scripts/economy/neural_catalog.gd")
+const MonthlySettlementCoordinator = preload("res://scripts/economy/monthly_settlement_coordinator.gd")
 
 
 var portrait: TextureRect
@@ -838,8 +839,8 @@ func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
 	_update_time_and_age_labels()
 
 
-func _on_clock_month_changed(_year: int, _month: int) -> void:
-	_advance_in_game_month()
+func _on_clock_month_changed(year: int, month: int) -> void:
+	_advance_in_game_month(year, month)
 
 
 func _on_clock_year_changed(_year: int) -> void:
@@ -855,176 +856,47 @@ func _on_clock_time_ticked(_day_progress: float) -> void:
 
 
 
-func _advance_in_game_month() -> void:
+func _advance_in_game_month(target_year: int = -1, target_month: int = -1) -> void:
 	if PlayerData.is_dead:
 		return
 
+	var y: int = target_year if target_year > 0 else (GameClock.year if GameClock != null else PlayerData.in_game_year)
+	var m: int = target_month if target_month > 0 else (GameClock.month if GameClock != null else PlayerData.in_game_month)
+
 	if GameClock == null:
 		PlayerData.in_game_month += 1
+		m = PlayerData.in_game_month
 
-	# 1. Monthly Salary (if employed and not in prison)
-	if not PlayerData.is_in_prison and PlayerData.job_title != "" and PlayerData.job_salary > 0:
-		var m_salary: int = int(round(float(PlayerData.job_salary) / 12.0))
-		if m_salary > 0:
-			PlayerData.receive_salary(m_salary)
-			add_life_event("💵 Monthly salary of $%s from %s was deposited into your bank account." % [
-				_format_number(m_salary), PlayerData.job_company
-			], "job")
+	# 1. Authoritative Monthly Economic Settlement via Coordinator
+	var settlement_res := MonthlySettlementCoordinator.process_monthly_settlement(PlayerData, y, m)
+	if bool(settlement_res.get("settled", false)):
+		for log_entry in settlement_res.get("logs", []):
+			if log_entry is Dictionary:
+				add_life_event(str(log_entry.get("text", "")), str(log_entry.get("kind", "finance")))
 
-	# 2. Monthly Living Expenses (Adults age >= 18)
-	if PlayerData.age >= 18:
-		var base_living: int = 0
-		if PlayerData.is_in_mental_institution or PlayerData.is_in_prison:
-			base_living = 0
-		elif PlayerData.age < 22 and PlayerData.job_title == "":
-			base_living = 0
-		elif PlayerData.job_salary > 0:
-			base_living = int(round((3200 + PlayerData.job_salary * 0.16) / 12.0))
-		else:
-			base_living = int(round(randi_range(2400, 4800) / 12.0))
-
-		if base_living > 0:
-			var total_avail: int = PlayerData.money + PlayerData.bank_savings
-			if total_avail >= base_living:
-				PlayerData.debit_funds(base_living)
-				add_life_event("Paid monthly basic living expenses of $%s (food, rent & bills)." % _format_number(base_living), "finance")
-			else:
-				var paid: int = total_avail
-				var unpaid: int = base_living - paid
-				PlayerData.money = 0
-				PlayerData.bank_savings = 0
-				PlayerData.debt += unpaid
-				PlayerData.happiness = maxi(5, PlayerData.happiness - randi_range(2, 4))
-				if PlayerData.debt > 15000:
-					PlayerData.health = maxi(5, PlayerData.health - 1)
-				add_life_event("⚠️ FINANCIAL STRUGGLE: Couldn't afford full monthly living expenses ($%s)! Shortfall of $%s added to debt." % [
-					_format_number(base_living), _format_number(unpaid)
-				], "finance")
-
-	# 3. Monthly Rent
-	var rent_logs := RentalManager.process_monthly_rent(PlayerData)
-	for r_msg in rent_logs:
-		add_life_event(r_msg, "lifestyle")
-
-	# 4. Monthly Mortgages
-	var mortgage_logs := MortgageManager.process_monthly_mortgages(PlayerData)
-	for m_msg in mortgage_logs:
-		add_life_event(m_msg, "finance")
-
-	# 5. Monthly Asset Upkeep & Maintenance
-	var asset_logs := AssetCatalog.process_monthly_assets(PlayerData)
-	for log_msg in asset_logs:
-		add_life_event(log_msg, "finance")
-
-	# 6. Monthly Neural Specialist Maintenance
-	var neural_logs := PlayerData.process_monthly_neural_implants()
-	for n_msg in neural_logs:
-		add_life_event(n_msg, "health")
-
-	# 7. Monthly Pet Care & Food Upkeep
-	var pet_logs := PetManager.process_monthly_pets(PlayerData)
-	for p_msg in pet_logs:
-		add_life_event(p_msg, "relationship")
-
-	# 8. Monthly Asset Insurance
-	var ins_logs := AssetInsuranceManager.process_monthly_insurance(PlayerData)
-	for ins_msg in ins_logs:
-		add_life_event(ins_msg, "finance")
-
-	# 8. Monthly Gym Membership
-	if PlayerData.has_gym_membership:
-		var m_gym: int = maxi(1, int(round(float(PlayerData.gym_membership_annual_fee) / 12.0)))
-		if PlayerData.bank_savings >= m_gym:
-			PlayerData.bank_savings -= m_gym
-		elif PlayerData.get_available_funds() >= m_gym:
-			PlayerData.debit_funds(m_gym)
-		else:
-			PlayerData.has_gym_membership = false
-			PlayerData.happiness = maxi(5, PlayerData.happiness - 4)
-			add_life_event("⚠️ GYM MEMBERSHIP CANCELLED: Insufficient funds ($%s) for monthly gym membership." % _format_number(m_gym), "finance")
-
-	# 9. Monthly Mental Institution Inpatient Cost
-	if PlayerData.is_in_mental_institution:
-		var m_inst: int = maxi(1, int(round(float(PlayerData.mental_institution_annual_cost) / 12.0)))
-		if PlayerData.get_available_funds() >= m_inst:
-			PlayerData.debit_funds(m_inst)
-		else:
-			var paid: int = PlayerData.get_available_funds()
-			var unpaid: int = m_inst - paid
-			PlayerData.debit_funds(paid)
-			PlayerData.debt += unpaid
-
-	# 10. Monthly Tax Withholding & Tax Report
-	var tax_res := TaxSystem.process_monthly_taxes(PlayerData)
-	for t_log in tax_res.get("logs", []):
-		add_life_event(t_log, "finance")
-
-	# 11. Monthly Bank Loan Interest
-	if PlayerData.loan_balance > 0:
-		var loan_int: int = maxi(1, int(round((float(PlayerData.loan_balance) * PlayerData.loan_interest_rate) / 12.0)))
-		PlayerData.loan_balance += loan_int
-
-	# 12. Monthly Credit Card Interest
-	if PlayerData.has_credit_card and PlayerData.credit_card_balance > 0:
-		var cc_int: int = maxi(1, int(round((float(PlayerData.credit_card_balance) * PlayerData.credit_card_apr) / 12.0)))
-		PlayerData.credit_card_balance += cc_int
-
-	# 13. Monthly Bank Savings Interest (2.5% Annual / 12)
-	if PlayerData.bank_savings > 0:
-		var m_interest: int = int(round((float(PlayerData.bank_savings) * 0.025) / 12.0))
-		if m_interest > 0:
-			PlayerData.bank_savings += m_interest
-
-	# 14. Monthly University Tuition
-	if PlayerData.education_level == "University Student" and not PlayerData.has_scholarship:
-		var u_annual: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
-		var m_tuition: int = maxi(1, int(round(float(u_annual) / 12.0)))
-		var uni_title: String = PlayerData.university_name if PlayerData.university_name != "" else "University"
-		if PlayerData.get_available_funds() >= m_tuition:
-			PlayerData.debit_funds(m_tuition)
-			add_life_event("Paid $%s monthly tuition to %s." % [_format_number(m_tuition), uni_title], "education")
-		elif PlayerData.bank_savings >= m_tuition:
-			PlayerData.bank_savings -= m_tuition
-			add_life_event("Paid $%s monthly tuition to %s from savings." % [_format_number(m_tuition), uni_title], "education")
-		else:
-			PlayerData.loan_balance += m_tuition
-			add_life_event("Monthly tuition of $%s for %s was funded via Student Loan (8%% APR)." % [_format_number(m_tuition), uni_title], "finance")
-
-	# 15. Monthly Pension Contributions, Growth & Annuity Distributions
-	var ps_logs := preload("res://scripts/economy/pension_and_savings_manager.gd").process_monthly_accounts(PlayerData)
-	for ps_log in ps_logs:
-		add_life_event(ps_log, "finance")
-
-	# 16. Monthly Social Media Creator Monetization
-	var social_logs := SocialMediaManager.process_monthly_social_media(PlayerData)
-	for s_log in social_logs:
-		add_life_event(s_log, "lifestyle")
-
-	# 17. Monthly Commercial Business Profit Dividends
-	var biz_logs := BusinessManager.process_monthly_dividends(PlayerData)
-	for b_log in biz_logs:
-		add_life_event(b_log, "finance")
-
-	# 18. Monthly Freelance Project Deliveries
+	# 2. Monthly Freelance Project Deliveries
 	if not PlayerData.active_freelance_jobs.is_empty() and randf() < 0.40:
 		var completed: Array[Dictionary] = FreelanceManager.generate_yearly_random_projects()
 		if not completed.is_empty():
 			var item: Dictionary = completed.pick_random()
 			var proj: Dictionary = item.get("project", {})
 			var res: Dictionary = item.get("result", {})
+			var pay_amt: int = int(res.get("pay", 0))
 			add_life_event("💼 FREELANCE CONTRACT: Completed '%s' for %s (Earned $%s)." % [
 				str(proj.get("title", "Project")),
 				str(proj.get("client", "Client")),
-				_format_number(int(res.get("pay", 0)))
+				_format_number(pay_amt)
 			], "finance")
+			if pay_amt > 0:
+				PlayerData.record_transaction("freelance", pay_amt, "Freelance Contract: %s" % str(proj.get("title", "Project")))
 
-	# 19. Monthly Random Event Trigger (with chance of peaceful uneventful month)
+	# 3. Monthly Random Event Trigger (with chance of peaceful uneventful month)
 	trigger_event()
 
 	# Update HUD balances and stat bars
 	update_ui()
 
-	# Check Year Rollover (Month 12 -> Month 1)
+	# Check Year Rollover (Month 12 -> Month 1) for non-GameClock fallback
 	if GameClock == null and PlayerData.in_game_month > 12:
 		PlayerData.in_game_month = 1
 		PlayerData.in_game_year += 1
@@ -1110,6 +982,11 @@ func _process_yearly_operations() -> void:
 			add_life_event("⚠️ CREDIT SCORE IMPACT: High credit card utilization (>80%%) lowered your credit score by 10 points (Current Score: %d)." % PlayerData.credit_score, "finance")
 		elif PlayerData.get_total_debt() == 0:
 			PlayerData.modify_credit_score(5)
+
+	# Annual Fiscal Tax Reconciliation (Reconciles withholdings vs liability)
+	var tax_recon := MonthlySettlementCoordinator.reconcile_annual_taxes(PlayerData)
+	for t_msg in tax_recon.get("logs", []):
+		add_life_event(t_msg, "finance")
 
 	# Owned Assets Annual Value Depreciation & Appreciation
 	var asset_logs := AssetCatalog.process_yearly_assets(PlayerData)
@@ -8845,7 +8722,15 @@ func _show_career_ladder() -> void:
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.add_theme_font_size_override("font_size", 35)
 		label.add_theme_color_override("font_color", Color("#34d399") if index == int(PlayerData.career_progress.get("rank", 0)) else Color("#b8dcf5"))
-		label.text = "%s%s\n%d years of service • Age %d+ • $%s/year\n" % ["CURRENT: " if index == int(PlayerData.career_progress.get("rank", 0)) else "", stage.title, int(stage.years), int(stage.min_age), _format_number(int(stage.salary))]
+		var m_stage_sal: int = int(round(float(stage.salary) / 12.0))
+		label.text = "%s%s\n%d years of service • Age %d+ • $%s/mo ($%s/yr)\n" % [
+			"CURRENT: " if index == int(PlayerData.career_progress.get("rank", 0)) else "",
+			stage.title,
+			int(stage.years),
+			int(stage.min_age),
+			_format_number(m_stage_sal),
+			_format_number(int(stage.salary))
+		]
 		list.add_child(label)
 
 
@@ -8881,7 +8766,7 @@ func _show_jobs_modal() -> void:
 	if PlayerData.job_title != "":
 		cur_title.text = "CURRENT OCCUPATION"
 		var m_sal: int = int(round(float(PlayerData.job_salary) / 12.0))
-		cur_desc.text = "%s  •  %s\n💰 Monthly Salary: $%s / mo" % [PlayerData.job_title, PlayerData.job_company, _format_number(m_sal)]
+		cur_desc.text = "%s  •  %s\n💰 Monthly Salary: $%s / mo ($%s / yr)" % [PlayerData.job_title, PlayerData.job_company, _format_number(m_sal), _format_number(PlayerData.job_salary)]
 		cur_desc.text += "\n" + CareerProgression.summary(PlayerData)
 		cur_desc.add_theme_color_override("font_color", Color("#34d399"))
 		cur_v.add_child(cur_title)
@@ -9137,7 +9022,7 @@ func _show_job_category_modal(category_id: String) -> void:
 		var salary_val: int = int(job.get("salary", 0))
 		var monthly_sal: int = int(round(float(salary_val) / 12.0))
 		var salary_lbl := Label.new()
-		salary_lbl.text = "💰 Salary: $%s / mo   •   Min Age: %d" % [_format_number(monthly_sal), JobManager.minimum_age(job)]
+		salary_lbl.text = "💰 Salary: $%s / mo ($%s / yr)   •   Min Age: %d" % [_format_number(monthly_sal), _format_number(salary_val), JobManager.minimum_age(job)]
 		salary_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		salary_lbl.add_theme_font_size_override("font_size", 34)
 		salary_lbl.add_theme_color_override("font_color", Color("#34d399"))

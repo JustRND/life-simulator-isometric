@@ -19,7 +19,7 @@ func capture_data() -> Dictionary:
 		"has_started_game": PlayerData.has_started_game,
 		"selected_room_id": PlayerData.selected_room_id,
 		"birth_story": PlayerData.birth_story,
-		"save_version": 2,
+		"save_version": 3,
 		"birth_year": PlayerData.birth_year,
 		"birth_month": PlayerData.birth_month,
 		"birth_month_idx": PlayerData.birth_month_idx,
@@ -66,6 +66,10 @@ func capture_data() -> Dictionary:
 		"capital_gains_this_year": PlayerData.capital_gains_this_year,
 		"capital_losses_this_year": PlayerData.capital_losses_this_year,
 		"taxes_paid_lifetime": PlayerData.taxes_paid_lifetime,
+		"taxes_withheld_this_year": PlayerData.taxes_withheld_this_year,
+		"cumulative_salary_paid_this_year": PlayerData.cumulative_salary_paid_this_year,
+		"monthly_settlement_cursor": PlayerData.monthly_settlement_cursor.duplicate(true),
+		"transaction_history": PlayerData.transaction_history.duplicate(true),
 		"last_tax_return": PlayerData.last_tax_return.duplicate(true),
 		"loan_balance": PlayerData.loan_balance,
 		"loan_interest_rate": PlayerData.loan_interest_rate,
@@ -347,6 +351,25 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.capital_gains_this_year = int(data.get("capital_gains_this_year", 0))
 	PlayerData.capital_losses_this_year = int(data.get("capital_losses_this_year", 0))
 	PlayerData.taxes_paid_lifetime = int(data.get("taxes_paid_lifetime", 0))
+	PlayerData.taxes_withheld_this_year = int(data.get("taxes_withheld_this_year", 0))
+	PlayerData.cumulative_salary_paid_this_year = int(data.get("cumulative_salary_paid_this_year", 0))
+	PlayerData.transaction_history.clear()
+	var raw_trans = data.get("transaction_history", [])
+	if raw_trans is Array:
+		for t in raw_trans:
+			if t is Dictionary:
+				PlayerData.transaction_history.append(t)
+	if data.has("monthly_settlement_cursor") and data.get("monthly_settlement_cursor") is Dictionary and not data.get("monthly_settlement_cursor").is_empty():
+		PlayerData.monthly_settlement_cursor = Dictionary(data.get("monthly_settlement_cursor")).duplicate(true)
+	else:
+		# Safe versioned migration for old saves: set cursor to loaded calendar month
+		# to prevent double-charging or double-paying upon loading.
+		var cur_y: int = int(data.get("in_game_year", 2026))
+		var cur_m: int = int(data.get("in_game_month", 1))
+		if GameClock != null:
+			cur_y = GameClock.year
+			cur_m = GameClock.month
+		PlayerData.monthly_settlement_cursor = {"year": cur_y, "month": cur_m}
 	PlayerData.last_tax_return = Dictionary(data.get("last_tax_return", {}))
 	PlayerData.loan_balance = int(data.get("loan_balance", 0))
 	PlayerData.loan_interest_rate = float(data.get("loan_interest_rate", 0.08))

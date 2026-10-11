@@ -147,6 +147,10 @@ var freelance_earnings_this_year: int = 0
 var social_media_earnings_this_year: int = 0
 var charity_donations_this_year: int = 0
 var taxes_paid_lifetime: int = 0
+var taxes_withheld_this_year: int = 0
+var cumulative_salary_paid_this_year: int = 0
+var monthly_settlement_cursor: Dictionary = {}
+var transaction_history: Array[Dictionary] = []
 var last_tax_return: Dictionary = {}
 var loan_balance: int = 0
 var loan_interest_rate: float = 0.08
@@ -347,6 +351,10 @@ func reset_player() -> void:
 	social_media_earnings_this_year = 0
 	charity_donations_this_year = 0
 	taxes_paid_lifetime = 0
+	taxes_withheld_this_year = 0
+	cumulative_salary_paid_this_year = 0
+	monthly_settlement_cursor.clear()
+	transaction_history.clear()
 	last_tax_return.clear()
 	loan_balance = 0
 	loan_interest_rate = 0.08
@@ -751,6 +759,44 @@ func debit_funds(cost: int) -> bool:
 		bank_savings = 0
 		money -= rem
 	return true
+
+
+func debit_funds_with_debt_fallback(amount: int) -> Dictionary:
+	if amount <= 0:
+		return {"paid": 0, "shortfall": 0}
+	var total_avail: int = money + bank_savings
+	if total_avail >= amount:
+		debit_funds(amount)
+		return {"paid": amount, "shortfall": 0}
+	else:
+		var paid: int = total_avail
+		var shortfall: int = amount - paid
+		money = 0
+		bank_savings = 0
+		debt += shortfall
+		return {"paid": paid, "shortfall": shortfall}
+
+
+func record_transaction(category: String, amount: int, description: String, date_str: String = "") -> void:
+	if date_str == "":
+		date_str = get_date_string()
+	var entry := {
+		"date": date_str,
+		"age": age,
+		"category": category,
+		"amount": amount,
+		"type": "income" if amount > 0 else "expense",
+		"description": description,
+		"balance_after": get_available_funds(),
+		"debt_after": get_total_debt()
+	}
+	transaction_history.append(entry)
+	if transaction_history.size() > 500:
+		transaction_history.pop_front()
+
+
+func get_transaction_history() -> Array[Dictionary]:
+	return transaction_history
 
 
 func get_insurance_discount() -> float:

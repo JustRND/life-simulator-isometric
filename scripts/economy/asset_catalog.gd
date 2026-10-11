@@ -1723,11 +1723,24 @@ static func use_asset(player_data: Node, instance_id: String) -> Dictionary:
 			}
 	return {"success": false, "message": "Asset not found."}
 
-static func process_monthly_assets(player_data: Node) -> Array[String]:
+static func process_monthly_assets(player_data: Node, month_index: int = 1) -> Array[String]:
 	var logs: Array[String] = []
 	for asset in player_data.owned_assets:
 		var cat: String = str(asset.get("category", ""))
+		var cur_val: int = int(asset.get("current_value", asset.get("purchase_price", 0)))
+		var raw_annual_upkeep: int = int(asset.get("upkeep", 0))
+		if cat == CATEGORY_PROPERTIES:
+			raw_annual_upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
+			asset["upkeep"] = raw_annual_upkeep
+
 		var monthly_upkeep: int = get_monthly_upkeep(asset)
+		if month_index == 12 and asset.has("upkeep_paid_this_year"):
+			var paid_so_far: int = int(asset.get("upkeep_paid_this_year", 0))
+			monthly_upkeep = maxi(0, raw_annual_upkeep - paid_so_far)
+			asset["upkeep_paid_this_year"] = 0
+		else:
+			asset["upkeep_paid_this_year"] = int(asset.get("upkeep_paid_this_year", 0)) + monthly_upkeep
+
 		asset["monthly_upkeep"] = monthly_upkeep
 
 		if monthly_upkeep > 0:

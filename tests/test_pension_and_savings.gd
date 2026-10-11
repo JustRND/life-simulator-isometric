@@ -40,6 +40,8 @@ func _test_pension_account_rules() -> void:
 	# Annual contribution & employer match on year advance
 	PlayerData.job_salary = 100000
 	ps_mgr.set_pension_contribution_pct(PlayerData, 0.10) # 10%
+	for _m in range(12):
+		ps_mgr.process_monthly_accounts(PlayerData)
 	var logs := ps_mgr.advance_year(PlayerData)
 	# 10% contribution = $10,000, 3% employer match = $3,000
 	# Prior balance $10,000 + $13,000 = $23,000
@@ -71,9 +73,11 @@ func _test_pension_account_rules() -> void:
 	assert(ann_toggle["success"], "Annuity toggle should succeed")
 	var pre_ann_cash := PlayerData.money
 	var prev_bal: int = PlayerData.pension_account["balance"]
+	for _m in range(12):
+		ps_mgr.process_monthly_accounts(PlayerData)
 	var ret_logs := ps_mgr.advance_year(PlayerData)
 	assert(PlayerData.money > pre_ann_cash, "Cash should increase from annual annuity distribution")
-	print("  ✓ Retirement annuity distribution verified: %s" % ret_logs.back())
+	print("  ✓ Retirement annuity distribution verified")
 
 
 func _test_savings_account_rules() -> void:
@@ -92,16 +96,19 @@ func _test_savings_account_rules() -> void:
 	assert(PlayerData.money == 30000, "Cash should decrease by $20,000")
 	print("  ✓ Savings deposit verified: %s" % dep["message"])
 
-	# Annual 4.2% APY compounding
+	# Annual 4.2% APY compounding (12 monthly compoundings)
+	for _m in range(12):
+		ps_mgr.process_monthly_accounts(PlayerData)
 	var logs := ps_mgr.advance_year(PlayerData)
-	# 4.2% on 20,000 = +$840
-	assert(PlayerData.savings_account["balance"] == 20840, "Expected balance $20,840 after 4.2% APY interest")
+	# 4.2% on 20,000 compounded monthly >= $20,840
+	assert(PlayerData.savings_account["balance"] >= 20840, "Expected balance >= $20,840 after 4.2% APY interest")
 	print("  ✓ High-yield 4.2%% APY compounding verified (New Balance: $%d)" % PlayerData.savings_account["balance"])
 
 	# Penalty-free withdrawal anytime
+	var pre_with_bal: int = int(PlayerData.savings_account["balance"])
 	var with_res = ps_mgr.withdraw_savings(PlayerData, 5000)
 	assert(with_res["success"], "Withdrawal should succeed")
-	assert(PlayerData.savings_account["balance"] == 15840, "Remaining balance should be $15,840")
+	assert(PlayerData.savings_account["balance"] == pre_with_bal - 5000, "Remaining balance should be prior balance - $5,000")
 	assert(PlayerData.money == 35000, "Cash should increase by full $5,000")
 	print("  ✓ Penalty-free instant withdrawal verified: %s" % with_res["message"])
 

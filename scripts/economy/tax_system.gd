@@ -425,45 +425,195 @@ static func calculate_tax_return(player_data: Node) -> Dictionary:
 
 
 # -----------------------------------------------------------------------------
-# 6. ANNUAL TAX FILING EXECUTION (Run during age_up())
+# 5b. MONTHLY TAX WITHHOLDING CALCULATION
+# Annualizes monthly personal taxable income, applies standard deduction
+# and progressive brackets, then divides estimated annual tax by 12.
+# -----------------------------------------------------------------------------
+static func calculate_monthly_withholding(player_data: Node) -> Dictionary:
+	var age: int = int(player_data.get("age"))
+	if age < 18 or bool(player_data.get("is_in_prison")):
+		return {
+			"is_exempt": true,
+			"monthly_personal_income": 0,
+			"monthly_income_tax": 0,
+			"monthly_property_tax": 0,
+			"total_monthly_withholding": 0
+		}
+
+	# 1. Monthly personal income
+	var job_sal: int = int(player_data.get("job_salary")) if not bool(player_data.get("is_in_prison")) else 0
+	var m_salary: int = int(round(float(job_sal) / 12.0))
+	var m_pension_deduction: int = 0
+	if "pension_account" in player_data and player_data.pension_account is Dictionary:
+		var p: Dictionary = player_data.pension_account
+		if bool(p.get("is_enrolled", false)) and not bool(p.get("is_annuity_active", false)):
+			var c_pct: float = float(p.get("contribution_pct", 0.05))
+			m_pension_deduction = int(round(float(m_salary) * c_pct))
+
+	var m_annuity: int = 0
+	if "pension_account" in player_data and player_data.pension_account is Dictionary:
+		var p: Dictionary = player_data.pension_account
+		if bool(p.get("is_annuity_active", false)) and age >= 60:
+			var p_bal: int = int(p.get("balance", 0))
+			m_annuity = maxi(10, int(round((float(p_bal) * 0.08) / 12.0)))
+
+	var taxable_monthly_income: int = maxi(0, (m_salary - m_pension_deduction) + m_annuity)
+	var annualized_taxable: int = taxable_monthly_income * 12
+
+	# Calculate estimated annual personal income tax using progressive brackets & standard deduction
+	var inc_tax_res := calculate_income_tax(annualized_taxable, 0)
+	var estimated_annual_income_tax: int = int(inc_tax_res.get("tax_due", 0))
+	var monthly_income_tax: int = int(round(float(estimated_annual_income_tax) / 12.0))
+
+	# 2. Monthly Property Tax (1/12th of annual assessed property tax)
+	var prop_tax_res := calculate_property_tax(player_data)
+	var annual_prop_tax: int = int(prop_tax_res.get("tax_due", 0))
+	var monthly_prop_tax: int = int(round(float(annual_prop_tax) / 12.0))
+
+	var total_monthly: int = monthly_income_tax + monthly_prop_tax
+
+	return {
+		"is_exempt": false,
+		"monthly_salary": m_salary,
+		"monthly_pension_deduction": m_pension_deduction,
+		"taxable_monthly_income": taxable_monthly_income,
+		"annualized_taxable": annualized_taxable,
+		"estimated_annual_income_tax": estimated_annual_income_tax,
+		"monthly_income_tax": monthly_income_tax,
+		"annual_property_tax": annual_prop_tax,
+		"monthly_property_tax": monthly_prop_tax,
+		"total_monthly_withholding": total_monthly,
+		"income_tax_breakdown": inc_tax_res,
+		"property_tax_breakdown": prop_tax_res
+	}
+
+
+# -----------------------------------------------------------------------------
+# 6. MONTHLY TAX WITHHOLDING EXECUTION
 # -----------------------------------------------------------------------------
 static func process_monthly_taxes(player_data: Node) -> Dictionary:
 	var age: int = int(player_data.get("age"))
 	var logs: Array[String] = []
 	if age < 18 or bool(player_data.get("is_in_prison")):
-		return {"monthly_due": 0, "logs": logs}
+		return {"monthly_due": 0, "paid": 0, "unpaid": 0, "logs": logs}
 
-	# Calculate estimated tax return to derive monthly withholding
-	var tax_return: Dictionary = calculate_tax_return(player_data)
-	var personal_due: int = int(tax_return.get("personal_taxes_due", 0))
-	var monthly_due: int = int(round(float(personal_due) / 12.0))
+	var withholding_info := calculate_monthly_withholding(player_data)
+	var monthly_due: int = int(withholding_info.get("total_monthly_withholding", 0))
+	var paid: int = 0
+	var unpaid: int = 0
 
 	if monthly_due > 0:
 		var total_avail: int = int(player_data.get("money")) + int(player_data.get("bank_savings"))
 		if total_avail >= monthly_due:
 			player_data.debit_funds(monthly_due)
+			paid = monthly_due
 			player_data.taxes_paid_lifetime = int(player_data.get("taxes_paid_lifetime")) + monthly_due
+			if "taxes_withheld_this_year" in player_data:
+				player_data.taxes_withheld_this_year = int(player_data.get("taxes_withheld_this_year")) + monthly_due
 			logs.append("🏛️ MONTHLY TAX REPORT: Filed monthly tax withholding and paid $%s. Lifetime taxes paid: $%s." % [
 				_format_num(monthly_due), _format_num(player_data.taxes_paid_lifetime)
 			])
 		else:
-			var paid: int = total_avail
-			var unpaid: int = monthly_due - paid
+			paid = total_avail
+			unpaid = monthly_due - paid
 			player_data.money = 0
 			player_data.bank_savings = 0
 			player_data.tax_debt = int(player_data.get("tax_debt")) + unpaid
 			player_data.taxes_paid_lifetime = int(player_data.get("taxes_paid_lifetime")) + paid
+			if "taxes_withheld_this_year" in player_data:
+				player_data.taxes_withheld_this_year = int(player_data.get("taxes_withheld_this_year")) + paid
 			player_data.modify_credit_score(-5)
 			logs.append("⚠️ TAX ARREARS: Insufficient funds for $%s monthly tax assessment! Unpaid $%s added to tax debt." % [
 				_format_num(monthly_due), _format_num(unpaid)
 			])
 
+	var tax_return: Dictionary = calculate_tax_return(player_data)
 	player_data.last_tax_return = tax_return
 	return {
 		"monthly_due": monthly_due,
+		"paid": paid,
+		"unpaid": unpaid,
+		"withholding_info": withholding_info,
 		"tax_return": tax_return,
 		"logs": logs
 	}
+
+
+# -----------------------------------------------------------------------------
+# 7. ANNUAL FISCAL TAX RECONCILIATION
+# -----------------------------------------------------------------------------
+static func reconcile_annual_taxes(player_data: Node) -> Dictionary:
+	var logs: Array[String] = []
+	var age: int = int(player_data.get("age"))
+	if age < 18 or bool(player_data.get("is_in_prison")):
+		player_data.capital_gains_this_year = 0
+		player_data.capital_losses_this_year = 0
+		if "freelance_earnings_this_year" in player_data: player_data.freelance_earnings_this_year = 0
+		if "social_media_earnings_this_year" in player_data: player_data.social_media_earnings_this_year = 0
+		if "charity_donations_this_year" in player_data: player_data.charity_donations_this_year = 0
+		if "taxes_withheld_this_year" in player_data: player_data.taxes_withheld_this_year = 0
+		if "cumulative_salary_paid_this_year" in player_data: player_data.cumulative_salary_paid_this_year = 0
+		return {"reconciled": true, "refund": 0, "balance_due": 0, "logs": logs}
+
+	var tax_return: Dictionary = calculate_tax_return(player_data)
+	var personal_liability: int = int(tax_return.get("personal_taxes_due", 0))
+	var withheld: int = int(player_data.get("taxes_withheld_this_year")) if "taxes_withheld_this_year" in player_data else 0
+
+	var refund: int = 0
+	var balance_due: int = 0
+
+	if withheld > personal_liability:
+		refund = withheld - personal_liability
+		player_data.bank_savings = int(player_data.get("bank_savings")) + refund
+		logs.append("🏛️ ANNUAL TAX RECONCILIATION: Fiscal year tax reconciliation completed! Total withheld: $%s, Actual liability: $%s. You received a TAX REFUND of $%s deposited to your bank!" % [
+			_format_num(withheld), _format_num(personal_liability), _format_num(refund)
+		])
+	elif withheld < personal_liability:
+		balance_due = personal_liability - withheld
+		var total_avail: int = int(player_data.get("money")) + int(player_data.get("bank_savings"))
+		if total_avail >= balance_due:
+			player_data.debit_funds(balance_due)
+			player_data.taxes_paid_lifetime = int(player_data.get("taxes_paid_lifetime")) + balance_due
+			logs.append("🏛️ ANNUAL TAX RECONCILIATION: Actual tax liability ($%s) exceeded monthly withholdings ($%s). Paid remaining tax balance of $%s." % [
+				_format_num(personal_liability), _format_num(withheld), _format_num(balance_due)
+			])
+		else:
+			var paid: int = total_avail
+			var unpaid: int = balance_due - paid
+			player_data.money = 0
+			player_data.bank_savings = 0
+			player_data.tax_debt = int(player_data.get("tax_debt")) + unpaid
+			player_data.taxes_paid_lifetime = int(player_data.get("taxes_paid_lifetime")) + paid
+			player_data.modify_credit_score(-15)
+			logs.append("⚠️ TAX AUDIT DEFICIT: Remaining tax balance was $%s (Withheld: $%s, Liability: $%s). Paid $%s, remaining unpaid $%s added to TAX DEBT." % [
+				_format_num(balance_due), _format_num(withheld), _format_num(personal_liability),
+				_format_num(paid), _format_num(unpaid)
+			])
+	else:
+		logs.append("🏛️ ANNUAL TAX RECONCILIATION: Tax return perfectly balanced! Withholdings ($%s) exactly matched your assessed liability ($%s)." % [
+			_format_num(withheld), _format_num(personal_liability)
+		])
+
+	# Reset yearly accumulators for the next calendar year
+	player_data.capital_gains_this_year = 0
+	player_data.capital_losses_this_year = 0
+	if "freelance_earnings_this_year" in player_data: player_data.freelance_earnings_this_year = 0
+	if "social_media_earnings_this_year" in player_data: player_data.social_media_earnings_this_year = 0
+	if "charity_donations_this_year" in player_data: player_data.charity_donations_this_year = 0
+	if "taxes_withheld_this_year" in player_data: player_data.taxes_withheld_this_year = 0
+	if "cumulative_salary_paid_this_year" in player_data: player_data.cumulative_salary_paid_this_year = 0
+	player_data.last_tax_return = tax_return
+
+	return {
+		"reconciled": true,
+		"personal_liability": personal_liability,
+		"withheld": withheld,
+		"refund": refund,
+		"balance_due": balance_due,
+		"tax_return": tax_return,
+		"logs": logs
+	}
+
 
 
 static func file_annual_taxes(player_data: Node) -> Dictionary:
