@@ -587,6 +587,14 @@ static func show_input_popup(options: Dictionary) -> Control:
 			do_confirm_action.call(text_val)
 	)
 
+	# PopupCard is positioned directly under a Control overlay, so it does not
+	# receive a container-assigned height. Size it from the completed content
+	# before showing it; otherwise only the focused LineEdit can leak outside
+	# the zero-height card on mobile viewports.
+	var popup_height := maxf(1.0, margin.get_combined_minimum_size().y)
+	card.size = Vector2(card_w, popup_height)
+	card.offset_bottom = card.offset_top + popup_height
+
 	# Backdrop tap dismisses popup cleanly
 	backdrop.gui_input.connect(func(event: InputEvent):
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
