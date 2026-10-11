@@ -34,6 +34,7 @@ func _ready() -> void:
 	test_daily_jobs_catalog()
 	test_age_restrictions_and_eligibility()
 	test_daily_wage_processing_and_schedules()
+	test_daily_job_stat_losses_are_gradual()
 	test_missed_shifts_illness_and_incarceration()
 	test_idempotency_and_multi_day_catchup()
 	test_gig_system_and_capacity_limits()
@@ -177,6 +178,26 @@ func test_daily_wage_processing_and_schedules() -> void:
 	assert_check(PlayerData.daily_wage_earnings_this_year == 85, "Annual gross wage tracked ($85)")
 	assert_check(PlayerData.daily_earnings_log.size() == 1, "Daily earnings logged")
 	assert_check(PlayerData.transaction_history.size() == 1, "Transaction recorded in ledger")
+
+
+func test_daily_job_stat_losses_are_gradual() -> void:
+	print("\n--- Testing daily job stat losses are gradual ---")
+	PlayerData.reset_player()
+	PlayerData.age = 20
+	PlayerData.health = 90
+	PlayerData.mental_state = 80
+	PlayerData.job_id = "restaurant_server"
+	PlayerData.job_title = "Restaurant Server"
+	PlayerData.job_company = "Test Bistro"
+	PlayerData.job_payment_type = DailyJobsCatalogScript.PAYMENT_TYPE_DAILY_WAGE
+
+	# Twenty scheduled weekday shifts should apply only the accumulated 5% of
+	# catalog per-shift health and mental-state penalties.
+	for day in range(5, 31):
+		DailyWageManagerScript.process_daily_wages(PlayerData, 2026, 1, day)
+
+	assert_check(PlayerData.health == 88, "Twenty restaurant shifts reduce health by 2, not 40 (actual: %d)" % PlayerData.health)
+	assert_check(PlayerData.mental_state == 79, "Twenty restaurant shifts reduce mental state by 1, not 20 (actual: %d)" % PlayerData.mental_state)
 
 
 # =============================================================================
@@ -432,6 +453,8 @@ func test_save_load_persistence() -> void:
 	PlayerData.daily_wage_last_paid = {"year": 2026, "month": 3, "day": 15}
 	PlayerData.daily_wage_earnings_this_year = 3200
 	PlayerData.taxable_daily_wages_this_year = 3200
+	PlayerData.daily_job_health_loss_fraction = 0.35
+	PlayerData.daily_job_mental_loss_fraction = 0.65
 	PlayerData.gig_earnings_this_year = 850
 	PlayerData.gigs_completed_today = 2
 	PlayerData.last_gig_date = {"year": 2026, "month": 3, "day": 15}
@@ -455,6 +478,8 @@ func test_save_load_persistence() -> void:
 	assert_check(PlayerData.part_time_job.title == "Cleaner", "Restored part-time job title is Cleaner")
 	assert_check(PlayerData.daily_wage_last_paid.day == 15, "Restored daily wage last paid day is 15")
 	assert_check(PlayerData.daily_wage_earnings_this_year == 3200, "Restored daily wage earnings ($3,200)")
+	assert_check(is_equal_approx(PlayerData.daily_job_health_loss_fraction, 0.35), "Restored fractional daily health loss progress")
+	assert_check(is_equal_approx(PlayerData.daily_job_mental_loss_fraction, 0.65), "Restored fractional daily mental loss progress")
 	assert_check(PlayerData.gig_earnings_this_year == 850, "Restored gig earnings ($850)")
 	assert_check(PlayerData.gigs_completed_today == 2, "Restored gigs completed today is 2")
 	assert_check(PlayerData.gig_reputation.get("freelance_writer") == 80, "Restored gig reputation")

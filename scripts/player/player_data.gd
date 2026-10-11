@@ -313,6 +313,8 @@ var part_time_job: Dictionary = {}
 var daily_wage_last_paid: Dictionary = {"year": 0, "month": 0, "day": 0}
 var daily_wage_earnings_this_year: int = 0
 var taxable_daily_wages_this_year: int = 0
+var daily_job_health_loss_fraction: float = 0.0
+var daily_job_mental_loss_fraction: float = 0.0
 var gig_earnings_this_year: int = 0
 var gigs_completed_today: int = 0
 var last_gig_date: Dictionary = {"year": 0, "month": 0, "day": 0}
@@ -611,6 +613,8 @@ func reset_player() -> void:
 	daily_wage_last_paid = {"year": 0, "month": 0, "day": 0}
 	daily_wage_earnings_this_year = 0
 	taxable_daily_wages_this_year = 0
+	daily_job_health_loss_fraction = 0.0
+	daily_job_mental_loss_fraction = 0.0
 	gig_earnings_this_year = 0
 	gigs_completed_today = 0
 	last_gig_date = {"year": 0, "month": 0, "day": 0}
@@ -1689,9 +1693,9 @@ func calculate_mental_state_drift() -> int:
 
 	var target_equilibrium: float = clampf(avg_stats - drag, 5.0, 100.0)
 
-	# 3. Drift smoothly towards target equilibrium (approx 28% of gap per year)
+	# 3. Drift smoothly towards target equilibrium (approx 15% of gap per year)
 	var diff: float = target_equilibrium - float(mental_state)
-	var shift: int = int(round(diff * 0.28))
+	var shift: int = int(round(diff * 0.15))
 	if shift == 0 and abs(diff) > 2.5:
 		shift = 1 if diff > 0 else -1
 	return shift

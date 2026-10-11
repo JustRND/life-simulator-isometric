@@ -11,6 +11,7 @@ extends RefCounted
 const DailyJobsCatalogScript = preload("res://scripts/economy/daily_jobs_catalog.gd")
 
 const CATEGORY_PAYROLL := "payroll"
+const NEGATIVE_DAILY_STAT_EFFECT_SCALE: float = 0.05
 
 
 # =============================================================================
@@ -165,10 +166,12 @@ static func process_daily_wages(player_data: Node, year: int, month: int, day: i
 			player_data.happiness = clampi(cur_h + int(effects["happiness_delta"]), 0, 100)
 		if effects.has("health_delta"):
 			var cur_hl: int = int(player_data.get("health")) if player_data.get("health") != null else 100
-			player_data.health = clampi(cur_hl + int(effects["health_delta"]), 0, 100)
+			var health_delta: int = _scale_negative_daily_stat_effect(player_data, "daily_job_health_loss_fraction", int(effects["health_delta"]))
+			player_data.health = clampi(cur_hl + health_delta, 0, 100)
 		if effects.has("mental_state_delta"):
 			var cur_m: int = int(player_data.get("mental_state")) if player_data.get("mental_state") != null else 100
-			player_data.mental_state = clampi(cur_m + int(effects["mental_state_delta"]), 0, 100)
+			var mental_delta: int = _scale_negative_daily_stat_effect(player_data, "daily_job_mental_loss_fraction", int(effects["mental_state_delta"]))
+			player_data.mental_state = clampi(cur_m + mental_delta, 0, 100)
 		if effects.has("smarts_gain"):
 			var cur_s: int = int(player_data.get("smarts")) if player_data.get("smarts") != null else 50
 			player_data.smarts = clampi(cur_s + int(effects["smarts_gain"]), 0, 100)
@@ -225,6 +228,19 @@ static func process_daily_wages(player_data: Node, year: int, month: int, day: i
 		"logs": logs,
 		"missed_shifts": missed_shifts
 	}
+
+
+static func _scale_negative_daily_stat_effect(player_data: Node, remainder_property: String, delta: int) -> int:
+	if delta >= 0:
+		return delta
+
+	# Catalog deltas are per shift, so accumulate only 5% of a negative effect
+	# to prevent ordinary daily work from draining stats dozens of points monthly.
+	var remainder: float = float(player_data.get(remainder_property)) if player_data.get(remainder_property) != null else 0.0
+	var scaled_loss: float = float(-delta) * NEGATIVE_DAILY_STAT_EFFECT_SCALE + remainder
+	var applied_loss: int = int(floor(scaled_loss + 0.000001))
+	player_data.set(remainder_property, maxf(0.0, scaled_loss - float(applied_loss)))
+	return -applied_loss
 
 
 # =============================================================================

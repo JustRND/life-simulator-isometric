@@ -35,6 +35,13 @@ func _ready() -> void:
 	field.max_length = 4
 	MobileKeyboardManager._apply_input_text(field, "123456")
 	assert(field.text == "1234")
+	field.max_length = 0
+	field.text = "Bobby Santos"
+	field.set_caret_column(5)
+	assert(MobileKeyboardManager._get_virtual_keyboard_cursor_range(field) == Vector2i(5, 5), "Virtual keyboard receives the caret position for editing and backspace")
+	field.select(2, 7)
+	assert(MobileKeyboardManager._get_virtual_keyboard_cursor_range(field) == Vector2i(2, 7), "Virtual keyboard receives selected text bounds")
+	field.deselect()
 	var multiline := TextEdit.new()
 	add_child(multiline)
 	assert(multiline.has_meta("mobile_kb_attached"))

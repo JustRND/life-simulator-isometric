@@ -162,6 +162,8 @@ func capture_data() -> Dictionary:
 		"daily_wage_last_paid": PlayerData.daily_wage_last_paid.duplicate(true),
 		"daily_wage_earnings_this_year": PlayerData.daily_wage_earnings_this_year,
 		"taxable_daily_wages_this_year": PlayerData.taxable_daily_wages_this_year,
+		"daily_job_health_loss_fraction": PlayerData.daily_job_health_loss_fraction,
+		"daily_job_mental_loss_fraction": PlayerData.daily_job_mental_loss_fraction,
 		"gig_earnings_this_year": PlayerData.gig_earnings_this_year,
 		"gigs_completed_today": PlayerData.gigs_completed_today,
 		"last_gig_date": PlayerData.last_gig_date.duplicate(true),
@@ -716,6 +718,8 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.daily_wage_last_paid = Dictionary(data.get("daily_wage_last_paid", {"year": 0, "month": 0, "day": 0})).duplicate(true)
 	PlayerData.daily_wage_earnings_this_year = int(data.get("daily_wage_earnings_this_year", 0))
 	PlayerData.taxable_daily_wages_this_year = int(data.get("taxable_daily_wages_this_year", 0))
+	PlayerData.daily_job_health_loss_fraction = clampf(float(data.get("daily_job_health_loss_fraction", 0.0)), 0.0, 0.999999)
+	PlayerData.daily_job_mental_loss_fraction = clampf(float(data.get("daily_job_mental_loss_fraction", 0.0)), 0.0, 0.999999)
 	PlayerData.gig_earnings_this_year = int(data.get("gig_earnings_this_year", 0))
 	PlayerData.gigs_completed_today = int(data.get("gigs_completed_today", 0))
 	PlayerData.last_gig_date = Dictionary(data.get("last_gig_date", {"year": 0, "month": 0, "day": 0})).duplicate(true)

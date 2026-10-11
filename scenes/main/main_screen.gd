@@ -1472,13 +1472,13 @@ func randomize_stats() -> void:
 	if PlayerData.age < 30:
 		health_flux = randi_range(-1, 2)
 	elif PlayerData.age < 50:
-		health_flux = randi_range(-2, 1)
+		health_flux = randi_range(-1, 1)
 	elif PlayerData.age < 65:
-		health_flux = randi_range(-3, 0)
+		health_flux = randi_range(-2, 0)
 	elif PlayerData.age < 80:
-		health_flux = randi_range(-5, -1)
+		health_flux = randi_range(-3, -1)
 	else:
-		health_flux = randi_range(-7, -2)
+		health_flux = randi_range(-5, -2)
 
 	# Smarts is excluded from random passive increases: must be earned and maintained via active gameplay
 	var random_effects := {

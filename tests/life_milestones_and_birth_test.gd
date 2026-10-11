@@ -26,6 +26,7 @@ func test_birth_story_socioeconomic_and_cancer() -> void:
 	print("1. Testing Birth Story socioeconomic tiers and health conditions...")
 
 	var tiers_seen := {}
+	var birthdays_seen := {}
 	var cancer_description_verified := false
 
 	# Run multiple profile generations to verify tier distribution & conditions
@@ -33,6 +34,16 @@ func test_birth_story_socioeconomic_and_cancer() -> void:
 		var profile = BirthStoryGenerator.generate_profile("Alex", "United States", "FEMALE")
 		var tier: String = profile.get("family_wealth", "")
 		tiers_seen[tier] = true
+		var birth_month: String = str(profile.get("birth_month", ""))
+		var birth_day: int = int(profile.get("birth_day", 0))
+		var month_index: int = -1
+		for month_i in range(BirthStoryGenerator.MONTH_DATA.size()):
+			if str(BirthStoryGenerator.MONTH_DATA[month_i]["name"]) == birth_month:
+				month_index = month_i
+				assert(birth_day >= 1 and birth_day <= int(BirthStoryGenerator.MONTH_DATA[month_i]["days"]), "Generated birthday must be a valid date")
+				assert(str(profile.get("zodiac", "")) == BirthStoryGenerator.get_zodiac(month_i + 1, birth_day), "Generated zodiac must match birthday")
+		assert(month_index >= 0, "Every new character profile must receive a birthday")
+		birthdays_seen["%s %d" % [birth_month, birth_day]] = true
 
 		var desc: String = profile.get("birth_description", "")
 		var m_cond: String = profile.get("mother_condition", "")
@@ -58,6 +69,7 @@ func test_birth_story_socioeconomic_and_cancer() -> void:
 	assert(tiers_seen.has("poor"), "Must generate poor tier")
 	assert(tiers_seen.has("middle_class"), "Must generate middle_class tier")
 	assert(tiers_seen.has("wealthy"), "Must generate wealthy tier")
+	assert(birthdays_seen.size() > 1, "New character profiles should receive randomized birthdays")
 	assert(cancer_description_verified, "Cancer condition must appear in birth description across runs")
 	print("   ✔ Birth socioeconomic tiers and cancer descriptions verified.")
 

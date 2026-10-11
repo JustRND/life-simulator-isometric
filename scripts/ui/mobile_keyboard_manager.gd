@@ -272,7 +272,8 @@ static func open_keyboard(input_ctrl: Control, prompt_override: String = "", _fo
 			cur_txt = (input_ctrl as TextEdit).text
 			kb_t = DisplayServer.KEYBOARD_TYPE_MULTILINE
 
-		DisplayServer.virtual_keyboard_show(cur_txt, input_ctrl.get_global_rect(), kb_t, m_len)
+		var cursor_range := _get_virtual_keyboard_cursor_range(input_ctrl)
+		DisplayServer.virtual_keyboard_show(cur_txt, input_ctrl.get_global_rect(), kb_t, m_len, cursor_range.x, cursor_range.y)
 		return
 
 	# Debounce within 250ms to prevent double-firing
@@ -470,6 +471,7 @@ static func show_input_popup(options: Dictionary) -> Control:
 	input_box.caret_blink_interval = 0.5
 	input_box.caret_force_displayed = true
 	input_box.add_theme_color_override("caret_color", caret_col)
+	input_box.set_caret_column(input_box.text.length())
 
 	var input_sb := StyleBoxFlat.new()
 	input_sb.bg_color = input_bg
@@ -618,9 +620,9 @@ static func show_input_popup(options: Dictionary) -> Control:
 
 	# Focus deferred and virtual keyboard trigger
 	input_box.call_deferred("grab_focus")
-	input_box.call_deferred("set_caret_column", input_box.text.length())
 	var ds_kb_type: DisplayServer.VirtualKeyboardType = int(input_box.virtual_keyboard_type) as DisplayServer.VirtualKeyboardType
-	DisplayServer.virtual_keyboard_show(input_box.text, input_box.get_global_rect(), ds_kb_type, input_box.max_length)
+	var cursor_range := _get_virtual_keyboard_cursor_range(input_box)
+	DisplayServer.virtual_keyboard_show(input_box.text, input_box.get_global_rect(), ds_kb_type, input_box.max_length, cursor_range.x, cursor_range.y)
 
 	return overlay
 
@@ -687,3 +689,13 @@ static func _apply_input_text(input_ctrl: Control, res_str: String) -> void:
 		var te := input_ctrl as TextEdit
 		te.text = res_str
 		te.text_changed.emit()
+
+
+static func _get_virtual_keyboard_cursor_range(input_ctrl: Control) -> Vector2i:
+	if input_ctrl is LineEdit:
+		var line_edit := input_ctrl as LineEdit
+		if line_edit.has_selection():
+			return Vector2i(line_edit.get_selection_from_column(), line_edit.get_selection_to_column())
+		var caret_column: int = line_edit.caret_column
+		return Vector2i(caret_column, caret_column)
+	return Vector2i(-1, -1)
