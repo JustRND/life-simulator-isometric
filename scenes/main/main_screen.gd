@@ -1584,6 +1584,14 @@ func _adjust_safe_area() -> void:
 		profile_strip.offset_bottom = profile_strip.offset_top + strip_h
 		if is_instance_valid(life_feed_panel):
 			life_feed_panel.offset_top = profile_strip.offset_bottom + 4.0
+		if is_instance_valid(timeline_drawer):
+			var feed_top: float = life_feed_panel.offset_top if is_instance_valid(life_feed_panel) else profile_strip.offset_bottom + 4.0
+			var feed_bottom: float = life_feed_panel.offset_bottom if is_instance_valid(life_feed_panel) else -530.0
+			timeline_drawer.offset_left = life_feed_panel.offset_left if is_instance_valid(life_feed_panel) else 0.0
+			timeline_drawer.offset_right = life_feed_panel.offset_right if is_instance_valid(life_feed_panel) else 0.0
+			if not _is_timeline_open or (_timeline_drawer_tween == null or not _timeline_drawer_tween.is_valid()):
+				timeline_drawer.offset_top = feed_top
+				timeline_drawer.offset_bottom = feed_bottom
 
 	# ONLY create a bottom margin for the ACTIVITIES PANEL as specifically requested.
 	# The five core buttons and other panels stay in their original layout.
@@ -2061,11 +2069,16 @@ func _open_timeline_drawer() -> void:
 	if _timeline_drawer_tween != null and _timeline_drawer_tween.is_valid():
 		_timeline_drawer_tween.kill()
 		
-	var base_top: float = 264.0
-	var base_bottom: float = (timeline_pull_up_btn.offset_top - 8.0) if timeline_pull_up_btn != null else -530.0
+	var base_top: float = life_feed_panel.offset_top if is_instance_valid(life_feed_panel) else 264.0
+	var base_bottom: float = life_feed_panel.offset_bottom if is_instance_valid(life_feed_panel) else -530.0
+	var base_left: float = life_feed_panel.offset_left if is_instance_valid(life_feed_panel) else 0.0
+	var base_right: float = life_feed_panel.offset_right if is_instance_valid(life_feed_panel) else 0.0
+
+	timeline_drawer.offset_left = base_left
+	timeline_drawer.offset_right = base_right
 	timeline_drawer.modulate.a = 0.0
-	timeline_drawer.offset_top = base_top + 140.0
-	timeline_drawer.offset_bottom = base_bottom + 140.0
+	timeline_drawer.offset_top = base_top + 100.0
+	timeline_drawer.offset_bottom = base_bottom + 100.0
 	
 	_timeline_drawer_tween = create_tween().set_parallel(true)
 	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_top", base_top, 0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -2090,11 +2103,11 @@ func _close_timeline_drawer() -> void:
 	if _timeline_drawer_tween != null and _timeline_drawer_tween.is_valid():
 		_timeline_drawer_tween.kill()
 		
-	var base_top: float = 264.0
-	var base_bottom: float = (timeline_pull_up_btn.offset_top - 8.0) if timeline_pull_up_btn != null else -530.0
+	var base_top: float = life_feed_panel.offset_top if is_instance_valid(life_feed_panel) else 264.0
+	var base_bottom: float = life_feed_panel.offset_bottom if is_instance_valid(life_feed_panel) else -530.0
 	_timeline_drawer_tween = create_tween().set_parallel(true)
-	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_top", base_top + 120.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_bottom", base_bottom + 120.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_top", base_top + 100.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	_timeline_drawer_tween.tween_property(timeline_drawer, "offset_bottom", base_bottom + 100.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	_timeline_drawer_tween.tween_property(timeline_drawer, "modulate:a", 0.0, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	_timeline_drawer_tween.chain().tween_callback(func():
 		if is_instance_valid(timeline_drawer) and not _is_timeline_open:
