@@ -2874,6 +2874,7 @@ func update_history_panel() -> void:
 		margin.add_child(vbox)
 
 		var header_hbox := HBoxContainer.new()
+		header_hbox.custom_minimum_size.y = 48
 		header_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		vbox.add_child(header_hbox)
 
@@ -2891,7 +2892,10 @@ func update_history_panel() -> void:
 		var age_lbl := Label.new()
 		age_lbl.text = "AGE %d" % int(entry.get("age", 0))
 		age_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		age_lbl.custom_minimum_size = Vector2(140, 48)
 		age_lbl.size_flags_horizontal = Control.SIZE_SHRINK_END
+		age_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		age_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		age_lbl.add_theme_font_size_override("font_size", 28)
 		age_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		header_hbox.add_child(age_lbl)
