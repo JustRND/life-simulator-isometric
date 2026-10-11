@@ -262,6 +262,8 @@ func _ready() -> void:
 
 	# Configure translucent, sleek scroll indicators on every page and scroll container
 	_setup_all_translucent_scrollbars()
+	_configure_relationship_avatar(mother_icon)
+	_configure_relationship_avatar(father_icon)
 	_apply_anti_clipping_to_all_panels()
 	if not get_tree().node_added.is_connected(_on_global_node_added):
 		get_tree().node_added.connect(_on_global_node_added)
@@ -5752,6 +5754,27 @@ func _relationship_status_text(val: int) -> String:
 		return "Strained (%d%%)" % val
 
 
+func _configure_relationship_avatar(icon: TextureRect) -> void:
+	if icon == null:
+		return
+	# Relationship avatars must keep their requested portrait width. The global
+	# anti-clipping pass expands generic Controls, which otherwise steals the
+	# HBox width from the NPC information column.
+	icon.set_meta("keep_fixed_size", true)
+	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+
+
+func _configure_relationship_action_grid(row: GridContainer) -> void:
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.columns = 2
+	row.resized.connect(func():
+		if is_instance_valid(row):
+			row.columns = 1 if row.size.x < 270.0 else 2
+	)
+
+
 func _setup_parent_action_row(vbox: VBoxContainer, parent_type: String) -> void:
 	var row_name := parent_type.capitalize() + "ActionRow"
 
@@ -5768,8 +5791,7 @@ func _setup_parent_action_row(vbox: VBoxContainer, parent_type: String) -> void:
 
 	var row := GridContainer.new()
 	row.name = row_name
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	_configure_relationship_action_grid(row)
 	row.add_theme_constant_override("h_separation", 12)
 	row.add_theme_constant_override("v_separation", 10)
 
@@ -6380,7 +6402,7 @@ func _setup_partner_card_ui() -> void:
 		# Avatar
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(116, 116)
-		icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		_configure_relationship_avatar(icon)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -6695,7 +6717,7 @@ func _setup_children_cards_ui() -> void:
 
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(116, 116)
-		icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		_configure_relationship_avatar(icon)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture = PortraitCatalog.texture(c_age, c_gender, c_variant, c_eth)
@@ -6747,10 +6769,9 @@ func _setup_children_cards_ui() -> void:
 
 		_setup_relationship_bar(cv, "ChildRel_%d" % i, c_rel)
 
-		var act_row := HBoxContainer.new()
-		act_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		act_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		act_row.add_theme_constant_override("separation", 12)
+		var act_grid := GridContainer.new()
+		_configure_relationship_action_grid(act_grid)
+		act_grid.add_theme_constant_override("h_separation", 12)
 
 		var child_spent: bool = PlayerData.is_activity_used_this_month(int(c.get("last_spend_time_month", -1)), int(c.get("last_spend_time_year", -1)), int(c.get("last_spend_time_age", -1)))
 		var child_gifted: bool = PlayerData.is_activity_used_this_month(int(c.get("last_gift_month", -1)), int(c.get("last_gift_year", -1)), int(c.get("last_gift_age", -1)))
@@ -6780,7 +6801,7 @@ func _setup_children_cards_ui() -> void:
 			btn_spend.disabled = true
 			btn_spend.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			btn_spend.tooltip_text = "Already spent time with %s this month. Available again next month." % c_name
-		act_row.add_child(btn_spend)
+		act_grid.add_child(btn_spend)
 
 		var is_baby_or_toddler: bool = c_age < 5
 		var gift_text := "🎁 Gift (Used)" if child_gifted else "🎁 Choose Gift"
@@ -6806,7 +6827,7 @@ func _setup_children_cards_ui() -> void:
 			btn_gift.disabled = true
 			btn_gift.modulate = Color(0.6, 0.6, 0.6, 0.65)
 			btn_gift.tooltip_text = "Already gave a gift to %s this month. Available again next month." % c_name
-		act_row.add_child(btn_gift)
+		act_grid.add_child(btn_gift)
 
 		var btn_details := _create_cyber_button("📜 Details", Color("#8b5cf6"), func():
 			var idx = i
@@ -6818,9 +6839,9 @@ func _setup_children_cards_ui() -> void:
 		btn_details.add_theme_font_size_override("font_size", 28)
 		btn_details.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		btn_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		act_row.add_child(btn_details)
+		act_grid.add_child(btn_details)
 
-		cv.add_child(act_row)
+		cv.add_child(act_grid)
 		rel_list.add_child(card)
 
 
@@ -6912,7 +6933,7 @@ func _setup_siblings_cards_ui() -> void:
 		# Avatar icon
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(116, 116)
-		icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		_configure_relationship_avatar(icon)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture = PortraitCatalog.texture(s_age, s_gender, s_variant, s_eth)
@@ -6980,9 +7001,9 @@ func _setup_siblings_cards_ui() -> void:
 		if is_alive:
 			_setup_relationship_bar(cv, "SiblingRelBar_" + str(i), s_relationship)
 
-			var act_row := HBoxContainer.new()
-			act_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			act_row.add_theme_constant_override("separation", 12)
+			var act_row := GridContainer.new()
+			_configure_relationship_action_grid(act_row)
+			act_row.add_theme_constant_override("h_separation", 12)
 
 			var sib_spent: bool = PlayerData.is_activity_used_this_month(int(s.get("last_spend_time_month", -1)), int(s.get("last_spend_time_year", -1)), int(s.get("last_spend_time_age", -1)))
 			var sib_complimented: bool = PlayerData.is_activity_used_this_month(int(s.get("last_compliment_month", -1)), int(s.get("last_compliment_year", -1)), int(s.get("last_compliment_age", -1)))
@@ -7359,6 +7380,7 @@ func _setup_friends_cards_ui() -> void:
 		# Portrait Icon
 		var f_icon := TextureRect.new()
 		f_icon.custom_minimum_size = Vector2(90, 90)
+		_configure_relationship_avatar(f_icon)
 		f_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		f_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		var f_age: int = int(f.get("age", 20))
@@ -7393,8 +7415,9 @@ func _setup_friends_cards_ui() -> void:
 		_setup_relationship_bar(f_vbox, "FriendRelBar_" + str(i), f_rel)
 
 		# Action buttons row
-		var btn_row := HBoxContainer.new()
-		btn_row.add_theme_constant_override("separation", 10)
+		var btn_row := GridContainer.new()
+		_configure_relationship_action_grid(btn_row)
+		btn_row.add_theme_constant_override("h_separation", 10)
 		f_vbox.add_child(btn_row)
 
 		var hang_btn := _create_cyber_button("💬 Hang Out", Color("#10b981"), func():
