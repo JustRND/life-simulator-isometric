@@ -16,6 +16,7 @@ func capture_data() -> Dictionary:
 		"ethnicity": PlayerData.ethnicity,
 		"portrait_track": PlayerData.portrait_track,
 		"portrait_variant": PlayerData.portrait_variant,
+		"avatar_id": PlayerData.avatar_id,
 		"has_started_game": PlayerData.has_started_game,
 		"selected_room_id": PlayerData.selected_room_id,
 		"birth_story": PlayerData.birth_story,
@@ -396,6 +397,7 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.ethnicity = str(data.get("ethnicity", "white"))
 	PlayerData.portrait_track = int(data.get("portrait_track", int(data.get("portrait_variant", 0)) % 4))
 	PlayerData.portrait_variant = int(data.get("portrait_variant", PlayerData.portrait_track))
+	PlayerData.avatar_id = str(data.get("avatar_id", ""))
 	PlayerData.has_started_game = bool(data.get("has_started_game", false))
 	PlayerData.selected_room_id = str(data.get("selected_room_id", "room_wood"))
 

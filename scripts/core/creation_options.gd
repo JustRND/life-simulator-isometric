@@ -84,8 +84,118 @@ const COUNTRIES = [
 	["Vietnam", 6, 6],
 	["Zimbabwe", 1, 16]
 ]
+
+const COUNTRY_ISO_MAP: Dictionary = {
+	"Albania": "AL",
+	"Argentina": "AR",
+	"Australia": "AU",
+	"Austria": "AT",
+	"Azerbaijan": "AZ",
+	"Bahrain": "BH",
+	"Bangladesh": "BD",
+	"Barbados": "BB",
+	"Belgium": "BE",
+	"Bosnia and Herzegovina": "BA",
+	"Botswana": "BW",
+	"Brazil": "BR",
+	"Bulgaria": "BG",
+	"Cambodia": "KH",
+	"Canada": "CA",
+	"Chile": "CL",
+	"Colombia": "CO",
+	"Croatia": "HR",
+	"Cuba": "CU",
+	"Cyprus": "CY",
+	"Czech Republic": "CZ",
+	"Denmark": "DK",
+	"DR Congo": "CD",
+	"Estonia": "EE",
+	"Finland": "FI",
+	"France": "FR",
+	"Georgia": "GE",
+	"Germany": "DE",
+	"Ghana": "GH",
+	"Greece": "GR",
+	"Hungary": "HU",
+	"Iceland": "IS",
+	"India": "IN",
+	"Indonesia": "ID",
+	"Ireland": "IE",
+	"Italy": "IT",
+	"Japan": "JP",
+	"Kazakhstan": "KZ",
+	"Kenya": "KE",
+	"Kuwait": "KW",
+	"Lebanon": "LB",
+	"Lithuania": "LT",
+	"Madagascar": "MG",
+	"Malta": "MT",
+	"Mexico": "MX",
+	"Morocco": "MA",
+	"Myanmar": "MM",
+	"Netherlands": "NL",
+	"New Zealand": "NZ",
+	"Nigeria": "NG",
+	"North Korea": "KP",
+	"Norway": "NO",
+	"Panama": "PA",
+	"Philippines": "PH",
+	"Poland": "PL",
+	"Portugal": "PT",
+	"Romania": "RO",
+	"Russia": "RU",
+	"Saudi Arabia": "SA",
+	"Senegal": "SN",
+	"Serbia": "RS",
+	"Singapore": "SG",
+	"Slovakia": "SK",
+	"South Africa": "ZA",
+	"South Korea": "KR",
+	"Spain": "ES",
+	"Sri Lanka": "LK",
+	"Sweden": "SE",
+	"Switzerland": "CH",
+	"Taiwan": "TW",
+	"Tanzania": "TZ",
+	"Thailand": "TH",
+	"Tunisia": "TN",
+	"Turkey": "TR",
+	"Ukraine": "UA",
+	"United Arab Emirates": "AE",
+	"United Kingdom": "GB",
+	"United States": "US",
+	"Venezuela": "VE",
+	"Vietnam": "VN",
+	"Zimbabwe": "ZW"
+}
+
 const FLAG_ROW_TOP = [153, 242, 327, 412, 494, 575, 656, 738, 818, 899, 979, 1059, 1139, 1219, 1299, 1380, 1459, 1539]
 const FLAG_ROW_BOTTOM = [199, 286, 371, 455, 537, 619, 699, 780, 861, 941, 1021, 1101, 1182, 1262, 1342, 1423, 1502, 1582]
+
+static func get_country_iso(country_name: String) -> String:
+	for c_name in COUNTRY_ISO_MAP.keys():
+		if str(c_name).to_lower() == country_name.to_lower():
+			return str(COUNTRY_ISO_MAP[c_name])
+	return "US"
+
+static func get_country_by_iso(iso: String) -> String:
+	var upper_iso := iso.to_upper().strip_edges()
+	for c_name in COUNTRY_ISO_MAP.keys():
+		if str(COUNTRY_ISO_MAP[c_name]).to_upper() == upper_iso:
+			return str(c_name)
+	return "United States"
+
+static func get_all_country_names() -> Array[String]:
+	var names: Array[String] = []
+	for entry in COUNTRIES:
+		names.append(str(entry[0]))
+	return names
+
+static func is_country_supported(country_name: String) -> bool:
+	for entry in COUNTRIES:
+		if str(entry[0]).to_lower() == country_name.to_lower():
+			return true
+	return false
 
 static func normalize_name(value: String) -> String:
 	var words := value.strip_edges().split(" ", false)

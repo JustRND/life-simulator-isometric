@@ -59,6 +59,7 @@ var gender: String = "MALE"
 var ethnicity: String = "white"
 var portrait_track: int = 0
 var portrait_variant: int = 0
+var avatar_id: String = ""
 var has_started_game: bool = false
 var selected_room_id: String = "room_capsule"
 var has_moved_out_from_parents: bool = false
@@ -354,6 +355,7 @@ func reset_player() -> void:
 	ethnicity = "white"
 	portrait_track = 0
 	portrait_variant = 0
+	avatar_id = ""
 	has_started_game = false
 	selected_room_id = "room_capsule"
 	has_moved_out_from_parents = false
@@ -1997,6 +1999,7 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 	birthplace = str(identity.get("birthplace", "New York"))
 	portrait_track = int(identity.get("portrait_track", 0))
 	portrait_variant = int(identity.get("portrait_variant", 0))
+	avatar_id = str(identity.get("avatar_id", ""))
 	has_started_game = true
 
 	# Generate rich reincarnation profile with full character & parents description
@@ -2196,6 +2199,7 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	ethnicity = str(heir.get("ethnicity", "white"))
 	portrait_track = int(heir.get("portrait_track", 0))
 	portrait_variant = int(heir.get("portrait_variant", 0))
+	avatar_id = str(heir.get("avatar_id", ""))
 	age = int(heir.get("age", 18))
 	if not finance_market.is_empty():
 		finance_market.last_age = age

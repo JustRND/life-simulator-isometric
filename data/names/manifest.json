@@ -1,0 +1,650 @@
+{
+  "AU": {
+    "country_name": "Australia",
+    "iso": "AU",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "NZ": {
+    "country_name": "New Zealand",
+    "iso": "NZ",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "US": {
+    "country_name": "United States",
+    "iso": "US",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CA": {
+    "country_name": "Canada",
+    "iso": "CA",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "MX": {
+    "country_name": "Mexico",
+    "iso": "MX",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "BR": {
+    "country_name": "Brazil",
+    "iso": "BR",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "AR": {
+    "country_name": "Argentina",
+    "iso": "AR",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CL": {
+    "country_name": "Chile",
+    "iso": "CL",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CO": {
+    "country_name": "Colombia",
+    "iso": "CO",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "VE": {
+    "country_name": "Venezuela",
+    "iso": "VE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CU": {
+    "country_name": "Cuba",
+    "iso": "CU",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "PA": {
+    "country_name": "Panama",
+    "iso": "PA",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "BB": {
+    "country_name": "Barbados",
+    "iso": "BB",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "GB": {
+    "country_name": "United Kingdom",
+    "iso": "GB",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "FR": {
+    "country_name": "France",
+    "iso": "FR",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "DE": {
+    "country_name": "Germany",
+    "iso": "DE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "BE": {
+    "country_name": "Belgium",
+    "iso": "BE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "NL": {
+    "country_name": "Netherlands",
+    "iso": "NL",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CH": {
+    "country_name": "Switzerland",
+    "iso": "CH",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "AT": {
+    "country_name": "Austria",
+    "iso": "AT",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "IE": {
+    "country_name": "Ireland",
+    "iso": "IE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "NO": {
+    "country_name": "Norway",
+    "iso": "NO",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 104
+  },
+  "SE": {
+    "country_name": "Sweden",
+    "iso": "SE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "DK": {
+    "country_name": "Denmark",
+    "iso": "DK",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "FI": {
+    "country_name": "Finland",
+    "iso": "FI",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "IS": {
+    "country_name": "Iceland",
+    "iso": "IS",
+    "naming_format": "{given} {family}",
+    "male_count": 104,
+    "female_count": 105,
+    "surname_count": 109
+  },
+  "EE": {
+    "country_name": "Estonia",
+    "iso": "EE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "LT": {
+    "country_name": "Lithuania",
+    "iso": "LT",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "IT": {
+    "country_name": "Italy",
+    "iso": "IT",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "ES": {
+    "country_name": "Spain",
+    "iso": "ES",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 102,
+    "surname_count": 104
+  },
+  "PT": {
+    "country_name": "Portugal",
+    "iso": "PT",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "GR": {
+    "country_name": "Greece",
+    "iso": "GR",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CY": {
+    "country_name": "Cyprus",
+    "iso": "CY",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "MT": {
+    "country_name": "Malta",
+    "iso": "MT",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "PL": {
+    "country_name": "Poland",
+    "iso": "PL",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CZ": {
+    "country_name": "Czech Republic",
+    "iso": "CZ",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 110
+  },
+  "SK": {
+    "country_name": "Slovakia",
+    "iso": "SK",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 101,
+    "surname_count": 115
+  },
+  "HU": {
+    "country_name": "Hungary",
+    "iso": "HU",
+    "naming_format": "{family} {given}",
+    "male_count": 102,
+    "female_count": 100,
+    "surname_count": 110
+  },
+  "RO": {
+    "country_name": "Romania",
+    "iso": "RO",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 101
+  },
+  "BG": {
+    "country_name": "Bulgaria",
+    "iso": "BG",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 104,
+    "surname_count": 100
+  },
+  "UA": {
+    "country_name": "Ukraine",
+    "iso": "UA",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "RU": {
+    "country_name": "Russia",
+    "iso": "RU",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "RS": {
+    "country_name": "Serbia",
+    "iso": "RS",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "HR": {
+    "country_name": "Croatia",
+    "iso": "HR",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "BA": {
+    "country_name": "Bosnia and Herzegovina",
+    "iso": "BA",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "AL": {
+    "country_name": "Albania",
+    "iso": "AL",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "GE": {
+    "country_name": "Georgia",
+    "iso": "GE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "AZ": {
+    "country_name": "Azerbaijan",
+    "iso": "AZ",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "JP": {
+    "country_name": "Japan",
+    "iso": "JP",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "KR": {
+    "country_name": "South Korea",
+    "iso": "KR",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "KP": {
+    "country_name": "North Korea",
+    "iso": "KP",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 104
+  },
+  "TW": {
+    "country_name": "Taiwan",
+    "iso": "TW",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "VN": {
+    "country_name": "Vietnam",
+    "iso": "VN",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "ID": {
+    "country_name": "Indonesia",
+    "iso": "ID",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "PH": {
+    "country_name": "Philippines",
+    "iso": "PH",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "TH": {
+    "country_name": "Thailand",
+    "iso": "TH",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "SG": {
+    "country_name": "Singapore",
+    "iso": "SG",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "KH": {
+    "country_name": "Cambodia",
+    "iso": "KH",
+    "naming_format": "{family} {given}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "MM": {
+    "country_name": "Myanmar",
+    "iso": "MM",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "IN": {
+    "country_name": "India",
+    "iso": "IN",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "BD": {
+    "country_name": "Bangladesh",
+    "iso": "BD",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "LK": {
+    "country_name": "Sri Lanka",
+    "iso": "LK",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "KZ": {
+    "country_name": "Kazakhstan",
+    "iso": "KZ",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "NG": {
+    "country_name": "Nigeria",
+    "iso": "NG",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "GH": {
+    "country_name": "Ghana",
+    "iso": "GH",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "SN": {
+    "country_name": "Senegal",
+    "iso": "SN",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "KE": {
+    "country_name": "Kenya",
+    "iso": "KE",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "TZ": {
+    "country_name": "Tanzania",
+    "iso": "TZ",
+    "naming_format": "{given} {family}",
+    "male_count": 102,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "CD": {
+    "country_name": "DR Congo",
+    "iso": "CD",
+    "naming_format": "{given} {family}",
+    "male_count": 104,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "ZA": {
+    "country_name": "South Africa",
+    "iso": "ZA",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "BW": {
+    "country_name": "Botswana",
+    "iso": "BW",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "ZW": {
+    "country_name": "Zimbabwe",
+    "iso": "ZW",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "MG": {
+    "country_name": "Madagascar",
+    "iso": "MG",
+    "naming_format": "{given} {family}",
+    "male_count": 100,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "SA": {
+    "country_name": "Saudi Arabia",
+    "iso": "SA",
+    "naming_format": "{given} {family}",
+    "male_count": 137,
+    "female_count": 136,
+    "surname_count": 152
+  },
+  "AE": {
+    "country_name": "United Arab Emirates",
+    "iso": "AE",
+    "naming_format": "{given} {family}",
+    "male_count": 140,
+    "female_count": 132,
+    "surname_count": 123
+  },
+  "KW": {
+    "country_name": "Kuwait",
+    "iso": "KW",
+    "naming_format": "{given} {family}",
+    "male_count": 134,
+    "female_count": 120,
+    "surname_count": 126
+  },
+  "BH": {
+    "country_name": "Bahrain",
+    "iso": "BH",
+    "naming_format": "{given} {family}",
+    "male_count": 118,
+    "female_count": 109,
+    "surname_count": 128
+  },
+  "LB": {
+    "country_name": "Lebanon",
+    "iso": "LB",
+    "naming_format": "{given} {family}",
+    "male_count": 150,
+    "female_count": 135,
+    "surname_count": 137
+  },
+  "TR": {
+    "country_name": "Turkey",
+    "iso": "TR",
+    "naming_format": "{given} {family}",
+    "male_count": 101,
+    "female_count": 100,
+    "surname_count": 100
+  },
+  "MA": {
+    "country_name": "Morocco",
+    "iso": "MA",
+    "naming_format": "{given} {family}",
+    "male_count": 155,
+    "female_count": 144,
+    "surname_count": 154
+  },
+  "TN": {
+    "country_name": "Tunisia",
+    "iso": "TN",
+    "naming_format": "{given} {family}",
+    "male_count": 148,
+    "female_count": 135,
+    "surname_count": 156
+  }
+}
