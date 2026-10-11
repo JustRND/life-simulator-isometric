@@ -118,13 +118,22 @@ func _build_page() -> void:
 	page.z_index = 91
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	page.add_theme_stylebox_override("panel", _style(Color("#edf3fa") if is_light else Color(0.055, 0.085, 0.17, 0.98), Color("#0284c7") if is_light else Color("#244872"), 36))
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	margin.add_theme_constant_override("margin_left", 36)
+	margin.add_theme_constant_override("margin_right", 36)
+	margin.add_theme_constant_override("margin_top", 44)
+	margin.add_theme_constant_override("margin_bottom", 44)
+	page.add_child(margin)
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 24)
-	page.add_child(column)
+	margin.add_child(column)
 	var header := HBoxContainer.new()
 	column.add_child(header)
-	title = _label("ACCOUNT", 48)
+	title = _label("ACCOUNT", 46)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	header.add_child(title)
 	var close := _button("✕", header, _close_page)
 	close.custom_minimum_size = Vector2(104, 82)

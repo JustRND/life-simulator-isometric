@@ -403,6 +403,52 @@ static func socialize_with_npc(player: Node, npc: Dictionary, action_type: Strin
 				"relationship": int(npc.get("relationship", 50))
 			}
 
+		"gossip":
+			var g_gain := randi_range(6, 12)
+			var cur_rel_g := int(npc.get("relationship", 40))
+			npc["relationship"] = clampi(cur_rel_g + g_gain, 0, 100)
+			player.modify_friend_relationship(str(npc.get("id", "")), g_gain)
+			player.modify_happiness(7)
+			var rumors := [
+				"You and %s traded juicy rumors about the local tech executives and corporate boardroom gossip.",
+				"%s leaned in and whispered surprising gossip about the city's lively underground music scene.",
+				"You shared stories about city life with %s, laughing at hilarious local urban legends."
+			]
+			return {
+				"success": true,
+				"message": "🗣️ " + (rumors.pick_random() % npc_name) + " (Relationship +%d)" % g_gain,
+				"action": "gossip",
+				"relationship": int(npc.get("relationship", 50))
+			}
+
+		"play_game":
+			var cost_game := 5
+			if not player.can_afford(cost_game):
+				return {"success": false, "message": "💸 You need $%d to cover game tokens or play a match with %s." % [cost_game, npc_name]}
+			player.debit_funds(cost_game)
+			player.record_transaction("Social", -cost_game, "Venue game with %s" % npc_name)
+			var won: bool = randf() < 0.55
+			var game_rel := randi_range(8, 15)
+			var cur_rel_pg := int(npc.get("relationship", 40))
+			npc["relationship"] = clampi(cur_rel_pg + game_rel, 0, 100)
+			player.modify_friend_relationship(str(npc.get("id", "")), game_rel)
+			if won:
+				player.modify_happiness(12)
+				return {
+					"success": true,
+					"message": "🎯 You challenged %s to a quick venue game ($%d) and won with an impressive high score! (Relationship +%d)" % [npc_name, cost_game, game_rel],
+					"action": "play_game",
+					"relationship": int(npc.get("relationship", 50))
+				}
+			else:
+				player.modify_happiness(6)
+				return {
+					"success": true,
+					"message": "🎯 You played a spirited game with %s ($%d). They narrowly bested your score, but you both had great fun! (Relationship +%d)" % [npc_name, cost_game, game_rel],
+					"action": "play_game",
+					"relationship": int(npc.get("relationship", 50))
+				}
+
 		"befriend":
 			var friend_added: bool = player.add_friend(npc)
 			if not friend_added:

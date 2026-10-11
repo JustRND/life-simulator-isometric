@@ -1769,14 +1769,26 @@ func _adjust_safe_area() -> void:
 				timeline_drawer.offset_top = feed_top
 				timeline_drawer.offset_bottom = feed_bottom
 
-	# ONLY create a bottom margin for the ACTIVITIES PANEL as specifically requested.
-	# The five core buttons and other panels stay in their original layout.
-	if is_instance_valid(activities_panel):
-		var act_m = activities_panel.get_node_or_null("ActMargin") as MarginContainer
-		if is_instance_valid(act_m):
-			act_m.add_theme_constant_override("margin_bottom", int(maxf(64.0, 36.0 + bottom_m)))
-			if top_m > 0.0:
-				act_m.add_theme_constant_override("margin_top", int(maxf(36.0, top_m + 8.0)))
+	# Ensure all full-screen panels adapt to safe areas (notches/camera at top and home swipe indicator at bottom)
+	var full_screen_panels: Array = [
+		{"panel": activities_panel, "margin_path": "ActMargin", "base_bottom": 64.0, "base_top": 36.0},
+		{"panel": character_panel, "margin_path": "CharacterMargin", "base_bottom": 48.0, "base_top": 36.0},
+		{"panel": infant_panel, "margin_path": "InfantMargin", "base_bottom": 48.0, "base_top": 36.0},
+		{"panel": assets_panel, "margin_path": "AssetsMargin", "base_bottom": 48.0, "base_top": 36.0},
+		{"panel": bank_panel, "margin_path": "BankMargin", "base_bottom": 48.0, "base_top": 36.0},
+		{"panel": relationships_panel, "margin_path": "RelMargin", "base_bottom": 48.0, "base_top": 36.0},
+		{"panel": settings_overlay, "margin_path": "SettingsCard/SettingsMargin", "base_bottom": 48.0, "base_top": 36.0}
+	]
+	for p_info in full_screen_panels:
+		var p_node: Control = p_info["panel"]
+		if is_instance_valid(p_node):
+			var m_node = p_node.get_node_or_null(str(p_info["margin_path"])) as MarginContainer
+			if is_instance_valid(m_node):
+				var b_bot: float = float(p_info["base_bottom"])
+				var b_top: float = float(p_info["base_top"])
+				m_node.add_theme_constant_override("margin_bottom", int(maxf(b_bot, b_bot + bottom_m)))
+				if top_m > 0.0:
+					m_node.add_theme_constant_override("margin_top", int(maxf(b_top, top_m + 8.0)))
 
 
 func trigger_event() -> void:
@@ -6318,7 +6330,8 @@ func _setup_partner_card_ui() -> void:
 		var actions: Array = [
 			["Spend Time", "spend_time", "#0284c7"],
 			["Compliment", "compliment", "#8b5cf6"],
-			["🎁 Choose Gift", "gift", "#10b981"]
+			["🎁 Choose Gift", "gift", "#10b981"],
+			["🍸 Date Outing...", "venue_date", "#ec4899"]
 		]
 
 		if p_status in ["Boyfriend", "Girlfriend"]:
@@ -7312,6 +7325,10 @@ func _interact_partner(action: String) -> void:
 	var p_rel: int = PlayerData.get_partner_relationship()
 
 	match action:
+		"venue_date":
+			venue_companion_mode = "date"
+			_show_social_venues_modal()
+			return
 		"spend_time":
 			if PlayerData.is_activity_used_this_month(PlayerData.last_partner_spend_time_month, PlayerData.last_partner_spend_time_year, PlayerData.last_partner_spend_time_age):
 				add_life_event("⏳ You have already spent quality time with %s this month. Available again next month!" % p_name, "relationship")
@@ -9356,7 +9373,7 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			if gig_used:
 				btn_mow.disabled = true
 				btn_mow.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_mow.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
+				btn_mow.tooltip_text = "Completed for %s (Available again next month)." % GameClock.get_month_name(PlayerData.in_game_month)
 			cur_v.add_child(btn_mow)
 	else:
 		cur_title.text = "CURRENT OCCUPATION"
@@ -22852,8 +22869,12 @@ func _render_venues_category_browser(list: VBoxContainer, is_light: bool) -> voi
 			_show_social_venues_modal()
 		)
 		cat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		cat_btn.custom_minimum_size = Vector2(0, 52)
-		cat_btn.add_theme_font_size_override("font_size", 22)
+		cat_btn.custom_minimum_size = Vector2(0, 50)
+		cat_btn.add_theme_font_size_override("font_size", 20)
+		var cat_sb = cat_btn.get_theme_stylebox("normal")
+		if cat_sb is StyleBoxFlat:
+			cat_sb.content_margin_left = 6
+			cat_sb.content_margin_right = 6
 		if is_selected:
 			cat_btn.modulate = Color(1.2, 1.2, 1.2, 1.0)
 		target_row.add_child(cat_btn)
@@ -22902,6 +22923,7 @@ func _render_venues_category_browser(list: VBoxContainer, is_light: bool) -> voi
 
 		var name_lbl := Label.new()
 		name_lbl.text = "%s %s" % [v_icon, v_name]
+		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		name_lbl.add_theme_font_size_override("font_size", 30)
 		name_lbl.add_theme_color_override("font_color", v_color.darkened(0.2) if is_light else v_color.lightened(0.2))
 		v_info_box.add_child(name_lbl)
@@ -22917,6 +22939,7 @@ func _render_venues_category_browser(list: VBoxContainer, is_light: bool) -> voi
 		var cover_str: String = "Free Admission" if cover <= 0 else ("Cover: $%s" % _format_number(cover))
 		var age_str: String = "All Ages" if min_age <= 0 else ("%d+ Required" % min_age)
 		meta_lbl.text = "🕒 %s  •  👗 %s  •  🔞 %s  •  🎟️ %s" % [hours, dress, age_str, cover_str]
+		meta_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		meta_lbl.add_theme_font_size_override("font_size", 22)
 		meta_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		v_info_box.add_child(meta_lbl)
@@ -22999,6 +23022,7 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 
 	var title_lbl := Label.new()
 	title_lbl.text = "%s %s" % [v_icon, v_name]
+	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_lbl.add_theme_font_size_override("font_size", 34)
 	title_lbl.add_theme_color_override("font_color", v_color.darkened(0.2) if is_light else v_color.lightened(0.2))
 	hv.add_child(title_lbl)
@@ -23056,6 +23080,7 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 		if venue_companion_mode in ["friend", "date"]:
 			price_str += " (for two)"
 		item_title.text = "%s %s  •  %s" % [icon_str, i_name, price_str]
+		item_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		item_title.add_theme_font_size_override("font_size", 28)
 		item_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		m_vbox.add_child(item_title)
@@ -23164,6 +23189,7 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 		var a_title := Label.new()
 		var cost_str := "Free" if a_cost <= 0 else ("$%s" % _format_number(a_cost))
 		a_title.text = "%s %s  •  %s" % ["👑" if a_vip else "✨", a_name, cost_str]
+		a_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		a_title.add_theme_font_size_override("font_size", 28)
 		a_title.add_theme_color_override("font_color", Color("#e11d48") if a_vip else (Color("#0f172a") if is_light else Color("#f8fafc")))
 		a_vbox.add_child(a_title)
@@ -23262,6 +23288,7 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 
 		var p_title := Label.new()
 		p_title.text = "%s (Age %d)  •  %s" % [p_name, p_age, p_status]
+		p_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		p_title.add_theme_font_size_override("font_size", 26)
 		p_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
 		p_vbox.add_child(p_title)
@@ -23273,58 +23300,78 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 		p_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 		p_vbox.add_child(p_sub)
 
-		# Action Buttons
-		var p_btn_row := HBoxContainer.new()
-		p_btn_row.add_theme_constant_override("separation", 8)
-		p_vbox.add_child(p_btn_row)
+		# Action Buttons (3-Column Grid avoids horizontal button overflow & clipping)
+		var p_btn_grid := GridContainer.new()
+		p_btn_grid.columns = 3
+		p_btn_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		p_btn_grid.add_theme_constant_override("h_separation", 6)
+		p_btn_grid.add_theme_constant_override("v_separation", 6)
+		p_vbox.add_child(p_btn_grid)
 
-		var chat_btn := _create_cyber_button("💬 Chat", Color("#3b82f6"), func():
+		var _setup_patron_btn = func(b_txt: String, b_col: Color, cb: Callable) -> Button:
+			var btn := _create_cyber_button(b_txt, b_col, cb)
+			btn.custom_minimum_size = Vector2(0, 44)
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn.add_theme_font_size_override("font_size", 20)
+			var sb = btn.get_theme_stylebox("normal")
+			if sb is StyleBoxFlat:
+				sb.content_margin_left = 6
+				sb.content_margin_right = 6
+				sb.content_margin_top = 4
+				sb.content_margin_bottom = 4
+			return btn
+
+		var chat_btn: Button = _setup_patron_btn.call("💬 Chat", Color("#3b82f6"), func():
 			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "chat")
 			add_life_event(s_res.message, "relationship")
 			update_ui()
 			_show_social_venues_modal()
 		)
-		chat_btn.custom_minimum_size = Vector2(0, 48)
-		chat_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		chat_btn.add_theme_font_size_override("font_size", 22)
-		p_btn_row.add_child(chat_btn)
+		p_btn_grid.add_child(chat_btn)
 
-		var drink_btn := _create_cyber_button("🥤 Treat ($12)", Color("#f59e0b"), func():
+		var gossip_btn: Button = _setup_patron_btn.call("🗣️ Gossip", Color("#8b5cf6"), func():
+			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "gossip")
+			add_life_event(s_res.message, "relationship")
+			update_ui()
+			_show_social_venues_modal()
+		)
+		p_btn_grid.add_child(gossip_btn)
+
+		var drink_btn: Button = _setup_patron_btn.call("🥤 Treat ($12)", Color("#f59e0b"), func():
 			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "buy_drink")
 			add_life_event(s_res.message, "relationship")
 			update_ui()
 			_show_social_venues_modal()
 		)
-		drink_btn.custom_minimum_size = Vector2(0, 48)
-		drink_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		drink_btn.add_theme_font_size_override("font_size", 22)
-		p_btn_row.add_child(drink_btn)
+		p_btn_grid.add_child(drink_btn)
 
-		var befriend_btn := _create_cyber_button("🤝 Befriend", Color("#10b981"), func():
+		var game_btn: Button = _setup_patron_btn.call("🎯 Game ($5)", Color("#06b6d4"), func():
+			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "play_game")
+			add_life_event(s_res.message, "relationship")
+			update_ui()
+			_show_social_venues_modal()
+		)
+		p_btn_grid.add_child(game_btn)
+
+		var befriend_btn: Button = _setup_patron_btn.call("🤝 Befriend", Color("#10b981"), func():
 			var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "befriend")
 			add_life_event(s_res.message, "relationship")
 			update_ui()
 			update_relationships_panel()
 			_show_social_venues_modal()
 		)
-		befriend_btn.custom_minimum_size = Vector2(0, 48)
-		befriend_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		befriend_btn.add_theme_font_size_override("font_size", 22)
-		p_btn_row.add_child(befriend_btn)
+		p_btn_grid.add_child(befriend_btn)
 
 		# Ask on Date (Only for adults, single player, single candidate)
 		if PlayerData.age >= 18 and p_age >= 18 and not PlayerData.has_partner() and p_status == "Single":
-			var date_btn := _create_cyber_button("💘 Date", Color("#f43f5e"), func():
+			var date_btn: Button = _setup_patron_btn.call("💘 Date", Color("#f43f5e"), func():
 				var s_res = VenueManager.socialize_with_npc(PlayerData, patron, "ask_date")
 				add_life_event(s_res.message, "relationship")
 				update_ui()
 				update_relationships_panel()
 				_show_social_venues_modal()
 			)
-			date_btn.custom_minimum_size = Vector2(0, 48)
-			date_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			date_btn.add_theme_font_size_override("font_size", 22)
-			p_btn_row.add_child(date_btn)
+			p_btn_grid.add_child(date_btn)
 
 		list.add_child(p_card)
 

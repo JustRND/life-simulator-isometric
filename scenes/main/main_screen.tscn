@@ -477,6 +477,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 38
 text = "Alex Morgan"
+text_overrun_behavior = 3
 
 [node name="TimeRow" type="HBoxContainer" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020286]
 layout_mode = 2
@@ -497,6 +498,7 @@ mouse_filter = 0
 theme_override_colors/font_color = Color(0.22, 0.83, 0.93, 1)
 theme_override_font_sizes/font_size = 24
 text = "📅 Month 1, Day 1"
+text_overrun_behavior = 3
 
 [node name="AgeRow" type="HBoxContainer" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=1269020285]
 layout_mode = 2
@@ -912,8 +914,10 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 50
+theme_override_font_sizes/font_size = 46
 text = "CHARACTER PROFILE"
+autowrap_mode = 3
+text_overrun_behavior = 3
 
 [node name="CloseCharacterButton" type="Button" parent="CharacterPanel/CharacterMargin/CharacterContent/CharacterHeaderRow" unique_id=1817061845]
 custom_minimum_size = Vector2(104, 82)
@@ -1220,7 +1224,7 @@ text = "LIFE HISTORY & MILESTONES"
 autowrap_mode = 3
 
 [node name="HistoryScroll" type="ScrollContainer" parent="InfantPanel/InfantMargin/InfantContent" unique_id=858582819]
-custom_minimum_size = Vector2(0, 520)
+custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
@@ -1258,8 +1262,10 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 46
 text = "ASSETS & FINANCES"
+autowrap_mode = 3
+text_overrun_behavior = 3
 
 [node name="CloseAssetsButton" type="Button" parent="AssetsPanel/AssetsMargin/AssetsContent/AssetsHeaderRow" unique_id=1558426471]
 custom_minimum_size = Vector2(104, 82)
@@ -1481,8 +1487,10 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 46
 text = "RELATIONSHIPS"
+autowrap_mode = 3
+text_overrun_behavior = 3
 
 [node name="CloseRelButton" type="Button" parent="RelationshipsPanel/RelMargin/RelContent/RelHeaderRow" unique_id=267045736]
 custom_minimum_size = Vector2(104, 82)
@@ -1642,8 +1650,10 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 46
 text = "ACTIVITIES"
+autowrap_mode = 3
+text_overrun_behavior = 3
 
 [node name="CloseActButton" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActHeaderRow" unique_id=887305750]
 custom_minimum_size = Vector2(104, 82)
@@ -2014,8 +2024,10 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 46
 text = "SETTINGS"
+autowrap_mode = 3
+text_overrun_behavior = 3
 
 [node name="CloseSettingsHeaderButton" type="Button" parent="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/SettingsHeader" unique_id=321787064]
 custom_minimum_size = Vector2(104, 82)
