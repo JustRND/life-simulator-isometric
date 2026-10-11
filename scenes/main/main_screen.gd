@@ -39,6 +39,7 @@ var annual_event_popup_chance: float = 0.35
 @onready var name_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/NameLabel
 @onready var age_label: Label = (find_child("AgeLabel", true, false) as Label) if has_node("ProfileStrip") else null
 @onready var time_counter_label: Label = (find_child("TimeCounterLabel", true, false) as Label) if has_node("ProfileStrip") else null
+@onready var pause_time_button: Button = (find_child("PauseTimeButton", true, false) as Button) if has_node("ProfileStrip") else null
 @onready var phase_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase/PhaseLabel
 @onready var balance_label: Label = $ProfileStrip/ProfileMargin/ProfileRow/BalanceLabel
 
@@ -489,11 +490,16 @@ func _configure_ui() -> void:
 		age_label.add_theme_font_size_override("font_size", 28)
 		age_label.add_theme_color_override("font_color", Color("#b45309") if is_light else Color(0.98, 0.84, 0.35, 1))
 	if time_counter_label != null:
-		time_counter_label.add_theme_font_size_override("font_size", 26)
+		time_counter_label.add_theme_font_size_override("font_size", 24)
 		time_counter_label.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color(0.22, 0.83, 0.93, 1))
 		time_counter_label.mouse_filter = Control.MOUSE_FILTER_STOP
 		if not time_counter_label.gui_input.is_connected(_on_time_label_gui_input):
 			time_counter_label.gui_input.connect(_on_time_label_gui_input)
+	if pause_time_button != null:
+		pause_time_button.focus_mode = Control.FOCUS_NONE
+		if not pause_time_button.pressed.is_connected(toggle_time_pause):
+			pause_time_button.pressed.connect(toggle_time_pause)
+		_update_pause_button_visuals()
 	phase_label.add_theme_font_size_override("font_size", 28)
 	life_feed.add_theme_font_size_override("normal_font_size", 32)
 	life_feed.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -876,11 +882,53 @@ func _update_time_and_age_labels() -> void:
 	var date_str := GameClock.get_date_string() if GameClock != null else PlayerData.get_date_string()
 	if time_counter_label != null:
 		if PlayerData.is_time_paused:
-			time_counter_label.text = "• ⏸️ PAUSED (%s)" % date_str
+			time_counter_label.text = "⏸️ PAUSED (%s)" % date_str
 		else:
-			time_counter_label.text = "• 📅 %s" % date_str
+			time_counter_label.text = "📅 %s" % date_str
+	if pause_time_button != null:
+		_update_pause_button_visuals()
 	if age_button != null:
 		age_button.tooltip_text = "%s • Age %d" % [date_str, PlayerData.age]
+
+
+func _update_pause_button_visuals() -> void:
+	if pause_time_button == null:
+		return
+	var is_light: bool = LifeLibrary.data.theme == "light" if (LifeLibrary != null and LifeLibrary.data != null) else false
+	if PlayerData.is_time_paused:
+		pause_time_button.text = "▶️ Resume"
+		pause_time_button.tooltip_text = "Time is paused. Click or press Spacebar to resume."
+		var style_paused := StyleBoxFlat.new()
+		style_paused.bg_color = Color("#ecfdf5") if is_light else Color(0.06, 0.18, 0.14, 0.95)
+		style_paused.border_color = Color("#059669") if is_light else Color("#10b981")
+		style_paused.set_border_width_all(2)
+		style_paused.set_corner_radius_all(6)
+		style_paused.content_margin_left = 10
+		style_paused.content_margin_right = 10
+		style_paused.content_margin_top = 2
+		style_paused.content_margin_bottom = 2
+		pause_time_button.add_theme_stylebox_override("normal", style_paused)
+		pause_time_button.add_theme_stylebox_override("hover", style_paused)
+		pause_time_button.add_theme_stylebox_override("pressed", style_paused)
+		pause_time_button.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
+		pause_time_button.add_theme_color_override("font_hover_color", Color("#065f46") if is_light else Color("#6ee7b7"))
+	else:
+		pause_time_button.text = "⏸️ Pause"
+		pause_time_button.tooltip_text = "Time is running. Click or press Spacebar to pause."
+		var style_normal := StyleBoxFlat.new()
+		style_normal.bg_color = Color("#f0f9ff") if is_light else Color(0.06, 0.12, 0.22, 0.92)
+		style_normal.border_color = Color("#0284c7") if is_light else Color("#38bdf8")
+		style_normal.set_border_width_all(2)
+		style_normal.set_corner_radius_all(6)
+		style_normal.content_margin_left = 10
+		style_normal.content_margin_right = 10
+		style_normal.content_margin_top = 2
+		style_normal.content_margin_bottom = 2
+		pause_time_button.add_theme_stylebox_override("normal", style_normal)
+		pause_time_button.add_theme_stylebox_override("hover", style_normal)
+		pause_time_button.add_theme_stylebox_override("pressed", style_normal)
+		pause_time_button.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#67e8f9"))
+		pause_time_button.add_theme_color_override("font_hover_color", Color("#075985") if is_light else Color("#a5f3fc"))
 
 
 func toggle_time_pause() -> void:
@@ -1514,10 +1562,7 @@ func update_ui() -> void:
 		if isometric_room.has_method("update_character"):
 			isometric_room.update_character()
 	name_label.text = PlayerData.first_name
-	if age_label != null:
-		age_label.text = "Age: %d" % PlayerData.age
-	if time_counter_label != null:
-		time_counter_label.text = "• 📅 Month %d, Day %d" % [PlayerData.in_game_month, PlayerData.in_game_day]
+	_update_time_and_age_labels()
 	phase_label.text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
 	var bank_title := "BANK BALANCE" if _format_number(PlayerData.bank_savings).length() <= 7 else "BANK"
 	balance_label.text = "💵 $%s CASH\n🏦 $%s %s" % [

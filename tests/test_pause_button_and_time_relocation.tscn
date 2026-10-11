@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/test_pause_button_and_time_relocation.gd" id="1_test_pause"]
+
+[node name="TestPauseButtonAndTimeRelocation" type="Node"]
+script = ExtResource("1_test_pause")

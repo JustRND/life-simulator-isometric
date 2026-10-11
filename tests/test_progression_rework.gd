@@ -254,12 +254,17 @@ func test_ui_action_bar_and_version() -> void:
 	var loading_label: Label = main_screen.find_child("LoadingDetailsLabel", true, false) as Label
 	assert_true(loading_label != null and loading_label.text == "v0.3.0 • Progression Rework", "Loading screen details label displays 'v0.3.0 • Progression Rework'")
 
-	# 2. Time Counter beside Age Counter
+	# 2. Time Counter and Pause Button above Age Counter & under Name
 	var age_lbl: Label = main_screen.find_child("AgeLabel", true, false) as Label
 	var time_lbl: Label = main_screen.find_child("TimeCounterLabel", true, false) as Label
+	var pause_btn: Button = main_screen.find_child("PauseTimeButton", true, false) as Button
 	assert_true(age_lbl != null, "AgeLabel exists")
-	assert_true(time_lbl != null, "TimeCounterLabel exists beside AgeLabel")
-	assert_true(age_lbl.get_parent() == time_lbl.get_parent(), "AgeLabel and TimeCounterLabel share the same parent container (AgeRow)")
+	assert_true(time_lbl != null, "TimeCounterLabel exists")
+	assert_true(pause_btn != null, "PauseTimeButton exists")
+	assert_true(time_lbl.get_parent() == pause_btn.get_parent(), "TimeCounterLabel and PauseTimeButton share the same parent container (TimeRow)")
+	var name_and_phase: Node = main_screen.find_child("NameAndPhase", true, false)
+	assert_true(name_and_phase != null, "NameAndPhase container exists")
+	assert_true(time_lbl.get_parent().get_index() < age_lbl.get_parent().get_index(), "TimeRow is positioned above AgeRow and under Name")
 
 	# 3. Action Bar Compacting (No AgeButton, No AgeSpacer, 4 Buttons)
 	var age_btn = main_screen.find_child("AgeButton", true, false)
