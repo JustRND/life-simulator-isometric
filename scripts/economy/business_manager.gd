@@ -7,9 +7,19 @@ const BUSINESS_LOAN_INTEREST_RATE: float = 0.085
 
 ## Progressive corporate tax rate scaling with portfolio scale and net profit via TaxSystem
 static func get_corporate_tax_rate(total_businesses: int, net_profit: int = 0) -> float:
-	var dummy := {"annual_revenue": net_profit, "annual_opex": 0}
-	var res := TaxSystem.calculate_business_tax(dummy, total_businesses)
-	return float(res.get("effective_rate", 0.25))
+	var rate: float = CORPORATE_TAX_RATE + (maxi(0, total_businesses - 1) * 0.05)
+	if net_profit > 1000000:
+		rate += 0.12
+	elif net_profit > 500000:
+		rate += 0.08
+	elif net_profit > 250000:
+		rate += 0.04
+	if net_profit > 0:
+		var dummy := {"annual_revenue": net_profit, "annual_opex": 0}
+		var res := TaxSystem.calculate_business_tax(dummy, total_businesses)
+		var eff: float = float(res.get("effective_rate", 0.0))
+		rate = maxf(rate, eff)
+	return clampf(rate, CORPORATE_TAX_RATE, 0.65)
 
 const CATEGORIES: Array[Dictionary] = [
 	{
@@ -73,10 +83,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Food Safety License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 75000,
-		"base_revenue_min": 65000,
-		"base_revenue_max": 105000,
-		"base_opex": 58000,
+		"startup_cost": 180000,
+		"base_revenue_min": 150000,
+		"base_revenue_max": 270000,
+		"base_opex": 140000,
 		"description": "Roast single-origin espresso and serve synthetic cyber energy infusions in a bustling downtown tech district."
 	},
 	{
@@ -88,10 +98,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Driver's License (Commercial Logistics)",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 250000,
-		"base_revenue_min": 240000,
-		"base_revenue_max": 420000,
-		"base_opex": 235000,
+		"startup_cost": 950000,
+		"base_revenue_min": 800000,
+		"base_revenue_max": 1450000,
+		"base_opex": 760000,
 		"description": "Coordinate automated container freight, bulk warehouse depots, and regional supply chain transport fleets."
 	},
 	{
@@ -103,10 +113,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Commercial Appraiser License",
 		"required_major": "fashion",
 		"required_degree_title": "Fashion & Apparel Design",
-		"startup_cost": 135000,
-		"base_revenue_min": 120000,
-		"base_revenue_max": 210000,
-		"base_opex": 115000,
+		"startup_cost": 380000,
+		"base_revenue_min": 320000,
+		"base_revenue_max": 580000,
+		"base_opex": 300000,
 		"description": "Curate runway collections, bespoke tailor-fitted suits, and avant-garde luminescent streetwear."
 	},
 	{
@@ -118,10 +128,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Public Bookkeeper & Compliance License",
 		"required_major": "law",
 		"required_degree_title": "Legal Studies & Jurisprudence",
-		"startup_cost": 220000,
-		"base_revenue_min": 210000,
-		"base_revenue_max": 390000,
-		"base_opex": 195000,
+		"startup_cost": 850000,
+		"base_revenue_min": 750000,
+		"base_revenue_max": 1400000,
+		"base_opex": 700000,
 		"description": "Represent elite corporate executives, high-stakes patent arbitrations, and high-profile criminal litigation."
 	},
 	{
@@ -133,10 +143,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Visual Media License",
 		"required_major": "graphic_design",
 		"required_degree_title": "Graphic Design & Visual Communication",
-		"startup_cost": 65000,
-		"base_revenue_min": 70000,
-		"base_revenue_max": 135000,
-		"base_opex": 65000,
+		"startup_cost": 160000,
+		"base_revenue_min": 140000,
+		"base_revenue_max": 260000,
+		"base_opex": 130000,
 		"description": "Design dynamic corporate identities, 3D vector graphics, futuristic web UI/UX, and viral media campaigns."
 	},
 	{
@@ -148,10 +158,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Healthcare Sanitation & Safety License",
 		"required_major": "medicine",
 		"required_degree_title": "Pre-Med & Healthcare Sciences",
-		"startup_cost": 550000,
-		"base_revenue_min": 500000,
-		"base_revenue_max": 900000,
-		"base_opex": 480000,
+		"startup_cost": 2500000,
+		"base_revenue_min": 2100000,
+		"base_revenue_max": 3900000,
+		"base_opex": 2000000,
 		"description": "Deliver cutting-edge outpatient medical care, surgical recovery suites, and advanced diagnostic imaging."
 	},
 	{
@@ -163,10 +173,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Cyber Security & Pen-Tester License",
 		"required_major": "it",
 		"required_degree_title": "Cyber Security & IT",
-		"startup_cost": 185000,
-		"base_revenue_min": 180000,
-		"base_revenue_max": 360000,
-		"base_opex": 175000,
+		"startup_cost": 750000,
+		"base_revenue_min": 650000,
+		"base_revenue_max": 1250000,
+		"base_opex": 620000,
 		"description": "Engineer enterprise cloud microservices, predictive neural models, cyber security shields, and mobile apps."
 	},
 	{
@@ -178,10 +188,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Public Bookkeeper License",
 		"required_major": "accounting",
 		"required_degree_title": "Accounting & Forensic Audit",
-		"startup_cost": 120000,
-		"base_revenue_min": 125000,
-		"base_revenue_max": 230000,
-		"base_opex": 120000,
+		"startup_cost": 350000,
+		"base_revenue_min": 310000,
+		"base_revenue_max": 580000,
+		"base_opex": 295000,
 		"description": "Manage corporate tax compliance, forensic accounting audits, capital allocation, and executive ledgers."
 	},
 	{
@@ -193,10 +203,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Building & Electrical Code License",
 		"required_major": "architecture",
 		"required_degree_title": "Architecture & Urban Planning",
-		"startup_cost": 225000,
-		"base_revenue_min": 200000,
-		"base_revenue_max": 390000,
-		"base_opex": 190000,
+		"startup_cost": 750000,
+		"base_revenue_min": 650000,
+		"base_revenue_max": 1250000,
+		"base_opex": 620000,
 		"description": "Draft skyline mega-towers, eco-sustainable civic developments, and luxurious modernist villas."
 	},
 	{
@@ -208,10 +218,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Industrial Electrical & Machine License",
 		"required_major": "engineering",
 		"required_degree_title": "Mechanical & Electrical Engineering",
-		"startup_cost": 240000,
-		"base_revenue_min": 210000,
-		"base_revenue_max": 380000,
-		"base_opex": 200000,
+		"startup_cost": 850000,
+		"base_revenue_min": 750000,
+		"base_revenue_max": 1380000,
+		"base_opex": 710000,
 		"description": "Fabricate custom vehicle powertrains, CNC robotic chassis components, and industrial automation assemblies."
 	},
 	{
@@ -223,10 +233,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Bio-Systems & Lab Safety License",
 		"required_major": "biotech",
 		"required_degree_title": "Biotechnology & Genetics",
-		"startup_cost": 750000,
-		"base_revenue_min": 600000,
-		"base_revenue_max": 1200000,
-		"base_opex": 590000,
+		"startup_cost": 6500000,
+		"base_revenue_min": 5200000,
+		"base_revenue_max": 10000000,
+		"base_opex": 4900000,
 		"description": "Pioneer synthetic drug formulas, genetic bioreactors, and proprietary cellular longevity treatments."
 	},
 	{
@@ -238,10 +248,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Financial Bookkeeper License",
 		"required_major": "finance",
 		"required_degree_title": "Finance & Investment Banking",
-		"startup_cost": 700000,
-		"base_revenue_min": 580000,
-		"base_revenue_max": 1150000,
-		"base_opex": 550000,
+		"startup_cost": 7500000,
+		"base_revenue_min": 6200000,
+		"base_revenue_max": 12500000,
+		"base_opex": 5800000,
 		"description": "Deploy algorithmic high-frequency trading models, venture funds, and private equity investments."
 	},
 	{
@@ -253,10 +263,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Audio/Visual Media License",
 		"required_major": "music",
 		"required_degree_title": "Sound Engineering & Music Production",
-		"startup_cost": 110000,
-		"base_revenue_min": 90000,
-		"base_revenue_max": 180000,
-		"base_opex": 90000,
+		"startup_cost": 480000,
+		"base_revenue_min": 420000,
+		"base_revenue_max": 780000,
+		"base_opex": 395000,
 		"description": "Mix platinum studio records, master film soundtracks, and produce commercial voice audio."
 	},
 	{
@@ -268,10 +278,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Journeyman Electrician License",
 		"required_major": "environmental",
 		"required_degree_title": "Environmental & Renewable Energy Science",
-		"startup_cost": 320000,
-		"base_revenue_min": 260000,
-		"base_revenue_max": 510000,
-		"base_opex": 250000,
+		"startup_cost": 4800000,
+		"base_revenue_min": 3800000,
+		"base_revenue_max": 7200000,
+		"base_opex": 3650000,
 		"description": "Contract large-scale commercial solar photovoltaic arrays, megawatt battery storage, and micro-grid controls."
 	},
 	{
@@ -283,10 +293,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Clinic Sanitation License",
 		"required_major": "dentistry",
 		"required_degree_title": "Dental Surgery & Oral Health",
-		"startup_cost": 460000,
-		"base_revenue_min": 400000,
-		"base_revenue_max": 750000,
-		"base_opex": 390000,
+		"startup_cost": 1800000,
+		"base_revenue_min": 1500000,
+		"base_revenue_max": 2800000,
+		"base_opex": 1420000,
 		"description": "Provide cosmetic veneer procedures, dental implants, laser periodontal surgery, and orthodontics."
 	},
 	{
@@ -298,10 +308,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Aerial Drone & Film Operator License",
 		"required_major": "film",
 		"required_degree_title": "Film, Cinematography & Media Production",
-		"startup_cost": 360000,
-		"base_revenue_min": 310000,
-		"base_revenue_max": 620000,
-		"base_opex": 300000,
+		"startup_cost": 2500000,
+		"base_revenue_min": 2100000,
+		"base_revenue_max": 4200000,
+		"base_opex": 1980000,
 		"description": "Produce festival feature films, streaming docuseries, 8K commercial cinema, and multimedia broadcasts."
 	},
 	{
@@ -313,10 +323,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Food Safety License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 95000,
-		"base_revenue_min": 90000,
-		"base_revenue_max": 160000,
-		"base_opex": 88000,
+		"startup_cost": 220000,
+		"base_revenue_min": 190000,
+		"base_revenue_max": 350000,
+		"base_opex": 180000,
 		"description": "Bake small-batch wild-fermented sourdough, delicate French pastries, and specialty confectionery for morning crowds."
 	},
 	{
@@ -328,10 +338,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Food Safety & Kitchen Manager License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 290000,
-		"base_revenue_min": 260000,
-		"base_revenue_max": 510000,
-		"base_opex": 250000,
+		"startup_cost": 950000,
+		"base_revenue_min": 820000,
+		"base_revenue_max": 1550000,
+		"base_opex": 780000,
 		"description": "Craft multi-course seasonal tasting menus paired with vintage cellars and high-end molecular gastronomy."
 	},
 	{
@@ -343,10 +353,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Professional Mixologist & Spirits License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 185000,
-		"base_revenue_min": 170000,
-		"base_revenue_max": 340000,
-		"base_opex": 165000,
+		"startup_cost": 650000,
+		"base_revenue_min": 560000,
+		"base_revenue_max": 1050000,
+		"base_opex": 530000,
 		"description": "Brew experimental IPAs, barrel-aged stouts, and wood-fired artisanal comfort fare in an industrial taproom."
 	},
 	{
@@ -358,10 +368,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Master Coastal Boater & Marine Captain License",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 600000,
-		"base_revenue_min": 560000,
-		"base_revenue_max": 1100000,
-		"base_opex": 540000,
+		"startup_cost": 24000000,
+		"base_revenue_min": 18500000,
+		"base_revenue_max": 36000000,
+		"base_opex": 17800000,
 		"description": "Operate intermodal maritime container shipping, deep-water port docks, and international customs freight lanes."
 	},
 	{
@@ -373,10 +383,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Drone Operator License",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 145000,
-		"base_revenue_min": 135000,
-		"base_revenue_max": 270000,
-		"base_opex": 130000,
+		"startup_cost": 580000,
+		"base_revenue_min": 500000,
+		"base_revenue_max": 960000,
+		"base_opex": 475000,
 		"description": "Deploy automated rooftop drone docks and electric ground van fleets for guaranteed 30-minute urban deliveries."
 	},
 	{
@@ -388,10 +398,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Freight Driver's License",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 350000,
-		"base_revenue_min": 300000,
-		"base_revenue_max": 600000,
-		"base_opex": 290000,
+		"startup_cost": 1450000,
+		"base_revenue_min": 1200000,
+		"base_revenue_max": 2350000,
+		"base_opex": 1150000,
 		"description": "Maintain ultra-low temperature cryogenic storage depots and refrigerated freight for biomedical goods and perishable cargo."
 	},
 	{
@@ -403,10 +413,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified High-Voltage Electrician License",
 		"required_major": "environmental",
 		"required_degree_title": "Environmental & Renewable Energy Science",
-		"startup_cost": 700000,
-		"base_revenue_min": 580000,
-		"base_revenue_max": 1200000,
-		"base_opex": 560000,
+		"startup_cost": 28000000,
+		"base_revenue_min": 22000000,
+		"base_revenue_max": 42000000,
+		"base_opex": 21000000,
 		"description": "Harness high-seas deep-water wind currents and marine tidal turbines feeding multi-gigawatt power to coastal cities."
 	},
 	{
@@ -418,10 +428,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Industrial Electrician License",
 		"required_major": "environmental",
 		"required_degree_title": "Environmental & Renewable Energy Science",
-		"startup_cost": 950000,
-		"base_revenue_min": 800000,
-		"base_revenue_max": 1650000,
-		"base_opex": 780000,
+		"startup_cost": 45000000,
+		"base_revenue_min": 34000000,
+		"base_revenue_max": 65000000,
+		"base_opex": 32500000,
 		"description": "Direct run-of-the-river hydraulic turbine vaults providing baseload hydroelectric generation and flood control."
 	},
 	{
@@ -433,10 +443,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Grid Electrician License",
 		"required_major": "environmental",
 		"required_degree_title": "Environmental & Renewable Energy Science",
-		"startup_cost": 490000,
-		"base_revenue_min": 410000,
-		"base_revenue_max": 850000,
-		"base_opex": 400000,
+		"startup_cost": 8500000,
+		"base_revenue_min": 6800000,
+		"base_revenue_max": 13000000,
+		"base_opex": 6500000,
 		"description": "Stabilize regional transmission grids with containerized lithium iron phosphate battery banks during peak demand."
 	},
 	{
@@ -448,10 +458,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Food Safety License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 85000,
-		"base_revenue_min": 80000,
-		"base_revenue_max": 145000,
-		"base_opex": 72000,
+		"startup_cost": 260000,
+		"base_revenue_min": 220000,
+		"base_revenue_max": 420000,
+		"base_opex": 210000,
 		"description": "Brew handmade brown sugar boba, matcha lattes, and artisan shaved ice across prime college retail spots."
 	},
 	{
@@ -463,10 +473,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Driver's License (Commercial Food Fleet)",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 110000,
-		"base_revenue_min": 105000,
-		"base_revenue_max": 195000,
-		"base_opex": 95000,
+		"startup_cost": 320000,
+		"base_revenue_min": 280000,
+		"base_revenue_max": 520000,
+		"base_opex": 265000,
 		"description": "Mobilize fusion taco and gourmet burger food trucks for downtown festivals, corporate parks, and late-night nightlife."
 	},
 	{
@@ -478,10 +488,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Food Safety & Kitchen Manager License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 160000,
-		"base_revenue_min": 150000,
-		"base_revenue_max": 280000,
-		"base_opex": 140000,
+		"startup_cost": 420000,
+		"base_revenue_min": 360000,
+		"base_revenue_max": 680000,
+		"base_opex": 345000,
 		"description": "Simmer 24-hour tonkotsu broths, craft handmade noodles, and serve savory yakitori skewers in a moody neon tavern."
 	},
 	{
@@ -493,10 +503,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Master Distiller & Spirits Artisan License",
 		"required_major": "food_science",
 		"required_degree_title": "Food Science & Culinary Arts",
-		"startup_cost": 340000,
-		"base_revenue_min": 290000,
-		"base_revenue_max": 580000,
-		"base_opex": 270000,
+		"startup_cost": 1200000,
+		"base_revenue_min": 1000000,
+		"base_revenue_max": 1950000,
+		"base_opex": 950000,
 		"description": "Distill small-batch charred oak bourbon, single malt whiskey, and botanical dry gin with an upscale tasting room."
 	},
 	{
@@ -508,10 +518,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Driver License (Class A CDL)",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 520000,
-		"base_revenue_min": 480000,
-		"base_revenue_max": 920000,
-		"base_opex": 460000,
+		"startup_cost": 8500000,
+		"base_revenue_min": 6800000,
+		"base_revenue_max": 13000000,
+		"base_opex": 6500000,
 		"description": "Coordinate transcontinental freight trains, intermodal stack container transfers, and heavy bulk freight switching yards."
 	},
 	{
@@ -523,10 +533,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Driver License (Class A CDL)",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 380000,
-		"base_revenue_min": 340000,
-		"base_revenue_max": 680000,
-		"base_opex": 320000,
+		"startup_cost": 3200000,
+		"base_revenue_min": 2600000,
+		"base_revenue_max": 4900000,
+		"base_opex": 2480000,
 		"description": "Operate multi-axle lowboy trailers transporting mining diggers, oversized crane turbines, and heavy construction equipment."
 	},
 	{
@@ -538,10 +548,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Private Pilot & Rotorcraft License",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 850000,
-		"base_revenue_min": 750000,
-		"base_revenue_max": 1500000,
-		"base_opex": 720000,
+		"startup_cost": 12000000,
+		"base_revenue_min": 9500000,
+		"base_revenue_max": 18500000,
+		"base_opex": 9100000,
 		"description": "Pilot twin-turboprop cargo planes providing expedited cross-country delivery for high-priority logistics contracts."
 	},
 	{
@@ -553,10 +563,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Driver's License (Class C)",
 		"required_major": "logistics",
 		"required_degree_title": "Global Logistics & Supply Chain",
-		"startup_cost": 420000,
-		"base_revenue_min": 380000,
-		"base_revenue_max": 760000,
-		"base_opex": 360000,
+		"startup_cost": 4500000,
+		"base_revenue_min": 3600000,
+		"base_revenue_max": 7000000,
+		"base_opex": 3450000,
 		"description": "Manage automated sortation conveyor arrays and automated guided vehicles (AGVs) packing orders 24/7."
 	},
 	{
@@ -568,10 +578,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Ethical Hacker & Pen-Tester License",
 		"required_major": "it",
 		"required_degree_title": "Cyber Security & IT",
-		"startup_cost": 260000,
-		"base_revenue_min": 250000,
-		"base_revenue_max": 520000,
-		"base_opex": 240000,
+		"startup_cost": 1100000,
+		"base_revenue_min": 950000,
+		"base_revenue_max": 1850000,
+		"base_opex": 910000,
 		"description": "Protect critical infrastructure networks from black-hat intrusions, perform red-team penetration audits, and zero-day patches."
 	},
 	{
@@ -583,10 +593,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Visual Media License",
 		"required_major": "game_design",
 		"required_degree_title": "Interactive Game Design & VR Simulation",
-		"startup_cost": 175000,
-		"base_revenue_min": 160000,
-		"base_revenue_max": 390000,
-		"base_opex": 155000,
+		"startup_cost": 450000,
+		"base_revenue_min": 380000,
+		"base_revenue_max": 820000,
+		"base_opex": 360000,
 		"description": "Develop viral indie roguelikes, immersive virtual reality adventures, and award-winning spatial interactive titles."
 	},
 	{
@@ -598,10 +608,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Ethical Hacker & Pen-Tester License",
 		"required_major": "it",
 		"required_degree_title": "Cyber Security & IT",
-		"startup_cost": 880000,
-		"base_revenue_min": 790000,
-		"base_revenue_max": 1600000,
-		"base_opex": 750000,
+		"startup_cost": 18000000,
+		"base_revenue_min": 14000000,
+		"base_revenue_max": 27000000,
+		"base_opex": 13400000,
 		"description": "Host high-density server rack clusters, enterprise GPU clusters for neural training, and low-latency cloud nodes."
 	},
 	{
@@ -613,10 +623,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Visual Media License",
 		"required_major": "graphic_design",
 		"required_degree_title": "Graphic Design & Visual Communication",
-		"startup_cost": 95000,
-		"base_revenue_min": 90000,
-		"base_revenue_max": 190000,
-		"base_opex": 85000,
+		"startup_cost": 240000,
+		"base_revenue_min": 210000,
+		"base_revenue_max": 420000,
+		"base_opex": 200000,
 		"description": "Execute algorithmic social campaigns, viral influencer brand takeovers, and high-conversion commercial funnels."
 	},
 	{
@@ -628,10 +638,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Licensed Physical Therapy Practitioner (DPT)",
 		"required_major": "kinesiology",
 		"required_degree_title": "Kinesiology & Physical Rehabilitation",
-		"startup_cost": 280000,
-		"base_revenue_min": 250000,
-		"base_revenue_max": 480000,
-		"base_opex": 235000,
+		"startup_cost": 750000,
+		"base_revenue_min": 650000,
+		"base_revenue_max": 1250000,
+		"base_opex": 615000,
 		"description": "Restore mobility with ultrasound therapy, biomechanical gait rehabilitation, and post-surgical athletic recovery."
 	},
 	{
@@ -643,10 +653,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Commercial Healthcare Sanitation & Safety License",
 		"required_major": "medicine",
 		"required_degree_title": "Pre-Med & Healthcare Sciences",
-		"startup_cost": 620000,
-		"base_revenue_min": 540000,
-		"base_revenue_max": 1050000,
-		"base_opex": 510000,
+		"startup_cost": 4200000,
+		"base_revenue_min": 3400000,
+		"base_revenue_max": 6500000,
+		"base_opex": 3250000,
 		"description": "Provide high-tesla magnetic resonance imaging (MRI), CT scans, ultrasound telemetry, and computerized diagnostic reports."
 	},
 	{
@@ -658,10 +668,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Licensed Doctor of Veterinary Medicine (DVM)",
 		"required_major": "veterinary",
 		"required_degree_title": "Veterinary Medicine & Surgery",
-		"startup_cost": 410000,
-		"base_revenue_min": 370000,
-		"base_revenue_max": 720000,
-		"base_opex": 350000,
+		"startup_cost": 1800000,
+		"base_revenue_min": 1500000,
+		"base_revenue_max": 2900000,
+		"base_opex": 1440000,
 		"description": "Treat companion animals and exotic pets with round-the-clock emergency triage, orthopedic surgeries, and dental cleaning."
 	},
 	{
@@ -673,10 +683,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Registered Board-Certified Pharmacist (PharmD)",
 		"required_major": "pharmacy",
 		"required_degree_title": "Pharmaceutical Chemistry & Pharmacology",
-		"startup_cost": 330000,
-		"base_revenue_min": 310000,
-		"base_revenue_max": 620000,
-		"base_opex": 295000,
+		"startup_cost": 1400000,
+		"base_revenue_min": 1180000,
+		"base_revenue_max": 2300000,
+		"base_opex": 1120000,
 		"description": "Formulate custom bio-identical hormones, pediatric dosage liquids, sterile injectables, and specialty medicinal compounds."
 	},
 	{
@@ -688,10 +698,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "FINRA Series 7 & 66 Securities License",
 		"required_major": "finance",
 		"required_degree_title": "Finance & Investment Banking",
-		"startup_cost": 850000,
-		"base_revenue_min": 720000,
-		"base_revenue_max": 1550000,
-		"base_opex": 690000,
+		"startup_cost": 10000000,
+		"base_revenue_min": 8000000,
+		"base_revenue_max": 16500000,
+		"base_opex": 7700000,
 		"description": "Write seed checks to visionary tech founders, sit on startup board seats, and secure equity multiples at IPO."
 	},
 	{
@@ -703,10 +713,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "FINRA Series 7 & 66 Securities License",
 		"required_major": "finance",
 		"required_degree_title": "Finance & Investment Banking",
-		"startup_cost": 360000,
-		"base_revenue_min": 320000,
-		"base_revenue_max": 640000,
-		"base_opex": 300000,
+		"startup_cost": 1900000,
+		"base_revenue_min": 1600000,
+		"base_revenue_max": 3100000,
+		"base_opex": 1520000,
 		"description": "Structure multigenerational trusts, sovereign tax minimization shelters, and customized asset preservation portfolios."
 	},
 	{
@@ -718,10 +728,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Registered USPTO Patent Attorney Bar License",
 		"required_major": "law",
 		"required_degree_title": "Legal Studies & Jurisprudence",
-		"startup_cost": 290000,
-		"base_revenue_min": 270000,
-		"base_revenue_max": 530000,
-		"base_opex": 255000,
+		"startup_cost": 950000,
+		"base_revenue_min": 820000,
+		"base_revenue_max": 1600000,
+		"base_opex": 780000,
 		"description": "File international utility patents, trademark protections, trade-secret litigation, and technical licensing deals."
 	},
 	{
@@ -733,10 +743,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "FINRA Series 7 & 66 Securities License",
 		"required_major": "finance",
 		"required_degree_title": "Finance & Investment Banking",
-		"startup_cost": 580000,
-		"base_revenue_min": 520000,
-		"base_revenue_max": 1100000,
-		"base_opex": 490000,
+		"startup_cost": 3500000,
+		"base_revenue_min": 2900000,
+		"base_revenue_max": 5800000,
+		"base_opex": 2750000,
 		"description": "Orchestrate multi-million dollar corporate buyouts, hostile takeover defenses, and strategic enterprise consolidations."
 	},
 	{
@@ -748,10 +758,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Commercial Appraiser License",
 		"required_major": "fashion",
 		"required_degree_title": "Fashion & Apparel Design",
-		"startup_cost": 450000,
-		"base_revenue_min": 400000,
-		"base_revenue_max": 820000,
-		"base_opex": 380000,
+		"startup_cost": 2500000,
+		"base_revenue_min": 2100000,
+		"base_revenue_max": 4100000,
+		"base_opex": 2020000,
 		"description": "Showcase Swiss mechanical tourbillons, certified platinum solitaire rings, and vintage collector timepieces."
 	},
 	{
@@ -763,10 +773,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Commercial Appraiser License",
 		"required_major": "architecture",
 		"required_degree_title": "Architecture & Urban Planning",
-		"startup_cost": 150000,
-		"base_revenue_min": 140000,
-		"base_revenue_max": 290000,
-		"base_opex": 130000,
+		"startup_cost": 380000,
+		"base_revenue_min": 320000,
+		"base_revenue_max": 620000,
+		"base_opex": 305000,
 		"description": "Curate bespoke Italian marble fixtures, acoustic timber acoustics, and custom furniture for luxury penthouses."
 	},
 	{
@@ -778,10 +788,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Industrial Electrical & Machine License",
 		"required_major": "engineering",
 		"required_degree_title": "Mechanical & Electrical Engineering",
-		"startup_cost": 520000,
-		"base_revenue_min": 460000,
-		"base_revenue_max": 980000,
-		"base_opex": 440000,
+		"startup_cost": 2800000,
+		"base_revenue_min": 2300000,
+		"base_revenue_max": 4600000,
+		"base_opex": 2220000,
 		"description": "Hand-hammer aluminum body panels, install twin-turbocharged crate engines, and restore vintage exotic race cars."
 	},
 	{
@@ -793,10 +803,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "State Licensed General Building Contractor",
 		"required_major": "civil_engineering",
 		"required_degree_title": "Civil & Infrastructure Engineering",
-		"startup_cost": 650000,
-		"base_revenue_min": 580000,
-		"base_revenue_max": 1200000,
-		"base_opex": 550000,
+		"startup_cost": 8500000,
+		"base_revenue_min": 6800000,
+		"base_revenue_max": 13500000,
+		"base_opex": 6550000,
 		"description": "Contract suspension bridges, elevated highway viaducts, municipal drainage aqueducts, and deep foundations."
 	},
 	{
@@ -808,10 +818,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified High-Voltage Electrician License",
 		"required_major": "environmental",
 		"required_degree_title": "Environmental & Renewable Energy Science",
-		"startup_cost": 820000,
-		"base_revenue_min": 710000,
-		"base_revenue_max": 1450000,
-		"base_opex": 680000,
+		"startup_cost": 22000000,
+		"base_revenue_min": 17000000,
+		"base_revenue_max": 33000000,
+		"base_opex": 16300000,
 		"description": "Tap sub-crustal subterranean steam vents to spin steam turbines producing non-stop baseload green energy."
 	},
 	{
@@ -823,10 +833,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified High-Voltage Electrician License",
 		"required_major": "environmental",
 		"required_degree_title": "Environmental & Renewable Energy Science",
-		"startup_cost": 780000,
-		"base_revenue_min": 670000,
-		"base_revenue_max": 1380000,
-		"base_opex": 640000,
+		"startup_cost": 20000000,
+		"base_revenue_min": 15500000,
+		"base_revenue_max": 30000000,
+		"base_opex": 14800000,
 		"description": "Separate pure hydrogen gas with proton-exchange-membrane electrolyzers powered purely by renewable solar and wind."
 	},
 	{
@@ -838,10 +848,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "NRC Certified Senior Nuclear Reactor Operator License",
 		"required_major": "nuclear_physics",
 		"required_degree_title": "Nuclear Physics & Reactor Engineering",
-		"startup_cost": 1500000,
-		"base_revenue_min": 1300000,
-		"base_revenue_max": 2800000,
-		"base_opex": 1250000,
+		"startup_cost": 65000000,
+		"base_revenue_min": 50000000,
+		"base_revenue_max": 95000000,
+		"base_opex": 48000000,
 		"description": "Deploy fail-safe molten-salt small modular nuclear reactors supplying zero-emission power to industrial parks."
 	},
 	{
@@ -853,10 +863,10 @@ const BUSINESS_TYPES: Array[Dictionary] = [
 		"required_license_title": "Certified Journeyman Electrician License",
 		"required_major": "engineering",
 		"required_degree_title": "Mechanical & Electrical Engineering",
-		"startup_cost": 460000,
-		"base_revenue_min": 400000,
-		"base_revenue_max": 830000,
-		"base_opex": 385000,
+		"startup_cost": 3500000,
+		"base_revenue_min": 2800000,
+		"base_revenue_max": 5400000,
+		"base_opex": 2680000,
 		"description": "Install 350kW liquid-cooled highway charging hubs with solar canopies and automated credit card kiosks."
 	}
 ]
@@ -971,8 +981,8 @@ static func found_business(biz_id: String, business_name: String = "", is_unlice
 		"branches": 1,
 		"facility_tier": 1,
 		"revenue_scale": 1.0,
-		"treasury": maxi(25000, int(cost * 0.25)), # Initial seed working capital inside business bank account
-		"employees": maxi(2, mini(4, int(cost / 75000))),
+		"treasury": maxi(35000, int(cost * 0.20)), # Initial seed working capital inside business bank account
+		"employees": maxi(2, mini(6, int(cost / 500000) + 2)),
 		"marketing_budget": 5000,
 		"annual_revenue": 0,
 		"annual_opex": 0,
@@ -991,7 +1001,7 @@ static func found_business(biz_id: String, business_name: String = "", is_unlice
 		PlayerData.add_life_log_entry("⚠️ ILLICIT ENTERPRISE LAUNCHED: You invested $%d to operate '%s' WITHOUT a commercial license! Operating without a license is a crime and risks audits, lawsuits, closures, and imprisonment." % [cost, default_name], "crime")
 		PlayerData.add_milestone("Operated unlicensed '%s'." % default_name, PlayerData.age, "⚠️")
 	else:
-		PlayerData.add_life_log_entry("🚀 ENTERPRISE INCORPORATED: You invested $%d to officially launch '%s'! Business treasury initialized with $10,000 working capital." % [cost, default_name], "milestone")
+		PlayerData.add_life_log_entry("🚀 ENTERPRISE INCORPORATED: You invested $%d to officially launch '%s'! Business treasury initialized with $%d working capital." % [cost, default_name, int(new_biz.get("treasury", 35000))], "milestone")
 		PlayerData.add_milestone("Founded '%s'." % default_name, PlayerData.age, "🏢")
 
 	return {
@@ -1026,8 +1036,9 @@ static func get_branch_expansion_cost(b: Dictionary) -> int:
 	var startup: int = int(def.get("startup_cost", 100000))
 	var branches: int = int(b.get("branches", 1))
 	var total_owned: int = PlayerData.owned_businesses.size()
-	# Substantial capital outlay: 150% of startup cost + compounding branch scale surcharge ($60,000 per branch) + portfolio scale overhead ($25,000 per owned business)
-	return int(startup * 1.50) + (branches * 60000) + (maxi(0, total_owned - 1) * 25000)
+	# Substantial capital outlay: 150% of startup cost + compounding branch scale surcharge (15% of startup per branch, min $60,000) + portfolio scale overhead ($50,000 per owned business)
+	var branch_scale_surcharge: int = branches * maxi(60000, int(startup * 0.15))
+	return int(startup * 1.50) + branch_scale_surcharge + (maxi(0, total_owned - 1) * 50000)
 
 
 static func open_business_branch(b: Dictionary, branch_name: String = "") -> Dictionary:
@@ -1072,8 +1083,8 @@ static func open_business_branch(b: Dictionary, branch_name: String = "") -> Dic
 		"branches": 1,
 		"facility_tier": 1,
 		"revenue_scale": 1.0,
-		"treasury": 15000, # Seed working capital deployed from parent expansion funds
-		"employees": 4,
+		"treasury": maxi(25000, int(branch_cost * 0.10)), # Seed working capital deployed from parent expansion funds
+		"employees": maxi(2, mini(6, int(branch_cost / 400000) + 2)),
 		"marketing_budget": 5000,
 		"annual_revenue": 0,
 		"annual_opex": 0,
@@ -1103,12 +1114,20 @@ static func open_business_branch(b: Dictionary, branch_name: String = "") -> Dic
 	}
 
 
+static func get_facility_upgrade_cost(b: Dictionary) -> int:
+	var tier: int = int(b.get("facility_tier", 1))
+	var type_id: String = str(b.get("type_id", ""))
+	var def := get_business_type_by_id(type_id)
+	var startup: int = int(def.get("startup_cost", 100000))
+	return maxi(35000, int(startup * 0.10)) * tier
+
+
 static func upgrade_business_facilities(b: Dictionary) -> Dictionary:
 	var tier: int = int(b.get("facility_tier", 1))
 	if tier >= 5:
 		return {"success": false, "message": "Enterprise facilities already upgraded to maximum Grade 5 technology."}
 
-	var cost: int = 25000 * tier
+	var cost: int = get_facility_upgrade_cost(b)
 	var treasury: int = int(b.get("treasury", 0))
 
 	if treasury < cost:
@@ -1219,17 +1238,26 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		# Base operational expenses include foundational facility overhead and core staff (2 employees)
 		var baseline_staff: int = 2
 		var extra_staff: int = maxi(0, emp_count - baseline_staff)
-		var extra_payroll: int = extra_staff * 28000
+		var sector_salary: int = 38000
+		var cat: String = str(def.get("category", ""))
+		if cat == "energy" or cat == "finance_legal":
+			sector_salary = 95000
+		elif cat == "health_science" or cat == "tech_media":
+			sector_salary = 72000
+		elif cat == "logistics":
+			sector_salary = 52000
+		var extra_payroll: int = extra_staff * sector_salary
+
 		var loan_bal: int = int(b.get("loan_balance", 0))
 		var loan_interest: int = int(float(loan_bal) * float(b.get("loan_interest_rate", BUSINESS_LOAN_INTEREST_RATE)))
-		var extra_facility: int = maxi(0, facility_tier - 1) * 14000
+		var extra_facility: int = maxi(14000, int(base_opex * 0.08)) * maxi(0, facility_tier - 1)
 		var total_opex: int = int((base_opex + extra_payroll + extra_facility) * scale) + mkt + loan_interest
 		var net_profit: int = generated_revenue - total_opex
 
-		# Progressive Corporate Tax Calculation via TaxSystem
+		# Progressive Corporate Tax Calculation via TaxSystem & BusinessManager
 		var tax_info: Dictionary = TaxSystem.calculate_business_tax({"annual_revenue": generated_revenue, "annual_opex": total_opex}, total_businesses)
-		var tax_rate: float = float(tax_info.get("effective_rate", 0.20))
-		var tax_accrued: int = int(tax_info.get("tax_due", 0))
+		var tax_rate: float = maxf(get_corporate_tax_rate(total_businesses, net_profit), float(tax_info.get("effective_rate", CORPORATE_TAX_RATE)))
+		var tax_accrued: int = 0
 		var player_payout: int = 0
 		if net_profit > 0:
 			tax_accrued = int(float(net_profit) * tax_rate)

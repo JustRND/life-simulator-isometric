@@ -11129,7 +11129,7 @@ func _render_business_dedicated_treasury(list: VBoxContainer, target_biz: Dictio
 	exp_v.add_child(branch_box)
 
 	# Facility Upgrade Button
-	var fac_cost := 25000 * fac_tier
+	var fac_cost := BusinessManager.get_facility_upgrade_cost(target_biz)
 	var btn_fac := _create_cyber_button("⚙️ Upgrade Automation to Grade %d ($%s Treasury)" % [fac_tier + 1, _format_number(fac_cost)], Color("#8b5cf6"), func():
 		var r := BusinessManager.upgrade_business_facilities(target_biz)
 		if bool(r.get("success", false)):
@@ -17531,7 +17531,7 @@ func _show_pension_account_modal() -> void:
 	_add_row.call("Compounding Growth:", "6.5% APR Annual Return", Color("#15803d") if is_light else Color("#4ade80"))
 	_add_row.call("Total Contributed:", "$%s" % _format_number(p_contributed), Color("#0f172a") if is_light else Color("#f8fafc"))
 
-	var match_text := "3% of salary (+ $%s/yr matched)" % _format_number(int(round(float(PlayerData.job_salary) * 0.03))) if (PlayerData.job_salary > 0 and not PlayerData.is_in_prison) else "No Active Employer"
+	var match_text := "3%% of salary (+ $%s/yr matched)" % _format_number(int(round(float(PlayerData.job_salary) * 0.03))) if (PlayerData.job_salary > 0 and not PlayerData.is_in_prison) else "No Active Employer"
 	_add_row.call("Company 401k Match:", match_text, Color("#0284c7") if is_light else Color("#38bdf8"))
 
 	var status_text := "✅ Vested & Retired (Age %d/60) - Penalty Free" % PlayerData.age if is_retired else "⏳ Accumulating (Age %d/60) - 20%% Early Penalty" % PlayerData.age
