@@ -144,6 +144,49 @@ func test_monthly_financial_systems() -> void:
 	var tax_res := TaxSystem.process_monthly_taxes(PlayerData)
 	assert_true(tax_res.has("monthly_due"), "Monthly tax report returned valid assessment")
 
+	# 7. Monthly Pension Account Processing
+	var ps_mgr = preload("res://scripts/economy/pension_and_savings_manager.gd")
+	ps_mgr.ensure(PlayerData)
+	ps_mgr.set_pension_contribution_pct(PlayerData, 0.10)
+	var pre_pension_bal: int = int(PlayerData.pension_account.get("balance", 0))
+	var ps_logs := ps_mgr.process_monthly_accounts(PlayerData)
+	var post_pension_bal: int = int(PlayerData.pension_account.get("balance", 0))
+	assert_true(post_pension_bal > pre_pension_bal, "Monthly pension contribution and employer match credited ($%d -> $%d)" % [pre_pension_bal, post_pension_bal])
+
+	# 8. Monthly Social Media Monetization
+	var sm_mgr = preload("res://scripts/economy/social_media_manager.gd")
+	PlayerData.social_media["instagram"] = {
+		"followers": 50000,
+		"verified": true,
+		"posts_this_year": 1,
+		"post_age": PlayerData.age,
+		"is_suspended": false
+	}
+	var pre_sm_money: int = PlayerData.money
+	var sm_logs := sm_mgr.process_monthly_social_media(PlayerData)
+	assert_true(PlayerData.money > pre_sm_money, "Monthly social media creator payout credited ($%d -> $%d)" % [pre_sm_money, PlayerData.money])
+
+	# 9. Monthly Commercial Business Profit Dividends
+	var biz_mgr = preload("res://scripts/economy/business_manager.gd")
+	PlayerData.owned_businesses = [{
+		"id": "biz_tech_startup",
+		"name": "Nova Cybernetics",
+		"type": "it_startup",
+		"category": "Technology",
+		"equity_share": 1.0,
+		"capital": 250000,
+		"total_revenue": 120000,
+		"total_expenses": 60000,
+		"net_profit": 60000,
+		"employee_count": 5,
+		"annual_payroll": 30000,
+		"years_active": 2,
+		"historical_profits": [60000]
+	}]
+	var pre_biz_bank: int = PlayerData.bank_savings
+	var biz_logs := biz_mgr.process_monthly_dividends(PlayerData)
+	assert_true(PlayerData.bank_savings > pre_biz_bank, "Monthly business dividend credited ($%d -> $%d)" % [pre_biz_bank, PlayerData.bank_savings])
+
 
 func test_year_rollover_and_aging() -> void:
 	print("\nTesting Year Rollover & Aging (Month 12 -> Month 1)...")

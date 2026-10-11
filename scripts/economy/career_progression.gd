@@ -43,7 +43,8 @@ static func advance_year(player: Node, spent_year_in_prison: bool = false) -> St
 	player.career_progress["rank"] = rank + 1
 	player.job_title = str(next.title)
 	player.job_salary = maxi(player.job_salary, int(next.salary))
-	return "PROMOTION: After %d years at %s, you became %s. Your annual salary is now $%d, starting with next year's pay." % [int(player.career_progress.years), player.job_company, player.job_title, player.job_salary]
+	var m_sal: int = int(round(float(player.job_salary) / 12.0))
+	return "PROMOTION: After %d years at %s, you became %s. Your monthly salary is now $%d/mo, starting with this month's pay." % [int(player.career_progress.years), player.job_company, player.job_title, m_sal]
 
 static func summary(player: Node) -> String:
 	normalize(player)
@@ -54,7 +55,8 @@ static func summary(player: Node) -> String:
 	var text := "Career rank %d/%d • %d completed years in this job" % [rank + 1, ladder.size() + 1, int(player.career_progress.get("years", 0))]
 	if rank < ladder.size():
 		var next: Dictionary = ladder[rank]
-		text += "\nNext: %s • %d years of service • Age %d+ • $%d/year" % [next.title, int(next.years), int(next.min_age), int(next.salary)]
+		var next_m_sal: int = int(round(float(next.salary) / 12.0))
+		text += "\nNext: %s • %d years of service • Age %d+ • $%d/mo" % [next.title, int(next.years), int(next.min_age), next_m_sal]
 	else:
 		text += "\nHighest position in this career path reached."
 	return text

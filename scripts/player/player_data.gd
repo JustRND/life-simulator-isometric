@@ -127,7 +127,9 @@ var last_prison_activity_age: int = -1
 var last_casino_age: int = -1
 var casino_plays_this_year: int = 0
 var last_overtime_age: int = -1
+var last_overtime_month: int = -1
 var last_childhood_gig_age: int = -1
+var last_childhood_gig_month: int = -1
 
 var karma: int = 0
 var money: int = 0
@@ -305,7 +307,9 @@ func reset_player() -> void:
 	last_casino_age = -1
 	casino_plays_this_year = 0
 	last_overtime_age = -1
+	last_overtime_month = -1
 	last_childhood_gig_age = -1
+	last_childhood_gig_month = -1
 
 	neural_implants.clear()
 	last_neural_overclock_age = -1
@@ -1068,7 +1072,7 @@ func request_credit_limit_increase() -> Dictionary:
 	else:
 		return {
 			"success": false,
-			"message": "Limit increase request reviewed. Your current limit of $%d already matches or exceeds the allowable ceiling based on your current allowance ($%d/yr) and personal assets ($%d)." % [credit_card_limit, job_salary, get_total_asset_value()]
+			"message": "Limit increase request reviewed. Your current limit of $%d already matches or exceeds the allowable ceiling based on your current monthly allowance ($%d/mo) and personal assets ($%d)." % [credit_card_limit, int(round(float(job_salary) / 12.0)), get_total_asset_value()]
 		}
 
 

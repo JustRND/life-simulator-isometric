@@ -366,6 +366,35 @@ static func delete_account(player_data: Node, platform: String) -> Dictionary:
 	}
 
 
+static func process_monthly_social_media(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	if not player_data.get("social_media") is Dictionary:
+		return logs
+
+	for platform in player_data.social_media.keys():
+		var account: Dictionary = player_data.social_media[platform]
+		var p_info: Dictionary = PLATFORMS.get(platform, {})
+		var count: int = int(account.get("followers", 0))
+
+		# Organic monthly follower growth
+		var growth_rate: float = randf_range(0.003, 0.015)
+		var organic_gain: int = maxi(1, int(count * growth_rate))
+		account["followers"] = count + organic_gain
+
+		# Creator monetization for accounts with over 20,000 followers/subs (monthly ad revenue)
+		if account["followers"] >= 20000:
+			var m_revenue: int = maxi(10, int(round(float((account["followers"] / 1000) * randi_range(12, 35)) / 12.0)))
+			player_data.money += m_revenue
+			account["total_earnings"] = int(account.get("total_earnings", 0)) + m_revenue
+			player_data.social_media_earnings_this_year = int(player_data.get("social_media_earnings_this_year")) + m_revenue
+			logs.append("💰 %s Creator Payout: You earned $%s in monthly creator ad-revenue!" % [
+				str(p_info.get("name", platform)),
+				_format_number(m_revenue)
+			])
+
+	return logs
+
+
 static func process_yearly_social_media(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []
 	if not player_data.get("social_media") is Dictionary:
@@ -376,20 +405,11 @@ static func process_yearly_social_media(player_data: Node) -> Array[String]:
 		var p_info: Dictionary = PLATFORMS.get(platform, {})
 		var metric: String = str(p_info.get("metric", "Followers"))
 		var count: int = int(account.get("followers", 0))
-
-		# Organic annual growth based on base count
-		var growth_rate: float = randf_range(0.02, 0.08)
-		var organic_gain: int = maxi(5, int(count * growth_rate))
-		account["followers"] = count + organic_gain
-
-		# Creator monetization for accounts with over 20,000 followers/subs
-		if account["followers"] >= 20000:
-			var revenue: int = int((account["followers"] / 1000) * randi_range(12, 35))
-			player_data.money += revenue
-			account["total_earnings"] = int(account.get("total_earnings", 0)) + revenue
-			logs.append("💰 %s Creator Payout: You earned $%s in creator fund ad-revenue and brand sponsorships this year!" % [
-				p_info.get("name", platform),
-				_format_number(revenue)
+		if count > 1000:
+			logs.append("📱 %s: Maintained %s active %s across the year." % [
+				str(p_info.get("name", platform)),
+				_format_number(count),
+				metric
 			])
 
 	return logs

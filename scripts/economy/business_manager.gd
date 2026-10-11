@@ -1330,6 +1330,25 @@ static func get_total_business_valuation() -> int:
 	return total
 
 
+static func process_monthly_dividends(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	if player_data.owned_businesses.is_empty():
+		return logs
+
+	for b in player_data.owned_businesses:
+		var net_profit: int = int(b.get("net_profit", 0))
+		if net_profit > 0:
+			var owner_frac: float = float(b.get("owner_fraction", 1.0))
+			var m_payout: int = maxi(1, int(round((float(net_profit) * 0.20 * owner_frac) / 12.0)))
+			player_data.bank_savings += m_payout
+			var b_name: String = str(b.get("name", "Enterprise"))
+			logs.append("💰 %s MONTHLY DIVIDEND: $%s was transferred to your bank account from corporate profits!" % [
+				b_name,
+				_format_number(m_payout)
+			])
+	return logs
+
+
 # Yearly financial simulation across all owned businesses
 static func simulate_yearly_businesses() -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
@@ -1405,12 +1424,9 @@ static func simulate_yearly_businesses() -> Array[Dictionary]:
 		var player_payout: int = 0
 		if net_profit > 0:
 			tax_accrued = int(float(net_profit) * tax_rate)
-			# 20% of the business net profit is automatically transferred to the character's bank account
+			# 20% of net profit is distributed to the owner across the year in monthly dividends
 			var owner_frac: float = float(b.get("owner_fraction", 1.0))
 			player_payout = int(float(net_profit) * 0.20 * owner_frac)
-			if player_payout > 0:
-				PlayerData.bank_savings += player_payout
-				PlayerData.add_life_log_entry("💰 %s PROFIT DISTRIBUTION: 20%% of net profit ($%d) was automatically transferred to your bank account!" % [b_name, player_payout], "finance")
 			
 			# Remaining after-tax profit (after 20% owner transfer) enters corporate treasury
 			var after_tax_profit := net_profit - tax_accrued
@@ -1710,4 +1726,17 @@ static func liquidate_business(biz_uid: String) -> Dictionary:
 	PlayerData.add_life_log_entry("💼 BUSINESS SOLD: You liquidated '%s' for net cash proceeds of $%d." % [b_name, net_proceeds], "milestone")
 
 	return {"success": true, "message": "Successfully liquidated '%s' for $%d net proceeds." % [b_name, net_proceeds]}
+
+
+static func _format_number(val: int) -> String:
+	var s := str(abs(val))
+	var res := ""
+	var count := 0
+	for i in range(s.length() - 1, -1, -1):
+		res = s[i] + res
+		count += 1
+		if count % 3 == 0 and i > 0:
+			res = "," + res
+	return ("-" if val < 0 else "") + res
+
 

@@ -167,8 +167,8 @@ static func apply_for_mortgage(player_data: Node, item_id: String, term_years: i
 		"success": true,
 		"mortgage": mortgage,
 		"asset": new_asset,
-		"message": "Congratulations! You secured a %d-year mortgage for %s at %.1f%% APR (Paid $%s down payment, Annual: $%s/yr)." % [
-			term_years, item.get("name", "Property"), apr * 100.0, _format_number(down_payment), _format_number(int(plan.get("annual_payment", 0)))
+		"message": "Congratulations! You secured a %d-year mortgage for %s at %.1f%% APR (Paid $%s down payment, Monthly: $%s/mo)." % [
+			term_years, item.get("name", "Property"), apr * 100.0, _format_number(down_payment), _format_number(int(plan.get("monthly_payment", 0)))
 		]
 	}
 

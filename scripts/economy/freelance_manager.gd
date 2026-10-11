@@ -240,7 +240,7 @@ static func register_job(job_id: String) -> Dictionary:
 	var job := get_job_by_id(job_id)
 	var title: String = str(job.get("title", "Freelancer"))
 
-	PlayerData.add_life_log_entry("💼 FREELANCE ROSTER OPENED: You registered as a %s! You can now pitch for client contracts and receive project requests yearly." % title, "milestone")
+	PlayerData.add_life_log_entry("💼 FREELANCE ROSTER OPENED: You registered as a %s! You can now pitch for client contracts and receive project requests monthly." % title, "milestone")
 
 	return {
 		"allowed": true,

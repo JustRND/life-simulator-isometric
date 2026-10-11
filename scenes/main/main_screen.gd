@@ -27,7 +27,8 @@ var creation_avatar_desc: Label
 
 var current_event = null
 var current_event_choices: Array = []
-var annual_event_popup_chance: float = 0.45
+var monthly_event_popup_chance: float = 0.35
+var annual_event_popup_chance: float = 0.35
 
 # Profile Strip Nodes
 @onready var avatar_button: Button = $ProfileStrip/ProfileMargin/ProfileRow/AvatarButton
@@ -888,6 +889,52 @@ func _advance_in_game_month() -> void:
 		if m_interest > 0:
 			PlayerData.bank_savings += m_interest
 
+	# 14. Monthly University Tuition
+	if PlayerData.education_level == "University Student" and not PlayerData.has_scholarship:
+		var u_annual: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
+		var m_tuition: int = maxi(1, int(round(float(u_annual) / 12.0)))
+		var uni_title: String = PlayerData.university_name if PlayerData.university_name != "" else "University"
+		if PlayerData.get_available_funds() >= m_tuition:
+			PlayerData.debit_funds(m_tuition)
+			add_life_event("Paid $%s monthly tuition to %s." % [_format_number(m_tuition), uni_title], "education")
+		elif PlayerData.bank_savings >= m_tuition:
+			PlayerData.bank_savings -= m_tuition
+			add_life_event("Paid $%s monthly tuition to %s from savings." % [_format_number(m_tuition), uni_title], "education")
+		else:
+			PlayerData.loan_balance += m_tuition
+			add_life_event("Monthly tuition of $%s for %s was funded via Student Loan (8%% APR)." % [_format_number(m_tuition), uni_title], "finance")
+
+	# 15. Monthly Pension Contributions, Growth & Annuity Distributions
+	var ps_logs := preload("res://scripts/economy/pension_and_savings_manager.gd").process_monthly_accounts(PlayerData)
+	for ps_log in ps_logs:
+		add_life_event(ps_log, "finance")
+
+	# 16. Monthly Social Media Creator Monetization
+	var social_logs := SocialMediaManager.process_monthly_social_media(PlayerData)
+	for s_log in social_logs:
+		add_life_event(s_log, "lifestyle")
+
+	# 17. Monthly Commercial Business Profit Dividends
+	var biz_logs := BusinessManager.process_monthly_dividends(PlayerData)
+	for b_log in biz_logs:
+		add_life_event(b_log, "finance")
+
+	# 18. Monthly Freelance Project Deliveries
+	if not PlayerData.active_freelance_jobs.is_empty() and randf() < 0.40:
+		var completed: Array[Dictionary] = FreelanceManager.generate_yearly_random_projects()
+		if not completed.is_empty():
+			var item: Dictionary = completed.pick_random()
+			var proj: Dictionary = item.get("project", {})
+			var res: Dictionary = item.get("result", {})
+			add_life_event("💼 FREELANCE CONTRACT: Completed '%s' for %s (Earned $%s)." % [
+				str(proj.get("title", "Project")),
+				str(proj.get("client", "Client")),
+				_format_number(int(res.get("pay", 0)))
+			], "finance")
+
+	# 19. Monthly Random Event Trigger (with chance of peaceful uneventful month)
+	trigger_event()
+
 	# Update HUD balances and stat bars
 	update_ui()
 
@@ -929,24 +976,7 @@ func age_up() -> void:
 	# 1b. Mental Institution Inpatient Stay (2-Year Commitment)
 	if PlayerData.is_in_mental_institution:
 		PlayerData.mental_institution_years_left -= 1
-		var fee: int = PlayerData.mental_institution_annual_cost
-		if PlayerData.get_available_funds() >= fee:
-			PlayerData.debit_funds(fee)
-			add_life_event("🏥 MENTAL INSTITUTION: You spent another quiet, heavily structured year in psychiatric care. Routine walks and calm isolation slowly heal your mind. Paid $%s annual fee (%d year remaining)." % [
-				_format_number(fee),
-				PlayerData.mental_institution_years_left
-			], "health")
-		else:
-			var paid: int = PlayerData.get_available_funds()
-			var unpaid: int = fee - paid
-			PlayerData.debit_funds(paid)
-			PlayerData.debt += unpaid
-			add_life_event("🏥 MENTAL INSTITUTION: Unable to pay full inpatient fee ($%s)! Unpaid $%s added to debt (Total Debt: $%s, %d year remaining)." % [
-				_format_number(fee),
-				_format_number(unpaid),
-				_format_number(PlayerData.get_total_debt()),
-				PlayerData.mental_institution_years_left
-			], "health")
+		add_life_event("🏥 MENTAL INSTITUTION: You spent another quiet, heavily structured year in psychiatric care. Routine walks and calm isolation slowly heal your mind (%d year remaining)." % PlayerData.mental_institution_years_left, "health")
 
 		# Intensive inpatient psychiatric healing: +25% Mental State per year
 		PlayerData.mental_state = mini(100, PlayerData.mental_state + 25)
@@ -984,9 +1014,6 @@ func age_up() -> void:
 
 	# Random Asset Incident Checks (Total Loss / Insurance Claims)
 	_check_asset_incidents()
-
-	# Freelance Annual Project Gigs
-	_process_yearly_freelance_projects()
 
 	# Commercial Business Yearly Financial Simulation
 	_process_yearly_business_operations()
@@ -1034,20 +1061,11 @@ func age_up() -> void:
 		PlayerData.add_milestone("Graduated from High School%s (Grade: %d%%, %.2f GPA)." % [honors_hs, PlayerData.grades, PlayerData.get_gpa()], PlayerData.age, "🎓")
 	elif PlayerData.education_level == "University Student":
 		PlayerData.university_years += 1
-		var tuition: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
 		var uni_title: String = PlayerData.university_name if PlayerData.university_name != "" else "University"
 		if PlayerData.has_scholarship:
-			add_life_event("Your full-ride scholarship paid for your $%s %s tuition!" % [_format_number(tuition), uni_title], "education")
+			add_life_event("Completed academic year %d at %s on full-ride scholarship!" % [PlayerData.university_years, uni_title], "education")
 		else:
-			if PlayerData.get_available_funds() >= tuition:
-				PlayerData.debit_funds(tuition)
-				add_life_event("You paid your $%s %s tuition from your available funds." % [_format_number(tuition), uni_title], "education")
-			elif PlayerData.bank_savings >= tuition:
-				PlayerData.bank_savings -= tuition
-				add_life_event("Your $%s %s tuition was deducted from your bank savings." % [_format_number(tuition), uni_title], "education")
-			else:
-				PlayerData.loan_balance += tuition
-				add_life_event("%s tuition of $%s was funded via a Student Loan (8%% APR)." % [uni_title, _format_number(tuition)], "finance")
+			add_life_event("Completed academic year %d at %s (Tuition billed monthly)." % [PlayerData.university_years, uni_title], "education")
 
 		if PlayerData.university_years >= 4:
 			PlayerData.education_level = "University Graduate"
@@ -1174,7 +1192,6 @@ func age_up() -> void:
 		if not birth.is_empty():
 			add_life_event(birth, "family")
 
-	trigger_event()
 	update_ui()
 	SaveManager.save_game()
 
@@ -1655,28 +1672,27 @@ func trigger_event() -> void:
 			age_button.disabled = false
 		return
 
-	if PlayerData.age >= 18 and not PlayerData.is_in_prison and not LifeLibrary.data.people.is_empty() and randf() < 0.25:
+	if PlayerData.age >= 18 and not PlayerData.is_in_prison and not LifeLibrary.data.people.is_empty() and randf() < 0.08:
 		var person: Dictionary = LifeLibrary.data.people.pick_random()
 		add_life_event("You met %s from %s and enjoyed a friendly conversation." % [person.name, person.country], "event")
 		PlayerData.happiness = mini(100, PlayerData.happiness + 2)
 
-	# Chance-based event popups: Events don't always pop up every year to avoid feeling spammy.
-	# Some years are peaceful, uneventful, and let the player focus on gameplay choices.
-	if randf() > annual_event_popup_chance:
+	# Monthly chance-based event popups: Events don't always pop up every month.
+	# With a 35% chance to trigger each month, roughly 1 in 3 months triggers an event,
+	# while 65% of months pass peacefully without interruption.
+	if randf() > monthly_event_popup_chance:
 		current_event = null
 		current_event_choices.clear()
-		if is_instance_valid(age_button):
-			age_button.disabled = false
 		return
 
 	var carrier := RelationshipExtras.pregnancy_carrier(PlayerData)
-	if not carrier.is_empty() and randf() < 0.08:
+	if not carrier.is_empty() and randf() < 0.02:
 		current_event = {"id": "unplanned_pregnancy", "title": "UNEXPECTED PREGNANCY", "unplanned_pregnancy": true,
 			"text": "%s unexpectedly pregnant. You had not planned to start a family before marriage, and the news brings anxiety and tension with your parents." % ("You are" if carrier == "player" else PlayerData.get_partner_name() + " is")}
 		current_event_choices = [{"text": "Take time to process the news", "description": "Take time to process this momentous life news."}]
 		show_event_popup()
 		return
-	if not PlayerData.is_dead and not PlayerData.is_in_prison and PlayerData.age >= 18 and not PlayerData.has_partner() and randf() < 0.25:
+	if not PlayerData.is_dead and not PlayerData.is_in_prison and PlayerData.age >= 18 and not PlayerData.has_partner() and randf() < 0.08:
 		var candidate := _generate_dating_candidate()
 		var venues: Array[String] = ["a coffee date", "a picnic in the park", "a night at the arcade", "a walk through the night market"]
 		current_event = {"id": "date_invitation", "title": "A DATE INVITATION", "candidate": candidate,
@@ -1688,7 +1704,7 @@ func trigger_event() -> void:
 		return
 
 	# High-stakes violent confrontation events specifically for players who own firearms
-	if not PlayerData.is_dead and not PlayerData.is_in_prison and PlayerData.has_firearm() and randf() < 0.25:
+	if not PlayerData.is_dead and not PlayerData.is_in_prison and PlayerData.has_firearm() and randf() < 0.03:
 		var firearm_ev = EventManager.get_firearm_defense_event(PlayerData.age, PlayerData.event_history, PlayerData.get_stats(), PlayerData.event_history_log)
 		if firearm_ev != null:
 			current_event = firearm_ev
@@ -1705,8 +1721,6 @@ func trigger_event() -> void:
 
 	if current_event == null:
 		current_event_choices.clear()
-		if is_instance_valid(age_button):
-			age_button.disabled = false
 		return
 
 	current_event_choices = generate_event_choices(current_event)
@@ -2488,11 +2502,11 @@ func _is_routine_event(entry: Dictionary) -> bool:
 		return true
 	if txt.begins_with("you turned ") or txt.begins_with("you aged "):
 		return true
-	if txt.begins_with("you received your annual salary of"):
+	if txt.begins_with("you received your annual salary of") or "monthly salary of" in txt:
 		return true
-	if txt.begins_with("you paid your annual basic living"):
+	if txt.begins_with("you paid your annual basic living") or "monthly basic living expenses" in txt:
 		return true
-	if txt.begins_with("you paid your annual income tax"):
+	if txt.begins_with("you paid your annual income tax") or "monthly income tax" in txt or "monthly tax withholding" in txt:
 		return true
 	if "bank loan accrued" in txt:
 		return true
@@ -2803,7 +2817,8 @@ func update_infant_panel() -> void:
 		current_job_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		current_job_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if PlayerData.job_title != "":
-			current_job_label.text = "💼 Current Job: %s at %s ($%s/yr)" % [PlayerData.job_title, PlayerData.job_company, _format_number(PlayerData.job_salary)]
+			var m_sal: int = int(round(float(PlayerData.job_salary) / 12.0))
+			current_job_label.text = "💼 Current Job: %s at %s ($%s/mo)" % [PlayerData.job_title, PlayerData.job_company, _format_number(m_sal)]
 			current_job_label.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 		else:
 			current_job_label.text = "💼 Current Job: Unemployed"
@@ -2873,10 +2888,11 @@ func apply_for_job(job_id: String) -> void:
 	if job.get("category", "") == "underworld_crime":
 		UndergroundProgression.join(PlayerData)
 
-	add_life_event("You started working as a %s at %s ($%s/yr)." % [
+	var m_sal: int = int(round(float(PlayerData.job_salary) / 12.0))
+	add_life_event("You started working as a %s at %s ($%s/mo)." % [
 		PlayerData.job_title,
 		PlayerData.job_company,
-		_format_number(PlayerData.job_salary)
+		_format_number(m_sal)
 	], "milestone")
 	PlayerData.add_milestone("Started career as %s at %s." % [PlayerData.job_title, PlayerData.job_company], PlayerData.age, "💼")
 	update_ui()
@@ -4351,7 +4367,7 @@ func update_bank_panel() -> void:
 	iv.add_child(ins_title)
 
 	var ins_desc := Label.new()
-	ins_desc.text = "• First National Pixel Bank Underwriting Division provides full replacement guarantees against catastrophic earthquakes, wildfires, collisions, and total-loss events.\n• Policies carry expensive annual premiums billed annually upon aging."
+	ins_desc.text = "• First National Pixel Bank Underwriting Division provides full replacement guarantees against catastrophic earthquakes, wildfires, collisions, and total-loss events.\n• Policies carry monthly premiums billed automatically each month."
 	ins_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	ins_desc.add_theme_font_size_override("font_size", 28)
 	ins_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
@@ -4549,13 +4565,14 @@ func update_bank_panel() -> void:
 
 	if PlayerData.has_credit_card:
 		var cc_detail := Label.new()
-		cc_detail.text = "• Card Tier: %s Credit Card\n• Dynamic Limit: $%s  (@ %d%% APR)\n• Available Credit: $%s\n• Current Card Usage: $%s\n• Dynamic Limit Profile: Allowance $%s/yr • Personal Assets $%s • Net Worth $%s" % [
+		var m_allowance: int = int(round(float(PlayerData.job_salary) / 12.0))
+		cc_detail.text = "• Card Tier: %s Credit Card\n• Dynamic Limit: $%s  (@ %d%% APR)\n• Available Credit: $%s\n• Current Card Usage: $%s\n• Dynamic Limit Profile: Allowance $%s/mo • Personal Assets $%s • Net Worth $%s" % [
 			PlayerData.credit_card_tier,
 			_format_number(PlayerData.credit_card_limit),
 			int(PlayerData.credit_card_apr * 100),
 			_format_number(PlayerData.get_credit_card_available()),
 			_format_number(PlayerData.credit_card_balance),
-			_format_number(PlayerData.job_salary),
+			_format_number(m_allowance),
 			_format_number(PlayerData.get_total_asset_value()),
 			_format_number(PlayerData.get_personal_net_worth())
 		]
@@ -8357,7 +8374,7 @@ func _show_move_out_choice_prompt(parent_overlay: Control = null) -> void:
 	rv.add_child(rent_title)
 
 	var rent_desc := Label.new()
-	rent_desc.text = "Browse residential rentals (studios, apartments, lofts, townhouses). Signing a rental lease allows you to move into your own place with flexible annual terms."
+	rent_desc.text = "Browse residential rentals (studios, apartments, lofts, townhouses). Signing a rental lease allows you to move into your own place with flexible monthly terms."
 	rent_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rent_desc.add_theme_font_size_override("font_size", 26)
 	rent_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
@@ -8485,10 +8502,9 @@ func _show_rent_house_modal() -> void:
 	if RentalManager.has_active_lease(PlayerData):
 		var rent_dict: Dictionary = PlayerData.rented_property
 		var active_lbl := Label.new()
-		active_lbl.text = "🏠 Active Lease: %s\n• Monthly Rent: $%s/mo   •   Annual Rent: $%s/yr\n• Years Leased: %d   •   Living Perk: +%d Happiness/yr\n(Note: Leased residences are NOT owned assets and do not appear in the Assets tab)" % [
+		active_lbl.text = "🏠 Active Lease: %s\n• Monthly Rent: $%s/mo\n• Years Leased: %d   •   Living Perk: +%d Happiness/mo\n(Note: Leased residences are NOT owned assets and do not appear in the Assets tab)" % [
 			str(rent_dict.get("name", "Home")),
 			_format_number(int(rent_dict.get("monthly_rent", 0))),
-			_format_number(int(rent_dict.get("annual_rent", 0))),
 			int(rent_dict.get("years_leased", 1)),
 			int(rent_dict.get("happiness_bonus", 8))
 		]
@@ -8738,23 +8754,25 @@ func _show_jobs_modal() -> void:
 
 	if PlayerData.job_title != "":
 		cur_title.text = "CURRENT OCCUPATION"
-		cur_desc.text = "%s  •  %s\n💰 Annual Salary: $%s / yr" % [PlayerData.job_title, PlayerData.job_company, _format_number(PlayerData.job_salary)]
+		var m_sal: int = int(round(float(PlayerData.job_salary) / 12.0))
+		cur_desc.text = "%s  •  %s\n💰 Monthly Salary: $%s / mo" % [PlayerData.job_title, PlayerData.job_company, _format_number(m_sal)]
 		cur_desc.text += "\n" + CareerProgression.summary(PlayerData)
 		cur_desc.add_theme_color_override("font_color", Color("#34d399"))
 		cur_v.add_child(cur_title)
 		cur_v.add_child(cur_desc)
 		cur_v.add_child(_create_cyber_button("View career ladder", Color("#38bdf8"), func(): _show_career_ladder()))
 
-		var ot_used: bool = PlayerData.last_overtime_age == PlayerData.age
-		var ot_text := "⏱️ Work Overtime (Used)\nAnnual overtime limit reached for Age %d. Age up to work extra hours next year." % PlayerData.age if ot_used else "⏱️ Work Overtime\nPut in extra hours at %s. +$%s Bonus" % [PlayerData.job_company, _format_number(maxi(150, int(PlayerData.job_salary * 0.05)))]
+		var ot_used: bool = (PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age)
+		var ot_bonus: int = maxi(100, int(round(float(m_sal) * 0.50)))
+		var ot_text := "⏱️ Work Overtime (Used)\nMonthly overtime limit reached for Month %d. Available again next month." % PlayerData.in_game_month if ot_used else "⏱️ Work Overtime\nPut in extra hours at %s. +$%s Bonus" % [PlayerData.job_company, _format_number(ot_bonus)]
 		var btn_ot := _create_cyber_button(ot_text, Color("#38bdf8"), func():
-			if PlayerData.last_overtime_age == PlayerData.age:
+			if PlayerData.last_overtime_month == PlayerData.in_game_month and PlayerData.last_overtime_age == PlayerData.age:
 				return
 			PlayerData.last_overtime_age = PlayerData.age
-			var bonus := maxi(150, int(PlayerData.job_salary * 0.05))
-			PlayerData.money += bonus
+			PlayerData.last_overtime_month = PlayerData.in_game_month
+			PlayerData.money += ot_bonus
 			PlayerData.happiness = maxi(5, PlayerData.happiness - 5)
-			add_life_event("You worked late overtime at %s. Earned a hard-work bonus of $%s!" % [PlayerData.job_company, _format_number(bonus)], "job")
+			add_life_event("You worked late overtime at %s. Earned a hard-work bonus of $%s!" % [PlayerData.job_company, _format_number(ot_bonus)], "job")
 			update_ui()
 			SaveManager.save_game()
 			_show_jobs_modal()
@@ -8762,7 +8780,7 @@ func _show_jobs_modal() -> void:
 		if ot_used:
 			btn_ot.disabled = true
 			btn_ot.modulate = Color(0.6, 0.6, 0.6, 0.65)
-			btn_ot.tooltip_text = "Already worked overtime this year. Available again next year."
+			btn_ot.tooltip_text = "Already worked overtime this month. Available again next month."
 		cur_v.add_child(btn_ot)
 
 		var btn_quit := _create_cyber_button("🚪 Resign / Quit Job", Color("#ef4444"), func():
@@ -8777,14 +8795,15 @@ func _show_jobs_modal() -> void:
 		cur_v.add_child(cur_title)
 		cur_v.add_child(cur_desc)
 
-		var gig_used: bool = PlayerData.last_childhood_gig_age == PlayerData.age
+		var gig_used: bool = (PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age)
 
 		if PlayerData.age < 4:
 			var toy_text := "🍼 Toy Cash Register & Play Coins (Used)" if gig_used else "🍼 Toy Cash Register & Play Coins\nPlay with pretend cash and count plastic coins."
 			var btn_toy := _create_cyber_button(toy_text, Color("#38bdf8"), func():
-				if PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
+				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
 				PlayerData.smarts = mini(100, PlayerData.smarts + 2)
 				PlayerData.happiness = mini(100, PlayerData.happiness + 4)
 				add_life_event("You had fun ringing up items on your toy cash register! 'Beep beep!' (+Smarts, +Happiness)", "activity")
@@ -8795,14 +8814,15 @@ func _show_jobs_modal() -> void:
 			if gig_used:
 				btn_toy.disabled = true
 				btn_toy.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_toy.tooltip_text = "Activity completed for Age %d (Age up to play again next year)." % PlayerData.age
+				btn_toy.tooltip_text = "Activity completed for Month %d (Available again next month)." % PlayerData.in_game_month
 			cur_v.add_child(btn_toy)
 		elif PlayerData.age < 10:
 			var chores_text := "🧹 Help Parents with Household Chores ($15 Cash) (Used)" if gig_used else "🧹 Help Parents with Household Chores ($15 Cash)\nClean your room and organize the kitchen with your family."
 			var btn_chores := _create_cyber_button(chores_text, Color("#10b981"), func():
-				if PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
+				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
 				PlayerData.money += 15
 				PlayerData.happiness = mini(100, PlayerData.happiness + 3)
 				if PlayerData.mother_relationship > 0:
@@ -8817,14 +8837,15 @@ func _show_jobs_modal() -> void:
 			if gig_used:
 				btn_chores.disabled = true
 				btn_chores.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_chores.tooltip_text = "Completed for Age %d (Age up to do chores next year)." % PlayerData.age
+				btn_chores.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
 			cur_v.add_child(btn_chores)
 
 			var comics_text := "🎨 Draw & Sell Hand-Drawn Comics ($10 Cash) (Used)" if gig_used else "🎨 Draw & Sell Hand-Drawn Comics ($10 Cash)\nSketch mini comic strips and sell them to school friends."
 			var btn_comics := _create_cyber_button(comics_text, Color("#f59e0b"), func():
-				if PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
+				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
 				PlayerData.money += 10
 				PlayerData.smarts = mini(100, PlayerData.smarts + 3)
 				PlayerData.happiness = mini(100, PlayerData.happiness + 4)
@@ -8836,14 +8857,15 @@ func _show_jobs_modal() -> void:
 			if gig_used:
 				btn_comics.disabled = true
 				btn_comics.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_comics.tooltip_text = "Completed for Age %d (Age up to sell comics next year)." % PlayerData.age
+				btn_comics.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
 			cur_v.add_child(btn_comics)
 		else:
 			var lemonade_text := "🍋 Run a Neighborhood Lemonade Stand ($35 Cash) (Used)" if gig_used else "🍋 Run a Neighborhood Lemonade Stand ($35 Cash)\nMix fresh lemonade and sell cups on the sidewalk."
 			var btn_lemonade := _create_cyber_button(lemonade_text, Color("#f59e0b"), func():
-				if PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
+				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
 				PlayerData.money += 35
 				PlayerData.smarts = mini(100, PlayerData.smarts + 3)
 				PlayerData.happiness = mini(100, PlayerData.happiness + 6)
@@ -8855,14 +8877,15 @@ func _show_jobs_modal() -> void:
 			if gig_used:
 				btn_lemonade.disabled = true
 				btn_lemonade.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_lemonade.tooltip_text = "Completed for Age %d (Age up to run stand next year)." % PlayerData.age
+				btn_lemonade.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
 			cur_v.add_child(btn_lemonade)
 
 			var mow_text := "🌱 Mow Lawns & Rake Leaves for Neighbors ($45 Cash) (Used)" if gig_used else "🌱 Mow Lawns & Rake Leaves for Neighbors ($45 Cash)\nOffer yard work services to neighbors on weekends."
 			var btn_mow := _create_cyber_button(mow_text, Color("#10b981"), func():
-				if PlayerData.last_childhood_gig_age == PlayerData.age:
+				if PlayerData.last_childhood_gig_month == PlayerData.in_game_month and PlayerData.last_childhood_gig_age == PlayerData.age:
 					return
 				PlayerData.last_childhood_gig_age = PlayerData.age
+				PlayerData.last_childhood_gig_month = PlayerData.in_game_month
 				PlayerData.money += 45
 				PlayerData.health = mini(100, PlayerData.health + 4)
 				PlayerData.karma += 3
@@ -8874,7 +8897,7 @@ func _show_jobs_modal() -> void:
 			if gig_used:
 				btn_mow.disabled = true
 				btn_mow.modulate = Color(0.6, 0.6, 0.6, 0.65)
-				btn_mow.tooltip_text = "Completed for Age %d (Age up to mow lawns next year)." % PlayerData.age
+				btn_mow.tooltip_text = "Completed for Month %d (Available again next month)." % PlayerData.in_game_month
 			cur_v.add_child(btn_mow)
 	else:
 		cur_title.text = "CURRENT OCCUPATION"
@@ -8986,8 +9009,9 @@ func _show_job_category_modal(category_id: String) -> void:
 		vbox.add_child(title_lbl)
 
 		var salary_val: int = int(job.get("salary", 0))
+		var monthly_sal: int = int(round(float(salary_val) / 12.0))
 		var salary_lbl := Label.new()
-		salary_lbl.text = "💰 Salary: $%s / yr   •   Min Age: %d" % [_format_number(salary_val), JobManager.minimum_age(job)]
+		salary_lbl.text = "💰 Salary: $%s / mo   •   Min Age: %d" % [_format_number(monthly_sal), JobManager.minimum_age(job)]
 		salary_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		salary_lbl.add_theme_font_size_override("font_size", 34)
 		salary_lbl.add_theme_color_override("font_color", Color("#34d399"))
@@ -9894,7 +9918,7 @@ func _show_freelance_modal() -> void:
 	iv.add_child(ih)
 
 	var idesc := Label.new()
-	idesc.text = "Freelance occupations do not pay fixed annual salaries. Instead, income is generated per client project. Once registered, client contract requests arrive automatically each year during aging, or you can actively pitch for gigs right now!"
+	idesc.text = "Freelance occupations do not pay fixed annual salaries. Instead, income is generated per client project. Once registered, client contract requests arrive automatically each month, or you can actively pitch for gigs right now!"
 	idesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	idesc.add_theme_font_size_override("font_size", 30)
 	idesc.add_theme_color_override("font_color", Color("#cbd5e1"))
@@ -9962,7 +9986,7 @@ func _show_freelance_modal() -> void:
 
 		if is_registered:
 			var reg_info := Label.new()
-			reg_info.text = "✓ Client Roster Active: Projects will automatically offer contracts annually."
+			reg_info.text = "✓ Client Roster Active: Projects will automatically offer contracts monthly."
 			reg_info.add_theme_font_size_override("font_size", 29)
 			reg_info.add_theme_color_override("font_color", Color("#34d399"))
 			cv.add_child(reg_info)
@@ -10476,7 +10500,10 @@ func _show_business_category_modal(category_id: String) -> void:
 		cv.add_child(lic_lbl)
 
 		var proj_lbl := Label.new()
-		proj_lbl.text = "Projected Revenue: $%s - $%s/yr  •  Base OpEx: $%s/yr" % [_format_number(rev_min), _format_number(rev_max), _format_number(opex)]
+		var rev_min_mo := int(round(float(rev_min) / 12.0))
+		var rev_max_mo := int(round(float(rev_max) / 12.0))
+		var opex_mo := int(round(float(opex) / 12.0))
+		proj_lbl.text = "Projected Revenue: $%s - $%s/mo  •  Base OpEx: $%s/mo" % [_format_number(rev_min_mo), _format_number(rev_max_mo), _format_number(opex_mo)]
 		proj_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		proj_lbl.add_theme_font_size_override("font_size", 29)
 		proj_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
@@ -12036,7 +12063,8 @@ func _show_education_modal() -> void:
 		schol_lbl.text = "🏆 University Scholarship: 100% Full-Ride Tuition Waiver Active"
 		schol_lbl.add_theme_color_override("font_color", Color("#34d399"))
 	elif PlayerData.education_level == "University Student":
-		schol_lbl.text = "🏛️ University Tuition: $%s / yr (%s)" % [_format_number(PlayerData.university_tuition), PlayerData.university_name]
+		var m_tuition_val := maxi(1, int(round(float(PlayerData.university_tuition) / 12.0)))
+		schol_lbl.text = "🏛️ University Tuition: $%s / mo (%s)" % [_format_number(m_tuition_val), PlayerData.university_name]
 		schol_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 	elif PlayerData.age < 14:
 		schol_lbl.text = "🏆 University Scholarship: Unlocks in High School (Age 16+)"
@@ -12437,7 +12465,8 @@ func _show_education_modal() -> void:
 
 		var t_info := Label.new()
 		var t_cost: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
-		t_info.text = "Annual Tuition: Free (Scholarship Active)" if PlayerData.has_scholarship else "Annual Tuition: $%s / yr" % _format_number(t_cost)
+		var m_cost: int = maxi(1, int(round(float(t_cost) / 12.0)))
+		t_info.text = "Monthly Tuition: Free (Scholarship Active)" if PlayerData.has_scholarship else "Monthly Tuition: $%s / mo" % _format_number(m_cost)
 		t_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		t_info.add_theme_font_size_override("font_size", 31)
 		t_info.add_theme_color_override("font_color", Color("#34d399") if PlayerData.has_scholarship else Color("#fbbf24"))
@@ -12893,7 +12922,8 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 
 		var t_info := Label.new()
 		var t_cost: int = PlayerData.university_tuition if PlayerData.university_tuition > 0 else 12000
-		t_info.text = "Annual Tuition: Free (Scholarship Active)" if PlayerData.has_scholarship else "Annual Tuition: $%s / yr" % _format_number(t_cost)
+		var m_cost: int = maxi(1, int(round(float(t_cost) / 12.0)))
+		t_info.text = "Monthly Tuition: Free (Scholarship Active)" if PlayerData.has_scholarship else "Monthly Tuition: $%s / mo" % _format_number(m_cost)
 		t_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		t_info.add_theme_font_size_override("font_size", 31)
 		t_info.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399") if PlayerData.has_scholarship else (Color("#b45309") if is_light else Color("#fbbf24")))
@@ -13024,7 +13054,8 @@ func _render_university_enrollment_category(list: VBoxContainer) -> void:
 		vb.add_child(inst_desc)
 
 		var tuition_amount: int = int(inst.get("tuition", 12000))
-		var tuition_text := "Free (Scholarship Active)" if PlayerData.has_scholarship else "$%s / yr" % _format_number(tuition_amount)
+		var m_tuition: int = maxi(1, int(round(float(tuition_amount) / 12.0)))
+		var tuition_text := "Free (Scholarship Active)" if PlayerData.has_scholarship else "$%s / mo" % _format_number(m_tuition)
 		var req_eval: Dictionary = EducationCatalog.can_enroll(inst, PlayerData.grades, PlayerData.smarts)
 		var is_eligible: bool = bool(req_eval.get("allowed", false))
 
@@ -14189,7 +14220,7 @@ func _close_charity_modal_and_return_to_main() -> void:
 
 
 func _purchase_gym_membership() -> bool:
-	var fee: int = PlayerData.gym_membership_annual_fee
+	var fee: int = maxi(1, int(round(float(PlayerData.gym_membership_annual_fee) / 12.0)))
 	if PlayerData.bank_savings >= fee:
 		PlayerData.bank_savings -= fee
 	elif PlayerData.get_available_funds() >= fee:
@@ -14199,7 +14230,7 @@ func _purchase_gym_membership() -> bool:
 		_close_gym_modal_and_return_to_main()
 		return false
 	PlayerData.has_gym_membership = true
-	add_life_event("🏋️ Gym Membership ACTIVATED! ($%d/yr auto-debited annually). All gym workouts, classes, and athletic facilities are now 100%% FREE!" % fee, "activity")
+	add_life_event("🏋️ Gym Membership ACTIVATED! ($%d/mo auto-debited monthly). All gym workouts, classes, and athletic facilities are now 100%% FREE!" % fee, "activity")
 	update_ui()
 	SaveManager.save_game()
 	_close_gym_modal_and_return_to_main()
@@ -14208,7 +14239,7 @@ func _purchase_gym_membership() -> bool:
 
 func _cancel_gym_membership() -> void:
 	PlayerData.has_gym_membership = false
-	add_life_event("🚫 Gym Membership CANCELLED. You will no longer be billed annually, and gym workouts will now require day-pass fees.", "activity")
+	add_life_event("🚫 Gym Membership CANCELLED. You will no longer be billed monthly, and gym workouts will now require day-pass fees.", "activity")
 	update_ui()
 	SaveManager.save_game()
 	_close_gym_modal_and_return_to_main()
@@ -14368,23 +14399,24 @@ func _show_gym_modal() -> void:
 	mv.add_child(mem_title)
 
 	var mem_desc := Label.new()
+	var m_gym_fee: int = maxi(1, int(round(float(PlayerData.gym_membership_annual_fee) / 12.0)))
 	if PlayerData.has_gym_membership:
-		mem_desc.text = "STATUS: ACTIVE MEMBER ✅\nAnnual Fee: $%d/year (automatically debited from your bank account every year).\nPERK: ALL gym visits, classes, weight rooms, and athletic tracks are 100%% FREE!" % PlayerData.gym_membership_annual_fee
+		mem_desc.text = "STATUS: ACTIVE MEMBER ✅\nMonthly Fee: $%d/month (automatically debited from your bank account every month).\nPERK: ALL gym visits, classes, weight rooms, and athletic tracks are 100%% FREE!" % m_gym_fee
 		mem_desc.add_theme_color_override("font_color", Color("#047857") if is_light else Color("#34d399"))
 	else:
-		mem_desc.text = "STATUS: NON-MEMBER ❌\nAnnual Fee: $%d/year (debited directly from your bank account yearly).\nBENEFIT: Unlocks 100%% FREE unlimited access to all workouts, swimming laps, spin classes, and boxing. Never pay individual day passes again!" % PlayerData.gym_membership_annual_fee
+		mem_desc.text = "STATUS: NON-MEMBER ❌\nMonthly Fee: $%d/month (debited directly from your bank account monthly).\nBENEFIT: Unlocks 100%% FREE unlimited access to all workouts, swimming laps, spin classes, and boxing. Never pay individual day passes again!" % m_gym_fee
 		mem_desc.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#e2e8f0"))
 	mem_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	mem_desc.add_theme_font_size_override("font_size", 31)
 	mv.add_child(mem_desc)
 
 	if not PlayerData.has_gym_membership:
-		var buy_btn := _create_cyber_button("💳 ACTIVATE GYM MEMBERSHIP ($300/yr Auto-Debit)\nStart enjoying 100% free visits across all facilities", Color("#10b981"), func():
+		var buy_btn := _create_cyber_button("💳 ACTIVATE GYM MEMBERSHIP ($25/mo Auto-Debit)\nStart enjoying 100% free visits across all facilities", Color("#10b981"), func():
 			_purchase_gym_membership()
 		)
 		mv.add_child(buy_btn)
 	else:
-		var cancel_btn := _create_cyber_button("❌ CANCEL GYM MEMBERSHIP\nStop annual auto-debit payments (Visits will revert to standard day-pass fees)", Color("#ef4444"), func():
+		var cancel_btn := _create_cyber_button("❌ CANCEL GYM MEMBERSHIP\nStop monthly auto-debit payments (Visits will revert to standard day-pass fees)", Color("#ef4444"), func():
 			_cancel_gym_membership()
 		)
 		mv.add_child(cancel_btn)
@@ -14987,7 +15019,7 @@ func _show_mental_institution_hub_modal() -> void:
 	psych_med_btn.add_theme_font_size_override("font_size", 31)
 	list.add_child(psych_med_btn)
 
-	var asylum_btn := _create_cyber_button("🏥 Submit Self to Asylum (Voluntary Inpatient)\nVoluntary 2-year inpatient admission ($15,000/yr). Strict isolation from outside activities & assets with full mental recovery.", Color("#e11d48"), func():
+	var asylum_btn := _create_cyber_button("🏥 Submit Self to Asylum (Voluntary Inpatient)\nVoluntary 2-year inpatient admission ($1,250/mo). Strict isolation from outside activities & assets with full mental recovery.", Color("#e11d48"), func():
 		mental_institution_modal_overlay.queue_free()
 		_show_asylum_commitment_modal()
 	)
@@ -15201,8 +15233,8 @@ func _show_asylum_commitment_modal() -> void:
 	var disc_text := Label.new()
 	disc_text.text = "• COMMITMENT DURATION: EXACTLY 2 YEARS\n" + \
 		"  You will reside inside the inpatient psychiatric facility for two full calendar years. Early checkout is strictly prohibited.\n\n" + \
-		"• ANNUAL INPATIENT FEE: $15,000 / YEAR ($30,000 TOTAL)\n" + \
-		"  Automatically billed every year. If you have insufficient liquid cash, unpaid fees are added to medical debt.\n\n" + \
+		"• MONTHLY INPATIENT FEE: $1,250 / MONTH ($15,000/yr • $30,000 TOTAL)\n" + \
+		"  Automatically billed monthly. If you have insufficient liquid cash, unpaid fees are added to medical debt.\n\n" + \
 		"• TOTAL ISOLATION & LOCKOUT:\n" + \
 		"  Under strict psychiatric quarantine rules, you CANNOT interact with Activities, Assets, or Jobs during these 2 years.\n\n" + \
 		"• UNEVENTFUL ENVIRONMENT:\n" + \
@@ -15234,7 +15266,7 @@ func _show_asylum_commitment_modal() -> void:
 		PlayerData.is_in_mental_institution = true
 		PlayerData.mental_institution_years_left = 2
 		PlayerData.mental_institution_annual_cost = 15000
-		add_life_event("🏥 VOLUNTARY COMMITMENT: You signed admission papers and entered St. Jude Psychiatric Institution for a 2-year inpatient program ($15,000/yr). Outside activities and assets are now restricted.", "health")
+		add_life_event("🏥 VOLUNTARY COMMITMENT: You signed admission papers and entered St. Jude Psychiatric Institution for a 2-year inpatient program ($1,250/mo). Outside activities and assets are now restricted.", "health")
 		PlayerData.add_milestone("Voluntarily admitted to Mental Institution for 2-year inpatient stay.", PlayerData.age, "🏥")
 		mental_institution_modal_overlay.queue_free()
 		show_tab("timeline")
@@ -17501,7 +17533,8 @@ func _show_pension_account_modal() -> void:
 	_add_row.call("Compounding Growth:", "6.5% APR Annual Return", Color("#15803d") if is_light else Color("#4ade80"))
 	_add_row.call("Total Contributed:", "$%s" % _format_number(p_contributed), Color("#0f172a") if is_light else Color("#f8fafc"))
 
-	var match_text := "3%% of salary (+ $%s/yr matched)" % _format_number(int(round(float(PlayerData.job_salary) * 0.03))) if (PlayerData.job_salary > 0 and not PlayerData.is_in_prison) else "No Active Employer"
+	var m_match: int = int(round(float(PlayerData.job_salary) * 0.03 / 12.0))
+	var match_text := "3%% of salary (+ $%s/mo matched)" % _format_number(m_match) if (PlayerData.job_salary > 0 and not PlayerData.is_in_prison) else "No Active Employer"
 	_add_row.call("Company 401k Match:", match_text, Color("#0284c7") if is_light else Color("#38bdf8"))
 
 	var status_text := "✅ Vested & Retired (Age %d/60) - Penalty Free" % PlayerData.age if is_retired else "⏳ Accumulating (Age %d/60) - 20%% Early Penalty" % PlayerData.age
@@ -17525,7 +17558,7 @@ func _show_pension_account_modal() -> void:
 	rm.add_child(rv)
 
 	var rate_title := Label.new()
-	rate_title.text = "AUTOMATIC ANNUAL SALARY CONTRIBUTION"
+	rate_title.text = "AUTOMATIC MONTHLY SALARY CONTRIBUTION"
 	rate_title.custom_minimum_size = Vector2(1, 0)
 	rate_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rate_title.add_theme_font_size_override("font_size", 26)
@@ -17533,7 +17566,7 @@ func _show_pension_account_modal() -> void:
 	rv.add_child(rate_title)
 
 	var rate_desc := Label.new()
-	rate_desc.text = "Select percentage of your salary automatically deducted and invested each year (Current: %d%%):" % int(round(c_pct * 100.0))
+	rate_desc.text = "Select percentage of your salary automatically deducted and invested each month (Current: %d%%):" % int(round(c_pct * 100.0))
 	rate_desc.custom_minimum_size = Vector2(1, 0)
 	rate_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rate_desc.add_theme_font_size_override("font_size", 24)
@@ -17726,7 +17759,7 @@ func _show_pension_account_modal() -> void:
 		anv.add_child(ann_title)
 
 		var ann_desc := Label.new()
-		ann_desc.text = "When active, your pension fund will automatically disburse an 8% annual distribution directly into your cash balance each year for comfortable retirement living."
+		ann_desc.text = "When active, your pension fund will automatically disburse an 8% annual distribution (divided monthly) directly into your cash balance each month for comfortable retirement living."
 		ann_desc.custom_minimum_size = Vector2(1, 0)
 		ann_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ann_desc.add_theme_font_size_override("font_size", 24)
@@ -17734,7 +17767,7 @@ func _show_pension_account_modal() -> void:
 		anv.add_child(ann_desc)
 
 		var ann_toggle_btn := _create_cyber_button(
-			"⏹️ Pause Annual Annuity Payout" if is_annuity else "▶️ Activate Annual Annuity Payout (8%/yr)",
+			"⏹️ Pause Monthly Annuity Payout" if is_annuity else "▶️ Activate Monthly Annuity Payout (8% APR / 12)",
 			Color("#0284c7") if not is_annuity else Color("#e11d48"),
 			func():
 				var res = ps_mgr.toggle_pension_annuity(PlayerData, not is_annuity)

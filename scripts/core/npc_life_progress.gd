@@ -206,7 +206,8 @@ static func _step(person: Dictionary, life: Dictionary, year: int) -> void:
 				"rank": 0,
 				"last_age": year
 			}
-			_record(life, year, "Started career as %s at %s ($%s/yr)." % [life["job_title"], life["job_company"], _format_number(life["job_salary"])])
+			var m_sal: int = int(round(float(life["job_salary"]) / 12.0))
+			_record(life, year, "Started career as %s at %s ($%s/mo)." % [life["job_title"], life["job_company"], _format_number(m_sal)])
 
 	# 6. Career Advancement & Promotions
 	elif not life.get("career_progress", {}).is_empty():
@@ -222,7 +223,8 @@ static func _step(person: Dictionary, life: Dictionary, year: int) -> void:
 				life["job_title"] = str(next_pos.get("title", life["job_title"]))
 				life["job_salary"] = int(next_pos.get("salary", life["job_salary"]))
 				prog["rank"] = rank + 1
-				_record(life, year, "Earned a promotion to %s at %s ($%s/yr)." % [life["job_title"], life["job_company"], _format_number(life["job_salary"])])
+				var m_sal: int = int(round(float(life["job_salary"]) / 12.0))
+				_record(life, year, "Earned a promotion to %s at %s ($%s/mo)." % [life["job_title"], life["job_company"], _format_number(m_sal)])
 		elif posmod(year, 3) == 0:
 			# Senior tenure merit increase
 			var raise: int = int(life["job_salary"] * 0.035)
@@ -385,7 +387,8 @@ static func get_occupation_display(person: Dictionary) -> String:
 
 	if not title.is_empty():
 		if sal > 0:
-			return "💼 Occupation: %s at %s ($%s/yr)" % [title, comp, _format_number(sal)]
+			var m_sal: int = int(round(float(sal) / 12.0))
+			return "💼 Occupation: %s at %s ($%s/mo)" % [title, comp, _format_number(m_sal)]
 		return "💼 Occupation: %s at %s" % [title, comp]
 	elif not biz_list.is_empty():
 		return "💼 Occupation: Founder & Owner at %s" % str(biz_list[0].get("name", "Enterprise"))

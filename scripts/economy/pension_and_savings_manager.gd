@@ -46,7 +46,7 @@ static func ensure(player_data: Node) -> void:
 	if not s.has("is_open"): s["is_open"] = true
 
 
-static func advance_year(player_data: Node) -> Array[String]:
+static func process_monthly_accounts(player_data: Node) -> Array[String]:
 	ensure(player_data)
 	var logs: Array[String] = []
 
@@ -54,7 +54,7 @@ static func advance_year(player_data: Node) -> Array[String]:
 	var s: Dictionary = player_data.savings_account
 
 	# -------------------------------------------------------------------------
-	# 1. PENSION ACCOUNT ANNUAL PROCESSING
+	# 1. PENSION ACCOUNT MONTHLY PROCESSING
 	# -------------------------------------------------------------------------
 	var p_balance: int = int(p.get("balance", 0))
 
@@ -62,58 +62,77 @@ static func advance_year(player_data: Node) -> Array[String]:
 	if p.get("is_enrolled", false) and player_data.job_salary > 0 and not player_data.is_in_prison and not bool(p.get("is_annuity_active", false)):
 		var c_pct: float = float(p.get("contribution_pct", 0.05))
 		if c_pct > 0.001:
-			var deduction: int = int(round(float(player_data.job_salary) * c_pct))
-			# Can deduct if player has available funds or salary
+			var m_salary: int = int(round(float(player_data.job_salary) / 12.0))
+			var deduction: int = int(round(float(m_salary) * c_pct))
 			var actual_deduction := mini(deduction, player_data.get_available_funds())
 			if actual_deduction > 0:
 				player_data.debit_funds(actual_deduction)
 				p_balance += actual_deduction
 				p["total_contributed"] = int(p.get("total_contributed", 0)) + actual_deduction
+				p["last_year_contribution"] = int(p.get("last_year_contribution", 0)) + actual_deduction
 
 				# Employer Match
 				var m_pct: float = float(p.get("employer_match_pct", 0.03))
-				var match_amount: int = int(round(float(player_data.job_salary) * m_pct))
+				var match_amount: int = int(round(float(m_salary) * m_pct))
 				p_balance += match_amount
 
-				logs.append("👴 PENSION CONTRIBUTION: $%s was contributed from your salary + $%s company match deposited into your retirement fund!" % [
+				logs.append("👴 PENSION CONTRIBUTION: $%s was contributed from your monthly salary + $%s company match into your retirement fund!" % [
 					_format_num(actual_deduction), _format_num(match_amount)
 				])
 
-	# B. Compounding Growth
+	# B. Monthly Compounding Growth (6.5% APR / 12)
 	if p_balance > 0:
-		var p_growth: float = float(p.get("interest_rate", PENSION_ANNUAL_GROWTH))
+		var p_growth: float = (float(p.get("interest_rate", PENSION_ANNUAL_GROWTH))) / 12.0
 		var p_interest: int = maxi(1, int(round(float(p_balance) * p_growth)))
 		p_balance += p_interest
-		p["last_year_interest"] = p_interest
-		logs.append("👴 PENSION FUND: Your retirement pension balance accrued $%s in compounding investment returns (%.1f%% APR)." % [
-			_format_num(p_interest), p_growth * 100.0
-		])
+		p["last_year_interest"] = int(p.get("last_year_interest", 0)) + p_interest
 
-	# C. Annuity Payouts (if age >= 60 and annuity active)
+	# C. Monthly Annuity Payouts (if age >= 60 and annuity active: 8% APR / 12)
 	if p_balance > 0 and bool(p.get("is_annuity_active", false)) and player_data.age >= PENSION_RETIREMENT_AGE:
-		var payout: int = maxi(100, int(round(float(p_balance) * PENSION_ANNUITY_RATE)))
-		payout = mini(payout, p_balance)
-		p_balance -= payout
-		player_data.money += payout
-		p["total_annuity_paid"] = int(p.get("total_annuity_paid", 0)) + payout
-		logs.append("👴 PENSION ANNUITY: You received $%s in monthly retirement annuity distribution from your pension fund!" % _format_num(payout))
+		var monthly_annuity: int = maxi(10, int(round((float(p_balance) * PENSION_ANNUITY_RATE) / 12.0)))
+		monthly_annuity = mini(monthly_annuity, p_balance)
+		p_balance -= monthly_annuity
+		player_data.money += monthly_annuity
+		p["total_annuity_paid"] = int(p.get("total_annuity_paid", 0)) + monthly_annuity
+		p["last_annuity_payout"] = int(p.get("last_annuity_payout", 0)) + monthly_annuity
+		logs.append("👴 PENSION ANNUITY: You received $%s in monthly retirement annuity distribution from your pension fund!" % _format_num(monthly_annuity))
 
 	p["balance"] = p_balance
 
 	# -------------------------------------------------------------------------
-	# 2. SAVINGS ACCOUNT ANNUAL PROCESSING (INHERITABLE)
+	# 2. SAVINGS ACCOUNT MONTHLY PROCESSING (INHERITABLE: 4.2% APY / 12)
 	# -------------------------------------------------------------------------
 	var s_balance: int = int(s.get("balance", 0))
 	if s_balance > 0:
-		var s_rate: float = float(s.get("interest_rate", SAVINGS_ANNUAL_GROWTH))
+		var s_rate: float = (float(s.get("interest_rate", SAVINGS_ANNUAL_GROWTH))) / 12.0
 		var s_interest: int = maxi(1, int(round(float(s_balance) * s_rate)))
 		s_balance += s_interest
 		s["balance"] = s_balance
-		s["last_year_interest"] = s_interest
+		s["last_year_interest"] = int(s.get("last_year_interest", 0)) + s_interest
 		s["total_interest_earned"] = int(s.get("total_interest_earned", 0)) + s_interest
-		logs.append("💰 HIGH-YIELD SAVINGS: Your inheritable savings account accrued $%s in annual compounding interest (%.1f%% APY)." % [
-			_format_num(s_interest), s_rate * 100.0
-		])
+
+	return logs
+
+
+static func advance_year(player_data: Node) -> Array[String]:
+	ensure(player_data)
+	var logs: Array[String] = []
+
+	var p: Dictionary = player_data.pension_account
+	var s: Dictionary = player_data.savings_account
+
+	# Log annual summaries
+	var p_interest: int = int(p.get("last_year_interest", 0))
+	if p_interest > 0:
+		logs.append("👴 PENSION FUND: Accrued $%s in annual compounding investment returns (6.5%% APR)." % _format_num(p_interest))
+
+	var s_interest: int = int(s.get("last_year_interest", 0))
+	if s_interest > 0:
+		logs.append("💰 HIGH-YIELD SAVINGS: Accrued $%s in annual compounding interest (4.2%% APY)." % _format_num(s_interest))
+
+	# Reset yearly interest trackers for the next calendar year
+	p["last_year_interest"] = 0
+	s["last_year_interest"] = 0
 
 	return logs
 
@@ -203,7 +222,7 @@ static func toggle_pension_annuity(player_data: Node, active: bool) -> Dictionar
 	var status_text := "activated" if active else "paused"
 	return {
 		"success": true,
-		"message": "Annual Pension Annuity distribution %s (8%% annual payout during retirement)." % status_text
+		"message": "Monthly Pension Annuity distribution %s (8%% annual rate divided monthly during retirement)." % status_text
 	}
 
 
