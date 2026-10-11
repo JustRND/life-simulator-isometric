@@ -2512,7 +2512,7 @@ func _on_start_game_button_pressed() -> void:
 	var b_m_idx: int = GameClock.month_name_to_index(PlayerData.birth_month) if GameClock != null else 1
 	var b_day: int = PlayerData.birth_day
 	if GameClock != null:
-		GameClock.setup_new_game(b_m_idx, b_day, 2026, 1, 1, 12)
+		GameClock.setup_new_game(b_m_idx, b_day, 2026, 1, 1, 17)
 	PlayerData.mother_name = str(profile.get("mother_name", ""))
 	PlayerData.mother_job = str(profile.get("mother_job", ""))
 	PlayerData.mother_base_age = int(profile.get("mother_age", 35))
@@ -2531,7 +2531,7 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.grant_starting_assets()
 	PlayerData.generate_initial_siblings()
 	PlayerData.add_milestone("Born in %s." % PlayerData.birthplace, 0, "🍼")
-	PlayerData.add_milestone("Enrolled in Middle School at age 12.", 12, "🎒")
+	PlayerData.add_milestone("Enrolled in High School at age 14.", 14, "🎒")
 
 	hide_new_game_screen()
 	show_tab("timeline")
@@ -2542,9 +2542,9 @@ func _on_start_game_button_pressed() -> void:
 
 	life_feed.clear()
 
-	# Add birth story and age 12 middle school beginning
+	# Add birth story and age 17 high school beginning
 	add_life_event(PlayerData.birth_story, "milestone")
-	add_life_event("🎒 You begin your journey at age 12, currently attending Middle School.", "milestone")
+	add_life_event("🎒 You begin your journey at age 17, currently attending High School.", "milestone")
 	if PlayerData.has_siblings():
 		var sib_tokens: Array[String] = []
 		for s in PlayerData.siblings:
@@ -2874,6 +2874,7 @@ func update_history_panel() -> void:
 		margin.add_child(vbox)
 
 		var header_hbox := HBoxContainer.new()
+		header_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		vbox.add_child(header_hbox)
 
 		var badge_lbl := Label.new()
@@ -2889,6 +2890,8 @@ func update_history_panel() -> void:
 
 		var age_lbl := Label.new()
 		age_lbl.text = "AGE %d" % int(entry.get("age", 0))
+		age_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		age_lbl.size_flags_horizontal = Control.SIZE_SHRINK_END
 		age_lbl.add_theme_font_size_override("font_size", 28)
 		age_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		header_hbox.add_child(age_lbl)

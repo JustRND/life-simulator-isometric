@@ -172,7 +172,7 @@ static func add_reputation(player_data: Node, gig_type: String, points: int) -> 
 static func generate_available_gigs(player_data: Node) -> Array[Dictionary]:
 	var available: Array[Dictionary] = []
 	var base_gigs := DailyJobsCatalogScript.get_gigs()
-	var player_age: int = int(player_data.get("age")) if (player_data != null and player_data.get("age") != null) else 12
+	var player_age: int = int(player_data.get("age")) if (player_data != null and player_data.get("age") != null) else 17
 
 	for g in base_gigs:
 		var g_id: String = str(g.get("id", ""))
@@ -233,7 +233,7 @@ static func complete_gig(player_data: Node, gig: Dictionary) -> Dictionary:
 			"tax_withheld": 0
 		}
 
-	var age: int = int(player_data.get("age")) if player_data.get("age") != null else 12
+	var age: int = int(player_data.get("age")) if player_data.get("age") != null else 17
 	var min_age: int = int(gig.get("min_age", 16))
 	if age < min_age:
 		return {

@@ -23,15 +23,15 @@ func assert_true(cond: bool, msg: String) -> void:
 
 
 func test_starting_state() -> void:
-	print("\nTesting Starting State (Age 12 & Calendar)...")
+	print("\nTesting Starting State (Age 17 & Calendar)...")
 	PlayerData.reset_player()
-	assert_true(PlayerData.age == 12, "Default player age is 12 (was 0)")
+	assert_true(PlayerData.age == 17, "Default player age is 17")
 	assert_true(PlayerData.in_game_day == 1, "Initial in-game day is 1")
 	assert_true(PlayerData.in_game_month == 1, "Initial in-game month is 1")
 	assert_true(PlayerData.in_game_year == 2026, "Initial in-game year is 2026")
-	assert_true(PlayerData.education_level == "Middle School", "Initial education is Middle School")
+	assert_true(PlayerData.education_level == "High School", "Initial education is High School")
 	assert_true(PlayerData.get_date_string() == "January 1, 2026", "Date string formats correctly")
-	assert_true(PlayerData.get_stage_name() == "Child", "Age 12 stage name is Child")
+	assert_true(PlayerData.get_stage_name() == "Teenager", "Age 17 stage name is Teenager")
 
 
 func test_calendar_and_realtime_day_progression() -> void:

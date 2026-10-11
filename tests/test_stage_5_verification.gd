@@ -48,28 +48,28 @@ func _ready() -> void:
 
 
 # -----------------------------------------------------------------------------
-# 1. STARTING STATE & AGE 12
+# 1. STARTING STATE & AGE 17
 # -----------------------------------------------------------------------------
 func test_starting_state_and_age_12() -> void:
-	print("\n--- 1. Testing Starting State & Starting Age 12 ---")
+	print("\n--- 1. Testing Starting State & Starting Age 17 ---")
 	PlayerData.reset_player()
-	assert_check(PlayerData.age == 12, "Starting age is 12")
+	assert_check(PlayerData.age == 17, "Starting age is 17")
 	assert_check(PlayerData.in_game_day == 1, "Starting in-game day is 1")
 	assert_check(PlayerData.in_game_month == 1, "Starting in-game month is 1")
 	assert_check(PlayerData.in_game_year == 2026, "Starting in-game year is 2026")
-	assert_check(PlayerData.education_level == "Middle School", "Education initialized to Middle School")
+	assert_check(PlayerData.education_level == "High School", "Education initialized to High School")
 	assert_check(PlayerData.grades == 75, "Starting grades initialized to 75")
 	assert_check(PlayerData.hunger == 100.0, "Starting hunger is 100%")
 	assert_check(PlayerData.thirst == 100.0, "Starting thirst is 100%")
 	assert_check(PlayerData.auto_consume_enabled == true, "Auto-consume is enabled by default")
 
 	if GameClock != null:
-		GameClock.setup_new_game(1, 1, 2026, 1, 1, 12)
+		GameClock.setup_new_game(1, 1, 2026, 1, 1, 17)
 		assert_check(GameClock.year == 2026, "GameClock year is 2026")
 		assert_check(GameClock.month == 1, "GameClock month is 1")
 		assert_check(GameClock.day == 1, "GameClock day is 1")
-		assert_check(GameClock.current_age == 12, "GameClock current_age is 12")
-		assert_check(GameClock.birth_year == 2014, "Derived birth year for Jan 1 starting at age 12 in 2026 is 2014")
+		assert_check(GameClock.current_age == 17, "GameClock current_age is 17")
+		assert_check(GameClock.birth_year == 2009, "Derived birth year for Jan 1 starting at age 17 in 2026 is 2009")
 
 
 # -----------------------------------------------------------------------------
@@ -493,10 +493,10 @@ func test_heir_succession_and_reincarnation() -> void:
 	}
 	PlayerData.start_reincarnated_life(reborn_identity, [], [])
 	assert_check(PlayerData.first_name == "Phoenix", "Reincarnated name set")
-	assert_check(PlayerData.age == 12, "Reborn soul begins life at age 12")
+	assert_check(PlayerData.age == 17, "Reborn soul begins life at age 17")
 	assert_check(PlayerData.is_dead == false, "Reborn character is alive")
 	if GameClock != null:
-		assert_check(GameClock.current_age == 12, "GameClock synced to age 12")
+		assert_check(GameClock.current_age == 17, "GameClock synced to age 17")
 		assert_check(GameClock.year == 2026, "Calendar reset to baseline year 2026")
 
 
@@ -559,8 +559,8 @@ func test_multi_year_accelerated_simulation() -> void:
 		GameClock.external_progression_check = Callable()
 		GameClock.pause_reasons.clear()
 		GameClock.is_paused = false
-		# Born Jan 1, 2014, starting Jan 1, 2026 at age 12
-		GameClock.setup_new_game(1, 1, 2026, 1, 1, 12)
+		# Born Jan 1, 2009, starting Jan 1, 2026 at age 17
+		GameClock.setup_new_game(1, 1, 2026, 1, 1, 17)
 
 	var start_year: int = GameClock.year if GameClock != null else PlayerData.in_game_year
 	var start_age: int = PlayerData.age
@@ -615,7 +615,7 @@ func test_multi_year_accelerated_simulation() -> void:
 
 	assert_check(days_simulated == total_days_target, "Exact 1,826 days simulated across 5 calendar years")
 	assert_check(end_year == 2031, "Calendar year reached 2031 after 5 full years")
-	assert_check(end_age == 17, "Character aged from 12 to 17 over 5 years")
+	assert_check(end_age == 22, "Character aged from 17 to 22 over 5 years")
 	assert_check(birthdays_celebrated[0] == 5, "Exactly 5 birthdays celebrated on Jan 1")
 	assert_check(monthly_settlements_run >= 59, "All 60 monthly settlements executed (%d run)" % monthly_settlements_run)
 	assert_check(PlayerData.health > 50, "Character survived all 5 years in good health")

@@ -57,7 +57,7 @@ static func process_daily_wages(player_data: Node, year: int, month: int, day: i
 	var logs: Array[String] = []
 	var missed_shifts: Array[String] = []
 
-	var age: int = int(player_data.get("age")) if player_data.get("age") != null else 12
+	var age: int = int(player_data.get("age")) if player_data.get("age") != null else 17
 	var in_prison: bool = bool(player_data.get("is_in_prison"))
 	var in_institution: bool = bool(player_data.get("is_in_mental_institution"))
 	var health: int = int(player_data.get("health")) if player_data.get("health") != null else 100

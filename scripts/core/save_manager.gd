@@ -430,7 +430,7 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.family_wealth = str(data.get("family_wealth", "middle_class"))
 	PlayerData.life_milestones = Array(data.get("life_milestones", []))
 
-	PlayerData.age = int(data.get("age", 12))
+	PlayerData.age = int(data.get("age", 17))
 	PlayerData.in_game_day = int(data.get("in_game_day", 1))
 	PlayerData.in_game_month = int(data.get("in_game_month", 1))
 	PlayerData.in_game_year = int(data.get("in_game_year", 2026))
@@ -587,7 +587,7 @@ func apply_data(data: Dictionary) -> bool:
 					a["name"] = "Cozy Starter Home"
 					a["image_path"] = "res://assets/items/properties/prop_starter_home.jpg"
 				PlayerData.owned_assets.append(a)
-	if PlayerData.owned_assets.is_empty() and PlayerData.age <= 12:
+	if PlayerData.owned_assets.is_empty() and PlayerData.age <= 17:
 		PlayerData.grant_starting_assets()
 	PlayerData.enforce_buffs_and_debuffs()
 

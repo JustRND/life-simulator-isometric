@@ -30,7 +30,7 @@ static func format_karmic_modifier(modifier_id: String) -> String:
 		return "%s %s" % [info.get("icon", ""), info.get("title", modifier_id)]
 	return modifier_id.capitalize().replace("_", " ")
 
-var age: int = 12
+var age: int = 17
 var in_game_day: int = 1
 var in_game_month: int = 1
 var in_game_year: int = 2026
@@ -242,7 +242,7 @@ var asset_insurance: Dictionary = {
 	"property": false
 }
 
-var education_level: String = "Middle School"
+var education_level: String = "High School"
 var grades: int = 75
 var has_scholarship: bool = false
 var university_years: int = 0
@@ -502,7 +502,7 @@ func reset_player() -> void:
 	last_neural_diagnostics_month = -1
 	last_neural_diagnostics_year = -1
 
-	age = 12
+	age = 17
 	in_game_day = 1
 	in_game_month = 1
 	in_game_year = 2026
@@ -556,7 +556,7 @@ func reset_player() -> void:
 	health_insurance = "none"
 	asset_insurance = { "vehicle": false, "property": false }
 
-	education_level = "Middle School"
+	education_level = "High School"
 	grades = 75
 	has_scholarship = false
 	university_years = 0
@@ -2103,7 +2103,7 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 		var clock = get_node("/root/GameClock")
 		if clock != null:
 			var b_idx: int = clock.month_name_to_index(birth_month)
-			clock.setup_new_game(b_idx, birth_day, 2026, 1, 1, 12)
+			clock.setup_new_game(b_idx, birth_day, 2026, 1, 1, 17)
 
 	if has_node("/root/NeedsManager"):
 		var nm = get_node("/root/NeedsManager")

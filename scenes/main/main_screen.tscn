@@ -510,13 +510,13 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_colors/font_color = Color(0.98, 0.84, 0.35, 1)
 theme_override_font_sizes/font_size = 26
-text = "Age: 12"
+text = "Age: 17"
 
 [node name="PhaseLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow/NameAndPhase" unique_id=526626842]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.88, 0.94, 1, 1)
 theme_override_font_sizes/font_size = 26
-text = "🎒 Child"
+text = "🎧 Teenager"
 
 [node name="BalanceLabel" type="Label" parent="ProfileStrip/ProfileMargin/ProfileRow" unique_id=1720170167]
 custom_minimum_size = Vector2(210, 84)

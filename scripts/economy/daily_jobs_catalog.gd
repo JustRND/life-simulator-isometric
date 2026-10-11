@@ -703,7 +703,7 @@ static func can_apply(job: Dictionary, player_data: Node) -> Dictionary:
 	if bool(player_data.get("is_in_mental_institution")):
 		return {"allowed": false, "reason": "Cannot work while under inpatient psychiatric care."}
 
-	var age: int = int(player_data.get("age")) if player_data.get("age") != null else 12
+	var age: int = int(player_data.get("age")) if player_data.get("age") != null else 17
 	var min_age: int = int(job.get("min_age", 16))
 	if age < min_age:
 		return {

@@ -28,7 +28,7 @@ const MONTH_DAYS_NORMAL: Array[int] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 3
 const DEFAULT_START_YEAR: int = 2026
 const DEFAULT_START_MONTH: int = 1
 const DEFAULT_START_DAY: int = 1
-const DEFAULT_START_AGE: int = 12
+const DEFAULT_START_AGE: int = 17
 
 # Singleton instance reference
 static var instance: Node = null
@@ -42,7 +42,7 @@ var month: int = DEFAULT_START_MONTH
 var day: int = DEFAULT_START_DAY
 
 # Character Birth Date
-var birth_year: int = 2014
+var birth_year: int = 2009
 var birth_month: int = 1
 var birth_day: int = 1
 
@@ -150,9 +150,9 @@ static func is_birthday_on_date(cur_y: int, cur_m: int, cur_d: int, b_m: int, b_
 	return false
 
 
-## Given a target start date, starting age (e.g. 12), and birth month/day,
+## Given a target start date, starting age (e.g. 17), and birth month/day,
 ## returns the exact birth year required so the character is exactly `starting_age` on `start_date`.
-static func derive_birth_year(start_y: int, start_m: int, start_d: int, b_m: int, b_d: int, starting_age: int = 12) -> int:
+static func derive_birth_year(start_y: int, start_m: int, start_d: int, b_m: int, b_d: int, starting_age: int = DEFAULT_START_AGE) -> int:
 	var eff_b_d := b_d
 	if b_m == 2 and b_d == 29 and not is_leap_year(start_y):
 		eff_b_d = 28
@@ -167,7 +167,7 @@ static func derive_birth_year(start_y: int, start_m: int, start_d: int, b_m: int
 # INITIALIZATION & NEW GAME SETUP
 # -----------------------------------------------------------------------------
 
-## Initializes a fresh game character with Gregorian calendar and starting age 12.
+## Initializes a fresh game character with Gregorian calendar and starting age 17.
 func setup_new_game(b_month: int, b_day: int, start_y: int = DEFAULT_START_YEAR, start_m: int = DEFAULT_START_MONTH, start_d: int = DEFAULT_START_DAY, starting_age: int = DEFAULT_START_AGE) -> void:
 	year = start_y
 	month = start_m
