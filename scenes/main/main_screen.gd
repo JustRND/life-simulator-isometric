@@ -3950,11 +3950,13 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
 	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var top_m: int = 16
-	var bottom_m: int = 16
+	var top_m: int = 64
+	var bottom_m: int = 64
 	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) or OS.has_feature("mobile") or (OS.has_feature("web") and MobileKeyboardManager.is_mobile()):
-		top_m = 48
-		bottom_m = 40
+		var current_safe_top_m: float = float(DisplayServer.get_display_safe_area().position.y)
+		var current_safe_bottom_m: float = float(DisplayServer.get_display_safe_area().end.y)
+		top_m = int(maxf(110.0, current_safe_top_m + 16.0))
+		bottom_m = int(maxf(96.0, current_safe_bottom_m + 16.0))
 	margin_outer.add_theme_constant_override("margin_left", 16)
 	margin_outer.add_theme_constant_override("margin_right", 16)
 	margin_outer.add_theme_constant_override("margin_top", top_m)
@@ -4001,8 +4003,10 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	main_vbox.add_child(header_row)
 
 	var btn_back := Button.new()
-	btn_back.text = "← BACK TO PROPERTIES"
-	btn_back.custom_minimum_size = Vector2(230, 48)
+	btn_back.text = "← BACK"
+	btn_back.custom_minimum_size = Vector2(1, 56)
+	btn_back.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_back.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	btn_back.add_theme_font_size_override("font_size", 28)
 	btn_back.add_theme_color_override("font_color", Color("#ffffff") if not is_light else Color("#064e3b"))
 	btn_back.add_theme_color_override("font_hover_color", Color("#10b981"))
@@ -4026,7 +4030,9 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 
 	var title_lbl := Label.new()
 	title_lbl.text = "🏠 MORTGAGE PANEL"
+	title_lbl.custom_minimum_size = Vector2(1, 0)
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.size_flags_stretch_ratio = 1.6
 	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
 	title_lbl.add_theme_font_size_override("font_size", 34)
@@ -4057,6 +4063,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	# Subtitle
 	var sub_lbl := Label.new()
 	sub_lbl.text = "Fixed-Rate Residential Financing Plans with Annual Principal, Interest & Years Left Breakdown"
+	sub_lbl.custom_minimum_size = Vector2(1, 0)
 	sub_lbl.add_theme_font_size_override("font_size", 26)
 	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -4103,6 +4110,8 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 
 	var p_title := Label.new()
 	p_title.text = "🏡 %s" % item_name
+	p_title.custom_minimum_size = Vector2(1, 0)
+	p_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	p_title.add_theme_font_size_override("font_size", 32)
 	p_title.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	pv.add_child(p_title)
@@ -4119,6 +4128,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 		PlayerData.credit_score,
 		PlayerData.get_credit_rating()
 	]
+	p_desc.custom_minimum_size = Vector2(1, 0)
 	p_desc.add_theme_font_size_override("font_size", 26)
 	p_desc.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	p_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -4152,13 +4162,16 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 
 		var o_name := Label.new()
 		o_name.text = "📑 %d-YEAR FIXED MORTGAGE (%.1f%% APR)" % [term_years, apr * 100.0]
+		o_name.custom_minimum_size = Vector2(1, 0)
 		o_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		o_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		o_name.add_theme_font_size_override("font_size", 30)
 		o_name.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		o_header.add_child(o_name)
 
 		var o_ann_total := Label.new()
 		o_ann_total.text = "$%s/yr" % _format_number(int(plan.get("annual_payment", 0)))
+		o_ann_total.custom_minimum_size = Vector2(1, 0)
 		o_ann_total.add_theme_font_size_override("font_size", 32)
 		o_ann_total.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		o_header.add_child(o_ann_total)
@@ -4173,6 +4186,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 			_format_number(int(plan.get("total_interest", 0))),
 			_format_number(int(plan.get("total_cost", 0)))
 		]
+		o_breakdown.custom_minimum_size = Vector2(1, 0)
 		o_breakdown.add_theme_font_size_override("font_size", 26)
 		o_breakdown.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		o_breakdown.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -7522,6 +7536,8 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 		var wtitle := Label.new()
 		wtitle.text = "⚠️ CURRENTLY IN A RELATIONSHIP"
+		wtitle.custom_minimum_size = Vector2(1, 0)
+		wtitle.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		wtitle.add_theme_font_size_override("font_size", 30)
 		wtitle.add_theme_color_override("font_color", Color("#fbbf24"))
 		wv.add_child(wtitle)
@@ -7531,6 +7547,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 			PlayerData.get_partner_name(),
 			PlayerData.get_partner_status()
 		]
+		wdesc.custom_minimum_size = Vector2(1, 0)
 		wdesc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		wdesc.add_theme_font_size_override("font_size", 28)
 		wdesc.add_theme_color_override("font_color", Color("#f1f5f9"))
@@ -7542,6 +7559,8 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 	# Candidate Profile Card
 	var profile_card := PanelContainer.new()
+	profile_card.custom_minimum_size = Vector2(1, 0)
+	profile_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	profile_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#f43f5e")))
 	var pm := MarginContainer.new()
 	pm.add_theme_constant_override("margin_left", 22)
@@ -7577,6 +7596,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 	var name_lbl := Label.new()
 	name_lbl.text = "%s, %d" % [str(cand["name"]), int(cand["age"])]
+	name_lbl.custom_minimum_size = Vector2(1, 0)
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_lbl.add_theme_font_size_override("font_size", 42)
 	name_lbl.add_theme_color_override("font_color", Color("#f43f5e"))
@@ -7584,24 +7604,32 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	if not str(cand.get("nationality", "")).is_empty():
 		var nationality := Label.new()
 		nationality.text = str(cand.nationality)
+		nationality.custom_minimum_size = Vector2(1, 0)
+		nationality.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		nationality.add_theme_font_size_override("font_size", 30)
 		nationality.add_theme_color_override("font_color", Color("#aee4f5"))
 		info_vbox.add_child(nationality)
 
 	var match_lbl := Label.new()
 	match_lbl.text = "💖 %d%% Compatibility Match" % int(cand["compatibility"])
+	match_lbl.custom_minimum_size = Vector2(1, 0)
+	match_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	match_lbl.add_theme_font_size_override("font_size", 30)
 	match_lbl.add_theme_color_override("font_color", Color("#38bdf8"))
 	info_vbox.add_child(match_lbl)
 
 	var job_lbl := Label.new()
 	job_lbl.text = "💼 %s" % str(cand["occupation"])
+	job_lbl.custom_minimum_size = Vector2(1, 0)
+	job_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	job_lbl.add_theme_font_size_override("font_size", 32)
 	job_lbl.add_theme_color_override("font_color", Color("#f8fafc"))
 	info_vbox.add_child(job_lbl)
 
 	var edu_lbl := Label.new()
 	edu_lbl.text = "🎓 %s" % str(cand["education"])
+	edu_lbl.custom_minimum_size = Vector2(1, 0)
+	edu_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	edu_lbl.add_theme_font_size_override("font_size", 28)
 	edu_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
 	info_vbox.add_child(edu_lbl)
@@ -7610,6 +7638,8 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	if not biz_str.is_empty():
 		var biz_lbl := Label.new()
 		biz_lbl.text = biz_str
+		biz_lbl.custom_minimum_size = Vector2(1, 0)
+		biz_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		biz_lbl.add_theme_font_size_override("font_size", 28)
 		biz_lbl.add_theme_color_override("font_color", Color("#fbbf24"))
 		info_vbox.add_child(biz_lbl)
@@ -7617,6 +7647,8 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	# Hobbies Section
 	var hob_title := Label.new()
 	hob_title.text = "🎯 Hobbies & Interests:"
+	hob_title.custom_minimum_size = Vector2(1, 0)
+	hob_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hob_title.add_theme_font_size_override("font_size", 28)
 	hob_title.add_theme_color_override("font_color", Color("#34d399"))
 	pv.add_child(hob_title)
@@ -7624,6 +7656,8 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 	var hobs: Array = cand["hobbies"]
 	var hob_lbl := Label.new()
 	hob_lbl.text = " •  %s  •  %s  •  %s" % [str(hobs[0]), str(hobs[1]), str(hobs[2])]
+	hob_lbl.custom_minimum_size = Vector2(1, 0)
+	hob_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hob_lbl.add_theme_font_size_override("font_size", 30)
 	hob_lbl.add_theme_color_override("font_color", Color("#ffffff"))
 	pv.add_child(hob_lbl)
@@ -7644,6 +7678,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 	var bio_lbl := Label.new()
 	bio_lbl.text = "\"%s\"" % str(cand["bio"])
+	bio_lbl.custom_minimum_size = Vector2(1, 0)
 	bio_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bio_lbl.add_theme_font_size_override("font_size", 28)
 	bio_lbl.add_theme_color_override("font_color", Color("#cbd5e1"))
@@ -7666,6 +7701,7 @@ func _render_dating_candidate_ui(list: VBoxContainer) -> void:
 
 		var ll := Label.new()
 		ll.text = "⏳ ANNUAL DATING SEARCH COMPLETED\nYou have already explored matchmaking singles for Age %d.\nGive romantic connections time to develop. Advance age (+1 Year) to swipe and match again!" % PlayerData.age
+		ll.custom_minimum_size = Vector2(1, 0)
 		ll.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ll.add_theme_font_size_override("font_size", 31)
 		ll.add_theme_color_override("font_color", Color("#fbbf24"))
@@ -13920,11 +13956,11 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	margin_outer.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	margin_outer.grow_vertical = Control.GROW_DIRECTION_BOTH
 	margin_outer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var top_m: int = int(maxf(16.0, current_safe_top_m))
-	var bottom_m: int = int(maxf(16.0, current_safe_bottom_m))
+	var top_m: int = int(maxf(64.0, current_safe_top_m))
+	var bottom_m: int = int(maxf(64.0, current_safe_bottom_m))
 	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD) or OS.has_feature("mobile") or (OS.has_feature("web") and MobileKeyboardManager.is_mobile()):
-		top_m = int(maxf(48.0, current_safe_top_m))
-		bottom_m = int(maxf(68.0, current_safe_bottom_m))
+		top_m = int(maxf(110.0, current_safe_top_m + 16.0))
+		bottom_m = int(maxf(96.0, current_safe_bottom_m + 16.0))
 	margin_outer.add_theme_constant_override("margin_left", 16)
 	margin_outer.add_theme_constant_override("margin_right", 16)
 	margin_outer.add_theme_constant_override("margin_top", top_m)
@@ -13987,6 +14023,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	title_lbl.set_meta("reference_part", true)
 	title_lbl.text = title_text
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title_lbl.custom_minimum_size = Vector2(1, 0)
 	var title_col: Color = border_color.darkened(0.35) if (is_light and border_color.get_luminance() > 0.35) else border_color
 	if is_light and title_col.get_luminance() > 0.35:
 		title_col = Color("#0369a1")
@@ -14026,6 +14063,7 @@ func _create_cyber_modal(title_text: String, subtitle_text: String, border_color
 	var sub_lbl := Label.new()
 	sub_lbl.text = subtitle_text
 	sub_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sub_lbl.custom_minimum_size = Vector2(1, 0)
 	sub_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 	sub_lbl.add_theme_font_size_override("font_size", 28)
 	sub_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -14079,7 +14117,7 @@ func _create_cyber_button(btn_text: String, border_col: Color, on_click: Callabl
 	btn.set_meta("reference_part", true)
 	btn.set_meta("market_button", true)
 	btn.text = btn_text
-	btn.custom_minimum_size.y = 82
+	btn.custom_minimum_size = Vector2(1, 82)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -14148,7 +14186,7 @@ func _create_disabled_cyber_button(btn_text: String, reason: String = "", center
 	else:
 		btn.text = "🔒 %s\n%s" % [clean_btn, clean_reason]
 
-	btn.custom_minimum_size.y = 78
+	btn.custom_minimum_size = Vector2(1, 78)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -16581,6 +16619,8 @@ func _show_finance_hub_modal() -> void:
 
 	var title_lbl := Label.new()
 	title_lbl.text = "PORTFOLIO & CAPITAL OVERVIEW"
+	title_lbl.custom_minimum_size = Vector2(1, 0)
+	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title_lbl.add_theme_font_size_override("font_size", 30)
 	title_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(title_lbl)
@@ -16602,12 +16642,16 @@ func _show_finance_hub_modal() -> void:
 	var _add_stat_row = func(label_text: String, value_text: String, val_color: Color):
 		var lbl_name := Label.new()
 		lbl_name.text = label_text
+		lbl_name.custom_minimum_size = Vector2(1, 0)
+		lbl_name.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lbl_name.add_theme_font_size_override("font_size", 28)
 		lbl_name.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		stats_grid.add_child(lbl_name)
 
 		var lbl_val := Label.new()
 		lbl_val.text = value_text
+		lbl_val.custom_minimum_size = Vector2(1, 0)
+		lbl_val.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		lbl_val.add_theme_font_size_override("font_size", 28)
 		lbl_val.add_theme_color_override("font_color", val_color)
 		stats_grid.add_child(lbl_val)
@@ -16624,6 +16668,8 @@ func _show_finance_hub_modal() -> void:
 	# 2. Section Heading
 	var hubs_heading := Label.new()
 	hubs_heading.text = "SELECT FINANCIAL DIVISION"
+	hubs_heading.custom_minimum_size = Vector2(1, 0)
+	hubs_heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hubs_heading.add_theme_font_size_override("font_size", 28)
 	hubs_heading.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	list.add_child(hubs_heading)
@@ -16696,9 +16742,13 @@ func _show_finance_hub_modal() -> void:
 
 	for div in divisions:
 		var card := PanelContainer.new()
+		card.custom_minimum_size = Vector2(1, 0)
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		card.add_theme_stylebox_override("panel", load_style_box_cyber_card(div["color"]))
 
 		var cm := MarginContainer.new()
+		cm.custom_minimum_size = Vector2(1, 0)
+		cm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cm.add_theme_constant_override("margin_left", 20)
 		cm.add_theme_constant_override("margin_right", 20)
 		cm.add_theme_constant_override("margin_top", 16)
@@ -16706,35 +16756,39 @@ func _show_finance_hub_modal() -> void:
 		card.add_child(cm)
 
 		var cv := VBoxContainer.new()
+		cv.custom_minimum_size = Vector2(1, 0)
+		cv.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cv.add_theme_constant_override("separation", 10)
 		cm.add_child(cv)
 
-		var head_row := HBoxContainer.new()
-		head_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		cv.add_child(head_row)
-
 		var div_title := Label.new()
 		div_title.text = div["title"]
+		div_title.custom_minimum_size = Vector2(1, 0)
+		div_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		div_title.add_theme_font_size_override("font_size", 30)
 		div_title.add_theme_color_override("font_color", div["color"].darkened(0.25) if is_light else div["color"])
 		div_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		head_row.add_child(div_title)
+		cv.add_child(div_title)
 
 		var tag_lbl := Label.new()
 		tag_lbl.text = div["tag"]
+		tag_lbl.custom_minimum_size = Vector2(1, 0)
+		tag_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		tag_lbl.add_theme_font_size_override("font_size", 24)
 		tag_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		head_row.add_child(tag_lbl)
+		tag_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		cv.add_child(tag_lbl)
 
 		var desc_lbl := Label.new()
 		desc_lbl.text = div["desc"]
+		desc_lbl.custom_minimum_size = Vector2(1, 0)
 		desc_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc_lbl.add_theme_font_size_override("font_size", 26)
 		desc_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#cbd5e1"))
 		cv.add_child(desc_lbl)
 
-		var open_btn := _create_cyber_button("Enter %s →" % div["title"], div["color"], div["action"])
-		open_btn.custom_minimum_size.y = 60
+		var open_btn := _create_cyber_button("Enter %s →" % div["tag"], div["color"], div["action"])
+		open_btn.custom_minimum_size = Vector2(1, 60)
 		cv.add_child(open_btn)
 
 		list.add_child(card)
@@ -16763,7 +16817,7 @@ func _show_crypto_exchange_modal() -> void:
 		_show_finance_hub_modal()
 	)
 	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	back_btn.custom_minimum_size.y = 56
+	back_btn.custom_minimum_size = Vector2(1, 56)
 	top_action_row.add_child(back_btn)
 
 	var pulse_btn := _create_cyber_button("🔄 Pulse Live Ticker", Color("#f59e0b"), func():
@@ -16792,6 +16846,7 @@ func _show_crypto_exchange_modal() -> void:
 
 		var news_lbl := Label.new()
 		news_lbl.text = "📰 Crypto Wire: " + " • ".join(crypto_news)
+		news_lbl.custom_minimum_size = Vector2(1, 0)
 		news_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		news_lbl.add_theme_font_size_override("font_size", 25)
 		news_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fde68a"))
@@ -16819,6 +16874,8 @@ func _show_crypto_exchange_modal() -> void:
 
 		var ob_title := Label.new()
 		ob_title.text = "🐋 LIVE WHALE & NPC ORDER FLOW (REAL-TIME)"
+		ob_title.custom_minimum_size = Vector2(1, 0)
+		ob_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ob_title.add_theme_font_size_override("font_size", 24)
 		ob_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		ob_vbox.add_child(ob_title)
@@ -16835,6 +16892,7 @@ func _show_crypto_exchange_modal() -> void:
 			])
 		var ob_lbl := Label.new()
 		ob_lbl.text = " • ".join(trade_strings)
+		ob_lbl.custom_minimum_size = Vector2(1, 0)
 		ob_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ob_lbl.add_theme_font_size_override("font_size", 23)
 		ob_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
@@ -16856,6 +16914,7 @@ func _show_crypto_exchange_modal() -> void:
 		notice_card.add_theme_stylebox_override("panel", n_style)
 		var n_lbl := Label.new()
 		n_lbl.text = crypto_status_notice
+		n_lbl.custom_minimum_size = Vector2(1, 0)
 		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		n_lbl.add_theme_font_size_override("font_size", 26)
 		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#a7f3d0"))
@@ -16889,6 +16948,8 @@ func _show_crypto_exchange_modal() -> void:
 
 	var port_title := Label.new()
 	port_title.text = "CRYPTO WALLET VALUE"
+	port_title.custom_minimum_size = Vector2(1, 0)
+	port_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	port_title.add_theme_font_size_override("font_size", 28)
 	port_title.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
 	port_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -16896,6 +16957,7 @@ func _show_crypto_exchange_modal() -> void:
 
 	var sent_badge := Label.new()
 	sent_badge.text = str(sentiment.get("label", "MARKET"))
+	sent_badge.custom_minimum_size = Vector2(1, 0)
 	sent_badge.add_theme_font_size_override("font_size", 26)
 	var sent_col := Color(str(sentiment.get("color", "#f59e0b")))
 	sent_badge.add_theme_color_override("font_color", sent_col)
@@ -16907,6 +16969,7 @@ func _show_crypto_exchange_modal() -> void:
 
 	var val_lbl := Label.new()
 	val_lbl.text = "$%s" % _format_number(int(round(current_val)))
+	val_lbl.custom_minimum_size = Vector2(1, 0)
 	val_lbl.add_theme_font_size_override("font_size", 42)
 	val_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 	val_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -16915,12 +16978,14 @@ func _show_crypto_exchange_modal() -> void:
 	var pnl_lbl := Label.new()
 	var pnl_sign := "+" if pnl_val >= 0.0 else ""
 	pnl_lbl.text = "Net P&L: %s$%s (%s%.2f%%)" % [pnl_sign, _format_number(int(round(pnl_val))), pnl_sign, pnl_pct]
+	pnl_lbl.custom_minimum_size = Vector2(1, 0)
 	pnl_lbl.add_theme_font_size_override("font_size", 28)
 	pnl_lbl.add_theme_color_override("font_color", Color("#16a34a" if is_light else "#22c55e") if pnl_val >= 0.0 else Color("#dc2626" if is_light else "#f43f5e"))
 	val_row.add_child(pnl_lbl)
 
 	var sent_desc := Label.new()
 	sent_desc.text = "Cycle: %s — %s" % [str(sentiment.get("label", "")), str(sentiment.get("desc", ""))]
+	sent_desc.custom_minimum_size = Vector2(1, 0)
 	sent_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sent_desc.add_theme_font_size_override("font_size", 24)
 	sent_desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
@@ -16933,6 +16998,8 @@ func _show_crypto_exchange_modal() -> void:
 		_format_number(PlayerData.money),
 		_format_number(PlayerData.bank_savings)
 	]
+	liquid_funds_lbl.custom_minimum_size = Vector2(1, 0)
+	liquid_funds_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	liquid_funds_lbl.add_theme_font_size_override("font_size", 24)
 	liquid_funds_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	sv.add_child(liquid_funds_lbl)
@@ -16942,6 +17009,8 @@ func _show_crypto_exchange_modal() -> void:
 	# 6. Spot Market Assets Heading
 	var assets_head := Label.new()
 	assets_head.text = "SPOT DIGITAL ASSETS"
+	assets_head.custom_minimum_size = Vector2(1, 0)
+	assets_head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	assets_head.add_theme_font_size_override("font_size", 28)
 	assets_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	list.add_child(assets_head)
@@ -16979,6 +17048,8 @@ func _show_crypto_exchange_modal() -> void:
 
 		var name_lbl := Label.new()
 		name_lbl.text = "%s %s (%s)  %s" % [str(c.get("icon", "🪙")), str(c.get("name", "")), str(c.get("symbol", "")), str(c.get("sparkline", ""))]
+		name_lbl.custom_minimum_size = Vector2(1, 0)
+		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		name_lbl.add_theme_font_size_override("font_size", 30)
 		name_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -17009,6 +17080,7 @@ func _show_crypto_exchange_modal() -> void:
 		# Description
 		var desc := Label.new()
 		desc.text = str(c.get("description", ""))
+		desc.custom_minimum_size = Vector2(1, 0)
 		desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		desc.add_theme_font_size_override("font_size", 24)
 		desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
@@ -17019,6 +17091,7 @@ func _show_crypto_exchange_modal() -> void:
 		if not cat_text.is_empty():
 			var cat_lbl := Label.new()
 			cat_lbl.text = "⚡ %s" % cat_text
+			cat_lbl.custom_minimum_size = Vector2(1, 0)
 			cat_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			cat_lbl.add_theme_font_size_override("font_size", 23)
 			cat_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
@@ -17043,6 +17116,7 @@ func _show_crypto_exchange_modal() -> void:
 		flow_lbl.text = "24h Vol: %s • 🟢 Buys: %s • 🔴 Sells: %s • ATH: %s • ATL: %s" % [
 			vol_str, _format_number(npc_b), _format_number(npc_s), ath_str, atl_str
 		]
+		flow_lbl.custom_minimum_size = Vector2(1, 0)
 		flow_lbl.add_theme_font_size_override("font_size", 22)
 		flow_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		flow_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -17077,6 +17151,8 @@ func _show_crypto_exchange_modal() -> void:
 		else:
 			h_lbl.text = "Holdings: 0.00 %s ($0.00)" % str(c.get("symbol", ""))
 			h_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
+		h_lbl.custom_minimum_size = Vector2(1, 0)
+		h_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		h_lbl.add_theme_font_size_override("font_size", 24)
 		h_box.add_child(h_lbl)
 		cv.add_child(h_box)
@@ -17089,13 +17165,15 @@ func _show_crypto_exchange_modal() -> void:
 		var buy_btn := _create_cyber_button("🟢 Buy %s" % str(c.get("symbol", "")), Color("#10b981"), func():
 			_open_crypto_trade_dialog(coin_id, true)
 		)
-		buy_btn.custom_minimum_size.y = 58
+		buy_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		buy_btn.custom_minimum_size = Vector2(1, 58)
 		btn_row.add_child(buy_btn)
 
 		var sell_btn := _create_cyber_button("🔴 Sell %s" % str(c.get("symbol", "")), Color("#f43f5e"), func():
 			_open_crypto_trade_dialog(coin_id, false)
 		)
-		sell_btn.custom_minimum_size.y = 58
+		sell_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		sell_btn.custom_minimum_size = Vector2(1, 58)
 		if amount <= 0.000001:
 			sell_btn.disabled = true
 			sell_btn.text = "Sell (0 Owned)"
@@ -17147,6 +17225,8 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 			symbol,
 			held_usd
 		]
+	info_lbl.custom_minimum_size = Vector2(1, 0)
+	info_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info_lbl.add_theme_font_size_override("font_size", 26)
 	info_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	list.add_child(info_lbl)
@@ -17154,6 +17234,8 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 	# Input row
 	var input_lbl := Label.new()
 	input_lbl.text = "Enter USD Amount to Invest:" if is_buy else "Enter %s Units to Sell:" % symbol
+	input_lbl.custom_minimum_size = Vector2(1, 0)
+	input_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	input_lbl.add_theme_font_size_override("font_size", 26)
 	input_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	list.add_child(input_lbl)
@@ -17177,20 +17259,22 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 			{"label": "$100", "val": 100},
 			{"label": "$500", "val": 500},
 			{"label": "$2,500", "val": 2500},
-			{"label": "$10,000", "val": 10000},
-			{"label": "Max Funds", "val": total_avail_funds}
+			{"label": "$10k", "val": 10000},
+			{"label": "Max", "val": total_avail_funds}
 		]
 	else:
 		presets = [
 			{"label": "25%", "pct": 0.25},
 			{"label": "50%", "pct": 0.50},
 			{"label": "75%", "pct": 0.75},
-			{"label": "100% (All)", "pct": 1.0}
+			{"label": "100%", "pct": 1.0}
 		]
 
 	# Estimation row
 	var est_lbl := Label.new()
 	est_lbl.text = "Estimated Net After 0.5% Exchange Fee: $0.00"
+	est_lbl.custom_minimum_size = Vector2(1, 0)
+	est_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	est_lbl.add_theme_font_size_override("font_size", 25)
 	est_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 
@@ -17214,13 +17298,16 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 		var p_btn := Button.new()
 		p_btn.text = str(p.get("label", ""))
 		p_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		p_btn.custom_minimum_size.y = 54
+		p_btn.custom_minimum_size = Vector2(1, 54)
+		p_btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		p_btn.add_theme_font_size_override("font_size", 25)
 		var p_style := StyleBoxFlat.new()
 		p_style.bg_color = Color("#e2e8f0") if is_light else Color("#1e293b")
 		p_style.border_color = accent_col
 		p_style.set_border_width_all(1)
 		p_style.set_corner_radius_all(6)
+		p_style.content_margin_left = 6
+		p_style.content_margin_right = 6
 		p_btn.add_theme_stylebox_override("normal", p_style)
 		p_btn.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		if is_buy:
@@ -17266,7 +17353,7 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 			crypto_trade_dialog_overlay = null
 			_show_crypto_exchange_modal()
 	)
-	confirm_btn.custom_minimum_size.y = 66
+	confirm_btn.custom_minimum_size = Vector2(1, 66)
 	list.add_child(confirm_btn)
 
 	# Cancel Button
@@ -17274,7 +17361,7 @@ func _open_crypto_trade_dialog(coin_id: String, is_buy: bool) -> void:
 		preload("res://scripts/ui/panel_close.gd").dismiss(crypto_trade_dialog_overlay, false)
 		crypto_trade_dialog_overlay = null
 	)
-	cancel_btn.custom_minimum_size.y = 54
+	cancel_btn.custom_minimum_size = Vector2(1, 54)
 	list.add_child(cancel_btn)
 
 	crypto_trade_dialog_overlay.visible = true
@@ -17304,7 +17391,7 @@ func _show_pension_account_modal() -> void:
 		_show_finance_hub_modal()
 	)
 	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	back_btn.custom_minimum_size.y = 56
+	back_btn.custom_minimum_size = Vector2(1, 56)
 	top_row.add_child(back_btn)
 
 	# 2. Inheritance Warning Policy Card
@@ -17323,12 +17410,15 @@ func _show_pension_account_modal() -> void:
 
 	var policy_title := Label.new()
 	policy_title.text = "🔒 INHERITANCE POLICY: CANNOT BE INHERITED"
+	policy_title.custom_minimum_size = Vector2(1, 0)
+	policy_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	policy_title.add_theme_font_size_override("font_size", 28)
 	policy_title.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#fca5a5"))
 	pv.add_child(policy_title)
 
 	var policy_desc := Label.new()
 	policy_desc.text = "Under statutory retirement regulations, this account provides personal lifetime retirement security. The balance CANNOT BE INHERITED by your children or next generation. Upon death, remaining funds revert to the plan trust. Use the Savings Account for transferable generational wealth."
+	policy_desc.custom_minimum_size = Vector2(1, 0)
 	policy_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	policy_desc.add_theme_font_size_override("font_size", 24)
 	policy_desc.add_theme_color_override("font_color", Color("#450a0a") if is_light else Color("#fecaca"))
@@ -17347,6 +17437,7 @@ func _show_pension_account_modal() -> void:
 		not_card.add_child(nm)
 		var n_lbl := Label.new()
 		n_lbl.text = pension_status_notice
+		n_lbl.custom_minimum_size = Vector2(1, 0)
 		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		n_lbl.add_theme_font_size_override("font_size", 26)
 		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
@@ -17377,12 +17468,16 @@ func _show_pension_account_modal() -> void:
 
 	var bal_head := Label.new()
 	bal_head.text = "RETIREMENT FUND BALANCE"
+	bal_head.custom_minimum_size = Vector2(1, 0)
+	bal_head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bal_head.add_theme_font_size_override("font_size", 26)
 	bal_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	ov.add_child(bal_head)
 
 	var bal_val := Label.new()
 	bal_val.text = "$%s" % _format_number(p_bal)
+	bal_val.custom_minimum_size = Vector2(1, 0)
+	bal_val.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bal_val.add_theme_font_size_override("font_size", 46)
 	bal_val.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
 	ov.add_child(bal_val)
@@ -17397,11 +17492,15 @@ func _show_pension_account_modal() -> void:
 	var _add_row = func(k: String, v: String, c: Color):
 		var kl := Label.new()
 		kl.text = k
+		kl.custom_minimum_size = Vector2(1, 0)
+		kl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		kl.add_theme_font_size_override("font_size", 25)
 		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		grid.add_child(kl)
 		var vl := Label.new()
 		vl.text = v
+		vl.custom_minimum_size = Vector2(1, 0)
+		vl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vl.add_theme_font_size_override("font_size", 25)
 		vl.add_theme_color_override("font_color", c)
 		grid.add_child(vl)
@@ -17434,14 +17533,17 @@ func _show_pension_account_modal() -> void:
 
 	var rate_title := Label.new()
 	rate_title.text = "AUTOMATIC ANNUAL SALARY CONTRIBUTION"
+	rate_title.custom_minimum_size = Vector2(1, 0)
+	rate_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	rate_title.add_theme_font_size_override("font_size", 26)
 	rate_title.add_theme_color_override("font_color", Color("#7c3aed") if is_light else Color("#c084fc"))
 	rv.add_child(rate_title)
 
 	var rate_desc := Label.new()
 	rate_desc.text = "Select percentage of your salary automatically deducted and invested each year (Current: %d%%):" % int(round(c_pct * 100.0))
-	rate_desc.add_theme_font_size_override("font_size", 24)
+	rate_desc.custom_minimum_size = Vector2(1, 0)
 	rate_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	rate_desc.add_theme_font_size_override("font_size", 24)
 	rate_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	rv.add_child(rate_desc)
 
@@ -17460,7 +17562,7 @@ func _show_pension_account_modal() -> void:
 			_show_pension_account_modal()
 		, true)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size.y = 54
+		b.custom_minimum_size = Vector2(1, 54)
 		b.add_theme_font_size_override("font_size", 25)
 		b.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		b.set_meta("center_text", true)
@@ -17484,12 +17586,16 @@ func _show_pension_account_modal() -> void:
 
 	var dep_title := Label.new()
 	dep_title.text = "DEPOSIT LIQUID CAPITAL INTO PENSION"
+	dep_title.custom_minimum_size = Vector2(1, 0)
+	dep_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dep_title.add_theme_font_size_override("font_size", 26)
 	dep_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	dv.add_child(dep_title)
 
 	var avail_lbl := Label.new()
 	avail_lbl.text = "Available Capital (Cash + Bank): $%s" % _format_number(PlayerData.get_available_funds())
+	avail_lbl.custom_minimum_size = Vector2(1, 0)
+	avail_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	avail_lbl.add_theme_font_size_override("font_size", 24)
 	avail_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	dv.add_child(avail_lbl)
@@ -17507,7 +17613,7 @@ func _show_pension_account_modal() -> void:
 			_show_pension_account_modal()
 		, true)
 		d_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		d_btn.custom_minimum_size.y = 56
+		d_btn.custom_minimum_size = Vector2(1, 56)
 		d_btn.add_theme_font_size_override("font_size", 25)
 		d_btn.disabled = PlayerData.get_available_funds() < amt
 		d_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -17523,12 +17629,12 @@ func _show_pension_account_modal() -> void:
 			_show_pension_account_modal()
 	, true)
 	d_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	d_all.custom_minimum_size.y = 56
+	d_all.custom_minimum_size = Vector2(1, 56)
 	d_all.add_theme_font_size_override("font_size", 25)
 	d_all.disabled = PlayerData.money <= 0
 	d_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	d_all.set_meta("center_text", true)
-	dep_btn_row.add_child(d_all)
+	dv.add_child(d_all)
 
 	list.add_child(dep_card)
 
@@ -17548,6 +17654,8 @@ func _show_pension_account_modal() -> void:
 
 	var with_title := Label.new()
 	with_title.text = "WITHDRAW RETIREMENT CAPITAL"
+	with_title.custom_minimum_size = Vector2(1, 0)
+	with_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	with_title.add_theme_font_size_override("font_size", 26)
 	with_title.add_theme_color_override("font_color", Color("#be123c") if is_light else Color("#fb7185"))
 	wv.add_child(with_title)
@@ -17559,6 +17667,7 @@ func _show_pension_account_modal() -> void:
 	else:
 		with_warning.text = "⚠️ Warning: You are under age 60. Early withdrawals trigger a 20% statutory penalty fee."
 		with_warning.add_theme_color_override("font_color", Color("#dc2626") if is_light else Color("#fca5a5"))
+	with_warning.custom_minimum_size = Vector2(1, 0)
 	with_warning.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	with_warning.add_theme_font_size_override("font_size", 24)
 	wv.add_child(with_warning)
@@ -17576,7 +17685,7 @@ func _show_pension_account_modal() -> void:
 			_show_pension_account_modal()
 		, true)
 		w_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		w_btn.custom_minimum_size.y = 56
+		w_btn.custom_minimum_size = Vector2(1, 56)
 		w_btn.add_theme_font_size_override("font_size", 25)
 		w_btn.disabled = p_bal < amt
 		w_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -17591,12 +17700,12 @@ func _show_pension_account_modal() -> void:
 			_show_pension_account_modal()
 	, true)
 	w_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	w_all.custom_minimum_size.y = 56
+	w_all.custom_minimum_size = Vector2(1, 56)
 	w_all.add_theme_font_size_override("font_size", 25)
 	w_all.disabled = p_bal <= 0
 	w_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	w_all.set_meta("center_text", true)
-	with_btn_row.add_child(w_all)
+	wv.add_child(w_all)
 
 	list.add_child(with_card)
 
@@ -17617,12 +17726,15 @@ func _show_pension_account_modal() -> void:
 
 		var ann_title := Label.new()
 		ann_title.text = "RETIREMENT ANNUITY PAYOUT MODE"
+		ann_title.custom_minimum_size = Vector2(1, 0)
+		ann_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ann_title.add_theme_font_size_override("font_size", 26)
 		ann_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		anv.add_child(ann_title)
 
 		var ann_desc := Label.new()
 		ann_desc.text = "When active, your pension fund will automatically disburse an 8% annual distribution directly into your cash balance each year for comfortable retirement living."
+		ann_desc.custom_minimum_size = Vector2(1, 0)
 		ann_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		ann_desc.add_theme_font_size_override("font_size", 24)
 		ann_desc.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
@@ -17636,7 +17748,7 @@ func _show_pension_account_modal() -> void:
 				pension_status_notice = res["message"]
 				_show_pension_account_modal()
 		, true)
-		ann_toggle_btn.custom_minimum_size.y = 58
+		ann_toggle_btn.custom_minimum_size = Vector2(1, 58)
 		ann_toggle_btn.add_theme_font_size_override("font_size", 26)
 		anv.add_child(ann_toggle_btn)
 
@@ -17669,7 +17781,7 @@ func _show_savings_account_modal() -> void:
 		_show_finance_hub_modal()
 	)
 	back_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	back_btn.custom_minimum_size.y = 56
+	back_btn.custom_minimum_size = Vector2(1, 56)
 	top_row.add_child(back_btn)
 
 	# 2. Inheritance Guarantee Card
@@ -17688,12 +17800,15 @@ func _show_savings_account_modal() -> void:
 
 	var g_title := Label.new()
 	g_title.text = "🛡️ INHERITANCE POLICY: 100% INHERITABLE TO NEXT GENERATION"
+	g_title.custom_minimum_size = Vector2(1, 0)
+	g_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	g_title.add_theme_font_size_override("font_size", 28)
 	g_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	gv.add_child(g_title)
 
 	var g_desc := Label.new()
 	g_desc.text = "This High-Yield Savings Account is fully designated as generational family wealth. 100% of this account's capital will be safely transferred to your children and next-generation heirs upon estate succession, preserving compounding family prosperity."
+	g_desc.custom_minimum_size = Vector2(1, 0)
 	g_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	g_desc.add_theme_font_size_override("font_size", 24)
 	g_desc.add_theme_color_override("font_color", Color("#064e3b") if is_light else Color("#a7f3d0"))
@@ -17712,6 +17827,7 @@ func _show_savings_account_modal() -> void:
 		not_card.add_child(nm)
 		var n_lbl := Label.new()
 		n_lbl.text = savings_status_notice
+		n_lbl.custom_minimum_size = Vector2(1, 0)
 		n_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		n_lbl.add_theme_font_size_override("font_size", 26)
 		n_lbl.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#34d399"))
@@ -17740,12 +17856,16 @@ func _show_savings_account_modal() -> void:
 
 	var bal_head := Label.new()
 	bal_head.text = "GENERATIONAL SAVINGS BALANCE"
+	bal_head.custom_minimum_size = Vector2(1, 0)
+	bal_head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bal_head.add_theme_font_size_override("font_size", 26)
 	bal_head.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 	ov.add_child(bal_head)
 
 	var bal_val := Label.new()
 	bal_val.text = "$%s" % _format_number(s_bal)
+	bal_val.custom_minimum_size = Vector2(1, 0)
+	bal_val.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bal_val.add_theme_font_size_override("font_size", 46)
 	bal_val.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 	ov.add_child(bal_val)
@@ -17760,11 +17880,15 @@ func _show_savings_account_modal() -> void:
 	var _add_row = func(k: String, v: String, c: Color):
 		var kl := Label.new()
 		kl.text = k
+		kl.custom_minimum_size = Vector2(1, 0)
+		kl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		kl.add_theme_font_size_override("font_size", 25)
 		kl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
 		grid.add_child(kl)
 		var vl := Label.new()
 		vl.text = v
+		vl.custom_minimum_size = Vector2(1, 0)
+		vl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		vl.add_theme_font_size_override("font_size", 25)
 		vl.add_theme_color_override("font_color", c)
 		grid.add_child(vl)
@@ -17792,12 +17916,16 @@ func _show_savings_account_modal() -> void:
 
 	var dep_title := Label.new()
 	dep_title.text = "DEPOSIT FUNDS INTO SAVINGS"
+	dep_title.custom_minimum_size = Vector2(1, 0)
+	dep_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dep_title.add_theme_font_size_override("font_size", 26)
 	dep_title.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#34d399"))
 	dv.add_child(dep_title)
 
 	var avail_lbl := Label.new()
 	avail_lbl.text = "Available Capital (Cash + Bank): $%s" % _format_number(PlayerData.get_available_funds())
+	avail_lbl.custom_minimum_size = Vector2(1, 0)
+	avail_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	avail_lbl.add_theme_font_size_override("font_size", 24)
 	avail_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	dv.add_child(avail_lbl)
@@ -17815,7 +17943,7 @@ func _show_savings_account_modal() -> void:
 			_show_savings_account_modal()
 		, true)
 		d_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		d_btn.custom_minimum_size.y = 56
+		d_btn.custom_minimum_size = Vector2(1, 56)
 		d_btn.add_theme_font_size_override("font_size", 25)
 		d_btn.disabled = PlayerData.get_available_funds() < amt
 		d_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -17831,12 +17959,12 @@ func _show_savings_account_modal() -> void:
 			_show_savings_account_modal()
 	, true)
 	d_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	d_all.custom_minimum_size.y = 56
+	d_all.custom_minimum_size = Vector2(1, 56)
 	d_all.add_theme_font_size_override("font_size", 25)
 	d_all.disabled = PlayerData.money <= 0
 	d_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	d_all.set_meta("center_text", true)
-	dep_btn_row.add_child(d_all)
+	dv.add_child(d_all)
 
 	list.add_child(dep_card)
 
@@ -17856,12 +17984,16 @@ func _show_savings_account_modal() -> void:
 
 	var with_title := Label.new()
 	with_title.text = "WITHDRAW FUNDS TO CASH"
+	with_title.custom_minimum_size = Vector2(1, 0)
+	with_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	with_title.add_theme_font_size_override("font_size", 26)
 	with_title.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 	wv.add_child(with_title)
 
 	var with_sub := Label.new()
 	with_sub.text = "Withdraw funds anytime with 0% penalty. Cash will be immediately added to your wallet."
+	with_sub.custom_minimum_size = Vector2(1, 0)
+	with_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	with_sub.add_theme_font_size_override("font_size", 24)
 	with_sub.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#cbd5e1"))
 	wv.add_child(with_sub)
@@ -17879,7 +18011,7 @@ func _show_savings_account_modal() -> void:
 			_show_savings_account_modal()
 		, true)
 		w_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		w_btn.custom_minimum_size.y = 56
+		w_btn.custom_minimum_size = Vector2(1, 56)
 		w_btn.add_theme_font_size_override("font_size", 25)
 		w_btn.disabled = s_bal < amt
 		w_btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -17894,12 +18026,12 @@ func _show_savings_account_modal() -> void:
 			_show_savings_account_modal()
 	, true)
 	w_all.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	w_all.custom_minimum_size.y = 56
+	w_all.custom_minimum_size = Vector2(1, 56)
 	w_all.add_theme_font_size_override("font_size", 25)
 	w_all.disabled = s_bal <= 0
 	w_all.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	w_all.set_meta("center_text", true)
-	with_btn_row.add_child(w_all)
+	wv.add_child(w_all)
 
 	list.add_child(with_card)
 
@@ -18511,12 +18643,16 @@ func _show_casino_modal() -> void:
 
 	var scratch_title := Label.new()
 	scratch_title.text = "🎟️ LUCKY CYBER SCRATCHCARD ($25)"
+	scratch_title.custom_minimum_size = Vector2(1, 0)
+	scratch_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	scratch_title.add_theme_font_size_override("font_size", 34)
 	scratch_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	v_scratch.add_child(scratch_title)
 
 	casino_scratch_result_lbl = Label.new()
 	casino_scratch_result_lbl.text = "Reveal 3 matching symbols to win up to $500!"
+	casino_scratch_result_lbl.custom_minimum_size = Vector2(1, 0)
+	casino_scratch_result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	casino_scratch_result_lbl.add_theme_font_size_override("font_size", 30)
 	casino_scratch_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_scratch.add_child(casino_scratch_result_lbl)
@@ -18579,6 +18715,8 @@ func _show_casino_modal() -> void:
 
 	var slots_title := Label.new()
 	slots_title.text = "🎰 NEON 3-REEL SLOT MACHINE ($50 / SPIN)"
+	slots_title.custom_minimum_size = Vector2(1, 0)
+	slots_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	slots_title.add_theme_font_size_override("font_size", 34)
 	slots_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	v_slots.add_child(slots_title)
@@ -18592,6 +18730,8 @@ func _show_casino_modal() -> void:
 
 	casino_slots_result_lbl = Label.new()
 	casino_slots_result_lbl.text = "Payouts: 7️⃣7️⃣7️⃣ = $5,000  •  💎💎💎 = $1,200  •  🔔🔔🔔 = $450  •  🍒🍒🍒 = $180"
+	casino_slots_result_lbl.custom_minimum_size = Vector2(1, 0)
+	casino_slots_result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	casino_slots_result_lbl.add_theme_font_size_override("font_size", 28)
 	casino_slots_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_slots.add_child(casino_slots_result_lbl)
@@ -18672,6 +18812,8 @@ func _show_casino_modal() -> void:
 
 	var dice_title := Label.new()
 	dice_title.text = "🎲 HIGH-STAKES CRAPS & DICE ROLL"
+	dice_title.custom_minimum_size = Vector2(1, 0)
+	dice_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dice_title.add_theme_font_size_override("font_size", 34)
 	dice_title.add_theme_color_override("font_color", Color("#fbbf24"))
 	v_dice.add_child(dice_title)
@@ -18685,6 +18827,8 @@ func _show_casino_modal() -> void:
 
 	casino_dice_result_lbl = Label.new()
 	casino_dice_result_lbl.text = "Choose your wager amount and place your prediction:"
+	casino_dice_result_lbl.custom_minimum_size = Vector2(1, 0)
+	casino_dice_result_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	casino_dice_result_lbl.add_theme_font_size_override("font_size", 29)
 	casino_dice_result_lbl.add_theme_color_override("font_color", Color("#94a3b8"))
 	v_dice.add_child(casino_dice_result_lbl)
@@ -18701,9 +18845,9 @@ func _show_casino_modal() -> void:
 		btn_b.set_meta("reference_part", true)
 		btn_b.set_meta("market_button", true)
 		btn_b.set_meta("bet_amount", amt)
-		btn_b.custom_minimum_size.y = 58
+		btn_b.custom_minimum_size = Vector2(1, 58)
 		btn_b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn_b.add_theme_font_size_override("font_size", 30)
+		btn_b.add_theme_font_size_override("font_size", 26)
 		btn_b.pressed.connect(func():
 			_trigger_haptic(20)
 			current_dice_bet_amount = amt

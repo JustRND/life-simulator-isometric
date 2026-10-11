@@ -1349,12 +1349,14 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "← ASSETS"
 
 [node name="BankTitle" type="Label" parent="BankPanel/BankMargin/BankContent/BankHeaderRow" unique_id=1052183605]
+custom_minimum_size = Vector2(1, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.396, 0.902, 1, 1)
 theme_override_font_sizes/font_size = 46
 text = "FIRST NATIONAL PIXEL BANK"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="CloseBankButton" type="Button" parent="BankPanel/BankMargin/BankContent/BankHeaderRow" unique_id=1625863005]
 custom_minimum_size = Vector2(104, 82)

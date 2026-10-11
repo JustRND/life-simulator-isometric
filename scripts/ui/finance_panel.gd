@@ -31,6 +31,7 @@ func label(parent: Node, text: String, size: int = 32, color: Color = Color.TRAN
 	node.set_meta("reference_part", true)
 	node.text = text
 	node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	node.custom_minimum_size = Vector2(1, 0)
 	node.add_theme_font_size_override("font_size", maxi(30, size))
 	var is_light: bool = LifeLibrary.data.theme == "light"
 	if color != Color.TRANSPARENT:
@@ -48,7 +49,7 @@ func create_market_button(parent: Node, text: String, color: Color, action: Call
 	btn.set_meta("market_button", true)
 	btn.text = text
 	btn.disabled = disabled
-	btn.custom_minimum_size.y = min_height
+	btn.custom_minimum_size = Vector2(1, min_height)
 	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	btn.add_theme_font_size_override("font_size", 30)
@@ -335,6 +336,8 @@ func _exchange(list: VBoxContainer) -> void:
 
 		var trend_lbl := Label.new()
 		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
+		trend_lbl.custom_minimum_size = Vector2(1, 0)
+		trend_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		trend_lbl.add_theme_font_size_override("font_size", 29)
 		var text_col: Color
 		if is_crash:
@@ -481,7 +484,7 @@ func _open_trade_modal(c: Dictionary, is_buy: bool) -> void:
 	line_edit.set_meta("reference_part", true)
 	line_edit.text = "10" if is_buy else str(mini(owned_qty, 10))
 	line_edit.placeholder_text = "Type share quantity..."
-	line_edit.custom_minimum_size.y = 82
+	line_edit.custom_minimum_size = Vector2(1, 82)
 	line_edit.add_theme_font_size_override("font_size", 36)
 	line_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	var le_empty := StyleBoxEmpty.new()
