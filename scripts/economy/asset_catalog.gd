@@ -1510,6 +1510,22 @@ static func can_purchase_asset(player_data: Node, item_id: String, payment_metho
 
 	return {"allowed": true, "reason": "Eligible to purchase."}
 
+static func get_monthly_upkeep(asset_or_item: Dictionary) -> int:
+	var cat: String = str(asset_or_item.get("category", ""))
+	var cur_val: int = int(asset_or_item.get("current_value", asset_or_item.get("price", 0)))
+	var raw_upkeep: int = int(asset_or_item.get("upkeep", 0))
+
+	if cat == CATEGORY_PROPERTIES:
+		# Properties: 2% annual maintenance divided into 12 monthly payments
+		return maxi(42, int(round((float(cur_val) * 0.02) / 12.0)))
+
+	if raw_upkeep <= 0:
+		return 0
+
+	# Standard assets: monthly upkeep is 1/12th annual upkeep
+	return maxi(1, int(round(float(raw_upkeep) / 12.0)))
+
+
 static func create_asset_instance(item_id: String, purchase_age: int = 0) -> Dictionary:
 	var actual_id := "prop_capsule" if item_id == "prop_starter_home" else item_id
 	if not ITEMS.has(actual_id):
@@ -1520,6 +1536,7 @@ static func create_asset_instance(item_id: String, purchase_age: int = 0) -> Dic
 	var inst_upkeep: int = int(item.get("upkeep", 0))
 	if str(item.get("category", "")) == CATEGORY_PROPERTIES:
 		inst_upkeep = maxi(500, int(round(float(price) * 0.02)))
+	var m_upkeep: int = get_monthly_upkeep(item)
 	return {
 		"instance_id": instance_id,
 		"item_id": actual_id,
@@ -1531,6 +1548,7 @@ static func create_asset_instance(item_id: String, purchase_age: int = 0) -> Dic
 		"condition": 100,
 		"image_path": str(item.get("image_path", "")),
 		"upkeep": inst_upkeep,
+		"monthly_upkeep": m_upkeep,
 		"happiness_bonus": int(item.get("happiness_bonus", 5)),
 		"last_used_age": -1,
 		"purchased_with_credit": false
@@ -1709,14 +1727,8 @@ static func process_monthly_assets(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []
 	for asset in player_data.owned_assets:
 		var cat: String = str(asset.get("category", ""))
-		var cur_val: int = int(asset.get("current_value", 0))
-		var upkeep: int = int(asset.get("upkeep", 0))
-
-		if cat == CATEGORY_PROPERTIES:
-			upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
-			asset["upkeep"] = upkeep
-
-		var monthly_upkeep: int = maxi(1, int(round(float(upkeep) / 12.0))) if upkeep > 0 else 0
+		var monthly_upkeep: int = get_monthly_upkeep(asset)
+		asset["monthly_upkeep"] = monthly_upkeep
 
 		if monthly_upkeep > 0:
 			if player_data.age < 18:

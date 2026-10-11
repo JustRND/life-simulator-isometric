@@ -396,6 +396,7 @@ static func adopt_pet(
 		"health": int(pet_spec.get("health", 90)),
 		"happiness": int(pet_spec.get("happiness", 85)),
 		"upkeep": int(pet_spec.get("upkeep", 150)),
+		"monthly_upkeep": get_monthly_pet_upkeep(pet_spec),
 		"lifespan": int(pet_spec.get("lifespan", 15)),
 		"adopted_age": player_data.age,
 		"last_interact_age": -1,
@@ -503,6 +504,33 @@ static func interact_pet(player_data: Node, pet_id: String, action: String) -> D
 	return {"success": false, "message": "Pet not found."}
 
 
+static func get_monthly_pet_upkeep(pet: Dictionary) -> int:
+	var raw_upkeep: int = int(pet.get("upkeep", 150))
+	return maxi(5, int(round(float(raw_upkeep) / 12.0)))
+
+
+static func process_monthly_pets(player_data: Node) -> Array[String]:
+	var logs: Array[String] = []
+	if not player_data.get("pets") is Array:
+		return logs
+
+	for pet in player_data.pets:
+		var pet_name: String = str(pet.get("name", "Pet"))
+		var m_upkeep: int = get_monthly_pet_upkeep(pet)
+		pet["monthly_upkeep"] = m_upkeep
+
+		if m_upkeep > 0:
+			if player_data.bank_savings >= m_upkeep:
+				player_data.bank_savings -= m_upkeep
+			elif player_data.get_available_funds() >= m_upkeep:
+				player_data.debit_funds(m_upkeep)
+			else:
+				pet["happiness"] = maxi(10, int(pet.get("happiness", 70)) - 5)
+				pet["health"] = maxi(10, int(pet.get("health", 70)) - 4)
+				logs.append("⚠️ Pet Care: Lacked $%d monthly food & care funds for %s." % [m_upkeep, pet_name])
+	return logs
+
+
 static func process_yearly_pets(player_data: Node) -> Array[String]:
 	var logs: Array[String] = []
 	if not player_data.get("pets") is Array:
@@ -514,18 +542,6 @@ static func process_yearly_pets(player_data: Node) -> Array[String]:
 		var pet_age: int = pet["age"]
 		var pet_name: String = str(pet.get("name", "Pet"))
 		var lifespan: int = int(pet.get("lifespan", 15))
-		var upkeep: int = int(pet.get("upkeep", 150))
-
-		# Upkeep
-		if upkeep > 0:
-			if player_data.bank_savings >= upkeep:
-				player_data.bank_savings -= upkeep
-			elif player_data.get_available_funds() >= upkeep:
-				player_data.debit_funds(upkeep)
-			else:
-				pet["happiness"] = maxi(10, int(pet.get("happiness", 70)) - 15)
-				pet["health"] = maxi(10, int(pet.get("health", 70)) - 10)
-				logs.append("⚠️ Pet Care: You were low on funds to provide full premium care for %s ($%d upkeep)." % [pet_name, upkeep])
 
 		# Elderly mortality check
 		if pet_age >= lifespan:

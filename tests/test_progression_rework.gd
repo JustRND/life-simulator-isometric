@@ -96,13 +96,36 @@ func test_monthly_financial_systems() -> void:
 	var mtg_logs := MortgageManager.process_monthly_mortgages(PlayerData)
 	assert_true(not mtg_logs.is_empty(), "Monthly mortgage installment processed successfully")
 
-	# 3. Monthly Asset Upkeep
+	# 3. Monthly Asset Upkeep & Property Maintenance
 	var car := AssetCatalog.create_asset_instance("car_sedan", 25)
 	PlayerData.owned_assets.append(car)
-	var asset_logs := AssetCatalog.process_monthly_assets(PlayerData)
-	assert_true(PlayerData.owned_assets.size() >= 1, "Owned assets preserved during monthly upkeep")
+	var m_car_upkeep: int = AssetCatalog.get_monthly_upkeep(car)
+	assert_true(m_car_upkeep == maxi(1, int(round(1900.0 / 12.0))), "Car monthly upkeep is 1/12th annual ($%d/mo)" % m_car_upkeep)
 
-	# 4. Monthly Neural Specialist Maintenance
+	var house := AssetCatalog.create_asset_instance("prop_townhouse", 25)
+	PlayerData.owned_assets.append(house)
+	var m_house_maint: int = AssetCatalog.get_monthly_upkeep(house)
+	assert_true(m_house_maint > 0, "House monthly maintenance is positive ($%d/mo)" % m_house_maint)
+
+	var asset_logs := AssetCatalog.process_monthly_assets(PlayerData)
+	assert_true(PlayerData.owned_assets.size() >= 2, "Owned assets preserved during monthly upkeep")
+
+	# 4. Monthly Pet Care & Food Upkeep
+	var puppy_spec: Dictionary = {
+		"type": "dog",
+		"breed": "Cyber Corgi",
+		"price": 1200,
+		"upkeep": 240
+	}
+	var pet_res := PetManager.adopt_pet(PlayerData, puppy_spec, "Pixel", true)
+	assert_true(pet_res.get("success", false), "Adopted pet for monthly care testing")
+	var corgi: Dictionary = PlayerData.pets[0]
+	var m_pet_upkeep: int = PetManager.get_monthly_pet_upkeep(corgi)
+	assert_true(m_pet_upkeep == maxi(5, int(round(240.0 / 12.0))), "Pet monthly upkeep is 1/12th annual ($%d/mo)" % m_pet_upkeep)
+	var pet_logs := PetManager.process_monthly_pets(PlayerData)
+	assert_true(PlayerData.pets.size() >= 1, "Pet maintained successfully through monthly care cycle")
+
+	# 5. Monthly Neural Specialist Maintenance
 	PlayerData.money = 5000000
 	var install_res := PlayerData.install_neural_implant("cortex_neurolink_mk1")
 	assert_true(install_res.get("success", false), "Installed neural implant")

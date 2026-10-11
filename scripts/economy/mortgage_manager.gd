@@ -29,12 +29,23 @@ const MORTGAGE_TERMS := [
 ]
 
 
+static func get_monthly_maintenance(price: int) -> int:
+	return maxi(42, int(round((float(price) * PROPERTY_MAINTENANCE_RATE) / 12.0)))
+
+
 static func calculate_mortgage_plan(price: int, term_years: int, apr: float, down_payment_rate: float = DOWN_PAYMENT_RATE) -> Dictionary:
 	var down_payment: int = int(round(float(price) * down_payment_rate))
 	var principal: int = maxi(0, price - down_payment)
 	var annual_principal: int = maxi(1, int(round(float(principal) / float(maxi(1, term_years)))))
 	var annual_interest: int = int(round(float(principal) * apr))
 	var annual_total: int = annual_principal + annual_interest
+
+	# Monthly calculations for new progression system
+	var total_months: int = maxi(1, term_years * 12)
+	var monthly_principal: int = maxi(1, int(round(float(principal) / float(total_months))))
+	var monthly_interest: int = int(round((float(principal) * apr) / 12.0))
+	var monthly_payment: int = monthly_principal + monthly_interest
+	var monthly_maint: int = get_monthly_maintenance(price)
 
 	# Calculate total interest paid over the duration
 	var total_interest: int = 0
@@ -49,6 +60,7 @@ static func calculate_mortgage_plan(price: int, term_years: int, apr: float, dow
 
 	return {
 		"term_years": term_years,
+		"term_months": total_months,
 		"apr": apr,
 		"apr_pct": apr * 100.0,
 		"price": price,
@@ -57,6 +69,10 @@ static func calculate_mortgage_plan(price: int, term_years: int, apr: float, dow
 		"annual_principal": annual_principal,
 		"annual_interest": annual_interest,
 		"annual_payment": annual_total,
+		"monthly_principal": monthly_principal,
+		"monthly_interest": monthly_interest,
+		"monthly_payment": monthly_payment,
+		"monthly_maintenance": monthly_maint,
 		"total_interest": total_interest,
 		"total_cost": down_payment + principal + total_interest
 	}

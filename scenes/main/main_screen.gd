@@ -834,7 +834,12 @@ func _advance_in_game_month() -> void:
 	for n_msg in neural_logs:
 		add_life_event(n_msg, "health")
 
-	# 7. Monthly Asset Insurance
+	# 7. Monthly Pet Care & Food Upkeep
+	var pet_logs := PetManager.process_monthly_pets(PlayerData)
+	for p_msg in pet_logs:
+		add_life_event(p_msg, "relationship")
+
+	# 8. Monthly Asset Insurance
 	var ins_logs := AssetInsuranceManager.process_monthly_insurance(PlayerData)
 	for ins_msg in ins_logs:
 		add_life_event(ins_msg, "finance")
@@ -3087,16 +3092,15 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 			iv.add_child(name_lbl)
 
 			var cur_val: int = int(item.get("current_value", item.get("purchase_price", 0)))
-			var upkeep: int = int(item.get("upkeep", 0))
+			var monthly_upkeep: int = AssetCatalog.get_monthly_upkeep(item)
 			var item_cat: String = str(item.get("category", ""))
 			var val_lbl := Label.new()
 			if item_cat == AssetCatalog.CATEGORY_PROPERTIES:
-				upkeep = maxi(500, int(round(float(cur_val) * 0.02)))
-				val_lbl.text = "Resale Value: $%s (Depreciated)   •   Maintenance: $%s/yr (2%% of value)" % [
-					_format_number(cur_val), _format_number(upkeep)
+				val_lbl.text = "Resale Value: $%s (Depreciated)   •   Maintenance: $%s/mo" % [
+					_format_number(cur_val), _format_number(monthly_upkeep)
 				]
 			else:
-				val_lbl.text = "Resale Value: $%s   •   Upkeep: $%s/yr" % [_format_number(cur_val), _format_number(upkeep)]
+				val_lbl.text = "Resale Value: $%s   •   Upkeep: $%s/mo" % [_format_number(cur_val), _format_number(monthly_upkeep)]
 			val_lbl.add_theme_font_size_override("font_size", 26)
 			val_lbl.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 			val_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -3124,13 +3128,14 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 				mm.add_child(mv)
 
 				var rem_p: int = int(m_dict.get("remaining_principal", 0))
-				var y_left: int = int(m_dict.get("years_left", 0))
+				var m_left: int = int(m_dict.get("months_left", int(m_dict.get("years_left", 0)) * 12))
 				var apr_pct: float = float(m_dict.get("interest_rate", 0.05)) * 100.0
 				var ann_prin: int = int(m_dict.get("annual_principal", 0))
 				var ann_int: int = int(m_dict.get("annual_interest", 0))
+				var m_pay: int = int(m_dict.get("monthly_payment", maxi(1, int(round(float(ann_prin + ann_int) / 12.0)))))
 				var m_info := Label.new()
-				m_info.text = "🏦 Active Mortgage: $%s balance remaining (%d years left)\n• Annual Expense: $%s/yr ($%s principal + $%s interest at %.1f%% APR)" % [
-					_format_number(rem_p), y_left, _format_number(ann_prin + ann_int), _format_number(ann_prin), _format_number(ann_int), apr_pct
+				m_info.text = "🏦 Active Mortgage: $%s balance remaining (%d months left)\n• Monthly Payment: $%s/mo at %.1f%% APR" % [
+					_format_number(rem_p), m_left, _format_number(m_pay), apr_pct
 				]
 				m_info.add_theme_font_size_override("font_size", 24)
 				m_info.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
@@ -3311,7 +3316,7 @@ func _render_owned_pets_section() -> void:
 			var p_name: String = str(pet.get("name", "Companion"))
 			var p_breed: String = str(pet.get("breed", pet.get("species", "Animal")))
 			var p_age: int = int(pet.get("age", 1))
-			var p_upkeep: int = int(pet.get("upkeep", 100))
+			var p_upkeep: int = PetManager.get_monthly_pet_upkeep(pet)
 			var p_health: int = int(pet.get("health", 100))
 			var p_hap: int = int(pet.get("happiness", 100))
 
@@ -3363,7 +3368,7 @@ func _render_owned_pets_section() -> void:
 			pv.add_child(header_lbl)
 
 			var stats_lbl := Label.new()
-			stats_lbl.text = "❤️ Health: %d%%   •   😊 Happiness: %d%%   •   🥩 Upkeep: $%s/yr" % [
+			stats_lbl.text = "❤️ Health: %d%%   •   😊 Happiness: %d%%   •   🥩 Upkeep: $%s/mo" % [
 				p_health,
 				p_hap,
 				_format_number(p_upkeep)
@@ -3687,7 +3692,10 @@ func _open_asset_marketplace_modal(category: String) -> void:
 		cv.add_child(row_upkeep_perk)
 
 		var upkeep_lbl := Label.new()
-		upkeep_lbl.text = "Annual Upkeep: $%s/yr" % _format_number(upkeep)
+		if category == AssetCatalog.CATEGORY_PROPERTIES:
+			upkeep_lbl.text = "Monthly Maint: $%s/mo" % _format_number(AssetCatalog.get_monthly_upkeep(item))
+		else:
+			upkeep_lbl.text = "Monthly Upkeep: $%s/mo" % _format_number(AssetCatalog.get_monthly_upkeep(item))
 		upkeep_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		upkeep_lbl.add_theme_font_size_override("font_size", 30)
 		upkeep_lbl.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
@@ -4012,7 +4020,7 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	var price: int = int(property_item.get("price", 0))
 	var down_payment: int = int(round(float(price) * MortgageManager.DOWN_PAYMENT_RATE))
 	var principal: int = price - down_payment
-	var maintenance_cost: int = maxi(500, int(round(float(price) * MortgageManager.PROPERTY_MAINTENANCE_RATE)))
+	var monthly_maintenance: int = MortgageManager.get_monthly_maintenance(price)
 	var total_avail: int = PlayerData.money + PlayerData.bank_savings
 
 	var p_card := PanelContainer.new()
@@ -4037,11 +4045,11 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 	pv.add_child(p_title)
 
 	var p_desc := Label.new()
-	p_desc.text = "• Property Purchase Price: $%s\n• Required Down Payment (10%%): $%s\n• Mortgage Principal Financed (90%%): $%s\n• Annual Maintenance Cost: $%s/yr (2%% of house value)\n• Your Available Funds: $%s (Cash $%s + Bank $%s) • Credit Score: %d (%s)" % [
+	p_desc.text = "• Property Purchase Price: $%s\n• Required Down Payment (10%%): $%s\n• Mortgage Principal Financed (90%%): $%s\n• Monthly Maintenance: $%s/mo (2%% annual / 12)\n• Your Available Funds: $%s (Cash $%s + Bank $%s) • Credit Score: %d (%s)" % [
 		_format_number(price),
 		_format_number(down_payment),
 		_format_number(principal),
-		_format_number(maintenance_cost),
+		_format_number(monthly_maintenance),
 		_format_number(total_avail),
 		_format_number(PlayerData.money),
 		_format_number(PlayerData.bank_savings),
@@ -4089,18 +4097,29 @@ func _open_mortgage_panel(property_item: Dictionary, previous_overlay: Control =
 		o_name.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
 		o_header.add_child(o_name)
 
+		var m_pay: int = int(plan.get("monthly_payment", 0))
+		if m_pay <= 0:
+			m_pay = maxi(1, int(round(float(plan.get("annual_payment", 0)) / 12.0)))
+		var m_prin: int = int(plan.get("monthly_principal", 0))
+		if m_prin <= 0:
+			m_prin = maxi(1, int(round(float(plan.get("annual_principal", 0)) / 12.0)))
+		var m_int: int = int(plan.get("monthly_interest", 0))
+		if m_int <= 0:
+			m_int = maxi(0, int(round(float(plan.get("annual_interest", 0)) / 12.0)))
+
 		var o_ann_total := Label.new()
-		o_ann_total.text = "$%s/yr" % _format_number(int(plan.get("annual_payment", 0)))
+		o_ann_total.text = "$%s/mo" % _format_number(m_pay)
 		o_ann_total.custom_minimum_size = Vector2(1, 0)
 		o_ann_total.add_theme_font_size_override("font_size", 32)
 		o_ann_total.add_theme_color_override("font_color", Color("#15803d") if is_light else Color("#4ade80"))
 		o_header.add_child(o_ann_total)
 
 		var o_breakdown := Label.new()
-		o_breakdown.text = "• Annual Principal Expense: $%s/year\n• Annual Interest Expense (Year 1): $%s/year\n• Counter: %d Years Left (%d Annual Payments)\n• Total Interest Over %d Years: $%s   •   Total Financed Cost: $%s" % [
-			_format_number(int(plan.get("annual_principal", 0))),
-			_format_number(int(plan.get("annual_interest", 0))),
-			term_years,
+		o_breakdown.text = "• Monthly Mortgage Payment: $%s/month\n• Monthly Principal: $%s/mo • Monthly Interest: $%s/mo\n• Counter: %d Months Left (%d Years)\n• Total Interest Over %d Years: $%s   •   Total Financed Cost: $%s" % [
+			_format_number(m_pay),
+			_format_number(m_prin),
+			_format_number(m_int),
+			term_years * 12,
 			term_years,
 			term_years,
 			_format_number(int(plan.get("total_interest", 0))),
@@ -4346,7 +4365,7 @@ func update_bank_panel() -> void:
 	var veh_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 	var veh_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE).size()
 	var veh_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
-	var veh_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+	var veh_premium: int = AssetInsuranceManager.get_monthly_premium(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 
 	var veh_hdr := Label.new()
 	veh_hdr.text = "🚗 VEHICLE INSURANCE (Cars, Bikes, Motorcycles, Aircraft & Yachts)"
@@ -4356,7 +4375,7 @@ func update_bank_panel() -> void:
 
 	var veh_info := Label.new()
 	var veh_status_text := "✅ ACTIVE POLICY (100% Protected against collisions, carjackings & disasters)" if veh_has_ins else "⚠️ UNINSURED (Vehicles will be permanently destroyed during accidents/disasters!)"
-	veh_info.text = "• Status: %s\n• Registered Fleet: %d vehicles (Combined Value: $%s)\n• Annual Premium: $%s / year ($2,500 base + 4.5%% portfolio value)" % [
+	veh_info.text = "• Status: %s\n• Registered Fleet: %d vehicles (Combined Value: $%s)\n• Monthly Premium: $%s / month" % [
 		veh_status_text,
 		veh_count,
 		_format_number(veh_val),
@@ -4377,7 +4396,7 @@ func update_bank_panel() -> void:
 		btn_cancel_veh.tooltip_text = "Cancel vehicle insurance policy. Your vehicles will no longer be protected."
 		veh_btn_row.add_child(btn_cancel_veh)
 	else:
-		var btn_buy_veh := _create_cyber_button("Buy Vehicle Insurance ($%s/yr)" % _format_number(veh_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE), true)
+		var btn_buy_veh := _create_cyber_button("Buy Vehicle Insurance ($%s/mo)" % _format_number(veh_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE), true)
 		btn_buy_veh.name = "BuyVehicleInsuranceButton"
 		btn_buy_veh.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 		btn_buy_veh.tooltip_text = "Insufficient funds to purchase vehicle insurance." if btn_buy_veh.disabled else "Activate vehicle insurance protection."
@@ -4395,7 +4414,7 @@ func update_bank_panel() -> void:
 	var prop_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 	var prop_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY).size()
 	var prop_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
-	var prop_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+	var prop_premium: int = AssetInsuranceManager.get_monthly_premium(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 
 	var prop_hdr := Label.new()
 	prop_hdr.text = "🏠 PROPERTY INSURANCE (Real Estate, Homes, Apartments & Mansions)"
@@ -4405,7 +4424,7 @@ func update_bank_panel() -> void:
 
 	var prop_info := Label.new()
 	var prop_status_text := "✅ ACTIVE POLICY (100% Protected against earthquakes, wildfires & disasters)" if prop_has_ins else "⚠️ UNINSURED (Real estate will be permanently destroyed during disasters!)"
-	prop_info.text = "• Status: %s\n• Deeded Holdings: %d properties (Combined Value: $%s)\n• Annual Premium: $%s / year ($6,000 base + 3.0%% portfolio value)" % [
+	prop_info.text = "• Status: %s\n• Deeded Holdings: %d properties (Combined Value: $%s)\n• Monthly Premium: $%s / month" % [
 		prop_status_text,
 		prop_count,
 		_format_number(prop_val),
@@ -4426,7 +4445,7 @@ func update_bank_panel() -> void:
 		btn_cancel_prop.tooltip_text = "Cancel property insurance policy. Your real estate will no longer be protected."
 		prop_btn_row.add_child(btn_cancel_prop)
 	else:
-		var btn_buy_prop := _create_cyber_button("Buy Property Insurance ($%s/yr)" % _format_number(prop_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY), true)
+		var btn_buy_prop := _create_cyber_button("Buy Property Insurance ($%s/mo)" % _format_number(prop_premium), Color("#10b981"), func(): _buy_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY), true)
 		btn_buy_prop.name = "BuyPropertyInsuranceButton"
 		btn_buy_prop.disabled = not AssetInsuranceManager.can_afford_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 		btn_buy_prop.tooltip_text = "Insufficient funds to purchase property insurance." if btn_buy_prop.disabled else "Activate property insurance protection."
@@ -4767,7 +4786,7 @@ func _show_insurance_modal() -> void:
 	var modal := _create_cyber_modal("🛡️ ASSET INSURANCE UNDERWRITING", "First National Pixel Bank • Comprehensive Asset Protection", Color("#059669"))
 
 	var intro := Label.new()
-	intro.text = "Protect your titled vehicles and deeded real estate against catastrophic earthquakes, wildfires, vehicle collisions, and disasters. Insurance guarantees full claim restoration. Premiums are expensive and charged annually upon aging."
+	intro.text = "Protect your titled vehicles and deeded real estate against catastrophic earthquakes, wildfires, vehicle collisions, and disasters. Insurance guarantees full claim restoration. Premiums are debited monthly in your financial cycle."
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.add_theme_font_size_override("font_size", 30)
 	intro.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#e2e8f0"))
@@ -4777,7 +4796,7 @@ func _show_insurance_modal() -> void:
 	var veh_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 	var veh_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE).size()
 	var veh_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
-	var veh_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
+	var veh_premium: int = AssetInsuranceManager.get_monthly_premium(PlayerData, AssetInsuranceManager.CATEGORY_VEHICLE)
 
 	var veh_title := Label.new()
 	veh_title.text = "\n🚗 VEHICLE INSURANCE"
@@ -4787,7 +4806,7 @@ func _show_insurance_modal() -> void:
 
 	var veh_lbl := Label.new()
 	var veh_stat := "✅ ACTIVE POLICY (Protected)" if veh_has_ins else "⚠️ UNINSURED (High Risk!)"
-	veh_lbl.text = "• Status: %s\n• Registered Fleet: %d vehicles ($%s value)\n• Premium: $%s / year ($2,500 base + 4.5%% valuation)" % [
+	veh_lbl.text = "• Status: %s\n• Registered Fleet: %d vehicles ($%s value)\n• Monthly Premium: $%s / month" % [
 		veh_stat, veh_count, _format_number(veh_val), _format_number(veh_premium)
 	]
 	veh_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -4803,7 +4822,7 @@ func _show_insurance_modal() -> void:
 		btn_c_veh.name = "ModalCancelVehicleInsuranceButton"
 		modal.list.add_child(btn_c_veh)
 	else:
-		var btn_b_veh := _create_cyber_button("Buy Vehicle Insurance ($%s/yr)" % _format_number(veh_premium), Color("#10b981"), func():
+		var btn_b_veh := _create_cyber_button("Buy Vehicle Insurance ($%s/mo)" % _format_number(veh_premium), Color("#10b981"), func():
 			modal.overlay.queue_free()
 			_buy_asset_insurance(AssetInsuranceManager.CATEGORY_VEHICLE)
 		, true)
@@ -4815,7 +4834,7 @@ func _show_insurance_modal() -> void:
 	var prop_has_ins: bool = AssetInsuranceManager.has_insurance(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 	var prop_count: int = AssetInsuranceManager.get_category_assets(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY).size()
 	var prop_val: int = AssetInsuranceManager.get_category_valuation(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
-	var prop_premium: int = AssetInsuranceManager.get_annual_premium(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
+	var prop_premium: int = AssetInsuranceManager.get_monthly_premium(PlayerData, AssetInsuranceManager.CATEGORY_PROPERTY)
 
 	var prop_title := Label.new()
 	prop_title.text = "\n🏠 PROPERTY INSURANCE"
@@ -4825,7 +4844,7 @@ func _show_insurance_modal() -> void:
 
 	var prop_lbl := Label.new()
 	var prop_stat := "✅ ACTIVE POLICY (Protected)" if prop_has_ins else "⚠️ UNINSURED (High Risk!)"
-	prop_lbl.text = "• Status: %s\n• Deeded Holdings: %d properties ($%s value)\n• Premium: $%s / year ($6,000 base + 3.0%% valuation)" % [
+	prop_lbl.text = "• Status: %s\n• Deeded Holdings: %d properties ($%s value)\n• Monthly Premium: $%s / month" % [
 		prop_stat, prop_count, _format_number(prop_val), _format_number(prop_premium)
 	]
 	prop_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -4841,7 +4860,7 @@ func _show_insurance_modal() -> void:
 		btn_c_prop.name = "ModalCancelPropertyInsuranceButton"
 		modal.list.add_child(btn_c_prop)
 	else:
-		var btn_b_prop := _create_cyber_button("Buy Property Insurance ($%s/yr)" % _format_number(prop_premium), Color("#10b981"), func():
+		var btn_b_prop := _create_cyber_button("Buy Property Insurance ($%s/mo)" % _format_number(prop_premium), Color("#10b981"), func():
 			modal.overlay.queue_free()
 			_buy_asset_insurance(AssetInsuranceManager.CATEGORY_PROPERTY)
 		, true)
@@ -8543,7 +8562,7 @@ func _show_rent_house_modal() -> void:
 		header_h.add_child(r_price)
 
 		var ann_lbl := Label.new()
-		ann_lbl.text = "Annual Rent: $%s/yr   •   +%d Happiness Living Perk" % [_format_number(a_rent), h_bonus]
+		ann_lbl.text = "Monthly Rent: $%s/mo   •   +%d Happiness Living Perk" % [_format_number(m_rent), h_bonus]
 		ann_lbl.add_theme_font_size_override("font_size", 26)
 		ann_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
 		rv.add_child(ann_lbl)
@@ -8557,7 +8576,7 @@ func _show_rent_house_modal() -> void:
 
 		var is_current: bool = RentalManager.has_active_lease(PlayerData) and str(PlayerData.rented_property.get("id", "")) == r_id
 		var can_rent_check := RentalManager.can_rent(PlayerData, r_id)
-		var btn_lease := _create_cyber_button("🔑 Sign 1-Year Lease ($%s/yr)" % _format_number(a_rent), border_color, func():
+		var btn_lease := _create_cyber_button("🔑 Sign Lease ($%s/mo)" % _format_number(m_rent), border_color, func():
 			var lease_res = RentalManager.sign_lease(PlayerData, r_id)
 			if bool(lease_res.get("success", false)):
 				add_life_event(str(lease_res.get("message", "")), "lifestyle")
@@ -15841,10 +15860,11 @@ func _show_pet_shelter_modal(shelter_type: String) -> void:
 			img_frame.add_child(p_img)
 
 		var stats_lbl := Label.new()
-		stats_lbl.text = "❤️ Health: %d%%   •   😊 Happiness: %d%%   •   🥩 Upkeep: $%d/yr   •   Fee: FREE" % [
+		var m_upkeep: int = PetManager.get_monthly_pet_upkeep(a)
+		stats_lbl.text = "❤️ Health: %d%%   •   😊 Happiness: %d%%   •   🥩 Upkeep: $%s/mo   •   Fee: FREE" % [
 			a["health"],
 			a["happiness"],
-			a["upkeep"]
+			_format_number(m_upkeep)
 		]
 		stats_lbl.custom_minimum_size = Vector2(1, 0)
 		stats_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -15983,11 +16003,11 @@ func _show_pet_breeder_modal(breeder_type: String) -> void:
 			img_frame.add_child(p_img)
 
 		var price: int = int(a["price"])
-		var upkeep: int = int(a["upkeep"])
+		var m_upkeep: int = PetManager.get_monthly_pet_upkeep(a)
 		var stats_lbl := Label.new()
-		stats_lbl.text = "💰 Price: $%s   •   🥩 Upkeep: $%s/yr   •   ❤️ Health: %d%%" % [
+		stats_lbl.text = "💰 Price: $%s   •   🥩 Upkeep: $%s/mo   •   ❤️ Health: %d%%" % [
 			_format_number(price),
-			_format_number(upkeep),
+			_format_number(m_upkeep),
 			a["health"]
 		]
 		stats_lbl.custom_minimum_size = Vector2(1, 0)
@@ -16101,11 +16121,11 @@ func _show_pet_store_modal() -> void:
 		cv.add_child(head_lbl)
 
 		var price: int = int(a["price"])
-		var upkeep: int = int(a["upkeep"])
+		var m_upkeep: int = PetManager.get_monthly_pet_upkeep(a)
 		var stats_lbl := Label.new()
-		stats_lbl.text = "💰 Price: $%s   •   🥩 Upkeep: $%s/yr   •   ⏳ Lifespan: ~%d yrs" % [
+		stats_lbl.text = "💰 Price: $%s   •   🥩 Upkeep: $%s/mo   •   ⏳ Lifespan: ~%d yrs" % [
 			_format_number(price),
-			_format_number(upkeep),
+			_format_number(m_upkeep),
 			a["lifespan"]
 		]
 		stats_lbl.custom_minimum_size = Vector2(1, 0)
@@ -16219,11 +16239,11 @@ func _show_pet_ranch_modal() -> void:
 		cv.add_child(head_lbl)
 
 		var price: int = int(h["price"])
-		var upkeep: int = int(h["upkeep"])
+		var m_upkeep: int = PetManager.get_monthly_pet_upkeep(h)
 		var stats_lbl := Label.new()
-		stats_lbl.text = "💰 Price: $%s   •   🥩 Upkeep: $%s/yr   •   ❤️ Health: %d%%" % [
+		stats_lbl.text = "💰 Price: $%s   •   🥩 Upkeep: $%s/mo   •   ❤️ Health: %d%%" % [
 			_format_number(price),
-			_format_number(upkeep),
+			_format_number(m_upkeep),
 			h["health"]
 		]
 		stats_lbl.custom_minimum_size = Vector2(1, 0)
@@ -18864,7 +18884,7 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 	pv.add_child(funds_lbl)
 
 	var sockets_count: int = PlayerData.neural_implants.size()
-	var total_maint: int = PlayerData.get_total_neural_maintenance()
+	var total_maint: int = PlayerData.get_monthly_neural_maintenance()
 	var has_offline: bool = false
 	for imp in PlayerData.neural_implants:
 		if imp is Dictionary and not bool(imp.get("is_active", true)):
@@ -18874,13 +18894,13 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 	var status_text := ""
 	var status_col: Color
 	if sockets_count == 0:
-		status_text = "🔌 Neural Sockets: 0 / 5 Installed • System Idle\nAnnual Maintenance: $0/year"
+		status_text = "🔌 Neural Sockets: 0 / 5 Installed • System Idle\nMonthly Maintenance: $0/mo"
 		status_col = Color("#475569") if is_light else Color("#94a3b8")
 	elif has_offline:
-		status_text = "⚠️ ATTENTION: Neural Sync Error! One or more implants are OFFLINE due to unpaid maintenance!\nSockets: %d / 5 Active • Annual Upkeep: $%s/year" % [sockets_count, _format_number(total_maint)]
+		status_text = "⚠️ ATTENTION: Neural Sync Error! One or more implants are OFFLINE due to unpaid maintenance!\nSockets: %d / 5 Active • Monthly Upkeep: $%s/mo" % [sockets_count, _format_number(total_maint)]
 		status_col = Color("#dc2626") if is_light else Color("#f87171")
 	else:
-		status_text = "🟢 SYNCHRONIZED: All neural implants are fully active & online.\nSockets: %d / 5 Occupied • Annual Upkeep: $%s/year" % [sockets_count, _format_number(total_maint)]
+		status_text = "🟢 SYNCHRONIZED: All neural implants are fully active & online.\nSockets: %d / 5 Occupied • Monthly Upkeep: $%s/mo" % [sockets_count, _format_number(total_maint)]
 		status_col = Color("#059669") if is_light else Color("#10b981")
 
 	var status_lbl := Label.new()
@@ -18899,7 +18919,7 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 		var overdue_cost := 0
 		for imp in PlayerData.neural_implants:
 			if imp is Dictionary and not bool(imp.get("is_active", true)):
-				overdue_cost += int(imp.get("annual_maintenance", 0))
+				overdue_cost += maxi(1, int(round(float(imp.get("annual_maintenance", 0)) / 12.0)))
 
 		var btn_service := _create_cyber_button("🛠️ Service & Reactivate Offline Implants • $%s" % _format_number(overdue_cost), Color("#ef4444"), func():
 			var s_res := PlayerData.service_all_neural_implants()
@@ -19007,6 +19027,7 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 			var is_active: bool = bool(imp.get("is_active", true))
 			var purchase_price: int = int(imp.get("purchase_price", 0))
 			var annual_maint: int = int(imp.get("annual_maintenance", 0))
+			var monthly_maint: int = maxi(1, int(round(float(annual_maint) / 12.0)))
 			var salvage_val: int = int(purchase_price * 0.25)
 
 			var imp_box := VBoxContainer.new()
@@ -19025,10 +19046,10 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 
 			var info_lbl := Label.new()
 			var act_status_str := "🟢 ACTIVE & SYNCED" if is_active else "⚠️ OFFLINE (Unpaid Upkeep)"
-			info_lbl.text = "Socket: %s  •  Status: %s\nAnnual Upkeep: $%s/yr  •  Salvage Value: $%s" % [
+			info_lbl.text = "Socket: %s  •  Status: %s\nMonthly Upkeep: $%s/mo  •  Salvage Value: $%s" % [
 				slot_name,
 				act_status_str,
-				_format_number(annual_maint),
+				_format_number(monthly_maint),
 				_format_number(salvage_val)
 			]
 			info_lbl.custom_minimum_size = Vector2(1, 0)
@@ -19142,11 +19163,12 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 		title_row.add_theme_color_override("font_color", cat_color.darkened(0.2) if is_light else cat_color.lightened(0.2))
 		mv.add_child(title_row)
 
-		# Pricing & Annual Upkeep Row
+		# Pricing & Monthly Upkeep Row
+		var monthly_mod_maint: int = maxi(1, int(round(float(mod_maint) / 12.0)))
 		var price_lbl := Label.new()
-		price_lbl.text = "💵 Price: $%s   •   🔧 Annual Maintenance: $%s/year" % [
+		price_lbl.text = "💵 Price: $%s   •   🔧 Monthly Maintenance: $%s/mo" % [
 			_format_number(mod_price),
-			_format_number(mod_maint)
+			_format_number(monthly_mod_maint)
 		]
 		price_lbl.custom_minimum_size = Vector2(1, 0)
 		price_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -19193,12 +19215,12 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 				], cat_color, func():
 					var ins_res := PlayerData.install_neural_implant(mod_id)
 					if ins_res.get("success", false):
-						add_life_event("🧠 NEURAL UPGRADE: Surgically replaced %s with %s ($%s)! Salvaged old unit for +$%s credit. Annual maintenance: $%s/year." % [
+						add_life_event("🧠 NEURAL UPGRADE: Surgically replaced %s with %s ($%s)! Salvaged old unit for +$%s credit. Monthly maintenance: $%s/mo." % [
 							str(ins_res.get("replaced_name", old_name)),
 							mod_name,
 							_format_number(mod_price),
 							_format_number(int(ins_res.get("salvage_refund", 0))),
-							_format_number(mod_maint)
+							_format_number(monthly_mod_maint)
 						], "health")
 						update_ui()
 						SaveManager.save_game()
@@ -19215,10 +19237,10 @@ func _show_neural_specialist_modal(selected_category: String = "all") -> void:
 				var btn_buy := _create_cyber_button("⚡ Surgically Install %s • $%s" % [mod_name, _format_number(mod_price)], cat_color, func():
 					var ins_res := PlayerData.install_neural_implant(mod_id)
 					if ins_res.get("success", false):
-						add_life_event("🧠 NEURAL SURGERY: Successfully implanted %s into your brain ($%s)! Neuro-synaptic link established. Annual maintenance: $%s/year." % [
+						add_life_event("🧠 NEURAL SURGERY: Successfully implanted %s into your brain ($%s)! Neuro-synaptic link established. Monthly maintenance: $%s/mo." % [
 							mod_name,
 							_format_number(mod_price),
-							_format_number(mod_maint)
+							_format_number(monthly_mod_maint)
 						], "health")
 						update_ui()
 						SaveManager.save_game()

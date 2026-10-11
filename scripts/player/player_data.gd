@@ -2049,7 +2049,8 @@ func service_all_neural_implants() -> Dictionary:
 	for imp in neural_implants:
 		if imp is Dictionary and (not bool(imp.get("is_active", true)) or int(imp.get("condition", 100)) < 100):
 			overdue_count += 1
-			overdue_cost += int(imp.get("annual_maintenance", 0))
+			var annual_m: int = int(imp.get("annual_maintenance", 0))
+			overdue_cost += maxi(1, int(round(float(annual_m) / 12.0)))
 
 	if overdue_count == 0:
 		return {"success": false, "reason": "All neural implants are already fully operational and calibrated."}
@@ -2062,6 +2063,7 @@ func service_all_neural_implants() -> Dictionary:
 		if imp is Dictionary:
 			imp["is_active"] = true
 			imp["condition"] = 100
+			imp["maintenance_paid_this_month"] = true
 			imp["maintenance_paid_this_year"] = true
 
 	mental_state = mini(100, mental_state + 10)
@@ -2074,29 +2076,11 @@ func process_yearly_neural_implants() -> Array[String]:
 	if neural_implants.is_empty():
 		return logs
 
-	var total_maint: int = get_total_neural_maintenance()
-	if total_maint > 0:
-		if can_afford(total_maint):
-			debit_funds(total_maint)
-			for imp in neural_implants:
-				if imp is Dictionary:
-					imp["is_active"] = true
-					imp["condition"] = 100
-					imp["maintenance_paid_this_year"] = true
-					imp["overclocked_this_year"] = false
-			logs.append("🧠 NEURAL SPECIALIST: $%s auto-debited for annual maintenance, quantum calibration & nanite replenishment across your %d neural implants." % [
-				String.num(total_maint),
-				neural_implants.size()
-			])
-		else:
-			for imp in neural_implants:
-				if imp is Dictionary:
-					imp["is_active"] = false
-					imp["condition"] = maxi(20, int(imp.get("condition", 100)) - 35)
-					imp["maintenance_paid_this_year"] = false
-			happiness = maxi(5, happiness - 5)
-			mental_state = maxi(5, mental_state - 5)
-			logs.append("⚠️ NEURAL IMPLANT FAILURE: Insufficient funds ($%s required) for annual neural maintenance! Your cybernetic implants entered emergency offline mode (-5 Happiness, -5 Mental State). Visit the Neural Specialist to service and reactivate them." % String.num(total_maint))
+	# Maintenance is debited monthly via process_monthly_neural_implants()
+	# Reset annual overclock status and apply yearly active perks
+	for imp in neural_implants:
+		if imp is Dictionary:
+			imp["overclocked_this_year"] = false
 
 	# Apply yearly active perks
 	for imp in neural_implants:
