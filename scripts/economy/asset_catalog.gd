@@ -1678,12 +1678,21 @@ static func sell_asset(player_data: Node, instance_id: String) -> Dictionary:
 static func use_asset(player_data: Node, instance_id: String) -> Dictionary:
 	for asset in player_data.owned_assets:
 		if asset.get("instance_id", "") == instance_id:
-			if int(asset.get("last_used_age", -1)) == player_data.age:
+			var cur_m: int = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
+			var cur_y: int = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
+			var cur_a: int = player_data.age
+			var last_m: int = int(asset.get("last_used_month", -1))
+			var last_y: int = int(asset.get("last_used_year", -1))
+			var last_a: int = int(asset.get("last_used_age", -1))
+
+			if (last_m == cur_m and last_y == cur_y and last_a == cur_a) or (last_m < 0 and last_a == cur_a):
 				return {
 					"success": false,
-					"message": "You already enjoyed your %s this year. Available again next year." % asset.get("name", "asset")
+					"message": "You already enjoyed your %s this month. Available again next month!" % asset.get("name", "asset")
 				}
-			asset["last_used_age"] = player_data.age
+			asset["last_used_age"] = cur_a
+			asset["last_used_month"] = cur_m
+			asset["last_used_year"] = cur_y
 			var cat: String = str(asset.get("category", ""))
 			var bonus: int = int(asset.get("happiness_bonus", 5))
 			player_data.happiness = mini(100, player_data.happiness + bonus)

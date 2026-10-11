@@ -4,6 +4,7 @@ const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
 const BirthStoryGeneratorRef = preload("res://scripts/core/birth_story_generator.gd")
 const NameCatalog = preload("res://scripts/core/name_catalog.gd")
 const NeuralCatalog = preload("res://scripts/economy/neural_catalog.gd")
+const GameClockScript = preload("res://scripts/core/game_clock.gd")
 
 const KARMIC_MODIFIERS := {
 	# Cosmic Buffs
@@ -104,41 +105,95 @@ var active_buffs: Array = []
 var total_donated_charity: int = 0
 var charity_donations_count: int = 0
 var last_parent_interact_age: int = -1
+var last_parent_interact_month: int = -1
+var last_parent_interact_year: int = -1
 var last_mother_spend_time_age: int = -1
+var last_mother_spend_time_month: int = -1
+var last_mother_spend_time_year: int = -1
 var last_mother_compliment_age: int = -1
+var last_mother_compliment_month: int = -1
+var last_mother_compliment_year: int = -1
 var last_mother_ask_money_age: int = -1
+var last_mother_ask_money_month: int = -1
+var last_mother_ask_money_year: int = -1
 var last_father_spend_time_age: int = -1
+var last_father_spend_time_month: int = -1
+var last_father_spend_time_year: int = -1
 var last_father_compliment_age: int = -1
+var last_father_compliment_month: int = -1
+var last_father_compliment_year: int = -1
 var last_father_ask_money_age: int = -1
+var last_father_ask_money_month: int = -1
+var last_father_ask_money_year: int = -1
 var last_partner_interact_age: int = -1
+var last_partner_interact_month: int = -1
+var last_partner_interact_year: int = -1
 var last_partner_spend_time_age: int = -1
+var last_partner_spend_time_month: int = -1
+var last_partner_spend_time_year: int = -1
 var last_partner_compliment_age: int = -1
+var last_partner_compliment_month: int = -1
+var last_partner_compliment_year: int = -1
 var last_partner_gift_age: int = -1
+var last_partner_gift_month: int = -1
+var last_partner_gift_year: int = -1
 var last_partner_propose_age: int = -1
+var last_partner_propose_month: int = -1
+var last_partner_propose_year: int = -1
 var last_breakup_age: int = -1
+var last_breakup_month: int = -1
+var last_breakup_year: int = -1
 var last_baby_age: int = -1
 
 var last_mother_pay_meds_age: int = -1
+var last_mother_pay_meds_month: int = -1
+var last_mother_pay_meds_year: int = -1
 var last_father_pay_meds_age: int = -1
+var last_father_pay_meds_month: int = -1
+var last_father_pay_meds_year: int = -1
 var last_mother_doctor_checkup_age: int = -1
+var last_mother_doctor_checkup_month: int = -1
+var last_mother_doctor_checkup_year: int = -1
 var last_father_doctor_checkup_age: int = -1
+var last_father_doctor_checkup_month: int = -1
+var last_father_doctor_checkup_year: int = -1
 var last_mother_vitamin_shot_age: int = -1
+var last_mother_vitamin_shot_month: int = -1
+var last_mother_vitamin_shot_year: int = -1
 var last_father_vitamin_shot_age: int = -1
+var last_father_vitamin_shot_month: int = -1
+var last_father_vitamin_shot_year: int = -1
 
 var last_doctor_checkup_age: int = -1
+var last_doctor_checkup_month: int = -1
+var last_doctor_checkup_year: int = -1
 var last_doctor_vitamin_age: int = -1
+var last_doctor_vitamin_month: int = -1
+var last_doctor_vitamin_year: int = -1
 var last_plastic_surgery_age: int = -1
+var last_plastic_surgery_month: int = -1
+var last_plastic_surgery_year: int = -1
 var last_chemo_age: int = -1
+var last_chemo_month: int = -1
+var last_chemo_year: int = -1
 var last_therapy_age: int = -1
+var last_therapy_month: int = -1
+var last_therapy_year: int = -1
 var last_er_age: int = -1
+var last_er_month: int = -1
+var last_er_year: int = -1
 
 var last_prison_activity_age: int = -1
+var last_prison_activity_month: int = -1
+var last_prison_activity_year: int = -1
 var last_casino_age: int = -1
 var casino_plays_this_year: int = 0
 var last_overtime_age: int = -1
 var last_overtime_month: int = -1
+var last_overtime_year: int = -1
 var last_childhood_gig_age: int = -1
 var last_childhood_gig_month: int = -1
+var last_childhood_gig_year: int = -1
 
 var karma: int = 0
 var money: int = 0
@@ -192,21 +247,47 @@ var active_freelance_jobs: Array = []
 var freelance_reputation: Dictionary = {}
 var owned_businesses: Array = []
 var last_freelance_pitch_age: Dictionary = {}
+var last_freelance_pitch_month: Dictionary = {}
+var last_freelance_pitch_year: Dictionary = {}
 var last_school_activity_age: int = -1
+var last_school_activity_month: int = -1
+var last_school_activity_year: int = -1
 var last_scholarship_applied_age: int = -1
+var last_scholarship_applied_month: int = -1
+var last_scholarship_applied_year: int = -1
 var last_ged_attempt_age: int = -1
+var last_ged_attempt_month: int = -1
+var last_ged_attempt_year: int = -1
 var has_gym_membership: bool = false
 var gym_membership_annual_fee: int = 300
 var last_gym_activity_age: int = -1
+var last_gym_activity_month: int = -1
+var last_gym_activity_year: int = -1
 var last_meditation_activity_age: int = -1
+var last_meditation_activity_month: int = -1
+var last_meditation_activity_year: int = -1
 var last_salon_activity_age: int = -1
+var last_salon_activity_month: int = -1
+var last_salon_activity_year: int = -1
 var last_spa_activity_age: int = -1
+var last_spa_activity_month: int = -1
+var last_spa_activity_year: int = -1
 var last_dating_app_age: int = -1
+var last_dating_app_month: int = -1
+var last_dating_app_year: int = -1
 var last_pet_adoption_age: int = -1
+var last_pet_adoption_month: int = -1
+var last_pet_adoption_year: int = -1
 var last_charity_donation_age: int = -1
+var last_charity_donation_month: int = -1
+var last_charity_donation_year: int = -1
 var neural_implants: Array = []
 var last_neural_overclock_age: int = -1
+var last_neural_overclock_month: int = -1
+var last_neural_overclock_year: int = -1
 var last_neural_diagnostics_age: int = -1
+var last_neural_diagnostics_month: int = -1
+var last_neural_diagnostics_year: int = -1
 
 var job_id: String = ""
 var job_title: String = ""
@@ -290,45 +371,103 @@ func reset_player() -> void:
 	partner = {}
 	ex_partners = []
 	last_parent_interact_age = -1
+	last_parent_interact_month = -1
+	last_parent_interact_year = -1
 	last_mother_spend_time_age = -1
+	last_mother_spend_time_month = -1
+	last_mother_spend_time_year = -1
 	last_mother_compliment_age = -1
+	last_mother_compliment_month = -1
+	last_mother_compliment_year = -1
 	last_mother_ask_money_age = -1
+	last_mother_ask_money_month = -1
+	last_mother_ask_money_year = -1
 	last_father_spend_time_age = -1
+	last_father_spend_time_month = -1
+	last_father_spend_time_year = -1
 	last_father_compliment_age = -1
+	last_father_compliment_month = -1
+	last_father_compliment_year = -1
 	last_father_ask_money_age = -1
+	last_father_ask_money_month = -1
+	last_father_ask_money_year = -1
 	last_partner_interact_age = -1
+	last_partner_interact_month = -1
+	last_partner_interact_year = -1
 	last_partner_spend_time_age = -1
+	last_partner_spend_time_month = -1
+	last_partner_spend_time_year = -1
 	last_partner_compliment_age = -1
+	last_partner_compliment_month = -1
+	last_partner_compliment_year = -1
 	last_partner_gift_age = -1
+	last_partner_gift_month = -1
+	last_partner_gift_year = -1
 	last_partner_propose_age = -1
+	last_partner_propose_month = -1
+	last_partner_propose_year = -1
 	last_breakup_age = -1
+	last_breakup_month = -1
+	last_breakup_year = -1
 	last_baby_age = -1
 
 	last_mother_pay_meds_age = -1
+	last_mother_pay_meds_month = -1
+	last_mother_pay_meds_year = -1
 	last_father_pay_meds_age = -1
+	last_father_pay_meds_month = -1
+	last_father_pay_meds_year = -1
 	last_mother_doctor_checkup_age = -1
+	last_mother_doctor_checkup_month = -1
+	last_mother_doctor_checkup_year = -1
 	last_father_doctor_checkup_age = -1
+	last_father_doctor_checkup_month = -1
+	last_father_doctor_checkup_year = -1
 	last_mother_vitamin_shot_age = -1
+	last_mother_vitamin_shot_month = -1
+	last_mother_vitamin_shot_year = -1
 	last_father_vitamin_shot_age = -1
+	last_father_vitamin_shot_month = -1
+	last_father_vitamin_shot_year = -1
 
 	last_doctor_checkup_age = -1
+	last_doctor_checkup_month = -1
+	last_doctor_checkup_year = -1
 	last_doctor_vitamin_age = -1
+	last_doctor_vitamin_month = -1
+	last_doctor_vitamin_year = -1
 	last_plastic_surgery_age = -1
+	last_plastic_surgery_month = -1
+	last_plastic_surgery_year = -1
 	last_chemo_age = -1
+	last_chemo_month = -1
+	last_chemo_year = -1
 	last_therapy_age = -1
+	last_therapy_month = -1
+	last_therapy_year = -1
 	last_er_age = -1
+	last_er_month = -1
+	last_er_year = -1
 
 	last_prison_activity_age = -1
+	last_prison_activity_month = -1
+	last_prison_activity_year = -1
 	last_casino_age = -1
 	casino_plays_this_year = 0
 	last_overtime_age = -1
 	last_overtime_month = -1
+	last_overtime_year = -1
 	last_childhood_gig_age = -1
 	last_childhood_gig_month = -1
+	last_childhood_gig_year = -1
 
 	neural_implants.clear()
 	last_neural_overclock_age = -1
+	last_neural_overclock_month = -1
+	last_neural_overclock_year = -1
 	last_neural_diagnostics_age = -1
+	last_neural_diagnostics_month = -1
+	last_neural_diagnostics_year = -1
 
 	age = 12
 	in_game_day = 1
@@ -394,17 +533,37 @@ func reset_player() -> void:
 	university_degree = ""
 	university_tuition = 12000
 	last_school_activity_age = -1
+	last_school_activity_month = -1
+	last_school_activity_year = -1
 	last_scholarship_applied_age = -1
+	last_scholarship_applied_month = -1
+	last_scholarship_applied_year = -1
 	last_ged_attempt_age = -1
+	last_ged_attempt_month = -1
+	last_ged_attempt_year = -1
 	has_gym_membership = false
 	gym_membership_annual_fee = 300
 	last_gym_activity_age = -1
+	last_gym_activity_month = -1
+	last_gym_activity_year = -1
 	last_meditation_activity_age = -1
+	last_meditation_activity_month = -1
+	last_meditation_activity_year = -1
 	last_salon_activity_age = -1
+	last_salon_activity_month = -1
+	last_salon_activity_year = -1
 	last_spa_activity_age = -1
+	last_spa_activity_month = -1
+	last_spa_activity_year = -1
 	last_dating_app_age = -1
+	last_dating_app_month = -1
+	last_dating_app_year = -1
 	last_pet_adoption_age = -1
+	last_pet_adoption_month = -1
+	last_pet_adoption_year = -1
 	last_charity_donation_age = -1
+	last_charity_donation_month = -1
+	last_charity_donation_year = -1
 
 	job_id = ""
 	job_title = ""
@@ -433,6 +592,8 @@ func reset_player() -> void:
 	freelance_reputation.clear()
 	owned_businesses.clear()
 	last_freelance_pitch_age.clear()
+	last_freelance_pitch_month.clear()
+	last_freelance_pitch_year.clear()
 	children.clear()
 	pregnancy = {}
 	active_debuffs.clear()
@@ -2249,11 +2410,11 @@ func process_yearly_neural_implants() -> Array[String]:
 
 
 func get_date_string() -> String:
-	return "%s %d, %d" % [GameClock.get_month_name(in_game_month), in_game_day, in_game_year]
+	return "%s %d, %d" % [GameClockScript.get_month_name(in_game_month), in_game_day, in_game_year]
 
 
 func get_calculated_age() -> int:
-	return GameClock.calculate_age(in_game_year, in_game_month, in_game_day, birth_year, birth_month_idx, birth_day)
+	return GameClockScript.calculate_age(in_game_year, in_game_month, in_game_day, birth_year, birth_month_idx, birth_day)
 
 
 func get_monthly_neural_maintenance() -> int:
@@ -2307,4 +2468,14 @@ func process_monthly_neural_implants() -> Array[String]:
 			mental_state = mini(100, mental_state + 1)
 
 	return logs
+
+
+func is_activity_used_this_month(action_month: int, action_year: int, action_age: int = -1) -> bool:
+	if action_month > 0 and action_year > 0:
+		if action_age >= 0:
+			return action_month == in_game_month and action_year == in_game_year and action_age == age
+		return action_month == in_game_month and action_year == in_game_year
+	if action_age >= 0:
+		return action_age == age
+	return false
 

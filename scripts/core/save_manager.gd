@@ -109,21 +109,47 @@ func capture_data() -> Dictionary:
 		"freelance_reputation": PlayerData.freelance_reputation,
 		"owned_businesses": PlayerData.owned_businesses,
 		"last_freelance_pitch_age": PlayerData.last_freelance_pitch_age,
+		"last_freelance_pitch_month": PlayerData.last_freelance_pitch_month,
+		"last_freelance_pitch_year": PlayerData.last_freelance_pitch_year,
 		"last_school_activity_age": PlayerData.last_school_activity_age,
+		"last_school_activity_month": PlayerData.last_school_activity_month,
+		"last_school_activity_year": PlayerData.last_school_activity_year,
 		"last_scholarship_applied_age": PlayerData.last_scholarship_applied_age,
+		"last_scholarship_applied_month": PlayerData.last_scholarship_applied_month,
+		"last_scholarship_applied_year": PlayerData.last_scholarship_applied_year,
 		"last_ged_attempt_age": PlayerData.last_ged_attempt_age,
+		"last_ged_attempt_month": PlayerData.last_ged_attempt_month,
+		"last_ged_attempt_year": PlayerData.last_ged_attempt_year,
 		"has_gym_membership": PlayerData.has_gym_membership,
 		"gym_membership_annual_fee": PlayerData.gym_membership_annual_fee,
 		"last_gym_activity_age": PlayerData.last_gym_activity_age,
+		"last_gym_activity_month": PlayerData.last_gym_activity_month,
+		"last_gym_activity_year": PlayerData.last_gym_activity_year,
 		"last_meditation_activity_age": PlayerData.last_meditation_activity_age,
+		"last_meditation_activity_month": PlayerData.last_meditation_activity_month,
+		"last_meditation_activity_year": PlayerData.last_meditation_activity_year,
 		"last_salon_activity_age": PlayerData.last_salon_activity_age,
+		"last_salon_activity_month": PlayerData.last_salon_activity_month,
+		"last_salon_activity_year": PlayerData.last_salon_activity_year,
 		"last_spa_activity_age": PlayerData.last_spa_activity_age,
+		"last_spa_activity_month": PlayerData.last_spa_activity_month,
+		"last_spa_activity_year": PlayerData.last_spa_activity_year,
 		"last_dating_app_age": PlayerData.last_dating_app_age,
+		"last_dating_app_month": PlayerData.last_dating_app_month,
+		"last_dating_app_year": PlayerData.last_dating_app_year,
 		"last_pet_adoption_age": PlayerData.last_pet_adoption_age,
+		"last_pet_adoption_month": PlayerData.last_pet_adoption_month,
+		"last_pet_adoption_year": PlayerData.last_pet_adoption_year,
 		"last_charity_donation_age": PlayerData.last_charity_donation_age,
+		"last_charity_donation_month": PlayerData.last_charity_donation_month,
+		"last_charity_donation_year": PlayerData.last_charity_donation_year,
 		"neural_implants": PlayerData.neural_implants.duplicate(true),
 		"last_neural_overclock_age": PlayerData.last_neural_overclock_age,
+		"last_neural_overclock_month": PlayerData.last_neural_overclock_month,
+		"last_neural_overclock_year": PlayerData.last_neural_overclock_year,
 		"last_neural_diagnostics_age": PlayerData.last_neural_diagnostics_age,
+		"last_neural_diagnostics_month": PlayerData.last_neural_diagnostics_month,
+		"last_neural_diagnostics_year": PlayerData.last_neural_diagnostics_year,
 		"job_id": PlayerData.job_id,
 		"job_title": PlayerData.job_title,
 		"job_company": PlayerData.job_company,
@@ -149,36 +175,92 @@ func capture_data() -> Dictionary:
 		"partner": PlayerData.partner,
 		"ex_partners": PlayerData.ex_partners,
 		"last_parent_interact_age": PlayerData.last_parent_interact_age,
+		"last_parent_interact_month": PlayerData.last_parent_interact_month,
+		"last_parent_interact_year": PlayerData.last_parent_interact_year,
 		"last_mother_spend_time_age": PlayerData.last_mother_spend_time_age,
+		"last_mother_spend_time_month": PlayerData.last_mother_spend_time_month,
+		"last_mother_spend_time_year": PlayerData.last_mother_spend_time_year,
 		"last_mother_compliment_age": PlayerData.last_mother_compliment_age,
+		"last_mother_compliment_month": PlayerData.last_mother_compliment_month,
+		"last_mother_compliment_year": PlayerData.last_mother_compliment_year,
 		"last_mother_ask_money_age": PlayerData.last_mother_ask_money_age,
+		"last_mother_ask_money_month": PlayerData.last_mother_ask_money_month,
+		"last_mother_ask_money_year": PlayerData.last_mother_ask_money_year,
 		"last_father_spend_time_age": PlayerData.last_father_spend_time_age,
+		"last_father_spend_time_month": PlayerData.last_father_spend_time_month,
+		"last_father_spend_time_year": PlayerData.last_father_spend_time_year,
 		"last_father_compliment_age": PlayerData.last_father_compliment_age,
+		"last_father_compliment_month": PlayerData.last_father_compliment_month,
+		"last_father_compliment_year": PlayerData.last_father_compliment_year,
 		"last_father_ask_money_age": PlayerData.last_father_ask_money_age,
+		"last_father_ask_money_month": PlayerData.last_father_ask_money_month,
+		"last_father_ask_money_year": PlayerData.last_father_ask_money_year,
 		"last_partner_interact_age": PlayerData.last_partner_interact_age,
+		"last_partner_interact_month": PlayerData.last_partner_interact_month,
+		"last_partner_interact_year": PlayerData.last_partner_interact_year,
 		"last_partner_spend_time_age": PlayerData.last_partner_spend_time_age,
+		"last_partner_spend_time_month": PlayerData.last_partner_spend_time_month,
+		"last_partner_spend_time_year": PlayerData.last_partner_spend_time_year,
 		"last_partner_compliment_age": PlayerData.last_partner_compliment_age,
+		"last_partner_compliment_month": PlayerData.last_partner_compliment_month,
+		"last_partner_compliment_year": PlayerData.last_partner_compliment_year,
 		"last_partner_gift_age": PlayerData.last_partner_gift_age,
+		"last_partner_gift_month": PlayerData.last_partner_gift_month,
+		"last_partner_gift_year": PlayerData.last_partner_gift_year,
 		"last_partner_propose_age": PlayerData.last_partner_propose_age,
+		"last_partner_propose_month": PlayerData.last_partner_propose_month,
+		"last_partner_propose_year": PlayerData.last_partner_propose_year,
 		"last_breakup_age": PlayerData.last_breakup_age,
+		"last_breakup_month": PlayerData.last_breakup_month,
+		"last_breakup_year": PlayerData.last_breakup_year,
 		"last_baby_age": PlayerData.last_baby_age,
 		"last_mother_pay_meds_age": PlayerData.last_mother_pay_meds_age,
+		"last_mother_pay_meds_month": PlayerData.last_mother_pay_meds_month,
+		"last_mother_pay_meds_year": PlayerData.last_mother_pay_meds_year,
 		"last_father_pay_meds_age": PlayerData.last_father_pay_meds_age,
+		"last_father_pay_meds_month": PlayerData.last_father_pay_meds_month,
+		"last_father_pay_meds_year": PlayerData.last_father_pay_meds_year,
 		"last_mother_doctor_checkup_age": PlayerData.last_mother_doctor_checkup_age,
+		"last_mother_doctor_checkup_month": PlayerData.last_mother_doctor_checkup_month,
+		"last_mother_doctor_checkup_year": PlayerData.last_mother_doctor_checkup_year,
 		"last_father_doctor_checkup_age": PlayerData.last_father_doctor_checkup_age,
+		"last_father_doctor_checkup_month": PlayerData.last_father_doctor_checkup_month,
+		"last_father_doctor_checkup_year": PlayerData.last_father_doctor_checkup_year,
 		"last_mother_vitamin_shot_age": PlayerData.last_mother_vitamin_shot_age,
+		"last_mother_vitamin_shot_month": PlayerData.last_mother_vitamin_shot_month,
+		"last_mother_vitamin_shot_year": PlayerData.last_mother_vitamin_shot_year,
 		"last_father_vitamin_shot_age": PlayerData.last_father_vitamin_shot_age,
+		"last_father_vitamin_shot_month": PlayerData.last_father_vitamin_shot_month,
+		"last_father_vitamin_shot_year": PlayerData.last_father_vitamin_shot_year,
 		"last_doctor_checkup_age": PlayerData.last_doctor_checkup_age,
+		"last_doctor_checkup_month": PlayerData.last_doctor_checkup_month,
+		"last_doctor_checkup_year": PlayerData.last_doctor_checkup_year,
 		"last_doctor_vitamin_age": PlayerData.last_doctor_vitamin_age,
+		"last_doctor_vitamin_month": PlayerData.last_doctor_vitamin_month,
+		"last_doctor_vitamin_year": PlayerData.last_doctor_vitamin_year,
 		"last_plastic_surgery_age": PlayerData.last_plastic_surgery_age,
+		"last_plastic_surgery_month": PlayerData.last_plastic_surgery_month,
+		"last_plastic_surgery_year": PlayerData.last_plastic_surgery_year,
 		"last_chemo_age": PlayerData.last_chemo_age,
+		"last_chemo_month": PlayerData.last_chemo_month,
+		"last_chemo_year": PlayerData.last_chemo_year,
 		"last_therapy_age": PlayerData.last_therapy_age,
+		"last_therapy_month": PlayerData.last_therapy_month,
+		"last_therapy_year": PlayerData.last_therapy_year,
 		"last_er_age": PlayerData.last_er_age,
+		"last_er_month": PlayerData.last_er_month,
+		"last_er_year": PlayerData.last_er_year,
 		"last_prison_activity_age": PlayerData.last_prison_activity_age,
+		"last_prison_activity_month": PlayerData.last_prison_activity_month,
+		"last_prison_activity_year": PlayerData.last_prison_activity_year,
 		"last_casino_age": PlayerData.last_casino_age,
 		"casino_plays_this_year": PlayerData.casino_plays_this_year,
 		"last_overtime_age": PlayerData.last_overtime_age,
+		"last_overtime_month": PlayerData.last_overtime_month,
+		"last_overtime_year": PlayerData.last_overtime_year,
 		"last_childhood_gig_age": PlayerData.last_childhood_gig_age,
+		"last_childhood_gig_month": PlayerData.last_childhood_gig_month,
+		"last_childhood_gig_year": PlayerData.last_childhood_gig_year,
 		"social_media": PlayerData.social_media,
 		"pets": PlayerData.pets,
 		"will_recipient": PlayerData.will_recipient
@@ -412,17 +494,37 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.freelance_reputation = Dictionary(data.get("freelance_reputation", {}))
 	PlayerData.owned_businesses = Array(data.get("owned_businesses", []))
 	PlayerData.last_freelance_pitch_age = Dictionary(data.get("last_freelance_pitch_age", {}))
+	PlayerData.last_freelance_pitch_month = Dictionary(data.get("last_freelance_pitch_month", {}))
+	PlayerData.last_freelance_pitch_year = Dictionary(data.get("last_freelance_pitch_year", {}))
 	PlayerData.last_school_activity_age = int(data.get("last_school_activity_age", -1))
+	PlayerData.last_school_activity_month = int(data.get("last_school_activity_month", -1))
+	PlayerData.last_school_activity_year = int(data.get("last_school_activity_year", -1))
 	PlayerData.last_scholarship_applied_age = int(data.get("last_scholarship_applied_age", -1))
+	PlayerData.last_scholarship_applied_month = int(data.get("last_scholarship_applied_month", -1))
+	PlayerData.last_scholarship_applied_year = int(data.get("last_scholarship_applied_year", -1))
 	PlayerData.last_ged_attempt_age = int(data.get("last_ged_attempt_age", -1))
+	PlayerData.last_ged_attempt_month = int(data.get("last_ged_attempt_month", -1))
+	PlayerData.last_ged_attempt_year = int(data.get("last_ged_attempt_year", -1))
 	PlayerData.has_gym_membership = bool(data.get("has_gym_membership", false))
 	PlayerData.gym_membership_annual_fee = int(data.get("gym_membership_annual_fee", 300))
 	PlayerData.last_gym_activity_age = int(data.get("last_gym_activity_age", -1))
+	PlayerData.last_gym_activity_month = int(data.get("last_gym_activity_month", -1))
+	PlayerData.last_gym_activity_year = int(data.get("last_gym_activity_year", -1))
 	PlayerData.last_meditation_activity_age = int(data.get("last_meditation_activity_age", -1))
+	PlayerData.last_meditation_activity_month = int(data.get("last_meditation_activity_month", -1))
+	PlayerData.last_meditation_activity_year = int(data.get("last_meditation_activity_year", -1))
 	PlayerData.last_salon_activity_age = int(data.get("last_salon_activity_age", -1))
+	PlayerData.last_salon_activity_month = int(data.get("last_salon_activity_month", -1))
+	PlayerData.last_salon_activity_year = int(data.get("last_salon_activity_year", -1))
 	PlayerData.last_spa_activity_age = int(data.get("last_spa_activity_age", -1))
+	PlayerData.last_spa_activity_month = int(data.get("last_spa_activity_month", -1))
+	PlayerData.last_spa_activity_year = int(data.get("last_spa_activity_year", -1))
 	PlayerData.last_dating_app_age = int(data.get("last_dating_app_age", -1))
+	PlayerData.last_dating_app_month = int(data.get("last_dating_app_month", -1))
+	PlayerData.last_dating_app_year = int(data.get("last_dating_app_year", -1))
 	PlayerData.last_pet_adoption_age = int(data.get("last_pet_adoption_age", -1))
+	PlayerData.last_pet_adoption_month = int(data.get("last_pet_adoption_month", -1))
+	PlayerData.last_pet_adoption_year = int(data.get("last_pet_adoption_year", -1))
 	var raw_c_age = data.get("last_charity_donation_age", -1)
 	if raw_c_age is Dictionary:
 		var max_age: int = -1
@@ -431,12 +533,18 @@ func apply_data(data: Dictionary) -> bool:
 		PlayerData.last_charity_donation_age = max_age
 	else:
 		PlayerData.last_charity_donation_age = int(raw_c_age)
+	PlayerData.last_charity_donation_month = int(data.get("last_charity_donation_month", -1))
+	PlayerData.last_charity_donation_year = int(data.get("last_charity_donation_year", -1))
 	PlayerData.karma = int(data.get("karma", 0))
 	PlayerData.children = Array(data.get("children", []))
 	PlayerData.pregnancy = Dictionary(data.get("pregnancy", {}))
 	PlayerData.neural_implants = Array(data.get("neural_implants", [])).duplicate(true)
 	PlayerData.last_neural_overclock_age = int(data.get("last_neural_overclock_age", -1))
+	PlayerData.last_neural_overclock_month = int(data.get("last_neural_overclock_month", -1))
+	PlayerData.last_neural_overclock_year = int(data.get("last_neural_overclock_year", -1))
 	PlayerData.last_neural_diagnostics_age = int(data.get("last_neural_diagnostics_age", -1))
+	PlayerData.last_neural_diagnostics_month = int(data.get("last_neural_diagnostics_month", -1))
+	PlayerData.last_neural_diagnostics_year = int(data.get("last_neural_diagnostics_year", -1))
 	PlayerData.active_debuffs = Array(data.get("active_debuffs", []))
 	PlayerData.active_buffs = Array(data.get("active_buffs", []))
 	for b_id in ["buff_philanthropist_heart", "buff_animal_guardian", "buff_youth_mentor", "buff_lifesavers_blessing", "buff_eco_guardian", "buff_grand_benefactor"]:
@@ -474,36 +582,92 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.current_residence_name = str(data.get("current_residence_name", ""))
 	PlayerData.current_residence_type = str(data.get("current_residence_type", "parents"))
 	PlayerData.last_parent_interact_age = int(data.get("last_parent_interact_age", -1))
+	PlayerData.last_parent_interact_month = int(data.get("last_parent_interact_month", -1))
+	PlayerData.last_parent_interact_year = int(data.get("last_parent_interact_year", -1))
 	PlayerData.last_mother_spend_time_age = int(data.get("last_mother_spend_time_age", -1))
+	PlayerData.last_mother_spend_time_month = int(data.get("last_mother_spend_time_month", -1))
+	PlayerData.last_mother_spend_time_year = int(data.get("last_mother_spend_time_year", -1))
 	PlayerData.last_mother_compliment_age = int(data.get("last_mother_compliment_age", -1))
+	PlayerData.last_mother_compliment_month = int(data.get("last_mother_compliment_month", -1))
+	PlayerData.last_mother_compliment_year = int(data.get("last_mother_compliment_year", -1))
 	PlayerData.last_mother_ask_money_age = int(data.get("last_mother_ask_money_age", -1))
+	PlayerData.last_mother_ask_money_month = int(data.get("last_mother_ask_money_month", -1))
+	PlayerData.last_mother_ask_money_year = int(data.get("last_mother_ask_money_year", -1))
 	PlayerData.last_father_spend_time_age = int(data.get("last_father_spend_time_age", -1))
+	PlayerData.last_father_spend_time_month = int(data.get("last_father_spend_time_month", -1))
+	PlayerData.last_father_spend_time_year = int(data.get("last_father_spend_time_year", -1))
 	PlayerData.last_father_compliment_age = int(data.get("last_father_compliment_age", -1))
+	PlayerData.last_father_compliment_month = int(data.get("last_father_compliment_month", -1))
+	PlayerData.last_father_compliment_year = int(data.get("last_father_compliment_year", -1))
 	PlayerData.last_father_ask_money_age = int(data.get("last_father_ask_money_age", -1))
+	PlayerData.last_father_ask_money_month = int(data.get("last_father_ask_money_month", -1))
+	PlayerData.last_father_ask_money_year = int(data.get("last_father_ask_money_year", -1))
 	PlayerData.last_partner_interact_age = int(data.get("last_partner_interact_age", -1))
+	PlayerData.last_partner_interact_month = int(data.get("last_partner_interact_month", -1))
+	PlayerData.last_partner_interact_year = int(data.get("last_partner_interact_year", -1))
 	PlayerData.last_partner_spend_time_age = int(data.get("last_partner_spend_time_age", -1))
+	PlayerData.last_partner_spend_time_month = int(data.get("last_partner_spend_time_month", -1))
+	PlayerData.last_partner_spend_time_year = int(data.get("last_partner_spend_time_year", -1))
 	PlayerData.last_partner_compliment_age = int(data.get("last_partner_compliment_age", -1))
+	PlayerData.last_partner_compliment_month = int(data.get("last_partner_compliment_month", -1))
+	PlayerData.last_partner_compliment_year = int(data.get("last_partner_compliment_year", -1))
 	PlayerData.last_partner_gift_age = int(data.get("last_partner_gift_age", -1))
+	PlayerData.last_partner_gift_month = int(data.get("last_partner_gift_month", -1))
+	PlayerData.last_partner_gift_year = int(data.get("last_partner_gift_year", -1))
 	PlayerData.last_partner_propose_age = int(data.get("last_partner_propose_age", -1))
+	PlayerData.last_partner_propose_month = int(data.get("last_partner_propose_month", -1))
+	PlayerData.last_partner_propose_year = int(data.get("last_partner_propose_year", -1))
 	PlayerData.last_breakup_age = int(data.get("last_breakup_age", -1))
+	PlayerData.last_breakup_month = int(data.get("last_breakup_month", -1))
+	PlayerData.last_breakup_year = int(data.get("last_breakup_year", -1))
 	PlayerData.last_baby_age = int(data.get("last_baby_age", -1))
 	PlayerData.last_mother_pay_meds_age = int(data.get("last_mother_pay_meds_age", -1))
+	PlayerData.last_mother_pay_meds_month = int(data.get("last_mother_pay_meds_month", -1))
+	PlayerData.last_mother_pay_meds_year = int(data.get("last_mother_pay_meds_year", -1))
 	PlayerData.last_father_pay_meds_age = int(data.get("last_father_pay_meds_age", -1))
+	PlayerData.last_father_pay_meds_month = int(data.get("last_father_pay_meds_month", -1))
+	PlayerData.last_father_pay_meds_year = int(data.get("last_father_pay_meds_year", -1))
 	PlayerData.last_mother_doctor_checkup_age = int(data.get("last_mother_doctor_checkup_age", -1))
+	PlayerData.last_mother_doctor_checkup_month = int(data.get("last_mother_doctor_checkup_month", -1))
+	PlayerData.last_mother_doctor_checkup_year = int(data.get("last_mother_doctor_checkup_year", -1))
 	PlayerData.last_father_doctor_checkup_age = int(data.get("last_father_doctor_checkup_age", -1))
+	PlayerData.last_father_doctor_checkup_month = int(data.get("last_father_doctor_checkup_month", -1))
+	PlayerData.last_father_doctor_checkup_year = int(data.get("last_father_doctor_checkup_year", -1))
 	PlayerData.last_mother_vitamin_shot_age = int(data.get("last_mother_vitamin_shot_age", -1))
+	PlayerData.last_mother_vitamin_shot_month = int(data.get("last_mother_vitamin_shot_month", -1))
+	PlayerData.last_mother_vitamin_shot_year = int(data.get("last_mother_vitamin_shot_year", -1))
 	PlayerData.last_father_vitamin_shot_age = int(data.get("last_father_vitamin_shot_age", -1))
+	PlayerData.last_father_vitamin_shot_month = int(data.get("last_father_vitamin_shot_month", -1))
+	PlayerData.last_father_vitamin_shot_year = int(data.get("last_father_vitamin_shot_year", -1))
 	PlayerData.last_doctor_checkup_age = int(data.get("last_doctor_checkup_age", -1))
+	PlayerData.last_doctor_checkup_month = int(data.get("last_doctor_checkup_month", -1))
+	PlayerData.last_doctor_checkup_year = int(data.get("last_doctor_checkup_year", -1))
 	PlayerData.last_doctor_vitamin_age = int(data.get("last_doctor_vitamin_age", -1))
+	PlayerData.last_doctor_vitamin_month = int(data.get("last_doctor_vitamin_month", -1))
+	PlayerData.last_doctor_vitamin_year = int(data.get("last_doctor_vitamin_year", -1))
 	PlayerData.last_plastic_surgery_age = int(data.get("last_plastic_surgery_age", -1))
+	PlayerData.last_plastic_surgery_month = int(data.get("last_plastic_surgery_month", -1))
+	PlayerData.last_plastic_surgery_year = int(data.get("last_plastic_surgery_year", -1))
 	PlayerData.last_chemo_age = int(data.get("last_chemo_age", -1))
+	PlayerData.last_chemo_month = int(data.get("last_chemo_month", -1))
+	PlayerData.last_chemo_year = int(data.get("last_chemo_year", -1))
 	PlayerData.last_therapy_age = int(data.get("last_therapy_age", -1))
+	PlayerData.last_therapy_month = int(data.get("last_therapy_month", -1))
+	PlayerData.last_therapy_year = int(data.get("last_therapy_year", -1))
 	PlayerData.last_er_age = int(data.get("last_er_age", -1))
+	PlayerData.last_er_month = int(data.get("last_er_month", -1))
+	PlayerData.last_er_year = int(data.get("last_er_year", -1))
 	PlayerData.last_prison_activity_age = int(data.get("last_prison_activity_age", -1))
+	PlayerData.last_prison_activity_month = int(data.get("last_prison_activity_month", -1))
+	PlayerData.last_prison_activity_year = int(data.get("last_prison_activity_year", -1))
 	PlayerData.last_casino_age = int(data.get("last_casino_age", -1))
 	PlayerData.casino_plays_this_year = int(data.get("casino_plays_this_year", 0))
 	PlayerData.last_overtime_age = int(data.get("last_overtime_age", -1))
+	PlayerData.last_overtime_month = int(data.get("last_overtime_month", -1))
+	PlayerData.last_overtime_year = int(data.get("last_overtime_year", -1))
 	PlayerData.last_childhood_gig_age = int(data.get("last_childhood_gig_age", -1))
+	PlayerData.last_childhood_gig_month = int(data.get("last_childhood_gig_month", -1))
+	PlayerData.last_childhood_gig_year = int(data.get("last_childhood_gig_year", -1))
 
 	PlayerData.job_id = str(data.get("job_id", ""))
 	PlayerData.job_title = str(data.get("job_title", ""))

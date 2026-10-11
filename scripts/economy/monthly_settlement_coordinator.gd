@@ -43,6 +43,8 @@ const CATEGORY_EDUCATION := "education"
 const CATEGORY_SUBSCRIPTION := "subscription"
 const CATEGORY_DEBT := "debt"
 
+const PetManagerScript = preload("res://scripts/economy/pet_manager.gd")
+
 
 # -----------------------------------------------------------------------------
 # 1. IDEMPOTENCY & CURSOR CHECKS
@@ -255,7 +257,7 @@ static func process_monthly_settlement(player_data: Node, year: int, month: int)
 			logs.append({"text": n_msg, "kind": "health"})
 
 	# 6b. Pet Care & Food Upkeep
-	var pet_logs := PetManager.process_monthly_pets(player_data)
+	var pet_logs := PetManagerScript.process_monthly_pets(player_data)
 	for p_msg in pet_logs:
 		logs.append({"text": p_msg, "kind": "relationship"})
 

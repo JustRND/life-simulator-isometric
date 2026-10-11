@@ -329,11 +329,18 @@ static func pitch_gig(job_id: String) -> Dictionary:
 		return {"success": false, "message": "Register this freelance job first!"}
 
 	var cur_age: int = PlayerData.age
-	var last_pitch_age: int = int(PlayerData.last_freelance_pitch_age.get(job_id, -1))
-	if last_pitch_age == cur_age:
-		return {"success": false, "message": "You have already pitched client contracts for this profession this year. Age up to pitch new clients!"}
+	var cur_m: int = PlayerData.in_game_month
+	var cur_y: int = PlayerData.in_game_year
+	var last_pitch_m: int = int(PlayerData.last_freelance_pitch_month.get(job_id, -1))
+	var last_pitch_y: int = int(PlayerData.last_freelance_pitch_year.get(job_id, -1))
+	var last_pitch_a: int = int(PlayerData.last_freelance_pitch_age.get(job_id, -1))
+
+	if (last_pitch_m == cur_m and last_pitch_y == cur_y and last_pitch_a == cur_age) or (last_pitch_m < 0 and last_pitch_a == cur_age):
+		return {"success": false, "message": "You have already pitched client contracts for this profession this month. Available again next month!"}
 
 	PlayerData.last_freelance_pitch_age[job_id] = cur_age
+	PlayerData.last_freelance_pitch_month[job_id] = cur_m
+	PlayerData.last_freelance_pitch_year[job_id] = cur_y
 	var proj := generate_project_for_job(job_id)
 	var res := execute_project(proj)
 	res["project"] = proj

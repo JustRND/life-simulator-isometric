@@ -348,9 +348,17 @@ static func adopt_pet(
 	set_annual_cooldown: bool = true
 ) -> Dictionary:
 	if enforce_annual_limit:
+		var cur_m: int = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
+		var cur_y: int = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
+		var cur_a: int = player_data.age
+		var last_adopt_month = player_data.get("last_pet_adoption_month")
+		var last_adopt_year = player_data.get("last_pet_adoption_year")
 		var last_adopt_age = player_data.get("last_pet_adoption_age")
-		if last_adopt_age != null and int(last_adopt_age) == player_data.age:
-			return {"success": false, "message": "Annual Adoption Limit: You have already adopted a companion pet for Age %d! Advance age (+1 Year) to adopt another pet." % player_data.age}
+		if last_adopt_month != null and last_adopt_year != null and int(last_adopt_month) > 0 and int(last_adopt_year) > 0:
+			if int(last_adopt_month) == cur_m and int(last_adopt_year) == cur_y and int(last_adopt_age) == cur_a:
+				return {"success": false, "message": "Monthly Adoption Limit (Annual Adoption Limit): You have already adopted a companion pet this month! Advance time to adopt another pet next month."}
+		elif last_adopt_age != null and int(last_adopt_age) == cur_a:
+			return {"success": false, "message": "Monthly Adoption Limit (Annual Adoption Limit): You have already adopted a companion pet for Age %d! Advance age (+1 Year) to adopt another pet." % player_data.age}
 
 	var price: int = int(pet_spec.get("price", 0))
 	var total_funds: int = player_data.money + player_data.bank_savings
@@ -409,6 +417,10 @@ static func adopt_pet(
 	player_data.pets.append(new_pet)
 	if set_annual_cooldown:
 		player_data.last_pet_adoption_age = player_data.age
+		if "last_pet_adoption_month" in player_data:
+			player_data.last_pet_adoption_month = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
+		if "last_pet_adoption_year" in player_data:
+			player_data.last_pet_adoption_year = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
 
 	if apply_default_buffs:
 		player_data.happiness = mini(100, player_data.happiness + 15)
@@ -459,16 +471,28 @@ static func interact_pet(player_data: Node, pet_id: String, action: String) -> D
 			var pet_name: String = str(pet.get("name", "your pet"))
 			var p_type: String = str(pet.get("type", "dog"))
 
-			var act_field := "last_" + action + "_age"
-			if int(pet.get(act_field, -1)) == player_data.age:
+			var act_field_age := "last_" + action + "_age"
+			var act_field_month := "last_" + action + "_month"
+			var act_field_year := "last_" + action + "_year"
+			var cur_m: int = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
+			var cur_y: int = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
+			var cur_a: int = player_data.age
+
+			var p_m: int = int(pet.get(act_field_month, -1))
+			var p_y: int = int(pet.get(act_field_year, -1))
+			var p_a: int = int(pet.get(act_field_age, -1))
+
+			if (p_m == cur_m and p_y == cur_y and p_a == cur_a) or (p_m < 0 and p_a == cur_a):
 				var verb: String = "played with" if action == "play" else ("walked" if action == "walk" else ("given treats to" if action == "treat" else "taken to the vet"))
-				return {"success": false, "message": "Already done for Age %d! You have already %s %s this year. Wait until next year!" % [player_data.age, verb, pet_name]}
+				return {"success": false, "message": "Already done for this month! You have already %s %s this month. Available again next month!" % [verb, pet_name]}
 
 			match action:
 				"play":
 					pet["happiness"] = mini(100, int(pet.get("happiness", 80)) + 15)
 					player_data.happiness = mini(100, player_data.happiness + 8)
-					pet[act_field] = player_data.age
+					pet[act_field_age] = cur_a
+					pet[act_field_month] = cur_m
+					pet[act_field_year] = cur_y
 					player_data.add_life_log_entry("🎾 You spent joyous time playing and bonding with %s!" % pet_name, "activity")
 					return {"success": true, "message": "You played and cuddled with %s! %s is wagging and purring with joy." % [pet_name, pet_name]}
 				"walk":
@@ -478,7 +502,9 @@ static func interact_pet(player_data: Node, pet_id: String, action: String) -> D
 					pet["health"] = mini(100, int(pet.get("health", 80)) + 6)
 					player_data.health = mini(100, player_data.health + 4)
 					player_data.happiness = mini(100, player_data.happiness + 6)
-					pet[act_field] = player_data.age
+					pet[act_field_age] = cur_a
+					pet[act_field_month] = cur_m
+					pet[act_field_year] = cur_y
 					player_data.add_life_log_entry("🦮 You took %s on a refreshing outdoor walk through the park!" % pet_name, "activity")
 					return {"success": true, "message": "You went on a scenic walk with %s! Great cardio for both of you." % pet_name}
 				"treat":
@@ -488,7 +514,9 @@ static func interact_pet(player_data: Node, pet_id: String, action: String) -> D
 					player_data.debit_funds(treat_cost)
 					pet["happiness"] = mini(100, int(pet.get("happiness", 80)) + 20)
 					player_data.happiness = mini(100, player_data.happiness + 5)
-					pet[act_field] = player_data.age
+					pet[act_field_age] = cur_a
+					pet[act_field_month] = cur_m
+					pet[act_field_year] = cur_y
 					return {"success": true, "message": "You fed %s delicious artisan treats! %s happily devoured them." % [pet_name, pet_name]}
 				"vet":
 					var vet_cost := 160
@@ -497,7 +525,9 @@ static func interact_pet(player_data: Node, pet_id: String, action: String) -> D
 						return {"success": false, "message": "Veterinary examination costs $%d (Available: $%d)." % [vet_cost, total_funds]}
 					player_data.debit_funds(vet_cost)
 					pet["health"] = mini(100, int(pet.get("health", 70)) + 30)
-					pet[act_field] = player_data.age
+					pet[act_field_age] = cur_a
+					pet[act_field_month] = cur_m
+					pet[act_field_year] = cur_y
 					player_data.add_life_log_entry("🩺 You brought %s to the veterinarian clinic for shots and health checkups ($%d). Health restored!" % [pet_name, vet_cost], "activity")
 					return {"success": true, "message": "The veterinarian gave %s a clean bill of health! Pet vitality restored." % pet_name}
 

@@ -74,13 +74,20 @@ static func get_charity_by_id(charity_id: String) -> Dictionary:
 	return {}
 
 static func has_donated_this_year(player_data: Node) -> bool:
-	var l_age = player_data.get("last_charity_donation_age")
-	if l_age is int:
-		return l_age == player_data.age
-	elif l_age is Dictionary:
-		for v in l_age.values():
-			if int(v) == player_data.age:
-				return true
+	return has_donated_this_month(player_data)
+
+static func has_donated_this_month(player_data: Node) -> bool:
+	var cur_m: int = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
+	var cur_y: int = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
+	var cur_a: int = player_data.age
+	var l_m = player_data.get("last_charity_donation_month")
+	var l_y = player_data.get("last_charity_donation_year")
+	var l_a = player_data.get("last_charity_donation_age")
+
+	if l_m != null and l_y != null and int(l_m) > 0 and int(l_y) > 0:
+		return int(l_m) == cur_m and int(l_y) == cur_y and int(l_a) == cur_a
+	elif l_a != null:
+		return int(l_a) == cur_a
 	return false
 
 static func can_donate(player_data: Node, charity_id: String) -> Dictionary:
@@ -95,11 +102,11 @@ static func can_donate(player_data: Node, charity_id: String) -> Dictionary:
 			"reason": "Age Restricted: Must be at least Age %d+ to make this donation (Current Age: %d)." % [min_age, player_data.age]
 		}
 
-	# Ensure player can only donate once a year across all charities
-	if has_donated_this_year(player_data):
+	# Ensure player can only donate once a month across all charities
+	if has_donated_this_month(player_data):
 		return {
 			"allowed": false,
-			"reason": "Annual Donation Made: You can only donate once per year (Age %d). Contributions reset next year." % player_data.age
+			"reason": "Monthly Donation Made (Annual Donation Made): You can only donate once per month (Age %d). Contributions reset next month (or next year)." % player_data.age
 		}
 
 	var cost: int = int(def.get("donation_amount", 100))
@@ -123,8 +130,12 @@ static func donate(player_data: Node, charity_id: String) -> Dictionary:
 	# Debit funds: cash first, then bank savings
 	player_data.debit_funds(cost)
 
-	# Record donation age (only once a year allowed)
+	# Record donation timestamp (monthly cooldown)
 	player_data.last_charity_donation_age = player_data.age
+	if "last_charity_donation_month" in player_data:
+		player_data.last_charity_donation_month = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
+	if "last_charity_donation_year" in player_data:
+		player_data.last_charity_donation_year = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
 
 	# Karma and Happiness boosts (strictly non-permanent stat additions)
 	var karma_boost: int = int(def.get("hidden_karma_boost", 15))

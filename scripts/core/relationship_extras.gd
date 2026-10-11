@@ -41,7 +41,7 @@ const GUESTS := [
 ]
 
 static func give_gift(player: Node, index: int) -> String:
-	if player.is_dead or not player.has_partner() or player.last_partner_gift_age == player.age or index < 0 or index >= GIFTS.size():
+	if player.is_dead or not player.has_partner() or player.is_activity_used_this_month(player.last_partner_gift_month, player.last_partner_gift_year, player.last_partner_gift_age) or index < 0 or index >= GIFTS.size():
 		return ""
 	var gift: Dictionary = GIFTS[index]
 	var cost: int = int(gift.cost)
@@ -49,7 +49,11 @@ static func give_gift(player: Node, index: int) -> String:
 		return ""
 	player.debit_funds(cost)
 	player.last_partner_gift_age = player.age
+	player.last_partner_gift_month = player.in_game_month
+	player.last_partner_gift_year = player.in_game_year
 	player.last_partner_interact_age = player.age
+	player.last_partner_interact_month = player.in_game_month
+	player.last_partner_interact_year = player.in_game_year
 	player.partner["happiness"] = clampi(int(player.partner.get("happiness", 50)) + int(gift.joy), 0, 100)
 	player.set_partner_relationship(player.get_partner_relationship() + int(gift.bond))
 	player.happiness = clampi(player.happiness + 4, 0, 100)
@@ -65,13 +69,15 @@ static func give_child_gift(player: Node, child_index: int, gift_index: int) -> 
 	var c_name: String = str(child.get("name", "Child"))
 	if c_age < int(gift.get("min_age", 5)):
 		return ""
-	if int(child.get("last_gift_age", -1)) == player.age:
+	if player.is_activity_used_this_month(int(child.get("last_gift_month", -1)), int(child.get("last_gift_year", -1)), int(child.get("last_gift_age", -1))):
 		return ""
 	var cost: int = int(gift.cost)
 	if not player.can_afford(cost):
 		return ""
 	player.debit_funds(cost)
 	child["last_gift_age"] = player.age
+	child["last_gift_month"] = player.in_game_month
+	child["last_gift_year"] = player.in_game_year
 	child["relationship"] = mini(100, int(child.get("relationship", 80)) + int(gift.bond))
 	player.happiness = mini(100, player.happiness + int(gift.joy))
 	var emoji: String = gift.get("emoji", "🎁")
