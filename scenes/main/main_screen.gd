@@ -2,6 +2,7 @@ extends Control
 const CreationOptions = preload("res://scripts/core/creation_options.gd")
 const NameCatalog = preload("res://scripts/core/name_catalog.gd")
 const PortraitCatalog = preload("res://scripts/core/portrait_catalog.gd")
+const AvatarRegistry = preload("res://scripts/core/avatar_registry.gd")
 const BirthStoryGenerator = preload("res://scripts/core/birth_story_generator.gd")
 const RomanceRules = preload("res://scripts/core/romance_rules.gd")
 const RelationshipExtras = preload("res://scripts/core/relationship_extras.gd")
@@ -25,6 +26,10 @@ var portrait_key: String = ""
 var gender_input: OptionButton
 var creation_selected_ethnicity: String = "white"
 var creation_selected_track: int = 0
+var creation_selected_teen_index: int = 0
+var creation_selected_avatar_id: String = ""
+var is_name_manually_edited: bool = false
+var is_avatar_manually_selected: bool = false
 var creation_avatar_rect: TextureRect
 var creation_avatar_desc: Label
 
@@ -2435,19 +2440,32 @@ func show_new_game_screen() -> void:
 		action_bar.visible = false
 	if age_button != null:
 		age_button.visible = false
-	if name_input != null:
-		name_input.text = ""
 
+	is_name_manually_edited = false
+	is_avatar_manually_selected = false
+
+	var def_country := "Indonesia"
 	if birthplace_input != null:
 		var default_country_idx := -1
 		for i in range(birthplace_input.item_count):
-			if birthplace_input.get_item_text(i) == "Indonesia":
+			if birthplace_input.get_item_text(i) == def_country:
 				default_country_idx = i
 				break
 		if default_country_idx != -1:
 			birthplace_input.select(default_country_idx)
-			birthplace_input.text = "Indonesia"
+			birthplace_input.text = def_country
 			birthplace_input.icon = birthplace_input.get_item_icon(default_country_idx)
+
+	var is_female: bool = (gender_input != null and gender_input.selected == 1)
+	var gender_str: String = "FEMALE" if is_female else "MALE"
+	if name_input != null:
+		name_input.text = NameCatalog.random_name(def_country, is_female)
+
+	creation_selected_teen_index = AvatarRegistry.get_default_teen_index(def_country, gender_str)
+	creation_selected_avatar_id = AvatarRegistry.get_avatar_id(gender_str, creation_selected_teen_index)
+	creation_selected_ethnicity = AvatarRegistry.get_ethnicity_for_teen_index(gender_str, creation_selected_teen_index)
+	creation_selected_track = AvatarRegistry.get_track_for_teen_index(gender_str, creation_selected_teen_index)
+	_update_creation_avatar_preview()
 
 	if validation_label != null:
 		validation_label.text = ""
@@ -2497,6 +2515,9 @@ func _on_start_game_button_pressed() -> void:
 	PlayerData.ethnicity = creation_selected_ethnicity
 	PlayerData.portrait_track = creation_selected_track
 	PlayerData.portrait_variant = creation_selected_track
+	if creation_selected_avatar_id.is_empty():
+		creation_selected_avatar_id = AvatarRegistry.get_avatar_id(PlayerData.gender, creation_selected_teen_index)
+	PlayerData.avatar_id = creation_selected_avatar_id
 	PlayerData.has_started_game = true
 
 	# Generate rich, unique BitLife-style birth description & family background
@@ -21812,6 +21833,7 @@ func _configure_creation() -> void:
 	name_input.set_meta("is_name_input", true)
 	name_input.set_meta("mobile_kb_prompt_title", "What is your name?")
 	name_input.placeholder_text = "Tap to enter custom name"
+	name_input.text = NameCatalog.random_name("Indonesia", false)
 	name_input.focus_exited.connect(func(): name_input.text = CreationOptions.normalize_name(name_input.text))
 	var MobileKeyboardManagerRef = load("res://scripts/ui/mobile_keyboard_manager.gd")
 	if MobileKeyboardManagerRef != null:
@@ -21939,15 +21961,46 @@ func _configure_creation() -> void:
 	content.add_child(random_button)
 	content.move_child(random_button, creation_avatar_desc.get_index() + 1)
 
+	name_input.text_changed.connect(func(_new_text: String):
+		is_name_manually_edited = true
+	)
+
+	gender_input.item_selected.connect(func(idx: int):
+		var is_female: bool = (idx == 1)
+		var gender_str: String = "FEMALE" if is_female else "MALE"
+		if not is_name_manually_edited:
+			var c_name := birthplace_input.get_item_text(birthplace_input.selected)
+			name_input.text = NameCatalog.random_name(c_name, is_female)
+		if not is_avatar_manually_selected:
+			var c_name := birthplace_input.get_item_text(birthplace_input.selected)
+			creation_selected_teen_index = AvatarRegistry.get_default_teen_index(c_name, gender_str)
+		else:
+			var total: int = AvatarRegistry.get_teen_count(gender_str)
+			creation_selected_teen_index = posmod(creation_selected_teen_index, total)
+		creation_selected_avatar_id = AvatarRegistry.get_avatar_id(gender_str, creation_selected_teen_index)
+		creation_selected_ethnicity = AvatarRegistry.get_ethnicity_for_teen_index(gender_str, creation_selected_teen_index)
+		creation_selected_track = AvatarRegistry.get_track_for_teen_index(gender_str, creation_selected_teen_index)
+		_update_creation_avatar_preview()
+	)
+
 	birthplace_input.item_selected.connect(func(idx: int):
 		var c_name := birthplace_input.get_item_text(idx)
-		var allowed := PortraitCatalog.get_country_ethnicities(c_name)
-		if not allowed.has(creation_selected_ethnicity):
-			creation_selected_ethnicity = allowed[0]
-			creation_selected_track = 0
+		var is_female: bool = (gender_input.selected == 1)
+		var gender_str: String = "FEMALE" if is_female else "MALE"
+		if not is_name_manually_edited:
+			name_input.text = NameCatalog.random_name(c_name, is_female)
+		if not is_avatar_manually_selected:
+			creation_selected_teen_index = AvatarRegistry.get_default_teen_index(c_name, gender_str)
+			creation_selected_avatar_id = AvatarRegistry.get_avatar_id(gender_str, creation_selected_teen_index)
+			creation_selected_ethnicity = AvatarRegistry.get_ethnicity_for_teen_index(gender_str, creation_selected_teen_index)
+			creation_selected_track = AvatarRegistry.get_track_for_teen_index(gender_str, creation_selected_teen_index)
 			_update_creation_avatar_preview()
 	)
 
+	creation_selected_teen_index = AvatarRegistry.get_default_teen_index("Indonesia", "MALE")
+	creation_selected_avatar_id = AvatarRegistry.get_avatar_id("MALE", creation_selected_teen_index)
+	creation_selected_ethnicity = AvatarRegistry.get_ethnicity_for_teen_index("MALE", creation_selected_teen_index)
+	creation_selected_track = AvatarRegistry.get_track_for_teen_index("MALE", creation_selected_teen_index)
 	_update_creation_avatar_preview()
 
 	# Card Styling: High-contrast Dark Cyber Card with Responsive Anti-Clipping ScrollContainer
@@ -22170,34 +22223,39 @@ func _update_creation_theme() -> void:
 
 
 func _cycle_creation_avatar(direction: int) -> void:
-	var eth_list := PortraitCatalog.ETHNICITIES
-	var eth_idx := eth_list.find(creation_selected_ethnicity)
-	if eth_idx == -1:
-		eth_idx = 0
-	var total_index := eth_idx * 4 + creation_selected_track
-	total_index = posmod(total_index + direction, eth_list.size() * 4)
-	creation_selected_ethnicity = eth_list[floori(float(total_index) / 4)]
-	creation_selected_track = total_index % 4
+	is_avatar_manually_selected = true
+	var gender_str: String = "FEMALE" if (gender_input != null and gender_input.selected == 1) else "MALE"
+	var total: int = AvatarRegistry.get_teen_count(gender_str)
+	creation_selected_teen_index = posmod(creation_selected_teen_index + direction, total)
+	creation_selected_avatar_id = AvatarRegistry.get_avatar_id(gender_str, creation_selected_teen_index)
+	creation_selected_ethnicity = AvatarRegistry.get_ethnicity_for_teen_index(gender_str, creation_selected_teen_index)
+	creation_selected_track = AvatarRegistry.get_track_for_teen_index(gender_str, creation_selected_teen_index)
 	_update_creation_avatar_preview()
 
 
 func _update_creation_avatar_preview() -> void:
+	var gender_str: String = "FEMALE" if (gender_input != null and gender_input.selected == 1) else "MALE"
 	if creation_avatar_rect != null:
-		creation_avatar_rect.texture = PortraitCatalog.get_baby_texture(creation_selected_ethnicity, creation_selected_track)
+		creation_avatar_rect.texture = AvatarRegistry.get_teen_texture(gender_str, creation_selected_teen_index)
 	if creation_avatar_desc != null:
-		var eth_title := creation_selected_ethnicity.capitalize()
-		creation_avatar_desc.text = "%s Baby • Style %d of 4" % [eth_title, creation_selected_track + 1]
+		creation_avatar_desc.text = AvatarRegistry.get_display_text(gender_str, creation_selected_teen_index)
 
 
 func _randomize_identity() -> void:
+	is_name_manually_edited = false
+	is_avatar_manually_selected = false
 	gender_input.select(randi_range(0, 1))
 	birthplace_input.select(randi_range(0, birthplace_input.item_count - 1))
 	var country := birthplace_input.get_item_text(birthplace_input.selected)
 	birthplace_input.text = country
 	birthplace_input.icon = birthplace_input.get_item_icon(birthplace_input.selected)
-	name_input.text = NameCatalog.random_name(country, gender_input.selected == 1)
-	creation_selected_ethnicity = PortraitCatalog.random_ethnicity_for_country(country)
-	creation_selected_track = randi_range(0, 3)
+	var is_female: bool = (gender_input.selected == 1)
+	var gender_str: String = "FEMALE" if is_female else "MALE"
+	name_input.text = NameCatalog.random_name(country, is_female)
+	creation_selected_teen_index = AvatarRegistry.get_default_teen_index(country, gender_str)
+	creation_selected_avatar_id = AvatarRegistry.get_avatar_id(gender_str, creation_selected_teen_index)
+	creation_selected_ethnicity = AvatarRegistry.get_ethnicity_for_teen_index(gender_str, creation_selected_teen_index)
+	creation_selected_track = AvatarRegistry.get_track_for_teen_index(gender_str, creation_selected_teen_index)
 	_update_creation_avatar_preview()
 	validation_label.text = ""
 
@@ -22459,9 +22517,12 @@ func _configure_portrait() -> void:
 
 func _update_portrait() -> void:
 	var stage := PortraitCatalog.stage_index(PlayerData.age)
-	var key := "%d/%s/%s/%d" % [stage, PlayerData.gender, PlayerData.ethnicity, PlayerData.portrait_track]
+	var key := "%d/%s/%s/%d/%s" % [stage, PlayerData.gender, PlayerData.ethnicity, PlayerData.portrait_track, PlayerData.avatar_id]
 	if key != portrait_key:
-		portrait.texture = PortraitCatalog.get_portrait(PlayerData.age, PlayerData.gender, PlayerData.portrait_track, PlayerData.ethnicity)
+		if stage == 2 and not PlayerData.avatar_id.is_empty():
+			portrait.texture = AvatarRegistry.get_texture_by_id(PlayerData.avatar_id, PlayerData.age, PlayerData.gender, PlayerData.portrait_track, PlayerData.ethnicity)
+		else:
+			portrait.texture = PortraitCatalog.get_portrait(PlayerData.age, PlayerData.gender, PlayerData.portrait_track, PlayerData.ethnicity)
 		portrait_key = key
 	portrait.tooltip_text = "%s %s" % [PlayerData.get_stage_icon(), PlayerData.get_stage_name()]
 	if isometric_room != null and isometric_room.has_method("update_character"):

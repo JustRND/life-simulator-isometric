@@ -1,6 +1,7 @@
 extends Node2D
 
 const PortraitCatalog = preload("res://scripts/core/portrait_catalog.gd")
+const AvatarRegistry = preload("res://scripts/core/avatar_registry.gd")
 
 ## ANIMATION SYSTEM:
 ## Characters are 128x128 pixel-art avatars. In the isometric room, they feature:
@@ -330,7 +331,11 @@ func update_appearance() -> void:
 		var gender: String = PlayerData.gender if "gender" in PlayerData else "MALE"
 		var track: int = PlayerData.portrait_track if "portrait_track" in PlayerData else 0
 		var eth: String = PlayerData.ethnicity if "ethnicity" in PlayerData else "white"
-		tex = PortraitCatalog.get_portrait(age, gender, track, eth)
+		var a_id: String = PlayerData.avatar_id if "avatar_id" in PlayerData else ""
+		if not a_id.is_empty() and age < 20:
+			tex = AvatarRegistry.get_texture_by_id(a_id, age, gender, track, eth)
+		if tex == null:
+			tex = PortraitCatalog.get_portrait(age, gender, track, eth)
 	
 	if tex == null:
 		tex = load("res://assets/portraits/white/baby_0.png") as Texture2D

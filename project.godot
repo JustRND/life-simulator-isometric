@@ -15,10 +15,8 @@ config/version="0.3.0"
 run/main_scene="uid://dtpvigdquw6gc"
 config/features=PackedStringArray("4.7", "Mobile")
 run/max_fps=120
-boot_splash/image="res://assets/ui/loading_screen_icon.png"
-boot_splash/show_image=true
-boot_splash/use_filter=true
 boot_splash/bg_color=Color(0.043, 0.075, 0.165, 1)
+boot_splash/image="res://assets/ui/loading_screen_icon.png"
 config/icon="res://icon.png"
 
 [autoload]
@@ -52,10 +50,10 @@ theme/custom_font="res://assets/fonts/app_font.tres"
 
 [rendering]
 
-environment/defaults/default_clear_color=Color(0.043, 0.075, 0.165, 1)
 rendering_device/driver.windows="d3d12"
 renderer/rendering_method="mobile"
 renderer/rendering_method.web="gl_compatibility"
 textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.043, 0.075, 0.165, 1)
 2d/snap/snap_2d_transforms_to_pixel=true
 2d/snap/snap_2d_vertices_to_pixel=true
