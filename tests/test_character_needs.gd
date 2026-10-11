@@ -25,6 +25,7 @@ func _ready() -> void:
 	test_age_aware_balancing()
 	test_save_load_and_version4_migration()
 	test_configurable_tunability()
+	test_full_depletion_timelines()
 
 	print("\n=======================================================")
 	print("🎉 ALL STAGE 4 TESTS COMPLETED: (%d/%d assertions passed)!" % [passed_assertions, total_assertions])
@@ -59,16 +60,16 @@ func test_daily_depletion_and_pausing() -> void:
 	PlayerData.auto_consume_enabled = false # Disable to test pure depletion
 	NeedsManager.reset_config_to_defaults()
 
-	# 1 day active unpaused depletion (adult: 2.5 hunger, 4.0 thirst)
+	# 1 day active unpaused depletion (adult: 0.2 hunger, 0.3 thirst)
 	var res1 := NeedsManager.process_daily_needs(PlayerData, 1)
 	assert_true(res1.get("processed", false), "Active day processed successfully")
-	assert_true(is_equal_approx(PlayerData.hunger, 97.5), "Hunger decreased by 2.5 (now 97.5)")
-	assert_true(is_equal_approx(PlayerData.thirst, 96.0), "Thirst decreased by 4.0 (now 96.0)")
+	assert_true(is_equal_approx(PlayerData.hunger, 99.8), "Hunger decreased by 0.2 (now 99.8)")
+	assert_true(is_equal_approx(PlayerData.thirst, 99.7), "Thirst decreased by 0.3 (now 99.7)")
 
-	# 5 days active unpaused depletion
+	# 5 days active unpaused depletion (total 6 days: 6*0.2 = 1.2, 6*0.3 = 1.8)
 	NeedsManager.process_daily_needs(PlayerData, 5)
-	assert_true(is_equal_approx(PlayerData.hunger, 85.0), "Hunger after 6 days is 85.0 (100 - 15)")
-	assert_true(is_equal_approx(PlayerData.thirst, 76.0), "Thirst after 6 days is 76.0 (100 - 24)")
+	assert_true(is_equal_approx(PlayerData.hunger, 98.8), "Hunger after 6 days is 98.8 (100 - 1.2)")
+	assert_true(is_equal_approx(PlayerData.thirst, 98.2), "Thirst after 6 days is 98.2 (100 - 1.8)")
 
 	# Paused gameplay check
 	GameClock.set_paused(true, "test_pause_menu")
@@ -361,29 +362,31 @@ func test_auto_consumption_system() -> void:
 # 10. AGE-AWARE BALANCING
 # -----------------------------------------------------------------------------
 func test_age_aware_balancing() -> void:
-	print("\n--- 10. Testing Age-Aware Balancing ---")
+	print("\n--- 10. Testing Base Depletion Balancing Across Ages ---")
 	PlayerData.reset_player()
 	PlayerData.has_started_game = true
 	NeedsManager.reset_config_to_defaults()
 
-	# Minor (14 years old): decay multiplier is 0.5
+	# Minor (14 years old): base decay 0.2 hunger, 0.3 thirst
 	PlayerData.age = 14
 	var m_hunger_decay := NeedsManager.get_effective_hunger_decay(PlayerData)
 	var m_thirst_decay := NeedsManager.get_effective_thirst_decay(PlayerData)
-	assert_true(is_equal_approx(m_hunger_decay, 1.25), "Minor hunger decay is 1.25/day (2.5 * 0.5)")
-	assert_true(is_equal_approx(m_thirst_decay, 2.0), "Minor thirst decay is 2.0/day (4.0 * 0.5)")
+	assert_true(is_equal_approx(m_hunger_decay, 0.2), "Minor hunger decay is 0.2/day")
+	assert_true(is_equal_approx(m_thirst_decay, 0.3), "Minor thirst decay is 0.3/day")
 
-	# Adult (30 years old): normal decay multiplier 1.0
+	# Adult (30 years old): base decay 0.2 hunger, 0.3 thirst
 	PlayerData.age = 30
 	var a_hunger_decay := NeedsManager.get_effective_hunger_decay(PlayerData)
 	var a_thirst_decay := NeedsManager.get_effective_thirst_decay(PlayerData)
-	assert_true(is_equal_approx(a_hunger_decay, 2.5), "Adult hunger decay is 2.5/day")
-	assert_true(is_equal_approx(a_thirst_decay, 4.0), "Adult thirst decay is 4.0/day")
+	assert_true(is_equal_approx(a_hunger_decay, 0.2), "Adult hunger decay is 0.2/day")
+	assert_true(is_equal_approx(a_thirst_decay, 0.3), "Adult thirst decay is 0.3/day")
 
-	# Senior (70 years old): senior decay multiplier 1.1
+	# Senior (70 years old): base decay 0.2 hunger, 0.3 thirst
 	PlayerData.age = 70
 	var s_hunger_decay := NeedsManager.get_effective_hunger_decay(PlayerData)
-	assert_true(is_equal_approx(s_hunger_decay, 2.75), "Senior hunger decay is 2.75/day (2.5 * 1.1)")
+	var s_thirst_decay := NeedsManager.get_effective_thirst_decay(PlayerData)
+	assert_true(is_equal_approx(s_hunger_decay, 0.2), "Senior hunger decay is 0.2/day")
+	assert_true(is_equal_approx(s_thirst_decay, 0.3), "Senior thirst decay is 0.3/day")
 
 
 # -----------------------------------------------------------------------------
@@ -437,12 +440,13 @@ func test_save_load_and_version4_migration() -> void:
 
 
 # -----------------------------------------------------------------------------
-# 12. CONFIGURABLE TUNABILITY
+# 12. CONFIGURABLE TUNABILITY & JSON SETTINGS
 # -----------------------------------------------------------------------------
 func test_configurable_tunability() -> void:
-	print("\n--- 12. Testing Configurable Tunability ---")
+	print("\n--- 12. Testing Configurable Tunability & JSON Settings ---")
 	NeedsManager.reset_config_to_defaults()
-	assert_true(float(NeedsManager.get_config_value("hunger_decay_per_day")) == 2.5, "Default hunger decay is 2.5")
+	assert_true(float(NeedsManager.get_config_value("hunger_decay_per_day")) == 0.2, "Default hunger decay is 0.2")
+	assert_true(float(NeedsManager.get_config_value("thirst_decay_per_day")) == 0.3, "Default thirst decay is 0.3")
 
 	NeedsManager.set_config_value("hunger_decay_per_day", 10.0)
 	assert_true(float(NeedsManager.get_config_value("hunger_decay_per_day")) == 10.0, "Modified hunger decay to 10.0")
@@ -456,4 +460,50 @@ func test_configurable_tunability() -> void:
 	assert_true(is_equal_approx(PlayerData.hunger, 90.0), "Tuned decay rate (10.0) took effect immediately (100 -> 90)")
 
 	NeedsManager.reset_config_to_defaults()
-	assert_true(float(NeedsManager.get_config_value("hunger_decay_per_day")) == 2.5, "Reset config restores default rate")
+	assert_true(float(NeedsManager.get_config_value("hunger_decay_per_day")) == 0.2, "Reset config restores default rate (0.2)")
+
+
+# -----------------------------------------------------------------------------
+# 13. FULL DEPLETION TIMELINES (500 DAYS HUNGER, 333 DAYS THIRST)
+# -----------------------------------------------------------------------------
+func test_full_depletion_timelines() -> void:
+	print("\n--- 13. Testing Full Depletion Timelines & Fractional Smoothness ---")
+	PlayerData.reset_player()
+	PlayerData.has_started_game = true
+	PlayerData.hunger = 100.0
+	PlayerData.thirst = 100.0
+	PlayerData.auto_consume_enabled = false
+	NeedsManager.reset_config_to_defaults()
+
+	# Test smooth day-by-day fractional depletion over 10 days
+	for d in range(10):
+		NeedsManager.process_daily_needs(PlayerData, 1)
+		var expected_h := 100.0 - (float(d + 1) * 0.2)
+		var expected_t := 100.0 - (float(d + 1) * 0.3)
+		assert_true(is_equal_approx(PlayerData.hunger, expected_h), "Day %d hunger is exact fraction %.1f" % [d + 1, expected_h])
+		assert_true(is_equal_approx(PlayerData.thirst, expected_t), "Day %d thirst is exact fraction %.1f" % [d + 1, expected_t])
+
+	# Reset for full depletion simulation
+	PlayerData.hunger = 100.0
+	PlayerData.thirst = 100.0
+
+	# 333 days of thirst depletion: 100 - (333 * 0.3) = 0.1
+	NeedsManager.process_daily_needs(PlayerData, 333)
+	assert_true(is_equal_approx(PlayerData.thirst, 0.1), "Thirst after 333 days is 0.1% (near depleted)")
+	assert_true(PlayerData.thirst > 0.0, "Thirst has not prematurely reached 0 before 333 days")
+
+	# Day 334 reaches 0.0
+	NeedsManager.process_daily_needs(PlayerData, 1)
+	assert_true(PlayerData.thirst == 0.0, "Thirst completely depleted at day 334 (~333 in-game days)")
+
+	# At day 334, hunger is: 100 - (334 * 0.2) = 33.2
+	assert_true(is_equal_approx(PlayerData.hunger, 33.2), "Hunger at day 334 is 33.2%")
+
+	# Advance remaining 166 days to day 500
+	NeedsManager.process_daily_needs(PlayerData, 166)
+	assert_true(PlayerData.hunger == 0.0, "Hunger completely depleted at day 500 (100 - 500*0.2 = 0)")
+
+	# Both values clamp cleanly at 0.0
+	NeedsManager.process_daily_needs(PlayerData, 50)
+	assert_true(PlayerData.hunger == 0.0, "Hunger clamped at 0.0")
+	assert_true(PlayerData.thirst == 0.0, "Thirst clamped at 0.0")

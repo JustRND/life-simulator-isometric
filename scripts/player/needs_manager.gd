@@ -25,17 +25,20 @@ const TIER_DEPLETED: String = "DEPLETED"
 # Category identifiers for transaction history
 const CATEGORY_LIFESTYLE: String = "lifestyle"
 
-# Configurable tunables (tunable at runtime, not hardcoded across scripts)
+# Centralized settings configuration file path
+const CONFIG_FILE_PATH: String = "res://data/needs_config.json"
+
+# Configurable tunables (tunable from res://data/needs_config.json and at runtime)
 var config: Dictionary = {
-	"hunger_decay_per_day": 2.5,       # ~40 in-game days to deplete from 100 to 0
-	"thirst_decay_per_day": 4.0,       # ~25 in-game days to deplete from 100 to 0
+	"hunger_decay_per_day": 0.2,       # ~500 in-game days (8m 20s) to deplete from 100 to 0
+	"thirst_decay_per_day": 0.3,       # ~333 in-game days (5m 33s) to deplete from 100 to 0
 	"starvation_damage_per_day": 3,     # Health damage per day when hunger == 0
 	"dehydration_damage_per_day": 5,    # Health damage per day when thirst == 0
 	"threshold_low": 40.0,              # <= 40% is LOW
 	"threshold_critical": 15.0,         # <= 15% is CRITICAL
 	"auto_consume_threshold": 50.0,     # When <= 50%, auto-consume will look into pantry
-	"age_minor_decay_mult": 0.5,        # Minors (<18) decay 50% slower (family support)
-	"age_senior_decay_mult": 1.1,       # Seniors (>=65) need slightly more hydration care
+	"age_minor_decay_mult": 1.0,        # Minors (<18) decay multiplier
+	"age_senior_decay_mult": 1.0,       # Seniors (>=65) decay multiplier
 	"debuff_hunger_low_happiness": -10,
 	"debuff_hunger_crit_happiness": -25,
 	"debuff_hunger_crit_mental": -10,
@@ -136,6 +139,7 @@ func _exit_tree() -> void:
 
 
 func _ready() -> void:
+	load_config()
 	if has_node("/root/GameClock"):
 		var clock = get_node("/root/GameClock")
 		if clock != null and not clock.day_changed.is_connected(_on_clock_day_changed):
@@ -153,6 +157,33 @@ func _on_clock_day_changed(_year: int, _month: int, _day: int) -> void:
 # 1. CONFIGURATION & TUNING
 # -----------------------------------------------------------------------------
 
+## Loads configuration tunables from a centralized JSON settings file.
+func load_config(path: String = CONFIG_FILE_PATH) -> bool:
+	if not FileAccess.file_exists(path):
+		return false
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return false
+	var text := file.get_as_text()
+	file.close()
+	var json_data = JSON.parse_string(text)
+	if typeof(json_data) != TYPE_DICTIONARY:
+		return false
+	for k in json_data:
+		config[k] = json_data[k]
+	return true
+
+
+## Saves the current configuration tunables to the centralized JSON settings file.
+func save_config(path: String = CONFIG_FILE_PATH) -> bool:
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		return false
+	file.store_string(JSON.stringify(config, "\t"))
+	file.close()
+	return true
+
+
 func set_config_value(key: String, value: Variant) -> void:
 	config[key] = value
 
@@ -162,15 +193,27 @@ func get_config_value(key: String, default_val: Variant = null) -> Variant:
 
 
 func reset_config_to_defaults() -> void:
-	config["hunger_decay_per_day"] = 2.5
-	config["thirst_decay_per_day"] = 4.0
+	config["hunger_decay_per_day"] = 0.2
+	config["thirst_decay_per_day"] = 0.3
 	config["starvation_damage_per_day"] = 3
 	config["dehydration_damage_per_day"] = 5
 	config["threshold_low"] = 40.0
 	config["threshold_critical"] = 15.0
 	config["auto_consume_threshold"] = 50.0
-	config["age_minor_decay_mult"] = 0.5
-	config["age_senior_decay_mult"] = 1.1
+	config["age_minor_decay_mult"] = 1.0
+	config["age_senior_decay_mult"] = 1.0
+	config["debuff_hunger_low_happiness"] = -10
+	config["debuff_hunger_crit_happiness"] = -25
+	config["debuff_hunger_crit_mental"] = -10
+	config["debuff_hunger_dep_happiness"] = -40
+	config["debuff_hunger_dep_mental"] = -25
+	config["debuff_thirst_low_happiness"] = -10
+	config["debuff_thirst_low_mental"] = -5
+	config["debuff_thirst_crit_happiness"] = -30
+	config["debuff_thirst_crit_mental"] = -20
+	config["debuff_thirst_dep_happiness"] = -50
+	config["debuff_thirst_dep_mental"] = -35
+	load_config()
 
 
 # -----------------------------------------------------------------------------
@@ -200,24 +243,24 @@ func get_thirst_tier(player_data: Node) -> String:
 # -----------------------------------------------------------------------------
 
 func get_effective_hunger_decay(player_data: Node) -> float:
-	var base_decay: float = float(config.get("hunger_decay_per_day", 2.5))
+	var base_decay: float = float(config.get("hunger_decay_per_day", 0.2))
 	var age: int = int(player_data.get("age"))
 	var mult: float = 1.0
 	if age < 18:
-		mult = float(config.get("age_minor_decay_mult", 0.5))
+		mult = float(config.get("age_minor_decay_mult", 1.0))
 	elif age >= 65:
-		mult = float(config.get("age_senior_decay_mult", 1.1))
+		mult = float(config.get("age_senior_decay_mult", 1.0))
 	return base_decay * mult
 
 
 func get_effective_thirst_decay(player_data: Node) -> float:
-	var base_decay: float = float(config.get("thirst_decay_per_day", 4.0))
+	var base_decay: float = float(config.get("thirst_decay_per_day", 0.3))
 	var age: int = int(player_data.get("age"))
 	var mult: float = 1.0
 	if age < 18:
-		mult = float(config.get("age_minor_decay_mult", 0.5))
+		mult = float(config.get("age_minor_decay_mult", 1.0))
 	elif age >= 65:
-		mult = float(config.get("age_senior_decay_mult", 1.1))
+		mult = float(config.get("age_senior_decay_mult", 1.0))
 	return base_decay * mult
 
 
