@@ -243,6 +243,10 @@ func _ready() -> void:
 	var mobile_kb := preload("res://scripts/ui/mobile_keyboard_manager.gd").new()
 	mobile_kb.name = "MobileKeyboardManager"
 	add_child(mobile_kb)
+	if OS.is_debug_build():
+		var layout_guard := preload("res://scripts/ui/layout_guard.gd").new()
+		layout_guard.name = "LayoutGuard"
+		add_child(layout_guard)
 	var pull_up = preload("res://scripts/ui/panel_pull_up.gd")
 	pull_up.watch(reset_confirmation_overlay.get_node("ConfirmCard"), reset_confirmation_overlay)
 	pull_up.watch(new_game_panel)
@@ -2933,9 +2937,10 @@ func update_history_panel() -> void:
 
 		var age_lbl := Label.new()
 		age_lbl.text = "AGE %d" % int(entry.get("age", 0))
-		age_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		age_lbl.name = "HistoryAgeLabel"
+		age_lbl.set_meta("keep_horizontal_text", true)
 		age_lbl.custom_minimum_size = Vector2(140, 48)
-		age_lbl.size_flags_horizontal = Control.SIZE_SHRINK_END
+		LayoutGuard.configure_compact_label(age_lbl, 140)
 		age_lbl.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		age_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		age_lbl.add_theme_font_size_override("font_size", 28)
@@ -2980,6 +2985,8 @@ func update_history_panel() -> void:
 
 	if has_node("ThemeController"):
 		get_node("ThemeController").apply_subtree(history_list)
+	if OS.is_debug_build() and has_node("LayoutGuard"):
+		get_node("LayoutGuard").audit_tree(history_list)
 
 
 func update_character_panel() -> void:
@@ -3211,6 +3218,10 @@ func _refresh_financial_summaries(refresh_assets: bool = false) -> void:
 		_bank_savings_summary_label.text = "• Bank Balance: $%s  (Protected for Inheritance)\n• Cash: $%s" % [savings, cash]
 
 	if refresh_assets or (assets_panel != null and assets_panel.visible):
+		# This summary can contain several large currency values. It is the
+		# horizontal minimum of AssetsContent, so it must wrap instead of widening
+		# every card and button inside the assets scroll view.
+		LayoutGuard.configure_expanding_label(assets_cash_label)
 		var total_assets: int = PlayerData.get_total_asset_value()
 		var net_worth: int = PlayerData.get_net_worth()
 		var debt_val: int = PlayerData.get_total_debt()
@@ -3564,6 +3575,7 @@ func _render_owned_assets_section(title_text: String, categories: Array, theme_c
 					ab_lbl.add_theme_font_size_override("font_size", 24)
 					ab_lbl.add_theme_color_override("font_color", Color("#34d399") if not is_light else Color("#065f46"))
 					ab_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+					LayoutGuard.configure_expanding_label(ab_lbl)
 					active_box.add_child(ab_lbl)
 					iv.add_child(active_box)
 				else:
@@ -3985,6 +3997,7 @@ func _open_asset_marketplace_modal(category: String) -> void:
 			icon_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			icon_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 			icon_lbl.add_theme_font_size_override("font_size", 84)
+			icon_lbl.add_theme_color_override("font_color", Color("#334155") if is_light else Color("#f8fafc"))
 			img_frame.add_child(icon_lbl)
 
 		# 2. PRODUCT NAME  ------- PRICE
@@ -5793,12 +5806,10 @@ func _relationship_status_text(val: int) -> String:
 func _configure_relationship_avatar(icon: TextureRect) -> void:
 	if icon == null:
 		return
-	# Relationship avatars must keep their requested portrait width. The global
-	# anti-clipping pass expands generic Controls, which otherwise steals the
-	# HBox width from the NPC information column.
+	# Avatars are the compact side of the relationship HBox; the sibling VBox
+	# owns the remaining width for readable relationship information.
 	icon.set_meta("keep_fixed_size", true)
-	icon.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	LayoutGuard.configure_compact_avatar(icon, icon.custom_minimum_size.x)
 
 
 func _configure_relationship_action_grid(row: GridContainer) -> void:
@@ -5858,7 +5869,9 @@ func _setup_parent_action_row(vbox: VBoxContainer, parent_type: String) -> void:
 		var btn := Button.new()
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		btn.custom_minimum_size = Vector2(120, 64)
+		# Two-column relationship actions stay touchable without becoming tall
+		# pillars once their style-box content margins are applied.
+		btn.custom_minimum_size = Vector2(120, 50)
 		btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		btn.add_theme_font_size_override("font_size", 28)
 		btn.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -15033,31 +15046,12 @@ func _show_text_input_popup(options: Dictionary) -> Control:
 func _ensure_no_clipping_recursive(node: Node) -> void:
 	if not is_instance_valid(node):
 		return
-	if node.name == "TimeCounterLabel" or node.has_meta("keep_fixed_size"):
-		return
-	if node is Label:
-		if node.autowrap_mode == TextServer.AUTOWRAP_OFF and not node.has_meta("keep_horizontal_text"):
-			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-	elif node is RichTextLabel:
-		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-		if not node.has_meta("keep_fixed_size"):
-			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	elif node is Button:
-		node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		if not node.has_meta("keep_fixed_width") and not node.has_meta("keep_fixed_size"):
-			node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	elif node is ScrollContainer:
+	# This used to rewrite every descendant's size flags and wrap mode. That
+	# turned compact HBox children into expanding controls, which is the root
+	# cause of vertically wrapped ages, badges, and narrow buttons. Keep the
+	# safe scrollbar policy, but leave each component's geometry intact.
+	if node is ScrollContainer:
 		node.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
-		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-		if not node.has_meta("keep_fixed_size"):
-			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	elif node is Container or node is Control:
-		if not node.has_meta("keep_fixed_width") and not node.has_meta("keep_fixed_size"):
-			node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-			node.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for child in node.get_children():
 		_ensure_no_clipping_recursive(child)
 
@@ -15065,13 +15059,7 @@ func _ensure_no_clipping_recursive(node: Node) -> void:
 func _on_global_node_added(node: Node) -> void:
 	if not is_instance_valid(node):
 		return
-	if node.name == "TimeCounterLabel" or node.has_meta("keep_fixed_size") or node.has_meta("reference_part"):
-		return
-	if node is Label:
-		if node.autowrap_mode == TextServer.AUTOWRAP_OFF and not node.has_meta("keep_horizontal_text"):
-			node.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
-	elif node is ScrollContainer:
+	if node is ScrollContainer:
 		node.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_NEVER
 		node.custom_minimum_size.x = maxf(1.0, node.custom_minimum_size.x)
 
@@ -16839,6 +16827,7 @@ func _show_social_media_modal() -> void:
 			btn_post.custom_minimum_size = Vector2(120, 64)
 			btn_post.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_post.add_theme_font_size_override("font_size", 30)
+			LayoutGuard.configure_compact_grid_action(btn_post)
 			if has_posted_this_month:
 				btn_post.disabled = true
 				btn_post.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16855,6 +16844,7 @@ func _show_social_media_modal() -> void:
 			btn_verif.custom_minimum_size = Vector2(120, 64)
 			btn_verif.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_verif.add_theme_font_size_override("font_size", 30)
+			LayoutGuard.configure_compact_grid_action(btn_verif)
 			if is_verif:
 				btn_verif.disabled = true
 				btn_verif.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16873,6 +16863,7 @@ func _show_social_media_modal() -> void:
 			btn_buy_foll.custom_minimum_size = Vector2(120, 64)
 			btn_buy_foll.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_buy_foll.add_theme_font_size_override("font_size", 30)
+			LayoutGuard.configure_compact_grid_action(btn_buy_foll)
 			if has_ad_this_month:
 				btn_buy_foll.disabled = true
 				btn_buy_foll.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16892,6 +16883,7 @@ func _show_social_media_modal() -> void:
 			btn_troll.custom_minimum_size = Vector2(120, 64)
 			btn_troll.alignment = HORIZONTAL_ALIGNMENT_CENTER
 			btn_troll.add_theme_font_size_override("font_size", 30)
+			LayoutGuard.configure_compact_grid_action(btn_troll)
 			if has_trolled_this_month:
 				btn_troll.disabled = true
 				btn_troll.modulate = Color(0.6, 0.6, 0.6, 0.7)
@@ -16911,6 +16903,8 @@ func _show_social_media_modal() -> void:
 
 		list.add_child(p_card)
 
+	if has_node("ThemeController"):
+		get_node("ThemeController").apply_subtree(social_media_modal_overlay)
 	social_media_modal_overlay.visible = true
 
 
@@ -21738,6 +21732,7 @@ func _show_inheritance_selection_modal() -> void:
 		var empty_lbl := Label.new()
 		empty_lbl.text = "You have no surviving partner, children, or siblings to bequeath your estate to."
 		empty_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		LayoutGuard.configure_expanding_label(empty_lbl)
 		empty_lbl.add_theme_font_size_override("font_size", 30)
 		empty_lbl.add_theme_color_override("font_color", Color("#475569") if is_light else Color("#94a3b8"))
 		list.add_child(empty_lbl)
@@ -21769,9 +21764,7 @@ func _show_inheritance_selection_modal() -> void:
 		# Avatar
 		var icon := TextureRect.new()
 		icon.custom_minimum_size = Vector2(116, 116)
-		icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		LayoutGuard.configure_compact_avatar(icon, 116)
 		icon.texture = PortraitCatalog.texture(h_age, h_gender, int(heir.get("portrait_variant", 0)), str(heir.get("ethnicity", PlayerData.ethnicity)))
 		icon.material = PortraitCatalog.cutout_material()
 		ch.add_child(icon)
@@ -21836,6 +21829,7 @@ func _show_inheritance_selection_modal() -> void:
 		var pick_btn := Button.new()
 		pick_btn.text = "👑 Bequeath Estate & Continue as %s" % h_name
 		pick_btn.custom_minimum_size.y = 68
+		LayoutGuard.configure_action_button(pick_btn)
 		pick_btn.add_theme_font_size_override("font_size", 30)
 		var bs := StyleBoxFlat.new()
 		if is_partner:

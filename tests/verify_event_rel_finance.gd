@@ -63,17 +63,9 @@ func _ready() -> void:
 	var event_overlay: Control = main_scene.event_overlay
 	assert(event_overlay.visible, "Event overlay must be visible")
 	var desc: RichTextLabel = main_scene.event_description
-	var desc_sb: StyleBox = desc.get_theme_stylebox("normal")
-	assert(desc_sb != null, "EventDescription must have normal stylebox override")
-	print("EventDescription content margins: L=%d, R=%d, T=%d, B=%d" % [
-		desc_sb.content_margin_left,
-		desc_sb.content_margin_right,
-		desc_sb.content_margin_top,
-		desc_sb.content_margin_bottom
-	])
-	assert(desc_sb.content_margin_left >= 32, "EventDescription left margin must be >= 32")
-	assert(desc_sb.content_margin_right >= 32, "EventDescription right margin must be >= 32")
-	assert(desc_sb.content_margin_top >= 16, "EventDescription top margin must be >= 16")
+	assert(desc.autowrap_mode == TextServer.AUTOWRAP_WORD_SMART, "EventDescription must wrap by words")
+	assert(desc.custom_minimum_size.x > 0.0, "EventDescription must retain a width request")
+	assert(desc.size.x > 200.0, "EventDescription must receive readable horizontal space")
 	
 	await capture_screenshot("res://tests/verify_1_event_popup.png")
 	

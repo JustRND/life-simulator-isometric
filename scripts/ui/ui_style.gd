@@ -65,14 +65,19 @@ func apply_button(button: Button) -> void:
 	button.add_theme_font_override("font", font)
 
 	var in_grid: bool = button.get_parent() is GridContainer or button.get_parent() is HBoxContainer
+	var compact_grid_action: bool = in_grid and button.has_meta("compact_grid_action")
 	var cur_font_size: int = button.get_theme_font_size("font_size")
-	if cur_font_size > 0 and cur_font_size < BODY_SIZE:
+	if compact_grid_action:
+		button.add_theme_font_size_override("font_size", 24)
+	elif cur_font_size > 0 and cur_font_size < BODY_SIZE:
 		button.add_theme_font_size_override("font_size", cur_font_size)
 	else:
 		button.add_theme_font_size_override("font_size", DETAIL_SIZE if in_grid else BODY_SIZE)
 
 	if in_grid:
-		button.custom_minimum_size.y = clampf(button.custom_minimum_size.y, 68, 80)
+		# Grid actions share the available horizontal space. Keep their touch
+		# targets compact so a two-row grid does not turn into vertical pillars.
+		button.custom_minimum_size.y = clampf(button.custom_minimum_size.y, 50, 60)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -96,8 +101,8 @@ func apply_button(button: Button) -> void:
 		style.set_border_width_all(2)
 		style.content_margin_left = 14 if in_grid else 24
 		style.content_margin_right = 14 if in_grid else 24
-		style.content_margin_top = 10 if in_grid else 16
-		style.content_margin_bottom = 10 if in_grid else 16
+		style.content_margin_top = 0 if compact_grid_action else (6 if in_grid else 16)
+		style.content_margin_bottom = 0 if compact_grid_action else (6 if in_grid else 16)
 		if state == "normal" or state == "hover":
 			style.shadow_color = Color(0, 0, 0, 0.25)
 			style.shadow_size = 4

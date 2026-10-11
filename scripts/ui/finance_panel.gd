@@ -49,8 +49,8 @@ func create_market_button(parent: Node, text: String, color: Color, action: Call
 	btn.set_meta("market_button", true)
 	btn.text = text
 	btn.disabled = disabled
-	btn.custom_minimum_size = Vector2(1, min_height)
-	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.custom_minimum_size = Vector2(LayoutGuard.COMPACT_ACTION_MIN_WIDTH, min_height)
+	LayoutGuard.configure_action_button(btn, LayoutGuard.COMPACT_ACTION_MIN_WIDTH)
 	btn.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	btn.add_theme_font_size_override("font_size", 30)
 	btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -292,13 +292,22 @@ func _exchange(list: VBoxContainer) -> void:
 		cv.add_theme_constant_override("separation", 10)
 		cm.add_child(cv)
 
-		# 1. Company Header Row with Name & Price Trend Badge
-		var header_row := HBoxContainer.new()
-		header_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		cv.add_child(header_row)
+		# 1. Company name and quote use independent rows. A long company name and
+		# a SURGE/CRASH quote cannot safely share a narrow mobile HBox.
+		var header_stack := VBoxContainer.new()
+		header_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header_stack.add_theme_constant_override("separation", 4)
+		cv.add_child(header_stack)
 
-		var name_lbl := label(header_row, "🏛️ " + str(c.name), 32, Color("#0369a1") if is_light else Color("#38bdf8"))
+		var name_lbl := label(header_stack, "🏛️ " + str(c.name), 32, Color("#0369a1") if is_light else Color("#38bdf8"))
 		name_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+		var price_row := HBoxContainer.new()
+		price_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		header_stack.add_child(price_row)
+		var quote_spacer := Control.new()
+		quote_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		price_row.add_child(quote_spacer)
 
 		var change := (float(c.price) / maxf(0.01, float(c.previous)) - 1.0) * 100.0
 		var price_box := PanelContainer.new()
@@ -328,7 +337,8 @@ func _exchange(list: VBoxContainer) -> void:
 		pb_style.content_margin_top = 4
 		pb_style.content_margin_bottom = 4
 		price_box.add_theme_stylebox_override("panel", pb_style)
-		header_row.add_child(price_box)
+		price_box.size_flags_horizontal = Control.SIZE_SHRINK_END
+		price_row.add_child(price_box)
 
 		var trend_sign := "▲ +" if is_up else "▼ "
 		var badge_prefix := ""
@@ -338,12 +348,11 @@ func _exchange(list: VBoxContainer) -> void:
 			badge_prefix = "💥 CRASH "
 
 		var trend_lbl := Label.new()
-		# This label is intentionally kept on one line. The main screen's global
-		# anti-clipping hook otherwise changes AUTOWRAP_OFF to word wrapping, which
-		# collapses the price badge to a few pixels on narrow screens.
+		# Quotes are always horizontal; on narrow devices they are on their own
+		# row rather than competing with the company name for HBox width.
 		trend_lbl.set_meta("reference_part", true)
 		trend_lbl.text = "%s%s (%s%.1f%%)" % [badge_prefix, _money(c.price), trend_sign, absf(change)]
-		trend_lbl.autowrap_mode = TextServer.AUTOWRAP_OFF
+		LayoutGuard.configure_compact_label(trend_lbl)
 		trend_lbl.add_theme_font_size_override("font_size", 29)
 		var text_col: Color
 		if is_crash:

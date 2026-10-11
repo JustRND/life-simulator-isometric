@@ -8,6 +8,8 @@ const VIEWPORTS := [
 	Vector2i(1280, 720),
 	Vector2i(960, 540),
 	Vector2i(540, 960),
+	Vector2i(390, 844),
+	Vector2i(430, 932),
 	Vector2i(1080, 1920),
 ]
 
@@ -61,4 +63,4 @@ func _audit_primary_surface(main: Node, tab: String, viewport_size: Vector2i) ->
 		# actionable text should leave the horizontal viewport bounds.
 		if control is Button or control is LineEdit or control is TextEdit:
 			if rect.position.x < -2.0 or rect.end.x > visible_rect.end.x + 2.0:
-				findings.append("%s: %s horizontal overflow at %s" % [tab, control.name, viewport_size])
+				findings.append("%s: %s at %s horizontal overflow at %s (rect=%s visible=%s)" % [tab, control.name, control.get_path(), viewport_size, rect, visible_rect])

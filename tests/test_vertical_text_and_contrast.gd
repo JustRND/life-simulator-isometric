@@ -209,8 +209,8 @@ func _audit_open_modal(screen: Control, modal_name: String, theme_mode: String) 
 		var pc: PanelContainer = c as PanelContainer
 		if pc.size.x > vp_width + 10.0:
 			clipping_errors += 1
-			print("  🚨 [%s | %s] PANEL OVERFLOW on '%s': width=%.1f exceeds viewport=%.1f" % [
-				theme_mode, modal_name, pc.name, pc.size.x, vp_width
+			print("  🚨 [%s | %s] PANEL OVERFLOW on '%s' at %s: width=%.1f (minimum=%.1f) exceeds viewport=%.1f" % [
+				theme_mode, modal_name, pc.name, pc.get_path(), pc.size.x, pc.get_combined_minimum_size().x, vp_width
 			])
 
 	print("  ✓ [%s | %s] Checked %d labels for vertical squishing and contrast." % [theme_mode, modal_name, labels.size()])
