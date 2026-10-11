@@ -7282,8 +7282,8 @@ func _setup_friends_cards_ui() -> void:
 		var meet_btn := _create_cyber_button("🍸 Visit Social Venues (Activities)", Color("#ec4899"), func():
 			_on_social_venues_item_pressed()
 		)
-		meet_btn.custom_minimum_size = Vector2(0, 50)
-		meet_btn.add_theme_font_size_override("font_size", 24)
+		meet_btn.custom_minimum_size = Vector2(0, 76)
+		meet_btn.add_theme_font_size_override("font_size", 26)
 		ov.add_child(meet_btn)
 
 		rel_list.add_child(no_friends_card)
@@ -9523,10 +9523,11 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 			else:
 				_show_jobs_modal(t_id)
 		)
-		tab_btn.custom_minimum_size = Vector2(1, 56)
+		# Three-column navigation needs enough vertical room for its longest localized label.
+		tab_btn.custom_minimum_size = Vector2(1, 76)
 		tab_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		tab_btn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		tab_btn.add_theme_font_size_override("font_size", 22)
+		tab_btn.add_theme_font_size_override("font_size", 26)
 		var tab_sb = tab_btn.get_theme_stylebox("normal")
 		if tab_sb is StyleBoxFlat:
 			tab_sb.content_margin_left = 6
@@ -23608,5 +23609,3 @@ func player_get_companion_name(selected_friend: Dictionary) -> String:
 	elif venue_companion_mode == "friend" and not selected_friend.is_empty():
 		return "%s (Friend)" % str(selected_friend.get("name", "Friend"))
 	return "Solo"
-
-

@@ -79,9 +79,11 @@ func _ready() -> void:
 			assert(main.panel_pull_up._panel == null, "Same-tab refresh animated")
 		main.show_tab("timeline")
 	# Category pages and multi-step exams keep their own window throughout refreshes.
-	for entry in [["_show_job_category_modal", "job_category_modal_overlay", str(JobManager.get_categories()[0].id)], ["_show_license_category_modal", "license_category_modal_overlay", "vehicle"], ["_show_business_category_modal", "business_category_modal_overlay", "fnb"], ["_show_pet_shelter_modal", "pet_adoption_modal_overlay", "dog_shelter"], ["_show_pet_breeder_modal", "pet_adoption_modal_overlay", "dog_breeder"]]:
+	for entry in [["_show_job_category_modal", "job_category_modal_overlay", str(JobManager.get_categories()[0].id)], ["_show_license_category_modal", "license_category_modal_overlay", "vehicle"], ["_show_business_category_modal", "business_modal_overlay", "fnb"], ["_show_pet_shelter_modal", "pet_adoption_modal_overlay", "dog_shelter"], ["_show_pet_breeder_modal", "pet_adoption_modal_overlay", "dog_breeder"]]:
 		main.call(entry[0], entry[2])
 		var overlay: Control = main.get(entry[1])
+		assert(is_instance_valid(overlay), "%s did not create %s" % [entry[0], entry[1]])
+		assert(overlay.has_meta("modal_view"), "%s did not register a reusable modal view" % entry[0])
 		PullUp.finish_all_active()
 		main.call(entry[0], entry[2])
 		assert(main.get(entry[1]) == overlay)
