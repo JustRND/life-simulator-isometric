@@ -19,6 +19,15 @@ const NeuralCatalog = preload("res://scripts/economy/neural_catalog.gd")
 const MonthlySettlementCoordinator = preload("res://scripts/economy/monthly_settlement_coordinator.gd")
 const VenueCatalog = preload("res://scripts/venues/venue_catalog.gd")
 const VenueManager = preload("res://scripts/venues/venue_manager.gd")
+const DAY_ABBREVIATIONS: Dictionary = {
+	1: "MON",
+	2: "TUE",
+	3: "WED",
+	4: "THU",
+	5: "FRI",
+	6: "SAT",
+	7: "SUN"
+}
 
 
 var portrait: TextureRect
@@ -56,6 +65,7 @@ var annual_event_popup_chance: float = 0.35
 	else get_node_or_null("SafeArea/MainColumn/LifeFeedPanel/MarginContainer/LifeFeed") as RichTextLabel
 )
 @onready var life_feed_panel: PanelContainer = get_node_or_null("SafeArea/MainColumn/LifeFeedPanel") as PanelContainer
+@onready var pause_house_overlay: Control = get_node_or_null("SafeArea/MainColumn/PauseHouseOverlay") as Control
 @onready var timeline_drawer: PanelContainer = get_node_or_null("SafeArea/MainColumn/TimelinePanel") as PanelContainer
 @onready var timeline_pull_up_btn: Button = get_node_or_null("SafeArea/MainColumn/TimelinePullUpButton") as Button
 @onready var close_timeline_btn: Button = get_node_or_null("SafeArea/MainColumn/TimelinePanel/TimelineContent/TimelineHeaderRow/CloseTimelineButton") as Button
@@ -897,7 +907,7 @@ func _update_time_and_age_labels() -> void:
 	var date_changed: bool = y_num != _last_displayed_year or m_num != _last_displayed_month or d_num != _last_displayed_day
 	if date_changed:
 		var day_of_week: int = DailyJobsCatalog.calculate_day_of_week(y_num, m_num, d_num)
-		var day_name: String = DailyJobsCatalog.get_day_name(day_of_week)
+		var day_name: String = str(DAY_ABBREVIATIONS.get(day_of_week, "DAY"))
 		_cached_display_date = "%s, %02d - %02d - %02d" % [day_name, d_num, m_num, posmod(y_num, 100)]
 		_last_displayed_year = y_num
 		_last_displayed_month = m_num
@@ -1769,6 +1779,11 @@ func _adjust_safe_area() -> void:
 		profile_strip.offset_bottom = profile_strip.offset_top + strip_h
 		if is_instance_valid(life_feed_panel):
 			life_feed_panel.offset_top = profile_strip.offset_bottom + 4.0
+			if is_instance_valid(pause_house_overlay):
+				# Follow the house panel after responsive safe-area/profile offsets
+				# are applied at runtime.
+				pause_house_overlay.offset_top = life_feed_panel.offset_top
+				pause_house_overlay.offset_bottom = life_feed_panel.offset_bottom
 		if is_instance_valid(timeline_drawer):
 			var feed_top: float = life_feed_panel.offset_top if is_instance_valid(life_feed_panel) else profile_strip.offset_bottom + 4.0
 			var feed_bottom: float = life_feed_panel.offset_bottom if is_instance_valid(life_feed_panel) else -530.0

@@ -64,7 +64,9 @@ func _ready() -> void:
 	assert_check(pause_btn != null, "PauseTimeButton exists in house overlay")
 	assert_check(house_overlay != null, "PauseHouseOverlay exists")
 	assert_check(pause_btn.get_parent() == house_overlay, "PauseTimeButton parent is PauseHouseOverlay")
-	assert_check(house_overlay.anchor_right == 1.0 and house_overlay.offset_top == 264.0, "PauseHouseOverlay tracks the house panel bounds")
+	var feed_panel = main_scene.find_child("LifeFeedPanel", true, false) as Control
+	assert_check(feed_panel != null, "LifeFeedPanel exists")
+	assert_check(house_overlay.anchor_right == 1.0 and is_equal_approx(house_overlay.offset_top, feed_panel.offset_top) and is_equal_approx(house_overlay.offset_bottom, feed_panel.offset_bottom), "PauseHouseOverlay tracks the runtime house panel bounds")
 	assert_check(pause_btn.anchor_left == 1.0 and pause_btn.anchor_right == 1.0, "PauseTimeButton is anchored to overlay top-right")
 	var overlay_rect := house_overlay.get_global_rect()
 	var pause_rect := pause_btn.get_global_rect()
@@ -81,6 +83,12 @@ func _ready() -> void:
 	main_scene._update_time_and_age_labels()
 	assert_check("Pause" in pause_btn.text or "⏸️" in pause_btn.text, "Pause button displays Pause icon/text when running: '%s'" % pause_btn.text)
 	assert_check("📅" in time_lbl.text, "Time label displays calendar icon when running: '%s'" % time_lbl.text)
+	var uses_short_weekday := false
+	for weekday in ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]:
+		if time_lbl.text.begins_with("📅 %s," % weekday):
+			uses_short_weekday = true
+			break
+	assert_check(uses_short_weekday, "Time label uses abbreviated weekday names: '%s'" % time_lbl.text)
 	assert_check(time_lbl.text.contains(" - "), "Time label uses numeric DD - MM - YY date format: '%s'" % time_lbl.text)
 	assert_check(not time_lbl.text.contains("Month") and not time_lbl.text.contains("Day "), "Time label no longer uses Month/Day format: '%s'" % time_lbl.text)
 
