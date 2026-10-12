@@ -66,6 +66,10 @@ func _ready() -> void:
 	assert_check(pause_btn.get_parent() == house_overlay, "PauseTimeButton parent is PauseHouseOverlay")
 	assert_check(house_overlay.anchor_right == 1.0 and house_overlay.offset_top == 264.0, "PauseHouseOverlay tracks the house panel bounds")
 	assert_check(pause_btn.anchor_left == 1.0 and pause_btn.anchor_right == 1.0, "PauseTimeButton is anchored to overlay top-right")
+	var overlay_rect := house_overlay.get_global_rect()
+	var pause_rect := pause_btn.get_global_rect()
+	assert_check(pause_rect.position.x >= overlay_rect.position.x and pause_rect.end.x <= overlay_rect.end.x, "PauseTimeButton stays within house overlay horizontally")
+	assert_check(pause_rect.position.y >= overlay_rect.position.y and pause_rect.end.y <= overlay_rect.end.y, "PauseTimeButton stays within house overlay vertically")
 	assert_check(time_lbl != null, "TimeCounterLabel exists inside TimeRow")
 	assert_check(time_lbl.get_parent() == time_row, "TimeCounterLabel parent is TimeRow")
 
