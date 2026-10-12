@@ -18318,13 +18318,16 @@ func _show_crypto_exchange_modal() -> void:
 		cv.add_theme_constant_override("separation", 10)
 		cm.add_child(cv)
 
-		# Top row: Icon + Name + Symbol, Price + Change
+		# Top row: coin icon + name/symbol, price + change.  Do not append the
+		# Unicode block-character sparkline here: the Web font does not contain
+		# those glyphs, so mobile browsers render them as missing-character boxes.
+		# The percentage in the price column already communicates market direction.
 		var top_row := HBoxContainer.new()
 		top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		cv.add_child(top_row)
 
 		var name_lbl := Label.new()
-		name_lbl.text = "%s %s (%s)  %s" % [str(c.get("icon", "🪙")), str(c.get("name", "")), str(c.get("symbol", "")), str(c.get("sparkline", ""))]
+		name_lbl.text = "%s %s (%s)" % [str(c.get("icon", "🪙")), str(c.get("name", "")), str(c.get("symbol", ""))]
 		name_lbl.custom_minimum_size = Vector2(1, 0)
 		name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		name_lbl.add_theme_font_size_override("font_size", 30)

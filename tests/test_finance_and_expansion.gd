@@ -146,6 +146,14 @@ func _ready() -> void:
 	root_node._show_crypto_exchange_modal()
 	var crypto_overlay = root_node.crypto_modal_overlay
 	assert(crypto_overlay != null and crypto_overlay.visible, "Crypto Exchange modal overlay did not open!")
+	var bitcoin_title_found := false
+	for child in crypto_overlay.find_children("*", "Label", true, false):
+		var title := child as Label
+		if "PixelBitcoin (BTC)" in title.text:
+			bitcoin_title_found = true
+			for unsupported_glyph in ["▂", "▃", "▄", "▅", "▆", "▇", "█"]:
+				assert(not (unsupported_glyph in title.text), "Crypto title must not append unsupported block sparkline glyphs")
+	assert(bitcoin_title_found, "Bitcoin title label was not found in the Crypto Exchange modal")
 	print("Cryptocurrency Exchange modal successfully opened!")
 	
 	# 7. Test Stock Market Dynamic Fluctuations & Market Regimes
