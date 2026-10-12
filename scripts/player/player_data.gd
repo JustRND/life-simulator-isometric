@@ -312,6 +312,10 @@ var taxable_daily_wages_this_year: int = 0
 var daily_job_health_loss_fraction: float = 0.0
 var daily_job_mental_loss_fraction: float = 0.0
 var gig_earnings_this_year: int = 0
+# Shared allowance for all on-demand gig assignments. Four gigs are available
+# per calendar month, regardless of the player's other employment.
+var gigs_completed_this_month: int = 0
+var last_gig_month: Dictionary = {"year": 0, "month": 0}
 var gigs_completed_today: int = 0
 var last_gig_date: Dictionary = {"year": 0, "month": 0, "day": 0}
 var gig_reputation: Dictionary = {}
@@ -608,6 +612,8 @@ func reset_player() -> void:
 	daily_job_health_loss_fraction = 0.0
 	daily_job_mental_loss_fraction = 0.0
 	gig_earnings_this_year = 0
+	gigs_completed_this_month = 0
+	last_gig_month = {"year": 0, "month": 0}
 	gigs_completed_today = 0
 	last_gig_date = {"year": 0, "month": 0, "day": 0}
 	gig_reputation = {}

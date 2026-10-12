@@ -265,10 +265,10 @@ func test_idempotency_and_multi_day_catchup() -> void:
 
 
 # =============================================================================
-# 6. GIG SYSTEM & DAILY CAPACITY LIMITS
+# 6. GIG SYSTEM & MONTHLY CAPACITY LIMITS
 # =============================================================================
 func test_gig_system_and_capacity_limits() -> void:
-	print("\n--- 6. Testing Gig System & Daily Capacity Limits ---")
+	print("\n--- 6. Testing Gig System & Monthly Capacity Limits ---")
 	PlayerData.reset_player()
 	PlayerData.age = 18
 	PlayerData.money = 0
@@ -278,9 +278,9 @@ func test_gig_system_and_capacity_limits() -> void:
 	PlayerData.in_game_month = 1
 	PlayerData.in_game_day = 1
 
-	# Unemployed player has daily capacity of 3 gigs
-	assert_check(GigManagerScript.get_daily_capacity(PlayerData) == 3, "Unemployed player gig capacity is 3")
-	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 3, "Remaining gig capacity is 3")
+	# Every player has one shared allowance of four on-demand gigs per month.
+	assert_check(GigManagerScript.get_monthly_capacity(PlayerData) == 4, "Monthly gig capacity is 4")
+	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 4, "Remaining monthly gig capacity is 4")
 
 	var gigs := GigManagerScript.generate_available_gigs(PlayerData)
 	assert_check(gigs.size() > 0, "Available gigs generated")
@@ -289,36 +289,45 @@ func test_gig_system_and_capacity_limits() -> void:
 	# Complete Gig 1
 	var comp1 := GigManagerScript.complete_gig(PlayerData, gig_sample)
 	assert_check(bool(comp1.get("success", false)), "Gig 1 completed successfully")
-	assert_check(PlayerData.gigs_completed_today == 1, "Gigs completed today is 1")
-	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 2, "Remaining capacity is 2")
+	assert_check(PlayerData.gigs_completed_this_month == 1, "Gigs completed this month is 1")
+	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 3, "Remaining monthly capacity is 3")
 
 	# Complete Gig 2
 	var comp2 := GigManagerScript.complete_gig(PlayerData, gig_sample)
 	assert_check(bool(comp2.get("success", false)), "Gig 2 completed successfully")
-	assert_check(PlayerData.gigs_completed_today == 2, "Gigs completed today is 2")
+	assert_check(PlayerData.gigs_completed_this_month == 2, "Gigs completed this month is 2")
 
 	# Complete Gig 3
 	var comp3 := GigManagerScript.complete_gig(PlayerData, gig_sample)
 	assert_check(bool(comp3.get("success", false)), "Gig 3 completed successfully")
-	assert_check(PlayerData.gigs_completed_today == 3, "Gigs completed today is 3")
-	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 0, "Remaining capacity is 0")
+	assert_check(PlayerData.gigs_completed_this_month == 3, "Gigs completed this month is 3")
 
-	# Attempt Gig 4 (Limit reached)
+	# Complete Gig 4
 	var comp4 := GigManagerScript.complete_gig(PlayerData, gig_sample)
-	assert_check(not bool(comp4.get("success", true)), "Gig 4 REJECTED: Daily capacity limit reached")
+	assert_check(bool(comp4.get("success", false)), "Gig 4 completed successfully")
+	assert_check(PlayerData.gigs_completed_this_month == 4, "Gigs completed this month is 4")
+	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 0, "Remaining monthly capacity is 0")
 
-	# Test capacity for Part-Time worker (Max 2)
+	# Attempt Gig 5 (shared monthly limit reached)
+	var comp5 := GigManagerScript.complete_gig(PlayerData, gig_sample)
+	assert_check(not bool(comp5.get("success", true)), "Gig 5 REJECTED: Monthly capacity limit reached")
+
+	# Employment status does not change the shared monthly pool.
 	PlayerData.assign_part_time_job(DailyJobsCatalogScript.get_job_by_id("cafe_assistant"))
-	assert_check(GigManagerScript.get_daily_capacity(PlayerData) == 2, "Part-time worker gig capacity is 2")
+	assert_check(GigManagerScript.get_monthly_capacity(PlayerData) == 4, "Part-time worker monthly gig capacity remains 4")
 
-	# Test capacity for Full-Time worker (Max 1)
+	# Full-time and part-time employment together still leave four gig slots.
 	PlayerData.quit_part_time_job()
 	PlayerData.job_title = "Accountant"
-	assert_check(GigManagerScript.get_daily_capacity(PlayerData) == 1, "Full-time worker gig capacity is 1")
+	assert_check(GigManagerScript.get_monthly_capacity(PlayerData) == 4, "Full-time worker monthly gig capacity remains 4")
 
-	# Test capacity for Dual Employed (Full-Time + Part-Time = 0)
+	# Dual employment must not produce the old 0/0 state.
 	PlayerData.assign_part_time_job(DailyJobsCatalogScript.get_job_by_id("cafe_assistant"))
-	assert_check(GigManagerScript.get_daily_capacity(PlayerData) == 0, "Dual-employed gig capacity is 0")
+	assert_check(GigManagerScript.get_monthly_capacity(PlayerData) == 4, "Dual-employed monthly gig capacity remains 4")
+
+	# A new calendar month restores the shared pool.
+	PlayerData.in_game_month = 2
+	assert_check(GigManagerScript.get_remaining_capacity(PlayerData) == 4, "Monthly gig capacity resets to 4 next month")
 
 
 # =============================================================================
@@ -457,7 +466,9 @@ func test_save_load_persistence() -> void:
 	PlayerData.daily_job_mental_loss_fraction = 0.65
 	PlayerData.gig_earnings_this_year = 850
 	PlayerData.gigs_completed_today = 2
+	PlayerData.gigs_completed_this_month = 2
 	PlayerData.last_gig_date = {"year": 2026, "month": 3, "day": 15}
+	PlayerData.last_gig_month = {"year": 2026, "month": 3}
 	PlayerData.gig_reputation = {"food_delivery_rider": 45, "freelance_writer": 80}
 	PlayerData.gig_history = [{"title": "Gourmet Delivery", "net_pay": 45}]
 	PlayerData.daily_earnings_log = [{"job_title": "Warehouse Worker", "net_pay": 110}]
@@ -482,6 +493,7 @@ func test_save_load_persistence() -> void:
 	assert_check(is_equal_approx(PlayerData.daily_job_mental_loss_fraction, 0.65), "Restored fractional daily mental loss progress")
 	assert_check(PlayerData.gig_earnings_this_year == 850, "Restored gig earnings ($850)")
 	assert_check(PlayerData.gigs_completed_today == 2, "Restored gigs completed today is 2")
+	assert_check(PlayerData.gigs_completed_this_month == 2, "Restored gigs completed this month is 2")
 	assert_check(PlayerData.gig_reputation.get("freelance_writer") == 80, "Restored gig reputation")
 	assert_check(PlayerData.gig_history.size() == 1, "Restored gig history")
 	assert_check(PlayerData.daily_earnings_log.size() == 1, "Restored daily earnings log")

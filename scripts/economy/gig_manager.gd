@@ -4,15 +4,13 @@ extends RefCounted
 # =============================================================================
 # GIG MANAGER
 # Life.exe Reusable On-Demand Gig Work System.
-# Manages assignments, daily limits, reputation progression, skill checks,
+# Manages assignments, monthly limits, reputation progression, skill checks,
 # instant per-task payouts, and tax ledger recording.
 # =============================================================================
 
 const DailyJobsCatalogScript = preload("res://scripts/economy/daily_jobs_catalog.gd")
 
-const MAX_GIGS_UNEMPLOYED := 3
-const MAX_GIGS_PART_TIME  := 2
-const MAX_GIGS_FULL_TIME  := 1
+const MAX_GIGS_PER_MONTH := 4
 
 # Reputation Tiers
 const REPUTATION_TIERS: Array[Dictionary] = [
@@ -66,33 +64,29 @@ const GIG_TEMPLATES: Dictionary = {
 # CAPACITY & AVAILABILITY
 # =============================================================================
 
+static func get_monthly_capacity(_player_data: Node) -> int:
+	return MAX_GIGS_PER_MONTH
+
+
+# Compatibility alias for older callers. Gig capacity is now monthly.
 static func get_daily_capacity(player_data: Node) -> int:
+	return get_monthly_capacity(player_data)
+
+
+static func get_gigs_completed_this_month(player_data: Node) -> int:
 	if player_data == null:
 		return 0
-	var has_full_time: bool = (str(player_data.get("job_title")) != "")
-	var has_part_time: bool = false
-	if "part_time_job" in player_data and player_data.part_time_job is Dictionary:
-		has_part_time = not player_data.part_time_job.is_empty()
-
-	if has_full_time and has_part_time:
-		return 0 # Fully booked, no additional gig capacity
-	elif has_full_time:
-		return MAX_GIGS_FULL_TIME
-	elif has_part_time:
-		return MAX_GIGS_PART_TIME
-	else:
-		return MAX_GIGS_UNEMPLOYED
+	_ensure_month_reset(player_data)
+	return int(player_data.get("gigs_completed_this_month")) if player_data.get("gigs_completed_this_month") != null else 0
 
 
+# Compatibility alias for older callers. The counter is now monthly.
 static func get_gigs_completed_today(player_data: Node) -> int:
-	if player_data == null:
-		return 0
-	_ensure_date_reset(player_data)
-	return int(player_data.get("gigs_completed_today")) if player_data.get("gigs_completed_today") != null else 0
+	return get_gigs_completed_this_month(player_data)
 
 
 static func get_remaining_capacity(player_data: Node) -> int:
-	return maxi(0, get_daily_capacity(player_data) - get_gigs_completed_today(player_data))
+	return maxi(0, get_monthly_capacity(player_data) - get_gigs_completed_this_month(player_data))
 
 
 static func can_accept_gig(player_data: Node) -> Dictionary:
@@ -106,30 +100,28 @@ static func can_accept_gig(player_data: Node) -> Dictionary:
 	if cur_hl <= 15:
 		return {"allowed": false, "reason": "You are too sick or exhausted to work gigs today. Rest and recover."}
 	if get_remaining_capacity(player_data) <= 0:
-		var cap := get_daily_capacity(player_data)
+		var cap := get_monthly_capacity(player_data)
 		return {
 			"allowed": false,
-			"reason": "Daily gig limit reached (%d/%d completed today). Rest or check back tomorrow!" % [cap, cap]
+			"reason": "Monthly gig limit reached (%d/%d completed this month). Available again next month." % [cap, cap]
 		}
 	return {"allowed": true, "reason": "Ready"}
 
 
-static func _ensure_date_reset(player_data: Node) -> void:
+static func _ensure_month_reset(player_data: Node) -> void:
 	if player_data == null:
 		return
 	var cur_y: int = int(player_data.get("in_game_year")) if player_data.get("in_game_year") != null else 2026
 	var cur_m: int = int(player_data.get("in_game_month")) if player_data.get("in_game_month") != null else 1
-	var cur_d: int = int(player_data.get("in_game_day")) if player_data.get("in_game_day") != null else 1
 	if Engine.has_singleton("GameClock"):
 		var gc = Engine.get_singleton("GameClock")
 		cur_y = gc.year
 		cur_m = gc.month
-		cur_d = gc.day
 
-	var last_date: Dictionary = player_data.get("last_gig_date") if player_data.get("last_gig_date") is Dictionary else {}
-	if last_date.get("year", 0) != cur_y or last_date.get("month", 0) != cur_m or last_date.get("day", 0) != cur_d:
-		player_data.gigs_completed_today = 0
-		player_data.last_gig_date = {"year": cur_y, "month": cur_m, "day": cur_d}
+	var last_month: Dictionary = player_data.get("last_gig_month") if player_data.get("last_gig_month") is Dictionary else {}
+	if last_month.get("year", 0) != cur_y or last_month.get("month", 0) != cur_m:
+		player_data.gigs_completed_this_month = 0
+		player_data.last_gig_month = {"year": cur_y, "month": cur_m}
 
 
 # =============================================================================
@@ -286,10 +278,10 @@ static func complete_gig(player_data: Node, gig: Dictionary) -> Dictionary:
 			var cur_tpl: int = int(player_data.get("taxes_paid_lifetime")) if player_data.get("taxes_paid_lifetime") != null else 0
 			player_data.taxes_paid_lifetime = cur_tpl + tax_withheld
 
-	# Capacity increment
-	_ensure_date_reset(player_data)
-	var cur_done: int = int(player_data.get("gigs_completed_today")) if player_data.get("gigs_completed_today") != null else 0
-	player_data.gigs_completed_today = cur_done + 1
+	# Shared monthly capacity increment
+	_ensure_month_reset(player_data)
+	var cur_done: int = int(player_data.get("gigs_completed_this_month")) if player_data.get("gigs_completed_this_month") != null else 0
+	player_data.gigs_completed_this_month = cur_done + 1
 
 	# Build reputation
 	var g_id: String = str(gig.get("gig_id", ""))

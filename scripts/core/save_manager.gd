@@ -161,6 +161,8 @@ func capture_data() -> Dictionary:
 		"daily_job_health_loss_fraction": PlayerData.daily_job_health_loss_fraction,
 		"daily_job_mental_loss_fraction": PlayerData.daily_job_mental_loss_fraction,
 		"gig_earnings_this_year": PlayerData.gig_earnings_this_year,
+		"gigs_completed_this_month": PlayerData.gigs_completed_this_month,
+		"last_gig_month": PlayerData.last_gig_month.duplicate(true),
 		"gigs_completed_today": PlayerData.gigs_completed_today,
 		"last_gig_date": PlayerData.last_gig_date.duplicate(true),
 		"gig_reputation": PlayerData.gig_reputation.duplicate(true),
@@ -710,8 +712,15 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.daily_job_health_loss_fraction = clampf(float(data.get("daily_job_health_loss_fraction", 0.0)), 0.0, 0.999999)
 	PlayerData.daily_job_mental_loss_fraction = clampf(float(data.get("daily_job_mental_loss_fraction", 0.0)), 0.0, 0.999999)
 	PlayerData.gig_earnings_this_year = int(data.get("gig_earnings_this_year", 0))
+	var legacy_gig_date: Dictionary = Dictionary(data.get("last_gig_date", {"year": 0, "month": 0, "day": 0}))
+	var saved_gig_month: Dictionary = Dictionary(data.get("last_gig_month", {}))
+	PlayerData.gigs_completed_this_month = int(data.get("gigs_completed_this_month", data.get("gigs_completed_today", 0)))
+	PlayerData.last_gig_month = saved_gig_month if not saved_gig_month.is_empty() else {
+		"year": int(legacy_gig_date.get("year", 0)),
+		"month": int(legacy_gig_date.get("month", 0))
+	}
 	PlayerData.gigs_completed_today = int(data.get("gigs_completed_today", 0))
-	PlayerData.last_gig_date = Dictionary(data.get("last_gig_date", {"year": 0, "month": 0, "day": 0})).duplicate(true)
+	PlayerData.last_gig_date = legacy_gig_date.duplicate(true)
 	PlayerData.gig_reputation = Dictionary(data.get("gig_reputation", {})).duplicate(true)
 	PlayerData.gig_history = Array(data.get("gig_history", [])).duplicate(true)
 	PlayerData.daily_earnings_log = Array(data.get("daily_earnings_log", [])).duplicate(true)

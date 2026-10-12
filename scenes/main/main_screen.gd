@@ -9829,15 +9829,15 @@ func _show_jobs_modal(target_tab: String = "") -> void:
 		sec_title.add_theme_color_override("font_color", Color("#10b981"))
 		sec_header.add_child(sec_title)
 
-		var cap: int = GigManagerScript.get_daily_capacity(PlayerData)
-		var done: int = GigManagerScript.get_gigs_completed_today(PlayerData)
+		var cap: int = GigManagerScript.get_monthly_capacity(PlayerData)
+		var done: int = GigManagerScript.get_gigs_completed_this_month(PlayerData)
 		var rem: int = GigManagerScript.get_remaining_capacity(PlayerData)
 		var rep_total: int = GigManagerScript.get_reputation_points(PlayerData)
 		var tier_info := GigManagerScript.get_reputation_tier(rep_total)
 
 		var sec_desc := Label.new()
-		sec_desc.text = "Instant per-task payout upon completion. Daily Capacity: %d/%d remaining today.\nReputation Tier: %s %s (%d Rep Pts • %.2fx Pay Multiplier)" % [
-			rem, cap, str(tier_info.get("badge")), str(tier_info.get("title")), rep_total, float(tier_info.get("pay_mult"))
+		sec_desc.text = "Instant per-task payout upon completion. Monthly Allowance: %d/%d gigs remaining (%d completed this month).\nReputation Tier: %s %s (%d Rep Pts • %.2fx Pay Multiplier)" % [
+			rem, cap, done, str(tier_info.get("badge")), str(tier_info.get("title")), rep_total, float(tier_info.get("pay_mult"))
 		]
 		sec_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		sec_desc.add_theme_font_size_override("font_size", 28)
