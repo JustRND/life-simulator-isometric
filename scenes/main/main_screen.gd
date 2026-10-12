@@ -8,6 +8,7 @@ const RomanceRules = preload("res://scripts/core/romance_rules.gd")
 const RelationshipExtras = preload("res://scripts/core/relationship_extras.gd")
 const CareerProgression = preload("res://scripts/economy/career_progression.gd")
 const UndergroundProgression = preload("res://scripts/economy/underground_progression.gd")
+const DailyJobsCatalog = preload("res://scripts/economy/daily_jobs_catalog.gd")
 const UIStyle = preload("res://scripts/ui/ui_style.gd")
 const NpcLifeProgress = preload("res://scripts/core/npc_life_progress.gd")
 const RoomManager = preload("res://scripts/isometric/room_manager.gd")
@@ -75,6 +76,7 @@ var _timeline_drawer_tween: Tween = null
 @onready var age_button: Button = get_node_or_null("SafeArea/MainColumn/AgeButton") as Button
 var day_timer: float = 0.0
 var _last_displayed_age: int = -1
+var _last_displayed_year: int = -1
 var _last_displayed_month: int = -1
 var _last_displayed_day: int = -1
 var _cached_display_date: String = ""
@@ -489,7 +491,7 @@ func _configure_ui() -> void:
 		age_label.add_theme_color_override("font_color", Color("#b45309") if is_light else Color(0.98, 0.84, 0.35, 1))
 	if time_counter_label != null:
 		time_counter_label.visible = true
-		time_counter_label.custom_minimum_size = Vector2(170, 32)
+		time_counter_label.custom_minimum_size = Vector2(250, 32)
 		time_counter_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		time_counter_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		time_counter_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -889,11 +891,15 @@ func _update_time_and_age_labels() -> void:
 	if age_label != null and age_changed:
 		age_label.text = "Age: %d" % PlayerData.age
 	_last_displayed_age = PlayerData.age
+	var y_num: int = GameClock.year if GameClock != null else PlayerData.in_game_year
 	var m_num: int = GameClock.month if GameClock != null else PlayerData.in_game_month
 	var d_num: int = GameClock.day if GameClock != null else PlayerData.in_game_day
-	var date_changed: bool = m_num != _last_displayed_month or d_num != _last_displayed_day
+	var date_changed: bool = y_num != _last_displayed_year or m_num != _last_displayed_month or d_num != _last_displayed_day
 	if date_changed:
-		_cached_display_date = "Month %d, Day %d" % [m_num, d_num]
+		var day_of_week: int = DailyJobsCatalog.calculate_day_of_week(y_num, m_num, d_num)
+		var day_name: String = DailyJobsCatalog.get_day_name(day_of_week)
+		_cached_display_date = "%s, %02d - %02d - %02d" % [day_name, d_num, m_num, posmod(y_num, 100)]
+		_last_displayed_year = y_num
 		_last_displayed_month = m_num
 		_last_displayed_day = d_num
 	var pause_state_changed: bool = not _has_displayed_pause_state or PlayerData.is_time_paused != _last_displayed_pause_state
@@ -904,10 +910,7 @@ func _update_time_and_age_labels() -> void:
 		if not time_counter_label.visible:
 			time_counter_label.visible = true
 		if date_changed or pause_state_changed:
-			if PlayerData.is_time_paused:
-				time_counter_label.text = "⏸️ %s (PAUSED)" % _cached_display_date
-			else:
-				time_counter_label.text = "📅 %s" % _cached_display_date
+			time_counter_label.text = "📅 %s" % _cached_display_date
 	if pause_time_button != null:
 		_update_pause_button_visuals()
 	if age_button != null and (date_changed or age_changed):

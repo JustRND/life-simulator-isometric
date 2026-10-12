@@ -56,13 +56,17 @@ func _ready() -> void:
 	assert_check(idx_time < idx_age, "TimeRow is positioned above AgeRow (%d < %d)" % [idx_time, idx_age])
 	assert_check(idx_age < idx_phase, "AgeRow is positioned above PhaseLabel (%d < %d)" % [idx_age, idx_phase])
 
-	# 2. Verify TimeRow contents: PauseTimeButton and TimeCounterLabel
+	# 2. Verify TimeRow contents and responsive house-overlay pause button
 	var pause_btn = main_scene.find_child("PauseTimeButton", true, false) as Button
 	var time_lbl = main_scene.find_child("TimeCounterLabel", true, false) as Label
+	var house_overlay = main_scene.find_child("PauseHouseOverlay", true, false) as Control
 
-	assert_check(pause_btn != null, "PauseTimeButton exists inside TimeRow")
+	assert_check(pause_btn != null, "PauseTimeButton exists in house overlay")
+	assert_check(house_overlay != null, "PauseHouseOverlay exists")
+	assert_check(pause_btn.get_parent() == house_overlay, "PauseTimeButton parent is PauseHouseOverlay")
+	assert_check(house_overlay.anchor_right == 1.0 and house_overlay.offset_top == 264.0, "PauseHouseOverlay tracks the house panel bounds")
+	assert_check(pause_btn.anchor_left == 1.0 and pause_btn.anchor_right == 1.0, "PauseTimeButton is anchored to overlay top-right")
 	assert_check(time_lbl != null, "TimeCounterLabel exists inside TimeRow")
-	assert_check(pause_btn.get_parent() == time_row, "PauseTimeButton parent is TimeRow")
 	assert_check(time_lbl.get_parent() == time_row, "TimeCounterLabel parent is TimeRow")
 
 	# Verify AgeRow no longer contains TimeCounterLabel
@@ -73,12 +77,15 @@ func _ready() -> void:
 	main_scene._update_time_and_age_labels()
 	assert_check("Pause" in pause_btn.text or "⏸️" in pause_btn.text, "Pause button displays Pause icon/text when running: '%s'" % pause_btn.text)
 	assert_check("📅" in time_lbl.text, "Time label displays calendar icon when running: '%s'" % time_lbl.text)
+	assert_check(time_lbl.text.contains(" - "), "Time label uses numeric DD - MM - YY date format: '%s'" % time_lbl.text)
+	assert_check(not time_lbl.text.contains("Month") and not time_lbl.text.contains("Day "), "Time label no longer uses Month/Day format: '%s'" % time_lbl.text)
 
 	# 4. Test clicking Pause button
 	pause_btn.emit_signal("pressed")
 	assert_check(PlayerData.is_time_paused == true, "Clicking PauseTimeButton pauses time")
 	assert_check("Resume" in pause_btn.text or "▶️" in pause_btn.text, "Pause button updates to Resume icon/text: '%s'" % pause_btn.text)
-	assert_check("PAUSED" in time_lbl.text, "Time label displays PAUSED indicator: '%s'" % time_lbl.text)
+	assert_check(not time_lbl.text.contains("PAUSED"), "Time label does not append PAUSED text: '%s'" % time_lbl.text)
+	assert_check(pause_btn.get_theme_stylebox("normal") != null, "Paused pause button retains highlighted style")
 
 	# 5. Test clicking Resume button
 	pause_btn.emit_signal("pressed")

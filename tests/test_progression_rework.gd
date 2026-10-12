@@ -261,7 +261,9 @@ func test_ui_action_bar_and_version() -> void:
 	assert_true(age_lbl != null, "AgeLabel exists")
 	assert_true(time_lbl != null, "TimeCounterLabel exists")
 	assert_true(pause_btn != null, "PauseTimeButton exists")
-	assert_true(time_lbl.get_parent() == pause_btn.get_parent(), "TimeCounterLabel and PauseTimeButton share the same parent container (TimeRow)")
+	var pause_overlay: Control = main_screen.find_child("PauseHouseOverlay", true, false) as Control
+	assert_true(pause_overlay != null and pause_btn.get_parent() == pause_overlay, "PauseTimeButton is positioned in the house overlay")
+	assert_true(time_lbl.get_parent().name == "TimeRow", "TimeCounterLabel remains beside the date position in TimeRow")
 	var name_and_phase: Node = main_screen.find_child("NameAndPhase", true, false)
 	assert_true(name_and_phase != null, "NameAndPhase container exists")
 	assert_true(time_lbl.get_parent().get_index() < age_lbl.get_parent().get_index(), "TimeRow is positioned above AgeRow and under Name")
