@@ -28,8 +28,6 @@ func _ready() -> void:
 	PlayerData.age = 22
 	PlayerData.money = 1500
 	PlayerData.bank_savings = 5000
-	PlayerData.hunger = 40.0
-	PlayerData.thirst = 40.0
 	PlayerData.happiness = 60
 
 	var main_screen = MainScreenScene.instantiate()
@@ -44,7 +42,9 @@ func _ready() -> void:
 
 	# 2. Triggering the modal
 	print("\n--- 2. Opening Social Venues Modal ---")
-	main_screen._on_social_venues_item_pressed()
+	# Exercise the modal directly so an unrelated persisted restriction cannot
+	# prevent this layout/integration test from reaching its subject.
+	main_screen._show_social_venues_modal()
 	await get_tree().process_frame
 	assert_check(main_screen.social_venues_modal_overlay != null, "social_venues_modal_overlay created")
 	assert_check(main_screen.social_venues_modal_overlay.is_visible_in_tree(), "Social venues modal is visible")
@@ -66,13 +66,13 @@ func _ready() -> void:
 	assert_check(main_screen.selected_venue_id == "nc_pulse_2088", "Selected venue is Club Pulse 2088")
 
 	# 5. Ordering Drink from Detail View
-	print("\n--- 5. Ordering Drink & Checking Needs / Intoxication ---")
+	print("\n--- 5. Ordering Drink & Checking Happiness / Intoxication ---")
 	var club_venue: Dictionary = VenueCatalog.get_venue("nc_pulse_2088")
 	var cocktail: Dictionary = club_venue.menu[0] # Electric Violet Glow Cocktail ($22, alc: 25)
 	var order_res = VenueManager.order_menu_item(PlayerData, club_venue, cocktail, "solo")
 	assert_check(order_res.success, "Cocktail ordered successfully")
 	assert_check(PlayerData.intoxication_level == 25, "Intoxication is 25")
-	assert_check(PlayerData.thirst > 40.0, "Thirst restored")
+	assert_check(PlayerData.happiness > 60, "Happiness increased")
 
 	# 6. Meeting Patrons & Befriending
 	print("\n--- 6. Meeting Patrons & Befriending ---")

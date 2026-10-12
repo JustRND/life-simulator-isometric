@@ -47,10 +47,6 @@ var smarts: int = 60
 var looks: int = 65
 var mental_state: int = 80
 
-var hunger: float = 100.0
-var thirst: float = 100.0
-var auto_consume_enabled: bool = true
-var inventory: Array[Dictionary] = []
 var active_stat_modifiers: Dictionary = {}
 
 var first_name: String = ""
@@ -538,10 +534,6 @@ func reset_player() -> void:
 	monthly_settlement_cursor.clear()
 	transaction_history.clear()
 	last_tax_return.clear()
-	hunger = 100.0
-	thirst = 100.0
-	auto_consume_enabled = true
-	inventory.clear()
 	active_stat_modifiers.clear()
 	loan_balance = 0
 	loan_interest_rate = 0.08
@@ -1080,14 +1072,6 @@ func get_owned_assets_by_category(category: String) -> Array[Dictionary]:
 	return list
 
 
-func modify_hunger(delta: float) -> void:
-	hunger = clampf(hunger + delta, 0.0, 100.0)
-
-
-func modify_thirst(delta: float) -> void:
-	thirst = clampf(thirst + delta, 0.0, 100.0)
-
-
 func modify_health(delta: int) -> void:
 	health = clampi(health + delta, 0, 100)
 	enforce_buffs_and_debuffs()
@@ -1136,7 +1120,6 @@ func process_daily_venues_and_intoxication() -> Dictionary:
 		intoxication_level = 0
 		modify_health(-10)
 		modify_happiness(-15)
-		modify_thirst(-15.0)
 	else:
 		intoxication_level = 0
 
@@ -1146,48 +1129,6 @@ func process_daily_venues_and_intoxication() -> Dictionary:
 		"current_intoxication": intoxication_level,
 		"has_hangover": has_hangover
 	}
-
-
-func add_inventory_item(item_id: String, count: int = 1) -> void:
-	if count <= 0:
-		return
-	for entry in inventory:
-		if entry is Dictionary and entry.get("id", "") == item_id:
-			entry["count"] = int(entry.get("count", 0)) + count
-			return
-	inventory.append({
-		"id": item_id,
-		"count": count
-	})
-
-
-func remove_inventory_item(item_id: String, count: int = 1) -> bool:
-	if count <= 0:
-		return true
-	for i in range(inventory.size()):
-		var entry = inventory[i]
-		if entry is Dictionary and entry.get("id", "") == item_id:
-			var cur_count: int = int(entry.get("count", 0))
-			if cur_count >= count:
-				cur_count -= count
-				if cur_count <= 0:
-					inventory.remove_at(i)
-				else:
-					entry["count"] = cur_count
-				return true
-			return false
-	return false
-
-
-func get_inventory_item_count(item_id: String) -> int:
-	for entry in inventory:
-		if entry is Dictionary and entry.get("id", "") == item_id:
-			return int(entry.get("count", 0))
-	return 0
-
-
-func has_inventory_item(item_id: String) -> bool:
-	return get_inventory_item_count(item_id) > 0
 
 
 func has_firearm() -> bool:
@@ -2168,12 +2109,6 @@ func start_reincarnated_life(identity: Dictionary, debuffs: Array, buffs: Array)
 			var b_idx: int = clock.month_name_to_index(birth_month)
 			clock.setup_new_game(b_idx, birth_day, 2026, 1, 1, 17)
 
-	if has_node("/root/NeedsManager"):
-		var nm = get_node("/root/NeedsManager")
-		if nm != null:
-			nm.reconcile_stat_modifiers(self)
-
-
 func takeover_as_child(child: Dictionary, inherited_money: int, inherited_assets: Array = []) -> void:
 	takeover_as_heir(child, inherited_money, inherited_assets, "child")
 
@@ -2274,8 +2209,6 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 	CryptoMarketRef.ensure(self)
 	has_started_game = true
 	is_dead = false
-	hunger = 100.0
-	thirst = 100.0
 	active_stat_modifiers.clear()
 
 	if has_node("/root/GameClock"):
@@ -2286,11 +2219,6 @@ func takeover_as_heir(heir: Dictionary, inherited_money: int, inherited_assets: 
 			clock.is_paused = false
 			clock.pause_reasons.erase("death")
 			clock._sync_to_player_data()
-
-	if has_node("/root/NeedsManager"):
-		var nm = get_node("/root/NeedsManager")
-		if nm != null:
-			nm.reconcile_stat_modifiers(self)
 
 	health = int(heir.get("health", 85))
 	happiness = int(heir.get("happiness", 75))

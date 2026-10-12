@@ -34,7 +34,6 @@ func _ready() -> void:
 	test_progressive_tax_and_withholding()
 	test_property_ownership_rent_mortgages_and_assets()
 	test_personal_finance_debt_and_fallbacks()
-	test_character_needs_consumption_and_modifiers()
 	test_event_system_and_history_integrity()
 	test_save_load_and_legacy_migration()
 	test_heir_succession_and_reincarnation()
@@ -59,9 +58,6 @@ func test_starting_state_and_age_12() -> void:
 	assert_check(PlayerData.in_game_year == 2026, "Starting in-game year is 2026")
 	assert_check(PlayerData.education_level == "High School", "Education initialized to High School")
 	assert_check(PlayerData.grades == 75, "Starting grades initialized to 75")
-	assert_check(PlayerData.hunger == 100.0, "Starting hunger is 100%")
-	assert_check(PlayerData.thirst == 100.0, "Starting thirst is 100%")
-	assert_check(PlayerData.auto_consume_enabled == true, "Auto-consume is enabled by default")
 
 	if GameClock != null:
 		GameClock.setup_new_game(1, 1, 2026, 1, 1, 17)
@@ -330,54 +326,6 @@ func test_personal_finance_debt_and_fallbacks() -> void:
 
 
 # -----------------------------------------------------------------------------
-# 9. CHARACTER NEEDS, CONSUMPTION & MODIFIERS
-# -----------------------------------------------------------------------------
-func test_character_needs_consumption_and_modifiers() -> void:
-	print("\n--- 9. Testing Character Needs, Consumption & Temporary Modifiers ---")
-	PlayerData.reset_player()
-	PlayerData.has_started_game = true
-	PlayerData.hunger = 100.0
-	PlayerData.thirst = 100.0
-
-	# 1. Daily depletion
-	NeedsManager.process_daily_needs(PlayerData, 1)
-	assert_check(PlayerData.hunger < 100.0, "Hunger depleted on day passed")
-	assert_check(PlayerData.thirst < 100.0, "Thirst depleted on day passed")
-
-	# 2. Low needs apply temporary stat modifiers
-	PlayerData.hunger = 35.0 # Low (<40)
-	PlayerData.thirst = 35.0 # Low (<40)
-	NeedsManager.reconcile_stat_modifiers(PlayerData)
-	assert_check(PlayerData.active_stat_modifiers.has("needs_hunger_low_hap"), "needs_hunger_low_hap modifier applied")
-	assert_check(PlayerData.active_stat_modifiers.has("needs_thirst_low_hap"), "needs_thirst_low_hap modifier applied")
-
-	# 3. Duplicate protection: applying same modifier rejected
-	var dup_res := NeedsManager.apply_stat_modifier(PlayerData, "needs_hunger_low_hap", "happiness", -10)
-	assert_check(dup_res == false, "Duplicate modifier application safely rejected")
-
-	# 4. Pantry purchase and manual consumption
-	PlayerData.money = 100
-	PlayerData.bank_savings = 0
-	var buy_res := NeedsManager.purchase_item(PlayerData, "water_pack_6")
-	assert_check(buy_res.get("success", false), "Purchased 6-pack of water bottles")
-	assert_check(PlayerData.has_inventory_item("water_bottle"), "Inventory has water bottle")
-	assert_check(PlayerData.get_inventory_item_count("water_bottle") == 6, "Inventory count is 6")
-	assert_check(PlayerData.money == 90, "Funds debited ($10 for 6-pack)")
-
-	# Consume item restores need and clears debuff
-	PlayerData.thirst = 30.0
-	var consume_res := NeedsManager.consume_item(PlayerData, "water_bottle")
-	assert_check(consume_res.get("success", false), "Consumed water bottle")
-	assert_check(PlayerData.thirst > 30.0, "Thirst restored")
-
-	# Full recovery removes modifiers
-	PlayerData.hunger = 100.0
-	PlayerData.thirst = 100.0
-	NeedsManager.reconcile_stat_modifiers(PlayerData)
-	assert_check(PlayerData.active_stat_modifiers.is_empty(), "All temporary modifiers cleared upon needs recovery")
-
-
-# -----------------------------------------------------------------------------
 # 10. EVENT SYSTEM & HISTORY INTEGRITY
 # -----------------------------------------------------------------------------
 func test_event_system_and_history_integrity() -> void:
@@ -388,7 +336,7 @@ func test_event_system_and_history_integrity() -> void:
 	assert_check(PlayerData.event_history_log.get("first_day_of_school") == 12, "Event age recorded accurately as 12")
 
 	# Duplicate transactions prevention
-	PlayerData.record_transaction("lifestyle", -15, "Pantry Groceries", "January 2026")
+	PlayerData.record_transaction("lifestyle", -15, "Lifestyle Purchase", "January 2026")
 	var history_len := PlayerData.transaction_history.size()
 	assert_check(history_len > 0, "Transaction logged in transaction history")
 	var last_tx: Dictionary = PlayerData.transaction_history[-1]
@@ -409,11 +357,6 @@ func test_save_load_and_legacy_migration() -> void:
 		PlayerData.age = 22
 	PlayerData.money = 7500
 	PlayerData.bank_savings = 30000
-	PlayerData.hunger = 85.0
-	PlayerData.thirst = 72.0
-	PlayerData.auto_consume_enabled = false
-	PlayerData.inventory = [{"id": "water_bottle", "count": 5}]
-
 	SaveManager.save_game()
 	SaveManager.load_game()
 
@@ -421,12 +364,8 @@ func test_save_load_and_legacy_migration() -> void:
 	assert_check(PlayerData.age == 22, "Age 22 restored from save")
 	assert_check(PlayerData.money == 7500, "Money restored from save")
 	assert_check(PlayerData.bank_savings == 30000, "Savings restored from save")
-	assert_check(is_equal_approx(PlayerData.hunger, 85.0), "Hunger restored from save")
-	assert_check(is_equal_approx(PlayerData.thirst, 72.0), "Thirst restored from save")
-	assert_check(PlayerData.auto_consume_enabled == false, "Auto-consume setting restored from save")
-	assert_check(PlayerData.get_inventory_item_count("water_bottle") == 5, "Inventory item count restored")
 
-	# Legacy Save Migration (version <= 3 without needs)
+	# Legacy save migration preserves unrelated character progress.
 	var legacy_save := {
 		"save_version": 2,
 		"first_name": "Legacy Elder",
@@ -434,6 +373,7 @@ func test_save_load_and_legacy_migration() -> void:
 		"age": 45,
 		"money": 50000,
 		"bank_savings": 150000,
+		"active_stat_modifiers": {"needs_hunger_low_hap": {"stat": "happiness", "delta": -10}},
 		"in_game_year": 5,
 		"in_game_month": 4,
 		"in_game_day": 10
@@ -443,9 +383,7 @@ func test_save_load_and_legacy_migration() -> void:
 	assert_check(PlayerData.age == 45, "Legacy age 45 preserved intact")
 	assert_check(PlayerData.money == 50000, "Legacy money preserved")
 	assert_check(PlayerData.bank_savings == 150000, "Legacy savings preserved")
-	assert_check(PlayerData.hunger == 100.0, "Legacy save defaults hunger cleanly to 100%")
-	assert_check(PlayerData.thirst == 100.0, "Legacy save defaults thirst cleanly to 100%")
-	assert_check(PlayerData.auto_consume_enabled == true, "Legacy save defaults auto_consume to true")
+	assert_check(not PlayerData.active_stat_modifiers.has("needs_hunger_low_hap"), "Legacy need modifiers discarded")
 
 
 # -----------------------------------------------------------------------------
@@ -477,8 +415,6 @@ func test_heir_succession_and_reincarnation() -> void:
 	assert_check(PlayerData.first_name == "Maya Heir", "Heir took over character name")
 	assert_check(PlayerData.age == 22, "Heir initialized with their own age (22)")
 	assert_check(PlayerData.is_dead == false, "CRITICAL: Heir is alive (is_dead reset to false)")
-	assert_check(PlayerData.hunger == 100.0, "Heir hunger initialized to 100%")
-	assert_check(PlayerData.thirst == 100.0, "Heir thirst initialized to 100%")
 	if GameClock != null:
 		assert_check(GameClock.current_age == 22, "GameClock current_age synced to heir age 22")
 		assert_check(GameClock.is_running(), "GameClock is running after heir takeover")
@@ -549,12 +485,6 @@ func test_multi_year_accelerated_simulation() -> void:
 	PlayerData.job_id = "job_data_analyst"
 	PlayerData.job_salary = 72000 # $6,000 / month
 	PlayerData.job_company = "Apex Systems"
-	PlayerData.auto_consume_enabled = true
-
-	# Stock pantry with monthly supplies for 5 years
-	PlayerData.add_inventory_item("fresh_meal", 200)
-	PlayerData.add_inventory_item("water_bottle", 300)
-
 	if GameClock != null:
 		GameClock.external_progression_check = Callable()
 		GameClock.pause_reasons.clear()

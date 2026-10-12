@@ -58,10 +58,6 @@ func capture_data() -> Dictionary:
 		"smarts": PlayerData.smarts,
 		"looks": PlayerData.looks,
 		"mental_state": PlayerData.mental_state,
-		"hunger": PlayerData.hunger,
-		"thirst": PlayerData.thirst,
-		"auto_consume_enabled": PlayerData.auto_consume_enabled,
-		"inventory": PlayerData.inventory.duplicate(true),
 		"active_stat_modifiers": PlayerData.active_stat_modifiers.duplicate(true),
 		"money": PlayerData.money,
 		"bank_savings": PlayerData.bank_savings,
@@ -452,18 +448,11 @@ func apply_data(data: Dictionary) -> bool:
 	PlayerData.smarts = int(data.get("smarts", 60))
 	PlayerData.looks = int(data.get("looks", 65))
 	PlayerData.mental_state = int(data.get("mental_state", 80))
-	PlayerData.hunger = float(data.get("hunger", 100.0))
-	PlayerData.thirst = float(data.get("thirst", 100.0))
-	PlayerData.auto_consume_enabled = bool(data.get("auto_consume_enabled", true))
-	PlayerData.inventory.clear()
-	var raw_inv = data.get("inventory", [])
-	if raw_inv is Array:
-		for item in raw_inv:
-			if item is Dictionary:
-				PlayerData.inventory.append(item.duplicate(true))
 	PlayerData.active_stat_modifiers = Dictionary(data.get("active_stat_modifiers", {})).duplicate(true)
-	if NeedsManager != null:
-		NeedsManager.reconcile_stat_modifiers(PlayerData)
+	# Older saves may retain obsolete need-based penalties; discard them on load.
+	for modifier_id in PlayerData.active_stat_modifiers.keys():
+		if str(modifier_id).begins_with("needs_"):
+			PlayerData.active_stat_modifiers.erase(modifier_id)
 	PlayerData.money = int(data.get("money", 0))
 	PlayerData.bank_savings = int(data.get("bank_savings", 0))
 	PlayerData.pension_account = Dictionary(data.get("pension_account", {}))

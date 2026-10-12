@@ -43,7 +43,7 @@ func apply(node: Control, light: bool) -> void:
 	elif node is Label:
 		node.remove_meta("reference_section")
 		var stat_name := str(node.name).trim_suffix("Label")
-		if stat_name in ["Health", "Happiness", "Smarts", "Looks", "MentalState", "Hunger", "Thirst"]:
+		if stat_name in ["Health", "Happiness", "Smarts", "Looks", "MentalState"]:
 			node.text = "MENTAL STATE" if stat_name == "MentalState" else stat_name.to_upper()
 			var icon_node := node.get_node_or_null(stat_name + "Icon") as TextureRect
 			if icon_node == null:

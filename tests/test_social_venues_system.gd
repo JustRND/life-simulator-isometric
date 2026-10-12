@@ -99,13 +99,11 @@ func test_venue_entry_and_age_restrictions() -> void:
 
 
 func test_menu_purchases_and_transaction_integrity() -> void:
-	print("\n--- 3. Testing Menu Purchases, Funds Debit & Needs Restoration ---")
+	print("\n--- 3. Testing Menu Purchases, Funds Debit & Happiness Effects ---")
 	PlayerData.reset()
 	PlayerData.age = 22
 	PlayerData.money = 200
 	PlayerData.bank_savings = 0
-	PlayerData.hunger = 30.0
-	PlayerData.thirst = 30.0
 	PlayerData.health = 70
 	PlayerData.happiness = 50
 
@@ -117,8 +115,6 @@ func test_menu_purchases_and_transaction_integrity() -> void:
 	var res = VenueManager.order_menu_item(PlayerData, bar_venue, ipa_item, "solo")
 	assert_check(res.success, "Successfully purchased Craft IPA")
 	assert_check(PlayerData.money == 191, "Player money decreased from $200 to $191")
-	assert_check(PlayerData.hunger > 30.0, "Hunger increased after order")
-	assert_check(PlayerData.thirst > 30.0, "Thirst increased after drink")
 	assert_check(PlayerData.happiness > 50, "Happiness increased after drink")
 	assert_check(PlayerData.intoxication_level == 15, "Intoxication level increased by 15")
 	assert_check(PlayerData.transaction_history.size() == init_trans_count + 1, "Transaction recorded in history")
@@ -139,10 +135,10 @@ func test_menu_purchases_and_transaction_integrity() -> void:
 	PlayerData.money = 2
 	PlayerData.bank_savings = 0
 	var expensive_wagyu: Dictionary = VenueCatalog.get_venue("fd_letoile").menu[0] # $280
-	var cur_hunger: float = PlayerData.hunger
+	var current_happiness: int = PlayerData.happiness
 	var broke_res = VenueManager.order_menu_item(PlayerData, VenueCatalog.get_venue("fd_letoile"), expensive_wagyu, "solo")
 	assert_check(not broke_res.success, "Purchase rejected due to insufficient funds")
-	assert_check(PlayerData.hunger == cur_hunger, "No free hunger restoration when purchase fails")
+	assert_check(PlayerData.happiness == current_happiness, "No free happiness effect when purchase fails")
 	assert_check(PlayerData.money == 2, "Funds unchanged on transaction failure")
 
 
@@ -191,7 +187,6 @@ func test_intoxication_and_hangover_mechanics() -> void:
 	PlayerData.age = 25
 	PlayerData.health = 80
 	PlayerData.happiness = 75
-	PlayerData.thirst = 90.0
 
 	# Moderate drinking (< 50 intoxication)
 	PlayerData.apply_intoxication(30)
@@ -209,7 +204,6 @@ func test_intoxication_and_hangover_mechanics() -> void:
 	assert_check(PlayerData.has_hangover, "PlayerData.has_hangover is true")
 	assert_check(PlayerData.health < 80, "Health reduced by hangover headache")
 	assert_check(PlayerData.happiness < 75, "Happiness reduced by hangover")
-	assert_check(PlayerData.thirst < 90.0, "Thirst reduced (dehydration)")
 
 	# Hangover clears on subsequent day
 	var day_3_step = PlayerData.process_daily_venues_and_intoxication()

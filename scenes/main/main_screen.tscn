@@ -758,46 +758,6 @@ theme_override_styles/background = SubResource("track")
 theme_override_styles/fill = SubResource("green")
 value = 80.0
 
-[node name="HungerLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1120094665]
-custom_minimum_size = Vector2(220, 36)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.976, 0.451, 0.086, 1)
-theme_override_font_sizes/font_size = 24
-text = "HUNGER"
-
-[node name="HungerBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2119674295]
-custom_minimum_size = Vector2(96, 32)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/background = SubResource("track")
-theme_override_styles/fill = SubResource("green")
-value = 100.0
-
-[node name="ThirstLabel" type="Label" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=1120094666]
-custom_minimum_size = Vector2(220, 36)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(0.024, 0.714, 0.831, 1)
-theme_override_font_sizes/font_size = 24
-text = "THIRST"
-
-[node name="ThirstBar" type="ProgressBar" parent="SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer" unique_id=2119674296]
-custom_minimum_size = Vector2(96, 32)
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/background = SubResource("track")
-theme_override_styles/fill = SubResource("green")
-value = 100.0
-
 [node name="TimelinePullUpButton" type="Button" parent="SafeArea/MainColumn" unique_id=2081928379]
 z_index = 8
 layout_mode = 1
@@ -1850,20 +1810,6 @@ theme_override_styles/hover = SubResource("card_button_hover")
 text = "🧠  Neural Specialist"
 alignment = 0
 
-[node name="PantryActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=987213463]
-custom_minimum_size = Vector2(0, 110)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.94, 0.98, 1)
-theme_override_colors/font_focus_color = Color(0.976, 0.451, 0.086, 1)
-theme_override_colors/font_pressed_color = Color(1, 1, 1, 1)
-theme_override_colors/font_hover_color = Color(0.976, 0.451, 0.086, 1)
-theme_override_font_sizes/font_size = 38
-theme_override_styles/normal = SubResource("card_button_normal")
-theme_override_styles/pressed = SubResource("card_button_pressed")
-theme_override_styles/hover = SubResource("card_button_hover")
-text = "🥪  Pantry & Groceries"
-alignment = 0
-
 [node name="ShoppingActItem" type="Button" parent="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList" unique_id=1870605856]
 custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
@@ -2629,7 +2575,6 @@ horizontal_alignment = 1
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/CharityActItem" to="." method="_on_charity_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/RentHouseActItem" to="." method="_on_rent_house_item_pressed"]
 [connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/HouseholdActItem" to="." method="_on_household_item_pressed"]
-[connection signal="pressed" from="ActivitiesPanel/ActMargin/ActContent/ActScroll/ActList/PantryActItem" to="." method="_on_pantry_item_pressed"]
 [connection signal="pressed" from="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/SettingsHeader/CloseSettingsHeaderButton" to="." method="_on_close_settings_button_pressed"]
 [connection signal="pressed" from="SettingsOverlay/SettingsCard/SettingsMargin/SettingsContent/DangerCard/Margin/VBox/ResetProgressButton" to="." method="_on_reset_progress_button_pressed"]
 [connection signal="pressed" from="ResetConfirmationOverlay/ConfirmCard/ConfirmMargin/ConfirmContent/ButtonsRow/CancelResetButton" to="." method="_on_cancel_reset_pressed"]

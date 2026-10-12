@@ -64,8 +64,6 @@ var annual_event_popup_chance: float = 0.35
 @onready var smarts_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/SmartsBar
 @onready var looks_bar: ProgressBar = $SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/LooksBar
 @onready var mental_bar: ProgressBar = get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/MentalStateBar") as ProgressBar
-@onready var hunger_bar: ProgressBar = get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HungerBar") as ProgressBar
-@onready var thirst_bar: ProgressBar = get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/ThirstBar") as ProgressBar
 
 var _is_timeline_open: bool = false
 var _timeline_drawer_tween: Tween = null
@@ -161,7 +159,6 @@ var mental_institution_modal_overlay: Control = null
 var neural_specialist_modal_overlay: Control = null
 var household_modal_overlay: Control = null
 var tax_service_modal_overlay: Control = null
-var pantry_modal_overlay: Control = null
 var _tax_service_source: String = "finance_hub"
 var _pending_move_out_on_purchase: bool = false
 var _pending_move_out_on_lease: bool = false
@@ -290,25 +287,6 @@ func _ready() -> void:
 	FinanceMarket.ensure(PlayerData)
 	BalanceRules.normalize_salary(PlayerData)
 	RomanceRules.normalize(PlayerData)
-
-	if NeedsManager != null:
-		if not NeedsManager.needs_updated.is_connected(_on_needs_updated):
-			NeedsManager.needs_updated.connect(_on_needs_updated)
-
-	var hunger_lbl_node = get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/HungerLabel")
-	if hunger_lbl_node != null:
-		hunger_lbl_node.mouse_filter = Control.MOUSE_FILTER_STOP
-		hunger_lbl_node.gui_input.connect(func(ev: InputEvent):
-			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-				_show_pantry_modal()
-		)
-	var thirst_lbl_node = get_node_or_null("SafeArea/MainColumn/StatsPanel/StatsMargin/StatsContainer/ThirstLabel")
-	if thirst_lbl_node != null:
-		thirst_lbl_node.mouse_filter = Control.MOUSE_FILTER_STOP
-		thirst_lbl_node.gui_input.connect(func(ev: InputEvent):
-			if ev is InputEventMouseButton and ev.pressed and ev.button_index == MOUSE_BUTTON_LEFT:
-				_show_pantry_modal()
-		)
 
 	if event_overlay != null:
 		event_overlay.visible = false
@@ -847,7 +825,7 @@ func has_any_deliberate_modal_open() -> bool:
 		shopping_modal_overlay, mind_body_modal_overlay, social_media_modal_overlay,
 		pet_adoption_modal_overlay, will_modal_overlay, salon_modal_overlay,
 		spa_modal_overlay, mental_institution_modal_overlay, neural_specialist_modal_overlay,
-		household_modal_overlay, pantry_modal_overlay
+		household_modal_overlay
 	]
 	for ov in overlays:
 		if ov != null and is_instance_valid(ov) and ov is CanvasItem and ov.visible:
@@ -1622,10 +1600,6 @@ func update_ui() -> void:
 	looks_bar.value = PlayerData.looks
 	if mental_bar != null:
 		mental_bar.value = PlayerData.mental_state
-	if hunger_bar != null:
-		hunger_bar.value = PlayerData.hunger
-	if thirst_bar != null:
-		thirst_bar.value = PlayerData.thirst
 
 	_update_stat_bar_color(health_bar, PlayerData.health, Color("#10b981"), Color("#047857"))
 	_update_stat_bar_color(happiness_bar, PlayerData.happiness, Color("#f59e0b"), Color("#b45309"))
@@ -1633,10 +1607,6 @@ func update_ui() -> void:
 	_update_stat_bar_color(looks_bar, PlayerData.looks, Color("#db2777"), Color("#7e22ce"))
 	if mental_bar != null:
 		_update_stat_bar_color(mental_bar, PlayerData.mental_state, Color("#8b5cf6"), Color("#6d28d9"))
-	if hunger_bar != null:
-		_update_stat_bar_color(hunger_bar, int(round(PlayerData.hunger)), Color("#f97316"), Color("#c2410c"))
-	if thirst_bar != null:
-		_update_stat_bar_color(thirst_bar, int(round(PlayerData.thirst)), Color("#06b6d4"), Color("#0e7490"))
 
 	# Update Life Overview button icon and title
 	if infant_button != null:
@@ -8706,10 +8676,6 @@ func _on_shopping_item_pressed() -> void:
 
 func _on_household_item_pressed() -> void:
 	_show_household_interactions_modal()
-
-
-func _on_pantry_item_pressed() -> void:
-	_show_pantry_modal()
 
 
 func _show_household_interactions_modal() -> void:
@@ -16670,12 +16636,6 @@ func _show_shopping_modal() -> void:
 			"desc": "Licensed concealed pistols, home defense shotguns, tactical carbines, and precision marksman rifles.",
 			"color": Color("#ef4444")
 		},
-		{
-			"category": "pantry_groceries",
-			"title": "🛒 Supermarket & Grocery Commissary (Food & Water)",
-			"desc": "Fresh spring water, energy snack bars, deli meals, weekly grocery baskets, and bulk pantry stock.",
-			"color": Color("#10b981")
-		}
 	]
 
 	for item in shopping_categories:
@@ -16683,10 +16643,7 @@ func _show_shopping_modal() -> void:
 		var btn_text: String = "%s\n%s" % [item["title"], item["desc"]]
 		var btn := _create_cyber_button(btn_text, item["color"], func():
 			shopping_modal_overlay.queue_free()
-			if cat_id == "pantry_groceries":
-				_show_pantry_modal()
-			else:
-				_open_asset_marketplace_modal(cat_id)
+			_open_asset_marketplace_modal(cat_id)
 		)
 		btn.custom_minimum_size.y = 100
 		btn.add_theme_font_size_override("font_size", 30)
@@ -22521,9 +22478,7 @@ func _configure_stat_bars() -> void:
 		{"node": happiness_bar, "label": "Happiness", "c1": Color("#f59e0b"), "c2": Color("#b45309"), "label_color": Color("#fbbf24")},
 		{"node": smarts_bar, "label": "Smarts", "c1": Color("#0284c7"), "c2": Color("#1e3a8a"), "label_color": Color("#38bdf8")},
 		{"node": looks_bar, "label": "Looks", "c1": Color("#db2777"), "c2": Color("#7e22ce"), "label_color": Color("#f472b6")},
-		{"node": mental_bar, "label": "MentalState", "c1": Color("#8b5cf6"), "c2": Color("#6d28d9"), "label_color": Color("#c4b5fd")},
-		{"node": hunger_bar, "label": "Hunger", "c1": Color("#f97316"), "c2": Color("#c2410c"), "label_color": Color("#fb923c")},
-		{"node": thirst_bar, "label": "Thirst", "c1": Color("#06b6d4"), "c2": Color("#0e7490"), "label_color": Color("#22d3ee")}
+		{"node": mental_bar, "label": "MentalState", "c1": Color("#8b5cf6"), "c2": Color("#6d28d9"), "label_color": Color("#c4b5fd")}
 	]
 
 	# Track Style: Deep cyber inset casing with clean pixel bevel
@@ -22800,253 +22755,6 @@ func _configure_version_badge() -> void:
 	label.add_theme_constant_override("outline_size", 2)
 
 
-func _on_needs_updated(_hunger: float, _thirst: float) -> void:
-	if hunger_bar != null:
-		hunger_bar.value = PlayerData.hunger
-		_update_stat_bar_color(hunger_bar, int(round(PlayerData.hunger)), Color("#f97316"), Color("#c2410c"))
-	if thirst_bar != null:
-		thirst_bar.value = PlayerData.thirst
-		_update_stat_bar_color(thirst_bar, int(round(PlayerData.thirst)), Color("#06b6d4"), Color("#0e7490"))
-
-
-func _show_pantry_modal() -> void:
-	var is_light: bool = LifeLibrary.data.theme == "light"
-	var border_color := Color("#f97316")
-	var modal := _refresh_cyber_modal(pantry_modal_overlay, "🥪 PANTRY & GROCERIES", "Manage Character Hunger, Thirst, Pantry Stock & Auto-Consumption", border_color)
-	pantry_modal_overlay = modal.overlay
-	var list: VBoxContainer = modal.list
-
-	# 1. NEEDS STATUS CARD
-	var status_card := PanelContainer.new()
-	status_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
-	var sm := MarginContainer.new()
-	sm.add_theme_constant_override("margin_left", 24)
-	sm.add_theme_constant_override("margin_right", 24)
-	sm.add_theme_constant_override("margin_top", 18)
-	sm.add_theme_constant_override("margin_bottom", 18)
-	status_card.add_child(sm)
-
-	var sv := VBoxContainer.new()
-	sv.add_theme_constant_override("separation", 12)
-	sm.add_child(sv)
-
-	var status_title := Label.new()
-	status_title.text = "BIOLOGICAL NEEDS STATUS"
-	status_title.add_theme_font_size_override("font_size", 30)
-	status_title.add_theme_color_override("font_color", Color("#c2410c") if is_light else Color("#fb923c"))
-	sv.add_child(status_title)
-
-	var h_tier: String = NeedsManager.get_hunger_tier(PlayerData) if NeedsManager != null else "NORMAL"
-	var t_tier: String = NeedsManager.get_thirst_tier(PlayerData) if NeedsManager != null else "NORMAL"
-
-	var h_row := HBoxContainer.new()
-	h_row.add_theme_constant_override("separation", 14)
-	var h_lbl := Label.new()
-	h_lbl.text = "🥪 Hunger: %d%% (%s)" % [int(round(PlayerData.hunger)), h_tier]
-	h_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	h_lbl.add_theme_font_size_override("font_size", 28)
-	h_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
-	h_row.add_child(h_lbl)
-	sv.add_child(h_row)
-
-	var t_row := HBoxContainer.new()
-	t_row.add_theme_constant_override("separation", 14)
-	var t_lbl := Label.new()
-	t_lbl.text = "💧 Thirst: %d%% (%s)" % [int(round(PlayerData.thirst)), t_tier]
-	t_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	t_lbl.add_theme_font_size_override("font_size", 28)
-	t_lbl.add_theme_color_override("font_color", Color("#0f172a") if is_light else Color("#f8fafc"))
-	t_row.add_child(t_lbl)
-	sv.add_child(t_row)
-
-	# Auto-consume toggle button
-	var ac_status_text := "AUTO-CONSUME FROM PANTRY: [ENABLED]" if PlayerData.auto_consume_enabled else "AUTO-CONSUME FROM PANTRY: [DISABLED]"
-	var ac_btn_color := Color("#10b981") if PlayerData.auto_consume_enabled else Color("#64748b")
-	var ac_btn := _create_cyber_button(ac_status_text, ac_btn_color, func():
-		PlayerData.auto_consume_enabled = not PlayerData.auto_consume_enabled
-		_show_pantry_modal()
-	)
-	ac_btn.custom_minimum_size.y = 70
-	ac_btn.add_theme_font_size_override("font_size", 26)
-	sv.add_child(ac_btn)
-
-	var ac_desc := Label.new()
-	ac_desc.text = "When enabled, your character automatically consumes food and water from pantry when needs drop below 50%. Stops safely if pantry is empty without unauthorized bank charges."
-	ac_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	ac_desc.add_theme_font_size_override("font_size", 22)
-	ac_desc.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-	sv.add_child(ac_desc)
-
-	list.add_child(status_card)
-
-	# 2. ACTIVE STAT DEBUFFS CARD
-	var debuff_card := PanelContainer.new()
-	debuff_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#e11d48") if not PlayerData.active_stat_modifiers.is_empty() else Color("#10b981")))
-	var dm := MarginContainer.new()
-	dm.add_theme_constant_override("margin_left", 24)
-	dm.add_theme_constant_override("margin_right", 24)
-	dm.add_theme_constant_override("margin_top", 18)
-	dm.add_theme_constant_override("margin_bottom", 18)
-	debuff_card.add_child(dm)
-	var dv := VBoxContainer.new()
-	dv.add_theme_constant_override("separation", 10)
-	dm.add_child(dv)
-
-	var debuff_title := Label.new()
-	debuff_title.text = "ACTIVE STAT PENALTIES & MODIFIERS"
-	debuff_title.add_theme_font_size_override("font_size", 30)
-	debuff_title.add_theme_color_override("font_color", Color("#e11d48") if not PlayerData.active_stat_modifiers.is_empty() else Color("#10b981"))
-	dv.add_child(debuff_title)
-
-	if PlayerData.active_stat_modifiers.is_empty():
-		var clean_lbl := Label.new()
-		clean_lbl.text = "✅ Perfectly nourished and hydrated. No active stat penalties."
-		clean_lbl.add_theme_font_size_override("font_size", 26)
-		clean_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
-		dv.add_child(clean_lbl)
-	else:
-		for mod_id in PlayerData.active_stat_modifiers:
-			var m_info: Dictionary = PlayerData.active_stat_modifiers[mod_id]
-			var m_lbl := Label.new()
-			m_lbl.text = "• %s: %d %s penalty" % [str(mod_id).replace("needs_", "").replace("_", " ").capitalize(), int(m_info.get("delta", 0)), str(m_info.get("stat", "")).capitalize()]
-			m_lbl.add_theme_font_size_override("font_size", 26)
-			m_lbl.add_theme_color_override("font_color", Color("#e11d48") if is_light else Color("#f87171"))
-			dv.add_child(m_lbl)
-	list.add_child(debuff_card)
-
-	# 3. PANTRY INVENTORY
-	var pantry_header := Label.new()
-	pantry_header.text = "📦 HOME PANTRY RESERVES (%d Items in Stock)" % PlayerData.inventory.size()
-	pantry_header.add_theme_font_size_override("font_size", 30)
-	pantry_header.add_theme_color_override("font_color", Color("#0369a1") if is_light else Color("#38bdf8"))
-	list.add_child(pantry_header)
-
-	if PlayerData.inventory.is_empty():
-		var empty_lbl := Label.new()
-		empty_lbl.text = "Your pantry is currently empty. Purchase supplies from the store below."
-		empty_lbl.add_theme_font_size_override("font_size", 24)
-		empty_lbl.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		list.add_child(empty_lbl)
-	else:
-		for entry in PlayerData.inventory:
-			var i_id: String = str(entry.get("id", ""))
-			var cnt: int = int(entry.get("count", 0))
-			var def: Dictionary = NeedsManager.ITEMS_CATALOG.get(i_id, {}) if NeedsManager != null else {}
-			var item_name: String = str(def.get("name", i_id))
-			var icon_str: String = str(def.get("icon", "🥪"))
-			var r_h: float = float(def.get("restores_hunger", 0.0))
-			var r_t: float = float(def.get("restores_thirst", 0.0))
-
-			var card := PanelContainer.new()
-			card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#38bdf8")))
-			var cm := MarginContainer.new()
-			cm.add_theme_constant_override("margin_left", 18)
-			cm.add_theme_constant_override("margin_right", 18)
-			cm.add_theme_constant_override("margin_top", 14)
-			cm.add_theme_constant_override("margin_bottom", 14)
-			card.add_child(cm)
-
-			var row := HBoxContainer.new()
-			row.add_theme_constant_override("separation", 16)
-			cm.add_child(row)
-
-			var info_vbox := VBoxContainer.new()
-			info_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			var name_lbl := Label.new()
-			name_lbl.text = "%s %s (Stock: %d)" % [icon_str, item_name, cnt]
-			name_lbl.add_theme_font_size_override("font_size", 28)
-			info_vbox.add_child(name_lbl)
-
-			var effect_lbl := Label.new()
-			var eff_parts: Array[String] = []
-			if r_h > 0: eff_parts.append("+%d%% Hunger" % int(round(r_h)))
-			if r_t > 0: eff_parts.append("+%d%% Thirst" % int(round(r_t)))
-			effect_lbl.text = ", ".join(eff_parts)
-			effect_lbl.add_theme_font_size_override("font_size", 22)
-			effect_lbl.add_theme_color_override("font_color", Color("#10b981"))
-			info_vbox.add_child(effect_lbl)
-			row.add_child(info_vbox)
-
-			var consume_btn := _create_cyber_button("Eat / Drink", Color("#10b981"), func():
-				if NeedsManager != null:
-					NeedsManager.consume_item(PlayerData, i_id)
-				_show_pantry_modal()
-				update_ui()
-			)
-			consume_btn.custom_minimum_size = Vector2(160, 60)
-			consume_btn.add_theme_font_size_override("font_size", 24)
-			row.add_child(consume_btn)
-
-			list.add_child(card)
-
-	# 4. COMMISSARY & GROCERY STORE
-	var total_funds: int = PlayerData.money + PlayerData.bank_savings
-	var store_header := Label.new()
-	store_header.text = "🛒 GROCERY COMMISSARY & STORE (Funds: $%s)" % _format_number(total_funds)
-	store_header.add_theme_font_size_override("font_size", 30)
-	store_header.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
-	list.add_child(store_header)
-
-	var store_items := ["water_bottle", "quick_snack", "fresh_meal", "water_pack_6", "weekly_groceries", "monthly_pantry"]
-	for s_id in store_items:
-		if NeedsManager == null or not NeedsManager.ITEMS_CATALOG.has(s_id):
-			continue
-		var s_def: Dictionary = NeedsManager.ITEMS_CATALOG[s_id]
-		var s_name: String = str(s_def.get("name"))
-		var s_cost: int = int(s_def.get("cost"))
-		var s_icon: String = str(s_def.get("icon", "🛒"))
-		var s_desc: String = str(s_def.get("desc", ""))
-
-		var s_card := PanelContainer.new()
-		s_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(Color("#10b981")))
-		var scm := MarginContainer.new()
-		scm.add_theme_constant_override("margin_left", 18)
-		scm.add_theme_constant_override("margin_right", 18)
-		scm.add_theme_constant_override("margin_top", 14)
-		scm.add_theme_constant_override("margin_bottom", 14)
-		s_card.add_child(scm)
-
-		var s_row := HBoxContainer.new()
-		s_row.add_theme_constant_override("separation", 16)
-		scm.add_child(s_row)
-
-		var s_vbox := VBoxContainer.new()
-		s_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-
-		var s_title := Label.new()
-		s_title.text = "%s %s • $%s" % [s_icon, s_name, _format_number(s_cost)]
-		s_title.add_theme_font_size_override("font_size", 28)
-		s_title.add_theme_color_override("font_color", Color("#065f46") if is_light else Color("#6ee7b7"))
-		s_vbox.add_child(s_title)
-
-		var s_sub := Label.new()
-		s_sub.text = s_desc
-		s_sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		s_sub.add_theme_font_size_override("font_size", 22)
-		s_sub.add_theme_color_override("font_color", Color("#64748b") if is_light else Color("#94a3b8"))
-		s_vbox.add_child(s_sub)
-		s_row.add_child(s_vbox)
-
-		var buy_btn := _create_cyber_button("Buy ($%s)" % _format_number(s_cost), Color("#10b981"), func():
-			if NeedsManager != null:
-				var p_res := NeedsManager.purchase_item(PlayerData, s_id)
-				if p_res.get("success", false):
-					_show_pantry_modal()
-					update_ui()
-				else:
-					add_life_event(str(p_res.get("message", "Purchase failed.")), "finance")
-		)
-		buy_btn.custom_minimum_size = Vector2(170, 60)
-		buy_btn.add_theme_font_size_override("font_size", 24)
-		s_row.add_child(buy_btn)
-
-		list.add_child(s_card)
-
-
-# -----------------------------------------------------------------------------
-# SOCIAL VENUES & NIGHTLIFE UI SYSTEM
-# -----------------------------------------------------------------------------
-
 func _close_social_venues_modal() -> void:
 	if social_venues_modal_overlay != null and is_instance_valid(social_venues_modal_overlay):
 		social_venues_modal_overlay.queue_free()
@@ -23069,7 +22777,7 @@ func _show_social_venues_modal() -> void:
 	var list: VBoxContainer = modal.list
 	list.add_theme_constant_override("separation", 14)
 
-	# --- 1. STATUS & NEEDS BANNER ---
+	# --- 1. STATUS BANNER ---
 	var status_card := PanelContainer.new()
 	status_card.add_theme_stylebox_override("panel", load_style_box_cyber_card(border_color))
 	var sm := MarginContainer.new()
@@ -23082,8 +22790,7 @@ func _show_social_venues_modal() -> void:
 	sv.add_theme_constant_override("separation", 8)
 	sm.add_child(sv)
 
-	# Funds and needs carry dynamic currency and percentage strings. Stacking
-	# them prevents the right-hand need label from being squeezed to one glyph.
+	# Stack the dynamic values so portrait layouts keep each status readable.
 	var stat_row := VBoxContainer.new()
 	stat_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stat_row.add_theme_constant_override("separation", 8)
@@ -23096,12 +22803,12 @@ func _show_social_venues_modal() -> void:
 	funds_lbl.add_theme_color_override("font_color", Color("#059669") if is_light else Color("#34d399"))
 	stat_row.add_child(funds_lbl)
 
-	var needs_lbl := Label.new()
-	needs_lbl.text = "🥪 Hunger: %d%%  •  💧 Thirst: %d%%" % [int(round(PlayerData.hunger)), int(round(PlayerData.thirst))]
-	LayoutGuard.configure_expanding_label(needs_lbl)
-	needs_lbl.add_theme_font_size_override("font_size", 26)
-	needs_lbl.add_theme_color_override("font_color", Color("#0284c7") if is_light else Color("#38bdf8"))
-	stat_row.add_child(needs_lbl)
+	var happiness_lbl := Label.new()
+	happiness_lbl.text = "😊 Happiness: %d%%" % PlayerData.happiness
+	LayoutGuard.configure_expanding_label(happiness_lbl)
+	happiness_lbl.add_theme_font_size_override("font_size", 26)
+	happiness_lbl.add_theme_color_override("font_color", Color("#b45309") if is_light else Color("#fbbf24"))
+	stat_row.add_child(happiness_lbl)
 
 	if PlayerData.has_hangover:
 		var hang_lbl := Label.new()
@@ -23472,8 +23179,6 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 		var i_type: String = str(item.get("type", "food"))
 		var base_price: int = int(item.get("price", 0))
 		var total_price: int = base_price * 2 if venue_companion_mode in ["friend", "date"] else base_price
-		var h_delta: float = float(item.get("hunger", 0.0))
-		var t_delta: float = float(item.get("thirst", 0.0))
 		var hp_delta: int = int(item.get("health", 0))
 		var hap_delta: int = int(item.get("happiness", 0))
 		var alc: int = int(item.get("alcohol_level", 0))
@@ -23519,20 +23224,6 @@ func _render_selected_venue_detail(list: VBoxContainer, is_light: bool, selected
 		var badges_row := HBoxContainer.new()
 		badges_row.add_theme_constant_override("separation", 12)
 		m_vbox.add_child(badges_row)
-
-		if h_delta > 0:
-			var h_b := Label.new()
-			h_b.text = "🥪 Hunger +%d%%" % int(h_delta)
-			h_b.add_theme_font_size_override("font_size", 20)
-			h_b.add_theme_color_override("font_color", Color("#16a34a"))
-			badges_row.add_child(h_b)
-
-		if t_delta > 0:
-			var t_b := Label.new()
-			t_b.text = "💧 Thirst +%d%%" % int(t_delta)
-			t_b.add_theme_font_size_override("font_size", 20)
-			t_b.add_theme_color_override("font_color", Color("#0284c7"))
-			badges_row.add_child(t_b)
 
 		if hap_delta != 0:
 			var hap_b := Label.new()

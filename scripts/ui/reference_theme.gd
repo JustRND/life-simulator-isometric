@@ -88,8 +88,7 @@ func apply(node: Control, light: bool) -> void:
 				node.set_meta("reference_section", true)
 	if node.name == "ActList" and not node.has_meta("reference_categories"):
 		node.set_meta("reference_categories", true)
-		var personal_entry_id := "PantryActItem" if node.has_node("PantryActItem") else "ShoppingActItem"
-		for entry in [["EducationActItem", "CAREER & EDUCATION"], ["DoctorItem", "HEALTH & LIFESTYLE"], [personal_entry_id, "PERSONAL LIFE"]]:
+		for entry in [["EducationActItem", "CAREER & EDUCATION"], ["DoctorItem", "HEALTH & LIFESTYLE"], ["ShoppingActItem", "PERSONAL LIFE"]]:
 			var before := node.get_node_or_null(entry[0])
 			if before != null:
 				var bar := Label.new()

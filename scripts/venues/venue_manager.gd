@@ -133,16 +133,10 @@ static func order_menu_item(player: Node, venue: Dictionary, item: Dictionary, c
 
 	player.record_transaction("Food & Dining", -total_price, trans_desc)
 
-	# Apply Hunger, Thirst, Health, and Happiness
-	var hunger_delta: float = float(item.get("hunger", 0.0))
-	var thirst_delta: float = float(item.get("thirst", 0.0))
+	# Menu enjoyment is represented directly by happiness.
 	var health_delta: int = int(item.get("health", 0))
 	var happiness_delta: int = int(item.get("happiness", 0))
 
-	if hunger_delta > 0.0:
-		player.modify_hunger(hunger_delta)
-	if thirst_delta > 0.0:
-		player.modify_thirst(thirst_delta)
 	if health_delta != 0:
 		player.modify_health(health_delta)
 	if happiness_delta != 0:
@@ -239,16 +233,10 @@ static func perform_activity(player: Node, venue: Dictionary, activity: Dictiona
 
 	# Stat adjustments
 	var hap_gain: int = int(activity.get("happiness", 0))
-	var hunger_burn: float = float(activity.get("hunger_cost", 0.0))
-	var thirst_burn: float = float(activity.get("thirst_cost", 0.0))
 	var health_eff: int = int(activity.get("health_effect", 0))
 
-	if hap_gain > 0:
+	if hap_gain != 0:
 		player.modify_happiness(hap_gain)
-	if hunger_burn > 0.0:
-		player.modify_hunger(-hunger_burn)
-	if thirst_burn > 0.0:
-		player.modify_thirst(-thirst_burn)
 	if health_eff != 0:
 		player.modify_health(health_eff)
 

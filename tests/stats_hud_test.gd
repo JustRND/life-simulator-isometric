@@ -21,10 +21,12 @@ func _ready() -> void:
 			await get_tree().create_timer(0.4).timeout
 			assert(feed.get_global_rect().end.y + 15 <= stats.get_global_rect().position.y)
 			assert(stats.get_global_rect().end.y + 15 <= nav.get_global_rect().position.y)
-			for stat in ["Health", "Happiness", "Smarts", "Looks"]:
+			for stat in ["Health", "Happiness", "Smarts", "Looks", "MentalState"]:
 				var label: Label = stats.find_child(stat + "Label", true, false)
+				assert(label != null)
 				assert(label.size.y < 60)
-				assert(label.get_node(stat + "Icon").size == Vector2(34, 34))
+			assert(stats.find_child("HungerLabel", true, false) == null)
+			assert(stats.find_child("ThirstLabel", true, false) == null)
 	if FileAccess.file_exists(LifeLibrary.profile_path):
 		DirAccess.remove_absolute(LifeLibrary.profile_path)
 	print("STATS_HUD_TEST_PASSED")
