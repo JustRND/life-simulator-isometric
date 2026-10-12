@@ -68,6 +68,8 @@ func _ready() -> void:
 	assert_check(feed_panel != null, "LifeFeedPanel exists")
 	assert_check(house_overlay.anchor_right == 1.0 and is_equal_approx(house_overlay.offset_top, feed_panel.offset_top) and is_equal_approx(house_overlay.offset_bottom, feed_panel.offset_bottom), "PauseHouseOverlay tracks the runtime house panel bounds")
 	assert_check(pause_btn.anchor_left == 1.0 and pause_btn.anchor_right == 1.0, "PauseTimeButton is anchored to overlay top-right")
+	assert_check(pause_btn.get_theme_font_size("font_size") == 20, "PauseTimeButton uses the enlarged 20px label size")
+	assert_check(pause_btn.custom_minimum_size.x >= 116.0 and pause_btn.custom_minimum_size.y >= 40.0, "PauseTimeButton has enough minimum space for its enlarged label")
 	assert_check(house_overlay.visible, "PauseHouseOverlay is visible on the main game screen")
 	main_scene.show_tab("activities")
 	assert_check(not house_overlay.visible, "PauseHouseOverlay is hidden inside other panels")
