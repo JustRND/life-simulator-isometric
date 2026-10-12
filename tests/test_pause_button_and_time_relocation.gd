@@ -79,6 +79,9 @@ func _ready() -> void:
 	var pause_rect := pause_btn.get_global_rect()
 	assert_check(pause_rect.position.x >= overlay_rect.position.x and pause_rect.end.x <= overlay_rect.end.x, "PauseTimeButton stays within house overlay horizontally")
 	assert_check(pause_rect.position.y >= overlay_rect.position.y and pause_rect.end.y <= overlay_rect.end.y, "PauseTimeButton stays within house overlay vertically")
+	var viewport_rect: Rect2 = main_scene.get_viewport_rect()
+	assert_check(pause_rect.position.x >= viewport_rect.position.x and pause_rect.end.x <= viewport_rect.end.x, "PauseTimeButton stays within the visible viewport horizontally")
+	assert_check(pause_rect.position.y >= viewport_rect.position.y and pause_rect.end.y <= viewport_rect.end.y, "PauseTimeButton stays within the visible viewport vertically")
 	assert_check(time_lbl != null, "TimeCounterLabel exists inside TimeRow")
 	assert_check(time_lbl.get_parent() == time_row, "TimeCounterLabel parent is TimeRow")
 
