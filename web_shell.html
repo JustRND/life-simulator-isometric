@@ -277,6 +277,9 @@ input, textarea {
 		<script>
 const GODOT_CONFIG = $GODOT_CONFIG;
 GODOT_CONFIG.experimentalVK = true;
+// Godot loads the main pack directly, so give each deployment a fresh URL.
+// This avoids browsers reusing an older index.pck after GitHub Pages updates.
+GODOT_CONFIG.mainPack = "index.pck?v=" + Date.now();
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
