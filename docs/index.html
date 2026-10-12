@@ -199,21 +199,23 @@ input, textarea {
 (function() {
 	const BUILD_VERSION = "0.3.0_" + Date.now();
 
-	// Unregister any stale service workers from prior sessions to prevent serving stale offline cache
-	if ('serviceWorker' in navigator) {
-		navigator.serviceWorker.getRegistrations().then(function(registrations) {
-			for (var i = 0; i < registrations.length; i++) {
-				registrations[i].unregister();
-			}
-		}).catch(function() {});
-	}
-	if ('caches' in window) {
-		caches.keys().then(function(names) {
-			for (var i = 0; i < names.length; i++) {
-				caches.delete(names[i]);
-			}
-		}).catch(function() {});
-	}
+	// Finish clearing stale service workers/caches before Godot requests the package.
+	// Starting the engine before these async operations complete can load an older
+	// index.pck from a previous GitHub Pages deployment.
+	window.lifeCacheReady = (async function() {
+		if ('serviceWorker' in navigator) {
+			const registrations = await navigator.serviceWorker.getRegistrations();
+			await Promise.all(registrations.map(function(registration) {
+				return registration.unregister();
+			}));
+		}
+		if ('caches' in window) {
+			const names = await caches.keys();
+			await Promise.all(names.map(function(name) {
+				return caches.delete(name);
+			}));
+		}
+	})().catch(function() {});
 
 	// Intercept fetch requests for engine binaries (.pck, .wasm, .js) to bypass stale browser cache
 	var _origFetch = window.fetch;
@@ -365,7 +367,8 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 	} else {
 		setStatusMode('progress');
-		engine.startGame({
+		window.lifeCacheReady.then(function() {
+			return engine.startGame({
 			'onProgress': function (current, total) {
 				if (current > 0 && total > 0) {
 					statusProgress.value = current;
@@ -397,6 +400,7 @@ const engine = new Engine(GODOT_CONFIG);
 					if (statusDetails) statusDetails.textContent = "Connecting to game server...";
 				}
 			},
+			});
 		}).then(() => {
 			if (statusPercent) statusPercent.textContent = "100%";
 			if (statusProgressFill) statusProgressFill.style.width = "100%";
