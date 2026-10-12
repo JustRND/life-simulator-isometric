@@ -316,6 +316,8 @@ func _ready() -> void:
 	relationships_panel.visible = false
 	activities_panel.visible = false
 	timeline_panel.visible = true
+	if pause_house_overlay != null:
+		pause_house_overlay.visible = true
 
 	# Pre-populate and build panels at startup so they render immediately with all buttons ready on first tap
 	update_assets_panel()
@@ -2625,6 +2627,8 @@ func show_tab(tab_name: String) -> void:
 	activities_panel.visible = tab_name == "activities"
 
 	var is_home: bool = (tab_name == "timeline")
+	if pause_house_overlay != null:
+		pause_house_overlay.visible = is_home
 	if action_bar != null:
 		action_bar.visible = is_home
 	if age_button != null:
